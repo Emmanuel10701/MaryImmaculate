@@ -232,10 +232,10 @@ export default function ModernFooter() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      whileHover={{ scale: 1.3, y: -5 }}
-                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ scale: 1.1, y: -5 }}
+                      whileTap={{ scale: 0.95 }}
                       className={`w-14 h-14 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/20 transition-all duration-300 ${social.bgColor} ${social.color}`}
-                      style={{ transform: 'scale(1.2)' }}
+                      style={{ transform: 'scale(1.01)' }}
                     >
                       <SocialIcon className="text-2xl" />
                     </motion.a>

@@ -1,6 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   FiUser, 
   FiLock, 
@@ -24,7 +25,7 @@ import {
   IoPeopleOutline
 } from 'react-icons/io5';
 
-export default function AdminLogin() {
+export default function AdminLogin() { // Added component function
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -33,6 +34,7 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const router = useRouter();
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -243,8 +245,7 @@ export default function AdminLogin() {
                           </motion.p>
                         )}
                       </div>
-                    </div>
-
+                    
                     {/* Remember Me & Forgot Password */}
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-3 text-white/60 text-base cursor-pointer">
@@ -260,9 +261,11 @@ export default function AdminLogin() {
                       <button
                         type="button"
                         className="text-blue-400 hover:text-blue-300 text-base transition-colors"
+                        onClick={() => router.push('/pages/forgotpassword')}
                       >
                         Forgot password?
                       </button>
+                    </div>
                     </div>
 
                     {/* Submit Button */}
@@ -308,7 +311,7 @@ export default function AdminLogin() {
               </div>
             </motion.div>
 
-            {/* Right Side - Features & Info - UNCHANGED */}
+            {/* Right Side - Features & Info */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -412,4 +415,4 @@ export default function AdminLogin() {
       </div>
     </div>
   );
-}
+} // Added closing brace for the component
