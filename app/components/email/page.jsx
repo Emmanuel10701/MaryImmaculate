@@ -15,6 +15,8 @@ import {
   FiMail,
   FiX,
   FiSave,
+  FiChevronLeft,
+  FiChevronRight,
   FiCalendar,
   FiUser
 } from 'react-icons/fi';

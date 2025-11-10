@@ -169,12 +169,24 @@ export default function AdminsProfileManager({ user }) {
   };
 
   const handleDeleteAdmin = (adminId) => {
-    if (adminId === user.id) {
+    if (adminId === user?.id) {
       setSnackbar({ open: true, message: 'You cannot delete your own account!', severity: 'error' });
       return;
     }
     setAdmins(admins.filter(admin => admin.id !== adminId));
     setSnackbar({ open: true, message: 'Admin deleted successfully!', severity: 'success' });
+  };
+  
+  const canModifyAdmin = (targetAdmin) => {
+    // defensive checks: if missing data, deny modifications
+    if (!targetAdmin) return false;
+    const targetRole = targetAdmin?.role || '';
+    const currentUserRole = user?.role || '';
+    // Only super_admin can modify other super_admins
+    if (targetRole === 'super_admin' && currentUserRole !== 'super_admin') {
+      return false;
+    }
+    return true;
   };
 
   const handleEditAdmin = (admin) => {
@@ -209,14 +221,6 @@ export default function AdminsProfileManager({ user }) {
       case 'moderator': return ['news', 'events', 'gallery'];
       default: return [];
     }
-  };
-
-  const canModifyAdmin = (targetAdmin) => {
-    // Only super_admin can modify other super_admins
-    if (targetAdmin.role === 'super_admin' && user.role !== 'super_admin') {
-      return false;
-    }
-    return true;
   };
 
   const handleUpdateAdmin = () => {
@@ -444,7 +448,7 @@ export default function AdminsProfileManager({ user }) {
                       <h3 className="font-semibold text-gray-800 mb-2">Account Status</h3>
                       <p className="text-green-600 font-bold text-lg mb-2">Active</p>
                       <p className="text-gray-600 text-sm">Last login: Today, 14:30</p>
-                      <p className="text-gray-600 text-sm mt-2">Role: {user.role.replace('_', ' ')}</p>
+                      <p className="text-gray-600 text-sm mt-2">Role: {user?.role ? user.role.replace('_', ' ') : 'N/A'}</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -608,7 +612,7 @@ export default function AdminsProfileManager({ user }) {
                       >
                         <MenuItem value="moderator">Moderator</MenuItem>
                         <MenuItem value="admin">Admin</MenuItem>
-                        {user.role === 'super_admin' && (
+                        {user?.role === 'super_admin' && (
                           <MenuItem value="super_admin">Super Admin</MenuItem>
                         )}
                       </Select>
@@ -734,7 +738,7 @@ export default function AdminsProfileManager({ user }) {
                 >
                   <MenuItem value="moderator">Moderator</MenuItem>
                   <MenuItem value="admin">Admin</MenuItem>
-                  {user.role === 'super_admin' && (
+                  {user?.role === 'super_admin' && (
                     <MenuItem value="super_admin">Super Admin</MenuItem>
                   )}
                 </Select>

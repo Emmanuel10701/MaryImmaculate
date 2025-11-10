@@ -27,11 +27,24 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+// Material-UI Components
+import { 
+  CircularProgress, 
+  Backdrop,
+  Box,
+  Typography,
+  Fade
+} from '@mui/material';
+
 export default function ModernHero() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [imagesLoaded, setImagesLoaded] = useState(0);
+  const [totalImages, setTotalImages] = useState(0);
   const videoRef = useRef(null);
+  const splashTimerRef = useRef(null);
   const router = useRouter();
 
   // YouTube video ID extracted from the URL
@@ -50,7 +63,7 @@ export default function ModernHero() {
     teacher2: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400",
     teacher3: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400",
     teacher4: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400",
-    graduation: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800",
+    graduation: "https://images.unsplash.com-1523050854058-8df90110c9f1?w=800",
     event1: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
     event2: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800",
     event3: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800"
@@ -188,34 +201,164 @@ export default function ModernHero() {
   ];
 
   useEffect(() => {
+    // Calculate total images to load
+    const allImages = [
+      ...Object.values(onlineImages),
+      ...stats.map(stat => stat.image),
+      ...features.map(feature => feature.image),
+      ...staffMembers.map(staff => staff.image),
+      ...upcomingEvents.map(event => event.image),
+      ...campusGallery.map(item => item.image)
+    ];
+    
+    const uniqueImages = [...new Set(allImages)];
+    setTotalImages(uniqueImages.length);
+
     const handleScroll = () => setIsScrolled(window.scrollY > 100);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    // fallback splash so loader never hangs — ~900ms branded splash
+    splashTimerRef.current = setTimeout(() => {
+      setIsLoading(false);
+    }, 900);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(splashTimerRef.current);
+    };
   }, []);
-
-  // Event handlers for navigation
-  const handleEventClick = () => {
-    router.push('/pages/eventsandnews');
+ 
+  useEffect(() => {
+    // If all assets loaded earlier than the splash fallback, hide loader immediately
+    if (totalImages > 0 && imagesLoaded >= totalImages) {
+      setIsLoading(false);
+      clearTimeout(splashTimerRef.current);
+    }
+  }, [imagesLoaded, totalImages]);
+ 
+  const handleImageLoad = () => {
+    setImagesLoaded(prev => prev + 1);
   };
+ 
+  // disable page scroll while loading
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (isLoading) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isLoading]);
 
-  const handleStaffClick = () => {
-    router.push('/pages/staff');
-  };
+  // Loading Component (overlay)
+   const LoadingScreen = () => (
+     <Fade in={isLoading} timeout={800}>
+       <Backdrop
+         sx={{
+           backgroundColor: 'rgba(15, 23, 42, 0.95)',
+           backdropFilter: 'blur(10px)',
+           zIndex: 9999,
+           display: 'flex',
+           flexDirection: 'column',
+           alignItems: 'center',
+           justifyContent: 'center',
+         }}
+         open={isLoading}
+       >
+         <motion.div
+           initial={{ scale: 0.8, opacity: 0 }}
+           animate={{ scale: 1, opacity: 1 }}
+           transition={{ duration: 0.5 }}
+           className="text-center"
+         >
+           {/* Animated Logo/Icon */}
+           <motion.div
+             animate={{ 
+               rotate: 360,
+               scale: [1, 1.1, 1]
+             }}
+             transition={{ 
+               rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+               scale: { duration: 1.5, repeat: Infinity }
+             }}
+             className="mb-8"
+           >
+             <GiGraduateCap className="text-6xl text-blue-400 mx-auto" />
+           </motion.div>
+ 
+           {/* Indeterminate spinner (no percentage) */}
+           <Box sx={{ display: 'inline-flex', mb: 3 }}>
+             <CircularProgress
+               size={80}
+               thickness={4}
+               sx={{
+                 color: 'primary.main',
+                 '& .MuiCircularProgress-circle': {
+                   strokeLinecap: 'round',
+                 }
+               }}
+             />
+           </Box>
+ 
+           {/* Loading Text */}
+           <motion.div
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ delay: 0.3 }}
+           >
+             <Typography 
+               variant="h6" 
+               className="text-white mb-2 font-semibold"
+             >
+               Preparing Your Journey
+             </Typography>
+             <Typography 
+               variant="body2" 
+               className="text-blue-200"
+             >
+               Loading katz Wewbpage...
+             </Typography>
+           </motion.div>
+ 
+           {/* Animated Dots */}
+           <motion.div className="flex justify-center mt-4 space-x-1">
+             {[0, 1, 2].map((index) => (
+               <motion.div
+                 key={index}
+                 animate={{ 
+                   y: [0, -10, 0],
+                   opacity: [0.5, 1, 0.5]
+                 }}
+                 transition={{ 
+                   duration: 1.5,
+                   repeat: Infinity,
+                   delay: index * 0.2
+                 }}
+                 className="w-2 h-2 bg-blue-400 rounded-full"
+               />
+             ))}
+           </motion.div>
+         </motion.div>
+       </Backdrop>
+     </Fade>
+   );
 
-  const handleAcademicsClick = () => {
-    router.push('/pages/academics');
-  };
-
-  const handleWatchTour = () => {
-    setShowVideoModal(true);
-  };
-
-  const closeVideoModal = () => {
-    setShowVideoModal(false);
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+   // Navigation / UI handlers (single definitions)
+   const handleAcademicsClick = () => {
+     router.push('/pages/academics');
+   };
+   const handleWatchTour = () => setShowVideoModal(true);
+   const closeVideoModal = () => setShowVideoModal(false);
+   const handleEventClick = () => router.push('/pages/eventsandnews'); // fixed typo
+   const handleStaffClick = () => router.push('/pages/staff');
+ 
+ // Main content rendering
+   return (
+     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+      {/* Loading Screen overlay */}
+      <LoadingScreen />
+ 
       {/* Simplified Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
@@ -229,6 +372,7 @@ export default function ModernHero() {
             fill
             className="object-cover opacity-20"
             priority
+            onLoad={handleImageLoad}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-purple-900/80 to-slate-900/90"></div>
@@ -243,7 +387,7 @@ export default function ModernHero() {
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.3 }} 
               className="text-white"
             >
               <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 mb-6 border border-white/20">
@@ -291,7 +435,7 @@ export default function ModernHero() {
                     key={stat.label}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: index * 0.1, duration: 0.3 }} 
                     className="text-center group cursor-pointer"
                   >
                     <div className="relative overflow-hidden rounded-2xl mb-3 h-20">
@@ -300,6 +444,7 @@ export default function ModernHero() {
                         alt={stat.label}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-200"
+                        onLoad={handleImageLoad}
                         sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 200px"
                       />
                       <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
@@ -322,7 +467,7 @@ export default function ModernHero() {
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
               className="relative"
             >
               {/* Main Showcase Card */}
@@ -334,6 +479,7 @@ export default function ModernHero() {
                     alt={features[currentSlide].title}
                     fill
                     className="object-cover"
+                    onLoad={handleImageLoad}
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
@@ -360,6 +506,7 @@ export default function ModernHero() {
                     <motion.div
                       key={feature.title}
                       whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.1)' }}
+                      transition={{ duration: 0.2 }} 
                       className="p-4 rounded-xl border border-white/10 cursor-pointer group"
                       onClick={() => setCurrentSlide(index)}
                     >
@@ -385,6 +532,7 @@ export default function ModernHero() {
                       <motion.div
                         key={item.title}
                         whileHover={{ x: 5 }}
+                        transition={{ duration: 0.2 }} 
                         onClick={handleEventClick}
                         className="flex items-center gap-3 text-white/80 hover:text-white cursor-pointer group"
                       >
@@ -399,10 +547,10 @@ export default function ModernHero() {
                 </div>
               </div>
 
-              {/* Floating Elements - Removed Scholarships */}
+              {/* Floating Elements */}
               <motion.div
                 animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
+                transition={{ duration: 2, repeat: Infinity }} 
                 className="absolute -top-4 -right-4 bg-gradient-to-r from-green-400 to-blue-500 p-4 rounded-2xl shadow-2xl"
               >
                 <div className="text-white text-center">
@@ -418,7 +566,7 @@ export default function ModernHero() {
         {/* Scroll Indicator */}
         <motion.div
           animate={{ y: [0, 5, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          transition={{ duration: 1.5, repeat: Infinity }} 
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
         >
           <div className="text-white/60 flex flex-col items-center gap-2">
@@ -434,7 +582,7 @@ export default function ModernHero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }} 
             className="text-center mb-16"
           >
             <h2 className="text-4xl font-bold text-white mb-4">Upcoming Events</h2>
@@ -447,29 +595,30 @@ export default function ModernHero() {
                 key={event.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
+                transition={{ delay: index * 0.1, duration: 0.3 }} 
                 whileHover={{ y: -5 }}
                 onClick={handleEventClick}
                 className="bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 overflow-hidden group cursor-pointer"
               >
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={event.image}
-                    alt={event.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      event.category === 'Academic' ? 'bg-blue-500/80' :
-                      event.category === 'Cultural' ? 'bg-purple-500/80' :
-                      'bg-green-500/80'
-                    } text-white backdrop-blur-sm`}>
-                      {event.category}
-                    </span>
-                  </div>
-                </div>
+               <div className="relative h-48 overflow-hidden">
+                 <Image
+                   src={event.image}
+                   alt={event.title}
+                   fill
+                   className="object-cover group-hover:scale-105 transition-transform duration-300"
+                   onLoad={handleImageLoad}
+                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                 />
+                 <div className="absolute top-4 right-4">
+                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                     event.category === 'Academic' ? 'bg-blue-500/80' :
+                     event.category === 'Cultural' ? 'bg-purple-500/80' :
+                     'bg-green-500/80'
+                   } text-white backdrop-blur-sm`}>
+                     {event.category}
+                   </span>
+                 </div>
+               </div>
                 
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-white mb-3">{event.title}</h3>
@@ -490,6 +639,7 @@ export default function ModernHero() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      transition={{ duration: 0.2 }}
                       className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-xl font-semibold text-sm"
                     >
                       {event.registration ? 'Register Now' : 'Learn More'}
@@ -511,7 +661,7 @@ export default function ModernHero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }} 
             className="text-center mb-16"
           >
             <h2 className="text-4xl font-bold text-white mb-4">Meet Our Faculty</h2>
@@ -524,20 +674,21 @@ export default function ModernHero() {
                 key={staff.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
+                transition={{ delay: index * 0.1, duration: 0.3 }}
                 whileHover={{ y: -5 }}
                 onClick={handleStaffClick}
                 className="bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 p-6 text-center group cursor-pointer"
               >
-                <div className="relative w-32 h-32 mx-auto mb-6 rounded-2xl overflow-hidden">
-                  <Image
-                    src={staff.image}
-                    alt={staff.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  />
-                </div>
+               <div className="relative w-32 h-32 mx-auto mb-6 rounded-2xl overflow-hidden">
+                 <Image
+                   src={staff.image}
+                   alt={staff.name}
+                   fill
+                   className="object-cover group-hover:scale-105 transition-transform duration-300"
+                   onLoad={handleImageLoad}
+                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                 />
+               </div>
                 
                 <h3 className="text-xl font-bold text-white mb-2">{staff.name}</h3>
                 <p className="text-blue-300 font-semibold mb-1">{staff.role}</p>
@@ -556,6 +707,7 @@ export default function ModernHero() {
                 <motion.a
                   href={`mailto:${staff.email}`}
                   whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.2 }} 
                   className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl text-sm transition-colors"
                 >
                   <FiMail className="text-lg" />
@@ -569,11 +721,13 @@ export default function ModernHero() {
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.3 }} 
             className="text-center mt-12"
           >
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }} 
               onClick={handleStaffClick}
               className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg"
             >
@@ -589,7 +743,7 @@ export default function ModernHero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }} 
             className="text-center mb-16"
           >
             <h2 className="text-4xl font-bold text-white mb-4">Our Schools</h2>
@@ -602,28 +756,29 @@ export default function ModernHero() {
                 key={item.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
+                transition={{ delay: index * 0.1, duration: 0.3 }} 
                 whileHover={{ y: -5 }}
                 onClick={handleAcademicsClick}
                 className="group cursor-pointer"
               >
-                <div className="relative h-64 rounded-2xl overflow-hidden mb-4">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <h3 className="font-semibold text-lg">{item.title}</h3>
-                    <p className="text-sm opacity-90">{item.description}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+               <div className="relative h-64 rounded-2xl overflow-hidden mb-4">
+                 <Image
+                   src={item.image}
+                   alt={item.title}
+                   fill
+                   className="object-cover group-hover:scale-105 transition-transform duration-300"
+                   onLoad={handleImageLoad}
+                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                 />
+                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+                 <div className="absolute bottom-4 left-4 text-white">
+                   <h3 className="font-semibold text-lg">{item.title}</h3>
+                   <p className="text-sm opacity-90">{item.description}</p>
+                 </div>
+               </div>
+             </motion.div>
+           ))}
+         </div>
         </div>
       </section>
 
@@ -632,12 +787,14 @@ export default function ModernHero() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }} 
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           onClick={closeVideoModal}
         >
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }} 
             className="relative bg-black rounded-2xl overflow-hidden max-w-4xl w-full aspect-video"
             onClick={(e) => e.stopPropagation()}
           >

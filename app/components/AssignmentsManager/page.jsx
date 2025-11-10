@@ -32,6 +32,10 @@ export default function AssignmentsManager() {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewAssignment, setViewAssignment] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [assignmentToDelete, setAssignmentToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
   const [formData, setFormData] = useState({
@@ -79,6 +83,15 @@ export default function AssignmentsManager() {
     setFilteredAssignments(sampleAssignments);
   }, []);
 
+  // deterministic date formatter (DD/MM/YYYY)
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return dateStr;
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+  };
+  
   // CRUD Operations
   const handleCreate = () => {
     setFormData({
@@ -120,10 +133,24 @@ export default function AssignmentsManager() {
     setShowModal(true);
   };
 
+  // show confirmation instead of immediate delete
   const handleDelete = (id) => {
-    if (confirm('Are you sure you want to delete this assignment?')) {
-      setAssignments(assignments.filter(assignment => assignment.id !== id));
-    }
+    const toDelete = assignments.find(a => a.id === id);
+    setAssignmentToDelete(toDelete || { id });
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    if (!assignmentToDelete) return;
+    setAssignments(prev => prev.filter(a => a.id !== assignmentToDelete.id));
+    setFilteredAssignments(prev => prev.filter(a => a.id !== assignmentToDelete.id));
+    setShowDeleteConfirm(false);
+    setAssignmentToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setAssignmentToDelete(null);
   };
 
   const handleSubmit = (e) => {
@@ -489,6 +516,7 @@ export default function AssignmentsManager() {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
+                  onClick={() => handleView(assignment)}
                   className="p-2 lg:p-3 bg-green-50 hover:bg-green-100 text-green-600 rounded-xl transition-colors shadow-sm"
                   title="View Submissions"
                 >
@@ -753,6 +781,160 @@ export default function AssignmentsManager() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* View Assignment Modal */}
+      <AnimatePresence>
+        {showViewModal && viewAssignment && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            onClick={closeView}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Assignment Details
+                  </h2>
+                  <button
+                    onClick={closeView}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <FiX className="text-xl text-gray-600" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-500 text-sm font-semibold mb-1">Title</p>
+                    <p className="text-gray-800">{viewAssignment.title}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-semibold mb-1">Subject</p>
+                    <p className="text-gray-800">{viewAssignment.subject}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-semibold mb-1">Class</p>
+                    <p className="text-gray-800">{viewAssignment.class}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-semibold mb-1">Teacher</p>
+                    <p className="text-gray-800">{viewAssignment.teacher}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-semibold mb-1">Due Date</p>
+                    <p className="text-gray-800">{formatDate(viewAssignment.dueDate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-semibold mb-1">Points</p>
+                    <p className="text-gray-800">{viewAssignment.points}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-semibold mb-1">Priority</p>
+                    <p className="text-gray-800">{viewAssignment.priority}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-semibold mb-1">Status</p>
+                    <p className="text-gray-800">{viewAssignment.status}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-gray-500 text-sm font-semibold mb-1">Description</p>
+                  <p className="text-gray-800 leading-relaxed">{viewAssignment.description}</p>
+                </div>
+
+                <div>
+                  <p className="text-gray-500 text-sm font-semibold mb-1">Instructions</p>
+                  <p className="text-gray-800 leading-relaxed">{viewAssignment.instructions}</p>
+                </div>
+
+                <div>
+                  <p className="text-gray-500 text-sm font-semibold mb-1">Learning Objectives</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {viewAssignment.learningObjectives.map((objective, index) => (
+                      <li key={index} className="text-gray-800">
+                        {objective}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {viewAssignment.attachments.length > 0 && (
+                  <div>
+                    <p className="text-gray-500 text-sm font-semibold mb-1">Attachments</p>
+                    <div className="flex flex-wrap gap-2">
+                      {viewAssignment.attachments.map((file, index) => (
+                        <a
+                          key={index}
+                          href={file}
+                          className="text-blue-600 hover:underline"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {file.split('/').pop()}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            onClick={cancelDelete}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Confirm Deletion
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete this assignment? This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={cancelDelete}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-semibold transition-colors"
+                >
+                  Delete Assignment
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

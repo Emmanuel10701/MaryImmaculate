@@ -16,11 +16,13 @@ import {
   FiFileText
 } from 'react-icons/fi';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import logo from '../../../images/logo.jpg'; 
 
 export default function ModernNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,6 +79,14 @@ export default function ModernNavbar() {
       icon: FiMail 
     }
   ];
+
+  // Function to check if a link is active (JSX - no TypeScript types)
+  const isActiveLink = (href) => {
+    if (href === '/') {
+      return pathname === '/';
+    }
+    return pathname && pathname.startsWith(href);
+  };
 
   const mobileMenuVariants = {
     closed: {
@@ -137,17 +147,24 @@ export default function ModernNavbar() {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-8">
-              {navigation.map((item) => (
-                <motion.a
-                  key={item.name}
-                  href={item.href}
-                  whileHover={{ y: -2 }}
-                  className="flex items-center gap-2 font-semibold text-gray-700 hover:text-blue-600 transition-colors text-base"
-                >
-                  <item.icon className="text-lg" />
-                  {item.name}
-                </motion.a>
-              ))}
+              {navigation.map((item) => {
+                const isActive = isActiveLink(item.href);
+                return (
+                  <motion.a
+                    key={item.name}
+                    href={item.href}
+                    whileHover={{ y: -2 }}
+                    className={`flex items-center gap-2 font-semibold transition-colors text-base ${
+                      isActive 
+                        ? 'text-blue-600' 
+                        : 'text-gray-700 hover:text-blue-600'
+                    }`}
+                  >
+                    <item.icon className="text-lg" />
+                    {item.name}
+                  </motion.a>
+                );
+              })}
             </div>
 
             {/* Desktop Actions */}
@@ -155,7 +172,11 @@ export default function ModernNavbar() {
               <motion.a
                 href="/pages/login"
                 whileHover={{ y: -2 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-blue-600 hover:bg-blue-50 border border-blue-200 transition-colors"
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold border transition-colors ${
+                  isActiveLink('/pages/login')
+                    ? 'text-blue-600 bg-blue-50 border-blue-200'
+                    : 'text-blue-600 hover:bg-blue-50 border-blue-200'
+                }`}
               >
                 <FiLogIn className="text-lg" />
                 Login
@@ -186,24 +207,35 @@ export default function ModernNavbar() {
               <div className="container mx-auto px-4 py-6">
                 {/* Mobile Navigation */}
                 <div className="space-y-2">
-                  {navigation.map((item) => (
-                    <a
-                      key={item.name}
-                      href={item.href}
-                      className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all font-semibold text-base"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <item.icon className="text-xl" />
-                      {item.name}
-                    </a>
-                  ))}
+                  {navigation.map((item) => {
+                    const isActive = isActiveLink(item.href);
+                    return (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-base ${
+                          isActive
+                            ? 'bg-blue-50 text-blue-600'
+                            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                        }`}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <item.icon className="text-xl" />
+                        {item.name}
+                      </a>
+                    );
+                  })}
                 </div>
 
                 {/* Mobile Actions */}
                 <div className="mt-6 pt-6 border-t border-gray-200/50">
                   <a
                     href="/pages/login"
-                    className="flex items-center gap-2 px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl transition-all font-semibold text-base border border-blue-200"
+                    className={`flex items-center gap-2 px-4 py-3 rounded-xl transition-all font-semibold text-base border ${
+                      isActiveLink('/pages/login')
+                        ? 'bg-blue-100 text-blue-600 border-blue-300'
+                        : 'bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200'
+                    }`}
                     onClick={() => setIsOpen(false)}
                   >
                     <FiLogIn className="text-lg" />
