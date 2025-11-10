@@ -13,17 +13,18 @@ import {
   FiArrowLeft,
   FiGlobe,
   FiLinkedin,
-  FiTwitter
+  FiTwitter,
+  FiUsers,
+  FiBook
 } from 'react-icons/fi';
-import { 
-  IoSchoolOutline,
-  IoBusinessOutline,
-  IoPeopleOutline,
-  IoRibbonOutline
-} from 'react-icons/io5';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+
+// Simple icon fallbacks
+const IoSchoolOutline = FiBook;
+const IoPeopleOutline = FiUsers;
+const IoRibbonOutline = FiAward;
 
 // Sample data - in real app, this would come from API/database
 const profileDatabase = {
@@ -134,23 +135,6 @@ const profileDatabase = {
       'Staff supervision and development',
       'Strategic planning and implementation'
     ]
-  },
-  'sarah-chen': {
-    id: 'sarah-chen',
-    name: 'DR. SARAH CHEN',
-    type: 'teacher',
-    position: 'Head of Science Department',
-    department: 'Science Department',
-    yearsOfService: 12,
-    email: 'sciences@katwanyaa.ac.ke',
-    bio: 'Passionate science educator with expertise in innovative teaching methodologies. Committed to inspiring the next generation of scientists and innovators through hands-on learning and research.',
-    image: "https://images.unsplash.com/photo-1551836026-d5c088a2d16b?w=400",
-    expertise: ['Physics & Chemistry', 'Research Methodology', 'STEM Education', 'Laboratory Management'],
-    achievements: [
-      'National Science Fair Winners Mentor 2022, 2023',
-      'Innovative Lab Equipment Setup',
-      'STEM Education Excellence Award 2021'
-    ]
   }
 };
 
@@ -160,11 +144,12 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    if (params.id) {
-      const profileData = profileDatabase[params.id];
-      setProfile(profileData);
+    if (params?.id) {
+      const profileId = Array.isArray(params.id) ? params.id[0] : params.id;
+      const profileData = profileDatabase[profileId];
+      setProfile(profileData || null);
     }
-  }, [params.id]);
+  }, [params?.id]);
 
   if (!profile) {
     return (
@@ -172,6 +157,9 @@ export default function ProfilePage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile...</p>
+          {params?.id && (
+            <p className="text-gray-500 text-sm mt-2">Profile ID: {params.id}</p>
+          )}
         </div>
       </div>
     );
@@ -235,6 +223,7 @@ export default function ProfilePage() {
                     width={128}
                     height={128}
                     className="w-full h-full object-cover"
+                    priority
                   />
                 </div>
               ) : (
@@ -425,7 +414,7 @@ export default function ProfilePage() {
                   {profile.type === 'alumni' ? 'Achievements & Awards' : 'Professional Contributions'}
                 </h2>
                 <div className="grid md:grid-cols-2 gap-6">
-                  {profile.achievements.map((achievement, index) => (
+                  {(profile.achievements || []).map((achievement, index) => (
                     <div
                       key={index}
                       className="flex items-start gap-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200"
