@@ -4,7 +4,7 @@ import path from "path";
 import fs from "fs";
 import { writeFile, unlink } from "fs/promises";
 
-// Helpers
+// Helpers (same as your working POST API)
 const ensureUploadDir = (uploadDir) => {
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -35,6 +35,7 @@ const deleteOldFiles = async (filePaths) => {
       const fullPath = path.join(process.cwd(), 'public', filePath);
       if (fs.existsSync(fullPath)) {
         await unlink(fullPath);
+        console.log(`✅ Deleted file: ${filePath}`);
       }
     } catch (error) {
       console.error(`❌ Error deleting file ${filePath}:`, error);
@@ -123,7 +124,7 @@ export async function PUT(request, { params }) {
 
     for (const field of textFields) {
       const value = formData.get(field);
-      if (value !== null) {
+      if (value !== null && value !== '') {
         updateData[field] = value;
       }
     }
@@ -136,7 +137,7 @@ export async function PUT(request, { params }) {
 
     // Handle learning objectives
     const learningObjectives = formData.get('learningObjectives');
-    if (learningObjectives) {
+    if (learningObjectives && learningObjectives !== '') {
       try {
         updateData.learningObjectives = JSON.parse(learningObjectives);
       } catch (error) {
@@ -147,6 +148,8 @@ export async function PUT(request, { params }) {
     // Handle file uploads - assignmentFiles
     const newAssignmentFiles = formData.getAll("assignmentFiles");
     if (newAssignmentFiles.length > 0 && newAssignmentFiles[0].name) {
+      console.log(`📁 Uploading ${newAssignmentFiles.length} new assignment files`);
+      
       // Delete old assignment files if they exist
       if (existingAssignment.assignmentFiles && Array.isArray(existingAssignment.assignmentFiles)) {
         await deleteOldFiles(existingAssignment.assignmentFiles);
@@ -155,11 +158,14 @@ export async function PUT(request, { params }) {
       // Upload new files
       const uploadedFiles = await uploadFiles(newAssignmentFiles, uploadDir);
       updateData.assignmentFiles = uploadedFiles;
+      console.log(`✅ Uploaded assignment files:`, uploadedFiles);
     }
 
     // Handle file uploads - attachments
     const newAttachments = formData.getAll("attachments");
     if (newAttachments.length > 0 && newAttachments[0].name) {
+      console.log(`📁 Uploading ${newAttachments.length} new attachments`);
+      
       // Delete old attachments if they exist
       if (existingAssignment.attachments && Array.isArray(existingAssignment.attachments)) {
         await deleteOldFiles(existingAssignment.attachments);
@@ -168,6 +174,7 @@ export async function PUT(request, { params }) {
       // Upload new files
       const uploadedAttachments = await uploadFiles(newAttachments, uploadDir);
       updateData.attachments = uploadedAttachments;
+      console.log(`✅ Uploaded attachments:`, uploadedAttachments);
     }
 
     // Handle file removal flags
@@ -175,6 +182,7 @@ export async function PUT(request, { params }) {
     const removeAttachments = formData.get("removeAttachments");
 
     if (removeAssignmentFiles === "true") {
+      console.log("🗑️ Removing assignment files");
       // Delete old assignment files
       if (existingAssignment.assignmentFiles && Array.isArray(existingAssignment.assignmentFiles)) {
         await deleteOldFiles(existingAssignment.assignmentFiles);
@@ -183,12 +191,15 @@ export async function PUT(request, { params }) {
     }
 
     if (removeAttachments === "true") {
+      console.log("🗑️ Removing attachments");
       // Delete old attachments
       if (existingAssignment.attachments && Array.isArray(existingAssignment.attachments)) {
         await deleteOldFiles(existingAssignment.attachments);
       }
       updateData.attachments = [];
     }
+
+    console.log("📝 Update data:", updateData);
 
     const assignment = await prisma.assignment.update({
       where: { id: assignmentId },

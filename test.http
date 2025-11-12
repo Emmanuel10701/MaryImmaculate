@@ -1,5 +1,5 @@
 ### Environment Variables
-@baseUrl = http://localhost:3000/api
+@baseUrl = http://172.18.113.79:3000/api
 @contentType = application/json
 @multipartContentType = multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
@@ -84,300 +84,105 @@ Content-Type: application/pdf
 
 < ./test-files/sample.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+### 🎯 UPDATE ASSIGNMENT WITH FILE UPLOADS
 
-### 2. Create English Assignment
-POST {{baseUrl}}/assignments
-Content-Type: {{multipartContentType}}
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-English Composition - Argumentative Essay
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="subject"
-
-English
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="className"
-
-Form 2
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="teacher"
-
-Mrs. Elizabeth Muthoni
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="dueDate"
-
-2024-03-18T23:59:00
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="dateAssigned"
-
-2024-03-05T00:00:00
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="status"
-
-assigned
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Write a 500-word composition on "The Importance of Education" with proper grammar and structure. Develop a clear thesis statement and support it with relevant examples.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="instructions"
-
-Use formal academic language and include at least three supporting arguments. Include an introduction, three body paragraphs, and a conclusion.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="priority"
-
-medium
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="estimatedTime"
-
-1.5 hours
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="teacherRemarks"
-
-Pay attention to paragraph structure and thesis statement development. Focus on transitional phrases between paragraphs.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="learningObjectives"
-
-["Develop a clear thesis statement", "Structure an argumentative essay", "Use persuasive language effectively", "Incorporate evidence to support arguments"]
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 3. Create Biology Assignment
-POST {{baseUrl}}/assignments
-Content-Type: {{multipartContentType}}
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Biology Practical Report - Plant Cell Structure
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="subject"
-
-Biology
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="className"
-
-Form 3
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="teacher"
-
-Mr. Peter Kamau
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="dueDate"
-
-2024-03-25T23:59:00
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="dateAssigned"
-
-2024-03-12T00:00:00
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="status"
-
-assigned
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Write a detailed report on the plant cell structure practical with labeled diagrams. Include observations from microscope work and analysis of cell components.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="priority"
-
-high
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="estimatedTime"
-
-3 hours
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="learningObjectives"
-
-["Identify plant cell organelles", "Use microscope techniques effectively", "Create accurate biological drawings", "Write scientific reports following proper format"]
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 4. Get All Assignments (No Filters)
-GET {{baseUrl}}/assignments
-Content-Type: {{contentType}}
-
-### 5. Get Assignments with Class Filter
-GET {{baseUrl}}/assignments?class=Form 1
-Content-Type: {{contentType}}
-
-### 6. Get Assignments with Subject Filter
-GET {{baseUrl}}/assignments?subject=Mathematics
-Content-Type: {{contentType}}
-
-### 7. Get Assignments with Status Filter
-GET {{baseUrl}}/assignments?status=assigned
-Content-Type: {{contentType}}
-
-### 8. Get Assignments with Multiple Filters
-GET {{baseUrl}}/assignments?class=Form 1&subject=Mathematics&status=assigned
-Content-Type: {{contentType}}
-
-### 9. Get Assignments with Search
-GET {{baseUrl}}/assignments?search=algebra
-Content-Type: {{contentType}}
-
-### 10. Get Assignments with Pagination
-GET {{baseUrl}}/assignments?page=1&limit=5
-Content-Type: {{contentType}}
-
-### 11. Get Single Assignment by ID
-GET {{baseUrl}}/assignments/1
-Content-Type: {{contentType}}
-
-### 12. Update Assignment
+### 44. Update Assignment with New Files
 PUT {{baseUrl}}/assignments/1
-Content-Type: {{contentType}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryUpdateFiles
 
-{
-  "title": "Mathematics Assignment - Advanced Algebra",
-  "description": "Updated description with more detailed instructions for quadratic equations and simultaneous equations.",
-  "priority": "urgent",
-  "estimatedTime": "3 hours",
-  "additionalWork": "Mandatory: Complete all bonus problems for full credit."
-}
-
-### 13. Update Assignment Status to Reviewed
-PATCH {{baseUrl}}/assignments/1/status
-Content-Type: {{contentType}}
-
-{
-  "status": "reviewed",
-  "feedback": "Excellent work! Great structure and clear calculations. Your solutions show strong understanding of algebraic concepts.",
-  "grade": "A"
-}
-
-### 14. Update Assignment Status to Extended
-PATCH {{baseUrl}}/assignments/3/status
-Content-Type: {{contentType}}
-
-{
-  "status": "extended",
-  "teacherRemarks": "EXTENDED DEADLINE: New due date is 2024-03-28. Use the extra time to include more detailed microscope observations."
-}
-
-### 15. Delete Assignment
-DELETE {{baseUrl}}/assignments/5
-Content-Type: {{contentType}}
-
-### 🚨 ERROR TESTING
-
-### 16. Create Assignment with Missing Required Fields
-POST {{baseUrl}}/assignments
-Content-Type: {{multipartContentType}}
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+------WebKitFormBoundaryUpdateFiles
 Content-Disposition: form-data; name="title"
 
-Test Assignment
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Mathematics Assignment - Updated with New Files
+------WebKitFormBoundaryUpdateFiles
 Content-Disposition: form-data; name="description"
 
-This should fail due to missing required fields.
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 17. Get Non-Existent Assignment
-GET {{baseUrl}}/assignments/999
-Content-Type: {{contentType}}
-
-### 18. Update Non-Existent Assignment
-PUT {{baseUrl}}/assignments/999
-Content-Type: {{contentType}}
-
-{
-  "title": "This should fail"
-}
-
-### 19. Delete Non-Existent Assignment
-DELETE {{baseUrl}}/assignments/999
-Content-Type: {{contentType}}
-
-### 20. Update Status with Invalid Data
-PATCH {{baseUrl}}/assignments/1/status
-Content-Type: {{contentType}}
-
-{
-  "invalidField": "This should fail"
-}
-
-### 📊 BULK OPERATIONS TESTING
-
-### 21. Create Multiple Assignments for Testing Filters
-POST {{baseUrl}}/assignments
-Content-Type: {{multipartContentType}}
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Physics Calculations - Mechanics
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="subject"
-
-Physics
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="className"
-
-Form 4
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="teacher"
-
-Dr. Sarah Chen
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="dueDate"
-
-2024-03-22T23:59:00
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="status"
-
-extended
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Solve mechanics problems from chapter 3 including motion and forces calculations. Apply Newton's laws to various scenarios.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+This assignment has been updated with additional practice problems and new file attachments for better learning experience.
+------WebKitFormBoundaryUpdateFiles
 Content-Disposition: form-data; name="priority"
 
 urgent
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+------WebKitFormBoundaryUpdateFiles
+Content-Disposition: form-data; name="assignmentFiles"; filename="advanced_problems.pdf"
+Content-Type: application/pdf
 
-### 22. Create Chemistry Assignment
-POST {{baseUrl}}/assignments
-Content-Type: {{multipartContentType}}
+< ./test-files/sample.pdf
+------WebKitFormBoundaryUpdateFiles
+Content-Disposition: form-data; name="attachments"; filename="solution_guide.pdf"
+Content-Type: application/pdf
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+< ./test-files/sample.pdf
+------WebKitFormBoundaryUpdateFiles--
+
+### 45. Update Assignment and Remove All Files
+PUT {{baseUrl}}/assignments/1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryRemoveFiles
+
+------WebKitFormBoundaryRemoveFiles
 Content-Disposition: form-data; name="title"
 
-Chemistry Lab Report - Chemical Reactions
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="subject"
-
-Chemistry
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="className"
-
-Form 4
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="teacher"
-
-Dr. Sarah Chen
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="dueDate"
-
-2024-03-28T23:59:00
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="status"
-
-assigned
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+Mathematics Assignment - Files Removed
+------WebKitFormBoundaryRemoveFiles
 Content-Disposition: form-data; name="description"
 
-Document chemical reactions and their practical applications with safety precautions. Include observations and balanced chemical equations.
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="priority"
+Updated assignment with all old files removed and new instructions.
+------WebKitFormBoundaryRemoveFiles
+Content-Disposition: form-data; name="removeAssignmentFiles"
 
-high
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+true
+------WebKitFormBoundaryRemoveFiles
+Content-Disposition: form-data; name="removeAttachments"
 
-### 23. Create History Assignment
-GET {{baseUrl}}/assignment
-Content-Type: {{multipartContentType}}
+true
+------WebKitFormBoundaryRemoveFiles--
+
+### 46. Update Assignment with Mixed Changes
+PUT {{baseUrl}}/assignment/2
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryMixed
+
+------WebKitFormBoundaryMixed
+Content-Disposition: form-data; name="title"
+
+Enhanced English  with Resources
+------WebKitFormBoundaryMixed
+Content-Disposition: form-data; name="instructions"
+
+Updated instructions: Include at least 5 references and use APA formatting. Submit both digital and printed copies by the new deadline.
+------WebKitFormBoundaryMixed
+Content-Disposition: form-data; name="estimatedTime"
+
+2 hours
+------WebKitFormBoundaryMixed
+Content-Disposition: form-data; name="assignmentFiles"; filename="writing_rubric.pdf"
+Content-Type: application/pdf
+
+< ./test-files/sample.pdf
+------WebKitFormBoundaryMixed
+Content-Disposition: form-data; name="removeAttachments"
+
+true
+------WebKitFormBoundaryMixed--
+
+### 47. Update Assignment with Learning Objectives
+PUT {{baseUrl}}/assignments/1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryLearning
+
+------WebKitFormBoundaryLearning
+Content-Disposition: form-data; name="title"
+
+Mathematics Assignment - Enhanced Learning Objectives
+------WebKitFormBoundaryLearning
+Content-Disposition: form-data; name="learningObjectives"
+
+["Solve complex quadratic equations", "Apply algebraic formulas correctly", "Analyze real-world mathematical problems", "Develop critical thinking skills"]
+------WebKitFormBoundaryLearning
+Content-Disposition: form-data; name="assignmentFiles"; filename="practice_worksheets.pdf"
+Content-Type: application/pdf
+
+< ./test-files/sample.pdf
+------WebKitFormBoundaryLearning--
+
+
+
+### 3. Get Assignment by ID
+DELETE  {{baseUrl}}/assignment/2
