@@ -186,3 +186,292 @@ Content-Type: application/pdf
 
 ### 3. Get Assignment by ID
 DELETE  {{baseUrl}}/assignment/2
+
+
+
+### Create a new counseling event
+POST {{baseUrl}}/guidance
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="counselor"
+
+Mr. Juma
+--boundary
+Content-Disposition: form-data; name="category"
+
+Drugs
+--boundary
+Content-Disposition: form-data; name="description"
+
+Student counseling session about peer pressure and drug awareness.
+--boundary
+Content-Disposition: form-data; name="notes"
+
+Discussed how to avoid bad influence and set personal goals.
+--boundary
+Content-Disposition: form-data; name="date"
+
+2025-11-12
+--boundary
+Content-Disposition: form-data; name="time"
+
+11:00 AM
+--boundary
+Content-Disposition: form-data; name="type"
+
+Counseling
+--boundary
+Content-Disposition: form-data; name="priority"
+
+High
+--boundary
+Content-Disposition: form-data; name="image"; filename="example.pdf"
+Content-Type: application/pdf
+
+< ./files/example.pdf
+--boundary--
+
+
+### Get all counseling events
+GET {{baseUrl}}/guidance
+
+### Get counseling event by ID
+GET {{baseUrl}}/guidance/1
+
+
+
+### ---------------- Guidance Event ----------------
+
+### Create a new guidance event
+POST {{baseUrl}}/guidance
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="counselor"
+
+Mr. Juma
+--boundary
+Content-Disposition: form-data; name="category"
+
+Groups
+--boundary
+Content-Disposition: form-data; name="description"
+
+Discussion about teamwork and leadership
+--boundary
+Content-Disposition: form-data; name="notes"
+
+Guided students on group dynamics and collaboration skills.
+--boundary
+Content-Disposition: form-data; name="date"
+
+2025-11-20
+--boundary
+Content-Disposition: form-data; name="time"
+
+10:00 AM
+--boundary
+Content-Disposition: form-data; name="type"
+
+Guidance
+--boundary
+Content-Disposition: form-data; name="priority"
+
+Medium
+--boundary
+Content-Disposition: form-data; name="image"; filename="group.jpg"
+Content-Type: image/jpeg
+
+< ./images/group.jpg
+--boundary--
+
+### Get all guidance events
+GET {{baseUrl}}/guidance
+
+### Get guidance event by ID
+GET {{baseUrl}}/guidance/3
+
+### Update guidance event
+PATCH {{baseUrl}}/guidance/1
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="description"
+
+Updated description for teamwork session
+--boundary
+Content-Disposition: form-data; name="priority"
+
+High
+--boundary--
+
+### Delete guidance event
+DELETE {{baseUrl}}/guidance/1
+
+### ---------------- Counseling Event ----------------
+
+### Create a new counseling event
+POST {{baseUrl}}/guidance
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="counselor"
+
+Mrs. Sarah Mwangi
+--boundary
+Content-Disposition: form-data; name="category"
+
+Relationship
+--boundary
+Content-Disposition: form-data; name="description"
+
+Advice on friendships and social skills
+--boundary
+Content-Disposition: form-data; name="notes"
+
+Discussed strategies to build healthy peer relationships.
+--boundary
+Content-Disposition: form-data; name="date"
+
+2025-11-21
+--boundary
+Content-Disposition: form-data; name="time"
+
+2:00 PM
+--boundary
+Content-Disposition: form-data; name="type"
+
+Counseling
+--boundary
+Content-Disposition: form-data; name="priority"
+
+High
+--boundary
+Content-Disposition: form-data; name="image"; filename="relationship.jpg"
+Content-Type: image/jpeg
+
+< ./images/relationship.jpg
+--boundary--
+
+### Get all counseling events
+GET {{baseUrl}}/guidance/3
+
+### Get counseling event by ID
+GET {{baseUrl}}/guidance/1
+
+### Update counseling event
+PATCH {{baseUrl}}/guidance/1
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="description"
+
+Updated advice on peer relationships
+--boundary
+Content-Disposition: form-data; name="priority"
+
+Medium
+--boundary--
+
+### Delete counseling event
+DELETE {{baseUrl}}/guidance/1
+
+### ---------------- Peer Support Event ----------------
+
+### Create a new peer support event
+PUT {{baseUrl}}/guidance/3
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="counselor"
+
+Student Council
+--boundary
+Content-Disposition: form-data; name="category"
+
+Worship
+--boundary
+Content-Disposition: form-data; name="description"
+
+Peer-led worship and discussion session
+--boundary
+Content-Disposition: form-data; name="notes"
+
+Encouraged spiritual growth and teamwork.
+--boundary
+Content-Disposition: form-data; name="date"
+
+2025-11-22
+--boundary
+Content-Disposition: form-data; name="time"
+
+6:00 PM
+--boundary
+Content-Disposition: form-data; name="type"
+
+PeerSupport
+--boundary
+Content-Disposition: form-data; name="priority"
+
+Low
+--boundary
+Content-Disposition: form-data; name="image"; filename="worship.jpg"
+Content-Type: image/jpeg
+
+< ./images/worship.jpg
+--boundary--
+
+### Get all peer support events
+DELETE  {{baseUrl}}/guidance/3
+
+### Get peer support event by ID
+GET {{baseUrl}}/peersupport/1
+
+### Update peer support event
+PATCH {{baseUrl}}/peersupport/1
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="description"
+
+Updated worship session details
+--boundary
+Content-Disposition: form-data; name="priority"
+
+Medium
+--boundary--
+
+### Delete peer support event
+DELETE {{baseUrl}}/peersupport/1
+
+
+
+
+
+### ---------------- Get single counseling event ----------------
+GET {{baseUrl}}/guidance/2
+Accept: application/json
+
+### ---------------- Update counseling event ----------------
+PATCH {{baseUrl}}/counseling/2
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="description"
+
+Updated advice on friendships and social skills with follow-up tips
+--boundary
+Content-Disposition: form-data; name="priority"
+
+Medium
+--boundary
+Content-Disposition: form-data; name="image"; filename="new-relationship.jpg"
+Content-Type: image/jpeg
+
+< ./images/new-relationship.jpg
+--boundary--
+
+### ---------------- Delete counseling event ----------------
+DELETE {{baseUrl}}/counseling/2
+Accept: application/json

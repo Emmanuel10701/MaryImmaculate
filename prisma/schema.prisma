@@ -95,3 +95,19 @@ model Assignment {
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
 }
+
+model CounselingEvent {
+  id            Int      @id @default(autoincrement())
+  counselor     String
+  category      String     // e.g. "Drugs", "Relationships", "Worship", "Discipline", "Academics", etc.
+  description   String
+  notes         String?
+  date          DateTime
+  time          String
+  type          String      // e.g. "Guidance", "Counseling", "Group Session"
+  priority      String      // e.g. "High", "Medium", "Low"
+  image         String?     // Optional attachment (photo, PDF, DOC)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
