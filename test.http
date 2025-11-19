@@ -1,155 +1,527 @@
-##########
-@baseUrl = http://0.0.0.0:3001/api/guidance
+@baseUrl = http://0.0.0.0:3001/api/news
 @contentType = application/json
 
-#############################################
-### 1) GET ALL EVENTS
-#############################################
+############################################################
+### GET ALL EVENTS
+############################################################
 GET {{baseUrl}}
 Content-Type: application/json
 
 ###
 
-#############################################
-### 2) CREATE COUNSELING EVENT — SAMPLE 1
-### Category: Drugs | Counselor: Mr. Kariuki
-#############################################
+############################################################
+### CREATE EVENTS — MULTIPLE SAMPLES
+############################################################
+
+### Event 1 — Career Guidance Day (With Image)
 POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----BOUNDARY1
+Content-Type: multipart/form-data; boundary=----EVENTBOUNDARY1
 
-------BOUNDARY1
-Content-Disposition: form-data; name="counselor"
+------EVENTBOUNDARY1
+Content-Disposition: form-data; name="title"
 
-Mr. Kariuki
-------BOUNDARY1
-Content-Disposition: form-data; name="category"
-
-Drugs
-------BOUNDARY1
-Content-Disposition: form-data; name="description"
-
-Student caught with substance abuse concerns—initial assessment.
-------BOUNDARY1
-Content-Disposition: form-data; name="notes"
-
-Requires urgent follow-up.
-------BOUNDARY1
-Content-Disposition: form-data; name="date"
-
-2025-01-15
-------BOUNDARY1
-Content-Disposition: form-data; name="time"
-
-10:30 AM
-------BOUNDARY1
-Content-Disposition: form-data; name="type"
-
-Counseling
-------BOUNDARY1
-Content-Disposition: form-data; name="priority"
-
-High
-------BOUNDARY1
-Content-Disposition: form-data; name="image"; filename="case1.jpg"
-Content-Type: image/jpeg
-
-< ./files/case1.jpg
-------BOUNDARY1--
-
-###
-
-#############################################
-### 3) CREATE COUNSELING EVENT — SAMPLE 2
-### Category: Relationships | Counselor: Ms. Wanjiku
-#############################################
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----BOUNDARY2
-
-------BOUNDARY2
-Content-Disposition: form-data; name="counselor"
-
-Ms. Wanjiku
-------BOUNDARY2
-Content-Disposition: form-data; name="category"
-
-Relationships
-------BOUNDARY2
-Content-Disposition: form-data; name="description"
-
-Conflict between two students needing mediation.
-------BOUNDARY2
-Content-Disposition: form-data; name="notes"
-
-Both students cooperative.
-------BOUNDARY2
-Content-Disposition: form-data; name="date"
-
-2025-01-18
-------BOUNDARY2
-Content-Disposition: form-data; name="time"
-
-02:00 PM
-------BOUNDARY2
-Content-Disposition: form-data; name="type"
-
-Guidance
-------BOUNDARY2
-Content-Disposition: form-data; name="priority"
-
-Medium
-------BOUNDARY2
-Content-Disposition: form-data; name="image"; filename="session2.png"
-Content-Type: image/png
-
-< ./files/session2.png
-------BOUNDARY2--
-
-###
-
-#############################################
-### 4) CREATE COUNSELING EVENT — SAMPLE 3
-### Category: Academics | Counselor: Emmanuel Makau
-#############################################
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----BOUNDARY3
-
-------BOUNDARY3
-Content-Disposition: form-data; name="counselor"
-
-Emmanuel Makau
-------BOUNDARY3
+Career Guidance Day
+------EVENTBOUNDARY1
 Content-Disposition: form-data; name="category"
 
 Academics
-------BOUNDARY3
+------EVENTBOUNDARY1
 Content-Disposition: form-data; name="description"
 
-Student struggling in mathematics—recommended weekly follow-up.
-------BOUNDARY3
-Content-Disposition: form-data; name="notes"
-
-Parent informed.
-------BOUNDARY3
+A school-wide academic career mentorship program with invited speakers.
+------EVENTBOUNDARY1
 Content-Disposition: form-data; name="date"
 
-2025-01-20
-------BOUNDARY3
+2025-02-10
+------EVENTBOUNDARY1
 Content-Disposition: form-data; name="time"
 
-11:45 AM
-------BOUNDARY3
+09:00 AM
+------EVENTBOUNDARY1
 Content-Disposition: form-data; name="type"
 
-Counseling
-------BOUNDARY3
-Content-Disposition: form-data; name="priority"
+Seminar
+------EVENTBOUNDARY1
+Content-Disposition: form-data; name="location"
 
-Low
-------BOUNDARY3
-Content-Disposition: form-data; name="image"; filename="math_help.pdf"
+Main Hall
+------EVENTBOUNDARY1
+Content-Disposition: form-data; name="featured"
+
+true
+------EVENTBOUNDARY1
+Content-Disposition: form-data; name="attendees"
+
+students
+------EVENTBOUNDARY1
+Content-Disposition: form-data; name="speaker"
+
+Prof. James Mwangi
+------EVENTBOUNDARY1
+Content-Disposition: form-data; name="image"; filename="careerday.jpg"
+Content-Type: image/jpeg
+
+< ./files/careerday.jpg
+------EVENTBOUNDARY1--
+
+###
+
+### Event 2 — Interclass Football Finals (No Image)
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----EVENTBOUNDARY2
+
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="title"
+
+Interclass Football Finals
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="category"
+
+Sports
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="description"
+
+The annual interclass football finals featuring top-performing teams.
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="date"
+
+2025-03-05
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="time"
+
+03:30 PM
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="type"
+
+Competition
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="location"
+
+School Playground
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="featured"
+
+false
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="attendees"
+
+students
+------EVENTBOUNDARY2
+Content-Disposition: form-data; name="speaker"
+
+Coach Kamau
+------EVENTBOUNDARY2--
+
+###
+
+### Event 3 — Staff Policy Training (PDF)
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----EVENTBOUNDARY3
+
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="title"
+
+Staff Policy Training
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="category"
+
+Administration
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="description"
+
+Mandatory staff meeting on new administrative policies and procedures.
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="date"
+
+2025-01-28
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="time"
+
+10:00 AM
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="type"
+
+Workshop
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="location"
+
+Conference Room B
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="featured"
+
+false
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="attendees"
+
+staff
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="speaker"
+
+Mrs. Atieno
+------EVENTBOUNDARY3
+Content-Disposition: form-data; name="image"; filename="policy.pdf"
 Content-Type: application/pdf
 
-< ./files/math_help.pdf
-------BOUNDARY3--
+< ./files/policy.pdf
+------EVENTBOUNDARY3--
+
+###
+
+### Event 4 — Music Festival
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----EVENTBOUNDARY4
+
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="title"
+
+Annual Music Festival
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="category"
+
+Music
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="description"
+
+School-wide music festival featuring student performances.
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="date"
+
+2025-04-12
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="time"
+
+02:00 PM
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="type"
+
+Festival
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="location"
+
+Auditorium
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="featured"
+
+true
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="attendees"
+
+students
+------EVENTBOUNDARY4
+Content-Disposition: form-data; name="speaker"
+
+Ms. Wanjiku
+------EVENTBOUNDARY4--
+
+###
+
+### Event 5 — Science Fair
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----EVENTBOUNDARY5
+
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="title"
+
+Annual Science Fair
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="category"
+
+Sciences
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="description"
+
+Showcase of student science projects and experiments.
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="date"
+
+2025-05-18
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="time"
+
+09:00 AM
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="type"
+
+Exhibition
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="location"
+
+Science Block
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="featured"
+
+true
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="attendees"
+
+students
+------EVENTBOUNDARY5
+Content-Disposition: form-data; name="speaker"
+
+Dr. Kimani
+------EVENTBOUNDARY5--
+
+###
+
+### Event 6 — Drama Club Performance
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----EVENTBOUNDARY6
+
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="title"
+
+Drama Club Performance
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="category"
+
+Drama
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="description"
+
+Evening performance by the school's drama club.
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="date"
+
+2025-06-01
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="time"
+
+06:00 PM
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="type"
+
+Performance
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="location"
+
+Auditorium
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="featured"
+
+false
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="attendees"
+
+students
+------EVENTBOUNDARY6
+Content-Disposition: form-data; name="speaker"
+
+Mr. Otieno
+------EVENTBOUNDARY6--
+
+###
+
+
+############################################################
+### GET ALL NEWS
+############################################################
+GET {{baseUrl}}
+Content-Type: application/json
+
+###
+
+############################################################
+### CREATE NEWS — MULTIPLE SAMPLES
+############################################################
+
+### News 1 — New Computer Lab Launched
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----NEWSBOUNDARY1
+
+------NEWSBOUNDARY1
+Content-Disposition: form-data; name="title"
+
+New Computer Lab Launched
+------NEWSBOUNDARY1
+Content-Disposition: form-data; name="excerpt"
+
+The school has unveiled a fully equipped modern computer lab.
+------NEWSBOUNDARY1
+Content-Disposition: form-data; name="fullContent"
+
+The new computer lab features 45 high-performance machines, high-speed internet, and a smart projector for enhanced digital learning.
+------NEWSBOUNDARY1
+Content-Disposition: form-data; name="date"
+
+2025-02-15
+------NEWSBOUNDARY1
+Content-Disposition: form-data; name="category"
+
+School Updates
+------NEWSBOUNDARY1
+Content-Disposition: form-data; name="author"
+
+ICT Department
+------NEWSBOUNDARY1
+Content-Disposition: form-data; name="image"; filename="lab.jpg"
+Content-Type: image/jpeg
+
+< ./files/lab.jpg
+------NEWSBOUNDARY1--
+
+###
+
+### News 2 — Top Students Awarded
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----NEWSBOUNDARY2
+
+------NEWSBOUNDARY2
+Content-Disposition: form-data; name="title"
+
+Top Students Awarded in Academic Ceremony
+------NEWSBOUNDARY2
+Content-Disposition: form-data; name="excerpt"
+
+Students who achieved top positions received awards.
+------NEWSBOUNDARY2
+Content-Disposition: form-data; name="fullContent"
+
+The academic ceremony recognized outstanding performance across all grades. The principal congratulated the awardees for their hard work.
+------NEWSBOUNDARY2
+Content-Disposition: form-data; name="date"
+
+2025-01-30
+------NEWSBOUNDARY2
+Content-Disposition: form-data; name="category"
+
+Academics
+------NEWSBOUNDARY2
+Content-Disposition: form-data; name="author"
+
+Academic Office
+------NEWSBOUNDARY2--
+
+###
+
+### News 3 — 2025 School Calendar
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----NEWSBOUNDARY3
+
+------NEWSBOUNDARY3
+Content-Disposition: form-data; name="title"
+
+2025 School Calendar Released
+------NEWSBOUNDARY3
+Content-Disposition: form-data; name="excerpt"
+
+The official school academic calendar for 2025 is now available.
+------NEWSBOUNDARY3
+Content-Disposition: form-data; name="fullContent"
+
+Parents and students can now download the official calendar outlining term dates, exam periods, and school events.
+------NEWSBOUNDARY3
+Content-Disposition: form-data; name="date"
+
+2025-01-10
+------NEWSBOUNDARY3
+Content-Disposition: form-data; name="category"
+
+Announcements
+------NEWSBOUNDARY3
+Content-Disposition: form-data; name="author"
+
+School Administration
+------NEWSBOUNDARY3
+Content-Disposition: form-data; name="image"; filename="schoolcalendar.pdf"
+Content-Type: application/pdf
+
+< ./files/schoolcalendar.pdf
+------NEWSBOUNDARY3--
+
+###
+
+### News 4 — Sports Achievements
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----NEWSBOUNDARY4
+
+------NEWSBOUNDARY4
+Content-Disposition: form-data; name="title"
+
+Student Sports Achievements
+------NEWSBOUNDARY4
+Content-Disposition: form-data; name="excerpt"
+
+Students excelled in national sports competitions.
+------NEWSBOUNDARY4
+Content-Disposition: form-data; name="fullContent"
+
+Our school teams won multiple awards in athletics, football, and basketball at the national level.
+------NEWSBOUNDARY4
+Content-Disposition: form-data; name="date"
+
+2025-03-10
+------NEWSBOUNDARY4
+Content-Disposition: form-data; name="category"
+
+Sports
+------NEWSBOUNDARY4
+Content-Disposition: form-data; name="author"
+
+Sports Department
+------NEWSBOUNDARY4--
+
+###
+
+### News 5 — Science Fair Winners
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----NEWSBOUNDARY5
+
+------NEWSBOUNDARY5
+Content-Disposition: form-data; name="title"
+
+Science Fair Winners Announced
+------NEWSBOUNDARY5
+Content-Disposition: form-data; name="excerpt"
+
+Top student projects from the annual science fair.
+------NEWSBOUNDARY5
+Content-Disposition: form-data; name="fullContent"
+
+Students showcased innovative science projects; winners received recognition and prizes.
+------NEWSBOUNDARY5
+Content-Disposition: form-data; name="date"
+
+2025-05-20
+------NEWSBOUNDARY5
+Content-Disposition: form-data; name="category"
+
+Sciences
+------NEWSBOUNDARY5
+Content-Disposition: form-data; name="author"
+
+Science Department
+------NEWSBOUNDARY5--
+
+###
+
+### News 6 — Drama Club Performance Announcement
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----NEWSBOUNDARY6
+
+------NEWSBOUNDARY6
+Content-Disposition: form-data; name="title"
+
+Drama Club Evening Performance
+------NEWSBOUNDARY6
+Content-Disposition: form-data; name="excerpt"
+
+Drama Club to perform classic plays.
+------NEWSBOUNDARY6
+Content-Disposition: form-data; name="fullContent"
+
+The drama club will showcase plays in the auditorium, welcoming all students and staff.
+------NEWSBOUNDARY6
+Content-Disposition: form-data; name="date"
+
+2025-06-05
+------NEWSBOUNDARY6
+Content-Disposition: form-data; name="category"
+
+Drama
+------NEWSBOUNDARY6
+Content-Disposition: form-data; name="author"
+
+Drama Department
+------NEWSBOUNDARY6--
 
 ###
