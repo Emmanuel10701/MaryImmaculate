@@ -949,7 +949,7 @@ const UploadModal = ({
             {/* Form Fields */}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold mb-3 flex items-center gap-2">
+                <label className=" text-sm font-semibold mb-3 flex items-center gap-2">
                   <FiTag className="text-red-500" />
                   <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
                     Title *
@@ -966,7 +966,7 @@ const UploadModal = ({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-3 flex items-center gap-2">
+                <label className=" text-sm font-semibold mb-3 flex items-center gap-2">
                   <FiFolder className="text-purple-500" />
                   <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     Category
@@ -985,7 +985,7 @@ const UploadModal = ({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-3 flex items-center gap-2">
+                <label className=" text-sm font-semibold mb-3 flex items-center gap-2">
                   <FiUsers className="text-green-500" />
                   <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                     Department
@@ -1004,7 +1004,7 @@ const UploadModal = ({
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold mb-3 flex items-center gap-2">
+                <label className=" text-sm font-semibold mb-3 flex items-center gap-2">
                   <FiEdit className="text-orange-500" />
                   <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
                     Description
