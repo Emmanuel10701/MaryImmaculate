@@ -1,21 +1,6 @@
 'use client';
 
-/**
- * --------------------------------------------------------------------------
- * ENTERPRISE STAFF DIRECTORY SYSTEM
- * --------------------------------------------------------------------------
- * A fully featured, sidebar-driven staff directory with advanced filtering,
- * searching, and modern UI patterns.
- * * Features:
- * 1. Sidebar Filtering (Departments, Expertise, Experience).
- * 2. Real-time Search Engine (Name, Role, Bio).
- * 3. View Modes (Grid/List).
- * 4. Pagination.
- * 5. Zero Layout Shift (Skeletons).
- * 6. Mobile-Responsive Drawer for Sidebar.
- */
-
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -64,43 +49,19 @@ const EXPERIENCE_RANGES = [
 const ITEMS_PER_PAGE = 12;
 
 // ==========================================
-// 2. MOCK DATA GENERATOR (Simulating DB)
-// ==========================================
-
-const generateMockData = () => {
-  const roles = ['Teacher', 'HOD', 'Senior Teacher', 'Patron', 'Principal', 'Deputy Principal', 'Lab Technician'];
-  const expertises = ['Curriculum Design', 'Student Welfare', 'Sports Coaching', 'Digital Literacy', 'Career Guidance', 'Public Speaking'];
-  
-  return Array.from({ length: 64 }).map((_, i) => {
-    const dept = DEPARTMENTS[Math.floor(Math.random() * DEPARTMENTS.length)];
-    const exp = Math.floor(Math.random() * 25);
-    
-    return {
-      id: `staff-${i}`,
-      name: `Staff Member ${i + 1}`,
-      role: roles[Math.floor(Math.random() * roles.length)],
-      department: dept.label,
-      departmentId: dept.id,
-      email: `staff${i}@school.edu`,
-      phone: `+254 7${Math.floor(Math.random() * 99999999)}`,
-      image: null, // Will use fallback
-      experience: exp,
-      location: 'Main Campus, Block A',
-      expertise: [
-        expertises[Math.floor(Math.random() * expertises.length)],
-        expertises[Math.floor(Math.random() * expertises.length)]
-      ].slice(0, Math.floor(Math.random() * 2) + 1),
-      bio: `A dedicated professional in the ${dept.label} department with over ${exp} years of experience. Passionate about student success and institutional growth.`
-    };
-  });
-};
-
-// ==========================================
-// 3. UTILITY FUNCTIONS
+// 2. UTILITY FUNCTIONS
 // ==========================================
 
 const generateSlug = (name, id) => {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + id;
+  // Clean the name and create a proper slug
+  const cleanName = name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Remove special characters except hyphens and spaces
+    .replace(/\s+/g, '-')     // Replace spaces with hyphens
+    .replace(/-+/g, '-')      // Replace multiple hyphens with single hyphen
+    .trim();
+  
+  return `${cleanName}-${id}`;
 };
 
 const getBadgeColorStyles = (colorName) => {
@@ -118,24 +79,32 @@ const getBadgeColorStyles = (colorName) => {
   return map[colorName] || map.slate;
 };
 
+const getImageSrc = (staff) => {
+  if (staff?.image) {
+    if (staff.image.startsWith('/')) {
+      return `${process.env.NEXT_PUBLIC_SITE_URL || ''}${staff.image}`;
+    }
+    if (staff.image.startsWith('http')) return staff.image;
+  }
+  return '/images/default-staff.jpg';
+};
+
+const extractExperience = (bio) => {
+  if (!bio) return 0;
+  const match = bio.match(/\d+(?=\s*years?)/i);
+  return match ? parseInt(match[0]) : 0;
+};
+
 // ==========================================
-// 4. SUB-COMPONENTS
+// 3. SUB-COMPONENTS
 // ==========================================
 
-/**
- * Badge Component
- * Standardized pill for departments and tags
- */
 const Badge = ({ children, color = 'slate', className = '' }) => (
   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getBadgeColorStyles(color)} ${className}`}>
     {children}
   </span>
 );
 
-/**
- * Skeleton Card
- * For loading states
- */
 const StaffSkeleton = ({ viewMode }) => {
   if (viewMode === 'list') {
     return (
@@ -160,31 +129,6 @@ const StaffSkeleton = ({ viewMode }) => {
   );
 };
 
-/**
- * Sidebar Filter Section
- * Collapsible accordion for filter groups
- */
-const FilterSection = ({ title, isOpen, onToggle, children }) => (
-  <div className="border-b border-slate-100 last:border-0 py-4">
-    <button 
-      onClick={onToggle}
-      className="flex items-center justify-between w-full text-left font-semibold text-slate-800 hover:text-blue-600 transition-colors mb-2"
-    >
-      <span>{title}</span>
-      {isOpen ? <FiChevronDown /> : <FiChevronRight />}
-    </button>
-    {isOpen && (
-      <div className="pt-2 space-y-2 animate-in slide-in-from-top-2 duration-200">
-        {children}
-      </div>
-    )}
-  </div>
-);
-
-/**
- * Checkbox Row
- * Custom styled checkbox
- */
 const Checkbox = ({ label, count, checked, onChange, color }) => (
   <label className="flex items-center gap-3 cursor-pointer group">
     <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
@@ -210,13 +154,14 @@ const Checkbox = ({ label, count, checked, onChange, color }) => (
 );
 
 // ==========================================
-// 5. MAIN PAGE COMPONENT
+// 4. MAIN PAGE COMPONENT
 // ==========================================
 
 export default function StaffDirectory() {
   // -- State: Data & Loading --
   const [staffData, setStaffData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // -- State: Filters --
   const [searchQuery, setSearchQuery] = useState('');
@@ -224,26 +169,56 @@ export default function StaffDirectory() {
   const [experienceRange, setExperienceRange] = useState('all');
   
   // -- State: UI --
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+  const [viewMode, setViewMode] = useState('grid');
   const [currentPage, setCurrentPage] = useState(1);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile drawer
-  const [expandedSections, setExpandedSections] = useState({
-    dept: true,
-    exp: true
-  });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // -- Initialization --
+  // -- Data Fetching --
   useEffect(() => {
-    // Simulating API Call
-    const loadData = async () => {
-      setLoading(true);
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const data = generateMockData();
-      setStaffData(data);
-      setLoading(false);
+    const fetchStaffData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/staff');
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch staff data: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.staff) {
+          // Map API data to match our expected format
+          const mappedStaff = data.staff.map(staff => ({
+            id: staff.id,
+            name: staff.name,
+            role: staff.role,
+            position: staff.position,
+            department: staff.department,
+            departmentId: staff.department.toLowerCase().replace(/\s+/g, '-'),
+            email: staff.email,
+            phone: staff.phone,
+            image: staff.image,
+            experience: extractExperience(staff.bio),
+            location: 'Main Campus',
+            expertise: staff.expertise || [],
+            bio: staff.bio,
+            responsibilities: staff.responsibilities || [],
+            achievements: staff.achievements || []
+          }));
+          
+          setStaffData(mappedStaff);
+        } else {
+          throw new Error('Invalid data format from API');
+        }
+      } catch (err) {
+        console.error('Error fetching staff data:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
-    loadData();
+
+    fetchStaffData();
   }, []);
 
   // -- Filter Logic --
@@ -254,7 +229,9 @@ export default function StaffDirectory() {
       const matchesSearch = 
         staff.name.toLowerCase().includes(searchLower) ||
         staff.role.toLowerCase().includes(searchLower) ||
-        staff.bio.toLowerCase().includes(searchLower);
+        staff.position.toLowerCase().includes(searchLower) ||
+        (staff.bio && staff.bio.toLowerCase().includes(searchLower)) ||
+        staff.expertise.some(exp => exp.toLowerCase().includes(searchLower));
 
       // 2. Departments
       const matchesDept = selectedDepts.length === 0 || selectedDepts.includes(staff.departmentId);
@@ -300,6 +277,26 @@ export default function StaffDirectory() {
   // -- Stats Calculation --
   const getDeptCount = (id) => staffData.filter(s => s.departmentId === id).length;
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FiUser className="text-2xl text-red-600" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Error Loading Staff Directory</h2>
+          <p className="text-slate-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       
@@ -311,9 +308,7 @@ export default function StaffDirectory() {
         />
       )}
 
-      {/* ==========================================
-          HEADER SECTION
-          ========================================== */}
+      {/* HEADER SECTION */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           
@@ -336,7 +331,7 @@ export default function StaffDirectory() {
             </Link>
           </div>
 
-          {/* Top Search Bar (Global) */}
+          {/* Top Search Bar */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-full group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -384,9 +379,7 @@ export default function StaffDirectory() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           
-          {/* ==========================================
-              SIDEBAR FILTERS
-              ========================================== */}
+          {/* SIDEBAR FILTERS */}
           <aside className={`
             fixed lg:static inset-y-0 left-0 w-[280px] bg-white lg:bg-transparent z-50 transform transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto lg:overflow-visible border-r lg:border-r-0 border-slate-200
             ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -400,7 +393,7 @@ export default function StaffDirectory() {
                 </button>
               </div>
 
-              {/* Mobile Search (Visible only on mobile in drawer) */}
+              {/* Mobile Search */}
               <div className="lg:hidden mb-6">
                 <input
                   type="text"
@@ -426,7 +419,7 @@ export default function StaffDirectory() {
                     </button>
                   )}
                 </div>
-                <div className="p-4 space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
+                <div className="p-4 space-y-3 max-h-[400px] overflow-y-auto">
                   {DEPARTMENTS.map((dept) => (
                     <Checkbox
                       key={dept.id}
@@ -485,9 +478,7 @@ export default function StaffDirectory() {
             </div>
           </aside>
 
-          {/* ==========================================
-              MAIN CONTENT AREA
-              ========================================== */}
+          {/* MAIN CONTENT AREA */}
           <main className="flex-1 min-w-0">
             
             {/* Results Toolbar */}
@@ -495,12 +486,12 @@ export default function StaffDirectory() {
               <div>
                 <h1 className="text-2xl font-bold text-slate-900">Staff Directory</h1>
                 <p className="text-slate-500 text-sm mt-1">
-                  Showing {loading ? '...' : filteredStaff.length} members 
-                  {filteredStaff.length !== staffData.length && ` (filtered from ${staffData.length})`}
+                  {loading ? 'Loading...' : `Showing ${filteredStaff.length} members`}
+                  {!loading && filteredStaff.length !== staffData.length && ` (filtered from ${staffData.length})`}
                 </p>
               </div>
               
-              {/* Sort Dropdown (Simplified for UI) */}
+              {/* Sort Dropdown */}
               <div className="relative inline-block">
                 <select className="appearance-none bg-white border border-slate-200 pl-4 pr-10 py-2 rounded-lg text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm hover:border-slate-300">
                   <option>Sort by Name (A-Z)</option>
@@ -511,7 +502,7 @@ export default function StaffDirectory() {
               </div>
             </div>
 
-            {/* MAPPING CONTENT */}
+            {/* STAFF LISTING */}
             {loading ? (
               <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
                 {[...Array(6)].map((_, i) => <StaffSkeleton key={i} viewMode={viewMode} />)}
@@ -532,11 +523,13 @@ export default function StaffDirectory() {
                           {/* Card Image Area */}
                           <div className="relative h-56 bg-slate-100 overflow-hidden">
                             <Image
-                              src={staff.image || '/images/default-staff.jpg'}
+                              src={getImageSrc(staff)}
                               alt={staff.name}
                               fill
                               className="object-cover transition-transform duration-700 group-hover:scale-105"
-                              onError={(e) => e.target.src = '/images/default-staff.jpg'}
+                              onError={(e) => {
+                                e.target.src = '/images/default-staff.jpg';
+                              }}
                             />
                             <div className="absolute top-3 right-3">
                               <Badge color={deptConfig?.color}>{staff.department}</Badge>
@@ -546,36 +539,42 @@ export default function StaffDirectory() {
                           {/* Card Content */}
                           <div className="p-5 flex flex-col flex-1">
                             <div className="mb-4">
-                              <Link href={`/staff/${generateSlug(staff.name, staff.id)}`}>
+                              <Link href={`/pages/staff/${generateSlug(staff.name, staff.id)}`}>
                                 <h3 className="text-lg font-bold text-slate-900 mb-1 hover:text-blue-600 transition-colors line-clamp-1">
                                   {staff.name}
                                 </h3>
                               </Link>
-                              <p className="text-blue-600 font-medium text-sm mb-2">{staff.role}</p>
+                              <p className="text-blue-600 font-medium text-sm mb-2">{staff.position}</p>
                               <div className="flex items-center gap-2 text-slate-500 text-xs">
                                 <span className="flex items-center gap-1"><FiMapPin size={10}/> {staff.location}</span>
                                 <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                                <span className="flex items-center gap-1"><FiClock size={10}/> {staff.experience}y Exp</span>
+                                <span className="flex items-center gap-1">
+                                  <FiClock size={10}/> {staff.experience || 0}y Exp
+                                </span>
                               </div>
                             </div>
 
                             {/* Expertise Tags */}
-                            <div className="flex flex-wrap gap-1.5 mb-6">
-                              {staff.expertise.slice(0, 3).map((tag, idx) => (
-                                <span key={idx} className="px-2 py-1 bg-slate-50 text-slate-600 text-[10px] uppercase tracking-wider font-semibold rounded-md border border-slate-100">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
+                            {staff.expertise && staff.expertise.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mb-6">
+                                {staff.expertise.slice(0, 3).map((tag, idx) => (
+                                  <span key={idx} className="px-2 py-1 bg-slate-50 text-slate-600 text-[10px] uppercase tracking-wider font-semibold rounded-md border border-slate-100">
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
 
                             {/* Action Footer */}
                             <div className="mt-auto pt-4 border-t border-slate-100 grid grid-cols-2 gap-3">
-                              <a 
-                                href={`mailto:${staff.email}`}
-                                className="flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-50 text-slate-700 text-sm font-medium hover:bg-blue-50 hover:text-blue-700 hover:border-blue-100 border border-transparent transition-all"
-                              >
-                                <FiMail /> Email
-                              </a>
+                              {staff.email && (
+                                <a 
+                                  href={`mailto:${staff.email}`}
+                                  className="flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-50 text-slate-700 text-sm font-medium hover:bg-blue-50 hover:text-blue-700 hover:border-blue-100 border border-transparent transition-all"
+                                >
+                                  <FiMail /> Email
+                                </a>
+                              )}
                               <Link
                                 href={`/staff/${generateSlug(staff.name, staff.id)}`}
                                 className="flex items-center justify-center gap-2 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:border-slate-300 hover:bg-slate-50 transition-all"
@@ -601,12 +600,14 @@ export default function StaffDirectory() {
                           className="group bg-white rounded-xl border border-slate-200 p-4 flex flex-col md:flex-row gap-6 items-center hover:border-blue-300 transition-all hover:shadow-md"
                         >
                           <div className="relative w-full md:w-24 h-24 rounded-full md:rounded-lg overflow-hidden shrink-0 bg-slate-100">
-                             <Image
-                              src={staff.image || '/images/default-staff.jpg'}
+                            <Image
+                              src={getImageSrc(staff)}
                               alt={staff.name}
                               fill
                               className="object-cover"
-                              onError={(e) => e.target.src = '/images/default-staff.jpg'}
+                              onError={(e) => {
+                                e.target.src = '/images/default-staff.jpg';
+                              }}
                             />
                           </div>
 
@@ -619,23 +620,25 @@ export default function StaffDirectory() {
                               </h3>
                               <Badge color={deptConfig?.color} className="mx-auto md:mx-0 w-fit">{staff.department}</Badge>
                             </div>
-                            <p className="text-blue-600 font-medium text-sm mb-2">{staff.role}</p>
+                            <p className="text-blue-600 font-medium text-sm mb-2">{staff.position}</p>
                             <p className="text-slate-500 text-sm line-clamp-1 max-w-2xl">{staff.bio}</p>
                           </div>
 
                           <div className="flex flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto">
-                             <a 
+                            {staff.email && (
+                              <a 
                                 href={`mailto:${staff.email}`}
                                 className="flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 px-4 py-2 rounded-lg bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors"
                               >
                                 <FiMail /> <span className="md:hidden lg:inline">Email</span>
                               </a>
-                              <Link
-                                href={`/staff/${generateSlug(staff.name, staff.id)}`}
-                                className="flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium transition-colors"
-                              >
-                                <FiUser /> <span className="md:hidden lg:inline">Profile</span>
-                              </Link>
+                            )}
+                            <Link
+                              href={`/staff/${generateSlug(staff.name, staff.id)}`}
+                              className="flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium transition-colors"
+                            >
+                              <FiUser /> <span className="md:hidden lg:inline">Profile</span>
+                            </Link>
                           </div>
                         </div>
                       );
@@ -644,50 +647,50 @@ export default function StaffDirectory() {
                 )}
 
                 {/* Pagination Controls */}
-                <div className="mt-12 flex items-center justify-between border-t border-slate-200 pt-6">
-                  <div className="hidden sm:block text-sm text-slate-500">
-                    Page <span className="font-medium text-slate-900">{currentPage}</span> of <span className="font-medium text-slate-900">{totalPages}</span>
-                  </div>
-                  <div className="flex gap-2 w-full sm:w-auto justify-center">
-                    <button
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      <FiArrowLeft /> Previous
-                    </button>
-                    <div className="flex gap-1">
-                      {/* Simple numbered pagination logic */}
-                      {Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-                        // Logic to keep current page centered would go here in full production
-                        let pageNum = i + 1; 
-                        if(totalPages > 5 && currentPage > 3) pageNum = currentPage - 2 + i;
-                        if(pageNum > totalPages) return null;
-
-                        return (
-                           <button
-                            key={pageNum}
-                            onClick={() => setCurrentPage(pageNum)}
-                            className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                              currentPage === pageNum 
-                                ? 'bg-blue-600 text-white' 
-                                : 'text-slate-600 hover:bg-slate-100'
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        )
-                      })}
+                {totalPages > 1 && (
+                  <div className="mt-12 flex items-center justify-between border-t border-slate-200 pt-6">
+                    <div className="hidden sm:block text-sm text-slate-500">
+                      Page <span className="font-medium text-slate-900">{currentPage}</span> of <span className="font-medium text-slate-900">{totalPages}</span>
                     </div>
-                    <button
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                      className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      Next <FiArrowRight />
-                    </button>
+                    <div className="flex gap-2 w-full sm:w-auto justify-center">
+                      <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        <FiArrowLeft /> Previous
+                      </button>
+                      <div className="flex gap-1">
+                        {Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                          let pageNum = i + 1; 
+                          if(totalPages > 5 && currentPage > 3) pageNum = currentPage - 2 + i;
+                          if(pageNum > totalPages) return null;
+
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setCurrentPage(pageNum)}
+                              className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                                currentPage === pageNum 
+                                  ? 'bg-blue-600 text-white' 
+                                  : 'text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <button
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        Next <FiArrowRight />
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
               </>
             ) : (
