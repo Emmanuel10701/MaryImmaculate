@@ -1,26 +1,771 @@
-@baseUrl = http://0.0.0.0:3001
-@contentType = application/json
+@baseUrl = http://localhost:3001/api/student
 
-corporatesellerske@gmail.com
-hsvz aabz dhan oqfm
+### Test 1: GET all students
+GET {{baseUrl}} HTTP/1.1
+Content-Type: application/json
 
+### Test 2: Create 20 Test Students
 
-### ===============================
-### CREATE NEW USER (POST)
-### ===============================
-POST {{baseUrl}}/api/register
-Content-Type: {{contentType}}
+### Student 1: Form 1 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
 
 {
-  "name": "Emmanuel Makau",
-  "email": "emmanuelmakau53@gmail.com",
-  "password": "TestPass123",
-  "phone": "0712345678",
-  "role": "ADMIN"
+  "admissionNumber": "KHS/2024/001",
+  "name": "John Mwangi",
+  "form": "Form 1",
+  "stream": "East",
+  "gender": "Male",
+  "dateOfBirth": "2008-03-15",
+  "enrollmentDate": "2024-01-10",
+  "kcpeMarks": 350,
+  "previousSchool": "Katwanyaa Primary",
+  "parentName": "James Mwangi",
+  "parentEmail": "james.mwangi@email.com",
+  "parentPhone": "+254712345678",
+  "emergencyContact": "+254723456789",
+  "address": "P.O Box 123, Katwanyaa",
+  "medicalInfo": "No known allergies",
+  "hobbies": "Football, Reading",
+  "academicPerformance": "Excellent",
+  "attendance": "95%",
+  "disciplineRecord": "Good",
+  "status": "Active"
 }
 
-### ===============================
-### GET ALL USERS
-### ===============================
-GET {{baseUrl}}/api/staff
-Content-Type: {{contentType}}
+### Student 2: Form 1 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2024/002",
+  "name": "Mary Wanjiku",
+  "form": "Form 1",
+  "stream": "West",
+  "gender": "Female",
+  "dateOfBirth": "2008-06-22",
+  "enrollmentDate": "2024-01-10",
+  "kcpeMarks": 380,
+  "previousSchool": "St. Mary's Primary",
+  "parentName": "Peter Kamau",
+  "parentEmail": "peter.kamau@email.com",
+  "parentPhone": "+254712345679",
+  "emergencyContact": "+254723456790",
+  "address": "P.O Box 456, Katwanyaa",
+  "medicalInfo": "Asthma - uses inhaler",
+  "hobbies": "Dancing, Singing",
+  "academicPerformance": "Excellent",
+  "attendance": "98%",
+  "disciplineRecord": "Excellent",
+  "status": "Active"
+}
+
+### Student 3: Form 1 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2024/003",
+  "name": "David Ochieng",
+  "form": "Form 1",
+  "stream": "North",
+  "gender": "Male",
+  "dateOfBirth": "2008-09-10",
+  "enrollmentDate": "2024-01-10",
+  "kcpeMarks": 320,
+  "previousSchool": "Katwanyaa Primary",
+  "parentName": "Robert Ochieng",
+  "parentEmail": "robert.ochieng@email.com",
+  "parentPhone": "+254712345680",
+  "emergencyContact": "+254723456791",
+  "address": "P.O Box 789, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Basketball, Chess",
+  "academicPerformance": "Good",
+  "attendance": "92%",
+  "disciplineRecord": "Good",
+  "status": "Active"
+}
+
+### Student 4: Form 1 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2024/004",
+  "name": "Grace Akinyi",
+  "form": "Form 1",
+  "stream": "South",
+  "gender": "Female",
+  "dateOfBirth": "2008-11-30",
+  "enrollmentDate": "2024-01-10",
+  "kcpeMarks": 365,
+  "previousSchool": "Good Shepherd Primary",
+  "parentName": "Samuel Akinyi",
+  "parentEmail": "samuel.akinyi@email.com",
+  "parentPhone": "+254712345681",
+  "emergencyContact": "+254723456792",
+  "address": "P.O Box 101, Katwanyaa",
+  "medicalInfo": "Allergic to peanuts",
+  "hobbies": "Swimming, Art",
+  "academicPerformance": "Excellent",
+  "attendance": "96%",
+  "disciplineRecord": "Excellent",
+  "status": "Active"
+}
+
+### Student 5: Form 1 Student (Class Prefect)
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2024/005",
+  "name": "Brian Kiprop",
+  "form": "Form 1",
+  "stream": "East",
+  "gender": "Male",
+  "dateOfBirth": "2008-04-18",
+  "enrollmentDate": "2024-01-10",
+  "kcpeMarks": 390,
+  "previousSchool": "Moi Primary",
+  "parentName": "Joseph Kiprop",
+  "parentEmail": "joseph.kiprop@email.com",
+  "parentPhone": "+254712345682",
+  "emergencyContact": "+254723456793",
+  "address": "P.O Box 202, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Debate, Leadership",
+  "academicPerformance": "Excellent",
+  "attendance": "99%",
+  "disciplineRecord": "Excellent",
+  "status": "Active",
+  "isClassPrefect": true
+}
+
+### Student 6: Form 2 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2023/001",
+  "name": "Sarah Atieno",
+  "form": "Form 2",
+  "stream": "East",
+  "gender": "Female",
+  "dateOfBirth": "2007-02-14",
+  "enrollmentDate": "2023-01-09",
+  "kcpeMarks": 375,
+  "previousSchool": "Katwanyaa Primary",
+  "parentName": "Michael Atieno",
+  "parentEmail": "michael.atieno@email.com",
+  "parentPhone": "+254712345683",
+  "emergencyContact": "+254723456794",
+  "address": "P.O Box 303, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Music, Drama",
+  "academicPerformance": "Good",
+  "attendance": "94%",
+  "disciplineRecord": "Good",
+  "status": "Active"
+}
+
+### Student 7: Form 2 Student (Class Assistant)
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2023/002",
+  "name": "Paul Gitau",
+  "form": "Form 2",
+  "stream": "West",
+  "gender": "Male",
+  "dateOfBirth": "2007-08-25",
+  "enrollmentDate": "2023-01-09",
+  "kcpeMarks": 355,
+  "previousSchool": "St. Peter's Primary",
+  "parentName": "Daniel Gitau",
+  "parentEmail": "daniel.gitau@email.com",
+  "parentPhone": "+254712345684",
+  "emergencyContact": "+254723456795",
+  "address": "P.O Box 404, Katwanyaa",
+  "medicalInfo": "Wears glasses",
+  "hobbies": "Science Club, Reading",
+  "academicPerformance": "Good",
+  "attendance": "93%",
+  "disciplineRecord": "Good",
+  "status": "Active",
+  "isClassAssistant": true
+}
+
+### Student 8: Form 2 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2023/003",
+  "name": "Lucy Wambui",
+  "form": "Form 2",
+  "stream": "North",
+  "gender": "Female",
+  "dateOfBirth": "2007-12-05",
+  "enrollmentDate": "2023-01-09",
+  "kcpeMarks": 340,
+  "previousSchool": "Katwanyaa Primary",
+  "parentName": "Stephen Wambui",
+  "parentEmail": "stephen.wambui@email.com",
+  "parentPhone": "+254712345685",
+  "emergencyContact": "+254723456796",
+  "address": "P.O Box 505, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Basketball, Art",
+  "academicPerformance": "Average",
+  "attendance": "91%",
+  "disciplineRecord": "Good",
+  "status": "Active"
+}
+
+### Student 9: Form 2 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2023/004",
+  "name": "Kevin Mwiti",
+  "form": "Form 2",
+  "stream": "South",
+  "gender": "Male",
+  "dateOfBirth": "2007-05-30",
+  "enrollmentDate": "2023-01-09",
+  "kcpeMarks": 325,
+  "previousSchool": "Hope Primary",
+  "parentName": "Andrew Mwiti",
+  "parentEmail": "andrew.mwiti@email.com",
+  "parentPhone": "+254712345686",
+  "emergencyContact": "+254723456797",
+  "address": "P.O Box 606, Katwanyaa",
+  "medicalInfo": "Diabetes - monitoring required",
+  "hobbies": "Football, Chess",
+  "academicPerformance": "Average",
+  "attendance": "90%",
+  "disciplineRecord": "Fair",
+  "status": "Active"
+}
+
+### Student 10: Form 2 Student (Bell Ringer)
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2023/005",
+  "name": "Esther Njeri",
+  "form": "Form 2",
+  "stream": "East",
+  "gender": "Female",
+  "dateOfBirth": "2007-07-12",
+  "enrollmentDate": "2023-01-09",
+  "kcpeMarks": 360,
+  "previousSchool": "Grace Primary",
+  "parentName": "Thomas Njeri",
+  "parentEmail": "thomas.njeri@email.com",
+  "parentPhone": "+254712345687",
+  "emergencyContact": "+254723456798",
+  "address": "P.O Box 707, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Music, Time management",
+  "academicPerformance": "Good",
+  "attendance": "97%",
+  "disciplineRecord": "Excellent",
+  "status": "Active",
+  "isBellRinger": true
+}
+
+### Student 11: Form 3 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2022/001",
+  "name": "Michael Otieno",
+  "form": "Form 3",
+  "stream": "East",
+  "gender": "Male",
+  "dateOfBirth": "2006-01-20",
+  "enrollmentDate": "2022-01-10",
+  "kcpeMarks": 385,
+  "previousSchool": "Katwanyaa Primary",
+  "parentName": "Victor Otieno",
+  "parentEmail": "victor.otieno@email.com",
+  "parentPhone": "+254712345688",
+  "emergencyContact": "+254723456799",
+  "address": "P.O Box 808, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Athletics, Leadership",
+  "academicPerformance": "Excellent",
+  "attendance": "98%",
+  "disciplineRecord": "Excellent",
+  "status": "Active"
+}
+
+### Student 12: Form 3 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2022/002",
+  "name": "Ann Mumbi",
+  "form": "Form 3",
+  "stream": "West",
+  "gender": "Female",
+  "dateOfBirth": "2006-03-15",
+  "enrollmentDate": "2022-01-10",
+  "kcpeMarks": 370,
+  "previousSchool": "St. Joseph's Primary",
+  "parentName": "Charles Mumbi",
+  "parentEmail": "charles.mumbi@email.com",
+  "parentPhone": "+254712345689",
+  "emergencyContact": "+254723456800",
+  "address": "P.O Box 909, Katwanyaa",
+  "medicalInfo": "Mild asthma",
+  "hobbies": "Debate, Writing",
+  "academicPerformance": "Excellent",
+  "attendance": "96%",
+  "disciplineRecord": "Good",
+  "status": "Active"
+}
+
+### Student 13: Form 3 Student (Transferred)
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2022/003",
+  "name": "Samuel Kibet",
+  "form": "Form 3",
+  "stream": "North",
+  "gender": "Male",
+  "dateOfBirth": "2006-06-10",
+  "enrollmentDate": "2022-01-10",
+  "kcpeMarks": 345,
+  "previousSchool": "Nakuru Primary",
+  "parentName": "Eric Kibet",
+  "parentEmail": "eric.kibet@email.com",
+  "parentPhone": "+254712345690",
+  "emergencyContact": "+254723456801",
+  "address": "P.O Box 1010, Nakuru",
+  "medicalInfo": "None",
+  "hobbies": "Football, Athletics",
+  "academicPerformance": "Good",
+  "attendance": "92%",
+  "disciplineRecord": "Good",
+  "status": "Transferred"
+}
+
+### Student 14: Form 3 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2022/004",
+  "name": "Ruth Achieng",
+  "form": "Form 3",
+  "stream": "South",
+  "gender": "Female",
+  "dateOfBirth": "2006-09-25",
+  "enrollmentDate": "2022-01-10",
+  "kcpeMarks": 330,
+  "previousSchool": "Katwanyaa Primary",
+  "parentName": "George Achieng",
+  "parentEmail": "george.achieng@email.com",
+  "parentPhone": "+254712345691",
+  "emergencyContact": "+254723456802",
+  "address": "P.O Box 1111, Katwanyaa",
+  "medicalInfo": "Allergic to dust",
+  "hobbies": "Art, Music",
+  "academicPerformance": "Average",
+  "attendance": "89%",
+  "disciplineRecord": "Fair",
+  "status": "Active"
+}
+
+### Student 15: Form 3 Student (Multiple Roles)
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2022/005",
+  "name": "Peter Ndung'u",
+  "form": "Form 3",
+  "stream": "East",
+  "gender": "Male",
+  "dateOfBirth": "2006-11-30",
+  "enrollmentDate": "2022-01-10",
+  "kcpeMarks": 400,
+  "previousSchool": "Moi Primary",
+  "parentName": "Simon Ndung'u",
+  "parentEmail": "simon.ndungu@email.com",
+  "parentPhone": "+254712345692",
+  "emergencyContact": "+254723456803",
+  "address": "P.O Box 1212, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Student Council, Sports",
+  "academicPerformance": "Excellent",
+  "attendance": "100%",
+  "disciplineRecord": "Excellent",
+  "status": "Active",
+  "isClassPrefect": true,
+  "isClassAssistant": true
+}
+
+### Student 16: Form 4 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2021/001",
+  "name": "Elizabeth Wangari",
+  "form": "Form 4",
+  "stream": "East",
+  "gender": "Female",
+  "dateOfBirth": "2005-02-14",
+  "enrollmentDate": "2021-01-11",
+  "kcpeMarks": 395,
+  "previousSchool": "Katwanyaa Primary",
+  "parentName": "David Wangari",
+  "parentEmail": "david.wangari@email.com",
+  "parentPhone": "+254712345693",
+  "emergencyContact": "+254723456804",
+  "address": "P.O Box 1313, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Science Club, Reading",
+  "academicPerformance": "Excellent",
+  "attendance": "99%",
+  "disciplineRecord": "Excellent",
+  "status": "Active"
+}
+
+### Student 17: Form 4 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2021/002",
+  "name": "Joseph Kamau",
+  "form": "Form 4",
+  "stream": "West",
+  "gender": "Male",
+  "dateOfBirth": "2005-05-20",
+  "enrollmentDate": "2021-01-11",
+  "kcpeMarks": 365,
+  "previousSchool": "St. Mary's Primary",
+  "parentName": "Francis Kamau",
+  "parentEmail": "francis.kamau@email.com",
+  "parentPhone": "+254712345694",
+  "emergencyContact": "+254723456805",
+  "address": "P.O Box 1414, Katwanyaa",
+  "medicalInfo": "Wears glasses",
+  "hobbies": "Mathematics, Chess",
+  "academicPerformance": "Good",
+  "attendance": "95%",
+  "disciplineRecord": "Good",
+  "status": "Active"
+}
+
+### Student 18: Form 4 Student (Inactive)
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2021/003",
+  "name": "Faith Nyambura",
+  "form": "Form 4",
+  "stream": "North",
+  "gender": "Female",
+  "dateOfBirth": "2005-08-15",
+  "enrollmentDate": "2021-01-11",
+  "kcpeMarks": 350,
+  "previousSchool": "Good Shepherd Primary",
+  "parentName": "John Nyambura",
+  "parentEmail": "john.nyambura@email.com",
+  "parentPhone": "+254712345695",
+  "emergencyContact": "+254723456806",
+  "address": "P.O Box 1515, Katwanyaa",
+  "medicalInfo": "Epilepsy - medication required",
+  "hobbies": "Art, Music",
+  "academicPerformance": "Average",
+  "attendance": "88%",
+  "disciplineRecord": "Good",
+  "status": "Inactive"
+}
+
+### Student 19: Form 4 Student
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2021/004",
+  "name": "Daniel Omollo",
+  "form": "Form 4",
+  "stream": "South",
+  "gender": "Male",
+  "dateOfBirth": "2005-10-25",
+  "enrollmentDate": "2021-01-11",
+  "kcpeMarks": 335,
+  "previousSchool": "Katwanyaa Primary",
+  "parentName": "Martin Omollo",
+  "parentEmail": "martin.omollo@email.com",
+  "parentPhone": "+254712345696",
+  "emergencyContact": "+254723456807",
+  "address": "P.O Box 1616, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Football, Athletics",
+  "academicPerformance": "Average",
+  "attendance": "91%",
+  "disciplineRecord": "Fair",
+  "status": "Active"
+}
+
+### Student 20: Form 4 Student (All Roles)
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2021/005",
+  "name": "Susan Adhiambo",
+  "form": "Form 4",
+  "stream": "East",
+  "gender": "Female",
+  "dateOfBirth": "2005-12-30",
+  "enrollmentDate": "2021-01-11",
+  "kcpeMarks": 410,
+  "previousSchool": "Moi Primary",
+  "parentName": "Paul Adhiambo",
+  "parentEmail": "paul.adhiambo@email.com",
+  "parentPhone": "+254712345697",
+  "emergencyContact": "+254723456808",
+  "address": "P.O Box 1717, Katwanyaa",
+  "medicalInfo": "None",
+  "hobbies": "Leadership, Debate, Sports",
+  "academicPerformance": "Excellent",
+  "attendance": "100%",
+  "disciplineRecord": "Excellent",
+  "status": "Active",
+  "isClassPrefect": true,
+  "isClassAssistant": true,
+  "isBellRinger": true
+}
+
+### Test 3: GET promotion history for a specific student
+GET {{baseUrl}}?action=promotion-history&studentId=1 HTTP/1.1
+Content-Type: application/json
+
+### Test 4: GET all promotion history
+GET {{baseUrl}}?action=promotion-history HTTP/1.1
+Content-Type: application/json
+
+### Test 5: UPDATE a student (replace ID with actual student ID)
+@studentId = 1
+PUT {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "id": {{studentId}},
+  "name": "John Mwangi Updated",
+  "form": "Form 1",
+  "stream": "East",
+  "academicPerformance": "Excellent",
+  "attendance": "97%"
+}
+
+### Test 6: DELETE a student (replace ID with actual student ID)
+@deleteStudentId = 20
+DELETE {{baseUrl}}?id={{deleteStudentId}} HTTP/1.1
+Content-Type: application/json
+
+### Test 7: PATCH - Promote Form 1 students to Form 2
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 1",
+  "action": "promote"
+}
+
+### Test 8: PATCH - Graduate Form 4 students
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 4",
+  "action": "graduate"
+}
+
+### Test 9: PATCH - Try to promote Form 2 when Form 3 has students (should fail)
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 2",
+  "action": "promote"
+}
+
+### Test 10: PATCH - Promote Form 3 to Form 4 (after graduating Form 4)
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 3",
+  "action": "promote"
+}
+
+### Test 11: GET students by status
+GET {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+### Test 12: Try to create duplicate admission number (should fail)
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/2024/001",
+  "name": "Duplicate Test",
+  "form": "Form 1",
+  "stream": "East",
+  "gender": "Male",
+  "dateOfBirth": "2008-01-01",
+  "enrollmentDate": "2024-01-10",
+  "parentName": "Test Parent",
+  "parentPhone": "+254700000000",
+  "emergencyContact": "+254700000001",
+  "address": "Test Address",
+  "academicPerformance": "Average",
+  "attendance": "90%",
+  "disciplineRecord": "Good",
+  "status": "Active"
+}
+
+### Test 13: UPDATE student with duplicate admission number (should fail)
+@updateStudentId = 2
+PUT {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "id": {{updateStudentId}},
+  "admissionNumber": "KHS/2024/001",
+  "name": "Mary Wanjiku"
+}
+
+### Test 14: PATCH - Invalid form (should fail)
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 5",
+  "action": "promote"
+}
+
+### Test 15: PATCH - Invalid action (should fail)
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 1",
+  "action": "invalid"
+}
+
+### Test 16: GET students with search filter
+GET {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+### Test 17: Create student with minimum required fields
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/TEST/001",
+  "name": "Test Student Minimal",
+  "form": "Form 1",
+  "stream": "East",
+  "gender": "Male",
+  "dateOfBirth": "2008-01-01",
+  "enrollmentDate": "2024-01-10",
+  "parentName": "Test Parent",
+  "parentPhone": "+254700000002",
+  "emergencyContact": "+254700000003",
+  "address": "Test Address",
+  "academicPerformance": "Average",
+  "attendance": "90%",
+  "disciplineRecord": "Good"
+}
+
+### Test 18: UPDATE student non-existent (should fail)
+PUT {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "id": 99999,
+  "name": "Non-existent Student"
+}
+
+### Test 19: DELETE non-existent student (should fail)
+DELETE {{baseUrl}}?id=99999 HTTP/1.1
+Content-Type: application/json
+
+### Test 20: Bulk create test for graduation testing
+POST {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "admissionNumber": "KHS/GRAD/001",
+  "name": "Graduation Test Student 1",
+  "form": "Form 4",
+  "stream": "East",
+  "gender": "Male",
+  "dateOfBirth": "2005-01-01",
+  "enrollmentDate": "2021-01-11",
+  "kcpeMarks": 350,
+  "parentName": "Graduation Parent",
+  "parentPhone": "+254700000004",
+  "emergencyContact": "+254700000005",
+  "address": "Graduation Address",
+  "academicPerformance": "Good",
+  "attendance": "95%",
+  "disciplineRecord": "Good",
+  "status": "Active"
+}
+
+### Test 21: Test promotion with empty next class (should succeed after graduation)
+### First graduate Form 4
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 4",
+  "action": "graduate"
+}
+
+### Then promote Form 3
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 3",
+  "action": "promote"
+}
+
+### Then promote Form 2
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 2",
+  "action": "promote"
+}
+
+### Then promote Form 1
+PATCH {{baseUrl}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "form": "Form 1",
+  "action": "promote"
+}

@@ -214,18 +214,17 @@ export async function PATCH(req) {
     const { form, action } = data;
 
     if (action === 'graduate') {
-      // Graduate both Active and Transferred students
+      // Existing graduation logic remains the same
       const updatedStudents = await prisma.student.updateMany({
         where: { 
           form: form,
-          status: { in: ["Active", "Transferred"] } // Include both statuses
+          status: { in: ["Active", "Transferred"] }
         },
         data: {
           status: "Graduated"
         },
       });
 
-      // Create promotion history records for graduated students
       const studentsToGraduate = await prisma.student.findMany({
         where: { 
           form: form,
@@ -273,12 +272,29 @@ export async function PATCH(req) {
         }, { status: 400 });
       }
 
+      // 🔴 NEW: Check if the next form has existing students
+      if (nextForm !== 'Graduated') {
+        const existingStudentsInNextForm = await prisma.student.findMany({
+          where: { 
+            form: nextForm,
+            status: { in: ["Active", "Transferred"] }
+          }
+        });
+
+        if (existingStudentsInNextForm.length > 0) {
+          return NextResponse.json({ 
+            success: false, 
+            error: `Cannot promote students to ${nextForm}. There are ${existingStudentsInNextForm.length} existing students in ${nextForm}. Please graduate the current ${nextForm} students first.` 
+          }, { status: 400 });
+        }
+      }
+
       if (nextForm === 'Graduated') {
         // For graduation, include both Active and Transferred students
         const studentsToUpdate = await prisma.student.findMany({
           where: { 
             form: form,
-            status: { in: ["Active", "Transferred"] } // Include both
+            status: { in: ["Active", "Transferred"] }
           }
         });
 
@@ -324,7 +340,7 @@ export async function PATCH(req) {
         const studentsToUpdate = await prisma.student.findMany({
           where: { 
             form: form,
-            status: { in: ["Active", "Transferred"] } // Include both
+            status: { in: ["Active", "Transferred"] }
           }
         });
 
@@ -332,6 +348,21 @@ export async function PATCH(req) {
           return NextResponse.json({ 
             success: false, 
             error: `No students found in ${form} to promote` 
+          }, { status: 400 });
+        }
+
+        // 🔴 Check again (redundant but safe)
+        const existingStudentsInNextForm = await prisma.student.findMany({
+          where: { 
+            form: nextForm,
+            status: { in: ["Active", "Transferred"] }
+          }
+        });
+
+        if (existingStudentsInNextForm.length > 0) {
+          return NextResponse.json({ 
+            success: false, 
+            error: `Cannot promote to ${nextForm}. There are existing students in that class.` 
           }, { status: 400 });
         }
 

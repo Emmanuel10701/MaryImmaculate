@@ -22,13 +22,23 @@ import {
 const getDepartmentsData = (departments) => {
   if (!departments) return [];
   
-  if (Array.isArray(departments)) return departments;
+  if (Array.isArray(departments)) {
+    // Handle both department objects and department strings
+    return departments.map(dept => {
+      if (typeof dept === 'string') return dept;
+      if (typeof dept === 'object' && dept.name) return dept.name;
+      return dept;
+    });
+  }
   
   if (typeof departments === 'object') {
     const allDepartments = [];
     Object.values(departments).forEach(deptArray => {
       if (Array.isArray(deptArray)) {
-        allDepartments.push(...deptArray);
+        deptArray.forEach(dept => {
+          if (typeof dept === 'string') allDepartments.push(dept);
+          if (typeof dept === 'object' && dept.name) allDepartments.push(dept.name);
+        });
       }
     });
     return allDepartments;
@@ -36,7 +46,6 @@ const getDepartmentsData = (departments) => {
   
   return [];
 };
-
 // Helper function to safely handle subjects data
 const getSubjectsData = (subjects) => {
   if (!subjects) return [];
@@ -1021,26 +1030,31 @@ export default function SchoolInfoTab() {
               </div>
 
               {/* Departments */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-3">
-                  <FiAward className="text-orange-500" />
-                  Departments ({displayDepartments.length})
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {displayDepartments.length > 0 ? (
-                    displayDepartments.map((department, index) => (
-                      <span
-                        key={index}
-                        className="bg-orange-100 text-orange-800 px-3 py-2 rounded-xl text-sm font-medium"
-                      >
-                        {department}
-                      </span>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 text-sm">No departments added yet</p>
-                  )}
-                </div>
-              </div>
+        {/* Departments */}
+<div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-6">
+  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-3">
+    <FiAward className="text-orange-500" />
+    Departments ({displayDepartments.length})
+  </h3>
+  <div className="flex flex-wrap gap-2">
+    {displayDepartments.length > 0 ? (
+      displayDepartments.map((department, index) => {
+        // Handle both string and object departments
+        const deptName = typeof department === 'object' ? department.name : department;
+        return (
+          <span
+            key={index}
+            className="bg-orange-100 text-orange-800 px-3 py-2 rounded-xl text-sm font-medium"
+          >
+            {deptName}
+          </span>
+        );
+      })
+    ) : (
+      <p className="text-gray-500 text-sm">No departments added yet</p>
+    )}
+  </div>
+</div>
             </div>
 
             {/* Fee Distribution Display */}

@@ -59,94 +59,8 @@ import {
 // ChatBot Component
 import ChatBot from './components/chat/page';
 
-// Sample data for leadership staff
-const sampleLeadershipStaff = [
-  {
-    id: 1,
-    name: "Dr. John Kamau",
-    role: "Principal",
-    department: "School Administration",
-    email: "principal@katwanyaa.ac.ke",
-    bio: "With over 20 years of experience in educational leadership, Dr. Kamau is committed to academic excellence and student development.",
-    expertise: ["Educational Leadership", "Curriculum Development"],
-    qualifications: ["PhD in Education", "M.Ed in Administration"],
-    image: "https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=400&h=400&fit=crop"
-  },
-  {
-    id: 2,
-    name: "Mrs. Sarah Wanjiku",
-    role: "Deputy Principal - Academics",
-    department: "Academic Affairs",
-    email: "academics@katwanyaa.ac.ke",
-    bio: "Dedicated to ensuring high academic standards and innovative teaching methodologies across all departments.",
-    expertise: ["Academic Planning", "Teacher Development"],
-    qualifications: ["M.Sc in Mathematics", "B.Ed in Sciences"],
-    image: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=400&fit=crop"
-  },
-  {
-    id: 3,
-    name: "Mr. Peter Ochieng",
-    role: "Deputy Principal - Administration",
-    department: "School Administration",
-    email: "administration@katwanyaa.ac.ke",
-    bio: "Focused on creating a conducive learning environment through efficient administrative systems and student welfare.",
-    expertise: ["School Management", "Student Affairs"],
-    qualifications: ["M.Ed in Administration", "B.A in Education"],
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop"
-  }
-];
 
-// Sample events data
-const sampleEvents = [
-  {
-    id: 1,
-    title: "Annual Science Fair",
-    description: "Showcasing innovative science projects from our students. Open to parents and visitors.",
-    date: "2024-03-15",
-    time: "9:00 AM - 3:00 PM",
-    location: "School Science Block",
-    category: "Academic",
-    featured: true,
-    registration: true,
-    image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1200&h=800&fit=crop"
-  },
-  {
-    id: 2,
-    title: "Sports Day Competition",
-    description: "Inter-house sports competition featuring track and field events.",
-    date: "2024-03-22",
-    time: "8:00 AM - 5:00 PM",
-    location: "School Playground",
-    category: "Sports",
-    featured: true,
-    registration: false,
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=800&fit=crop"
-  },
-  {
-    id: 3,
-    title: "Music Festival Auditions",
-    description: "Annual music festival preparations and student auditions for various categories.",
-    date: "2024-03-18",
-    time: "2:00 PM - 5:00 PM",
-    location: "School Hall",
-    category: "Music",
-    featured: false,
-    registration: true,
-    image: "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&h=800&fit=crop"
-  },
-  {
-    id: 4,
-    title: "Career Guidance Day",
-    description: "Professional career guidance and university representatives visit.",
-    date: "2024-03-25",
-    time: "10:00 AM - 2:00 PM",
-    location: "School Library",
-    category: "Academic",
-    featured: true,
-    registration: true,
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=800&fit=crop"
-  }
-];
+
 
 export default function ModernHero() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -190,7 +104,7 @@ export default function ModernHero() {
       subtitle: "Nurturing Future Leaders Through Innovative Learning",
       description: "At Katwanyaa, we combine traditional values with modern educational approaches to create well-rounded individuals ready for the challenges of tomorrow.",
       background: "bg-gradient-to-br from-blue-600 via-purple-700 to-indigo-800",
-      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      image: "/teachers.png",
       stats: { 
         students: "1300+", 
         excellence: "98% Success", 
@@ -204,7 +118,7 @@ export default function ModernHero() {
       subtitle: "Balancing Academics, Sports, and Character Building",
       description: "Our comprehensive programs ensure students develop not just academically, but also physically, socially, and spiritually in a nurturing environment.",
       background: "bg-gradient-to-br from-emerald-600 via-teal-700 to-green-800",
-      image: "https://images.unsplash.com/photo-1541336032412-2048a678540d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      image: "/teachers.png",
       stats: { 
         teams: "8+", 
         clubs: "12+", 
@@ -218,7 +132,7 @@ export default function ModernHero() {
       subtitle: "Technology-Enhanced Education for the Digital Age",
       description: "Experience cutting-edge learning with smart classrooms, advanced laboratories, and digital resources that prepare students for future careers.",
       background: "bg-gradient-to-br from-orange-500 via-red-600 to-pink-700",
-      image: "https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      image: "/teachers.png",
       stats: { 
         labs: "4", 
         tech: "Smart Classes", 
@@ -376,7 +290,7 @@ export default function ModernHero() {
     .slice(0, 3)
     .map(staff => ({
       ...staff,
-      image: staff.image ? `/api/uploads${staff.image}` : defaultImages.teacher1
+      image: staff.image ? `/api/staff${staff.image}` : defaultImages.teacher1
     }));
 
   // Enhanced event filtering with better date handling
@@ -398,7 +312,7 @@ export default function ModernHero() {
     .slice(0, 4)
     .map((event, index) => ({
       ...event,
-      image: event.image ? `/api/uploads${event.image}` : defaultImages[`event${(index % 3) + 1}`],
+      image: event.image ? `/api/event${event.image}` : defaultImages[`event${(index % 3) + 1}`],
       category: event.category || event.type || 'School Event',
       description: event.description || 'Join us for this school activity',
       registration: event.registration || false,

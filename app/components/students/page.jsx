@@ -62,6 +62,9 @@ const [showGraduationModal, setShowGraduationModal] = useState(false);
 const [selectedGraduatedStudent, setSelectedGraduatedStudent] = useState(null);
 const [showGraduatedDetailsModal, setShowGraduatedDetailsModal] = useState(false);
 const [repeatForm, setRepeatForm] = useState('Form 4');
+
+const [showConfirmModal, setShowConfirmModal] = useState(false);
+const [studentToDelete, setStudentToDelete] = useState(null);
   
   const [formData, setFormData] = useState({
     admissionNumber: '',
@@ -378,27 +381,35 @@ const handleViewDetails = async (student) => {
   };
 
 const handleDelete = async (student) => {
-  if (confirm(`Are you sure you want to delete ${student.name}? This action cannot be undone.`)) {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/student/${student.id}`, {
-        method: 'DELETE',
-      });
+  setStudentToDelete(student);
+  setShowConfirmModal(true);
+};
 
-      const result = await response.json();
+// Add this new function to actually perform deletion
+const confirmDelete = async () => {
+  if (!studentToDelete) return;
+  
+  try {
+    setLoading(true);
+    const response = await fetch(`/api/student/${studentToDelete.id}`, {
+      method: 'DELETE',
+    });
 
-      if (result.success) {
-        setStudents(students.filter(s => s.id !== student.id));
-        toast.success('Student deleted successfully');
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Error deleting student:', error);
-      toast.error(error.message || 'Failed to delete student');
-    } finally {
-      setLoading(false);
+    const result = await response.json();
+
+    if (result.success) {
+      setStudents(students.filter(s => s.id !== studentToDelete.id));
+      toast.success('Student deleted successfully');
+    } else {
+      throw new Error(result.error);
     }
+  } catch (error) {
+    console.error('Error deleting student:', error);
+    toast.error(error.message || 'Failed to delete student');
+  } finally {
+    setLoading(false);
+    setShowConfirmModal(false);
+    setStudentToDelete(null);
   }
 };
 
@@ -866,19 +877,6 @@ const getStudentsByForm = (form) => {
             <FiDownload className="text-lg" />
             Export CSV
           </motion.button>
-
-           <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={() => {
-        setShowGraduationModal(true);
-        fetchGraduatedStudents();
-      }}
-      className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-4 py-3 rounded-xl font-semibold flex items-center gap-2 justify-center transition-all duration-300"
-    >
-      <FiAward className="text-lg" />
-      Export Graduated
-    </motion.button>
         </div>
 
      {/* Additional Actions */}
@@ -924,99 +922,91 @@ const getStudentsByForm = (form) => {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {currentStudents.map((student) => (
-                  <motion.tr
-                    key={student.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() => handleViewDetails(student)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
-                          {student.name.charAt(0)}
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-semibold text-gray-900">{student.name}</div>
-                          <div className="text-sm text-gray-500">{student.gender}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-mono text-gray-900">{student.admissionNumber}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-semibold text-gray-900">{student.form}</div>
-                      <div className="text-sm text-gray-500">{student.stream} Stream</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <StatusBadge status={student.status} />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <PerformanceBadge level={student.academicPerformance} />
-                      <div className="text-sm text-gray-500 mt-1">Attendance: {student.attendance}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{student.parentName}</div>
-                      <div className="text-sm text-gray-500">{student.parentPhone}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewDetails(student);
-                          }}
-                          className="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-colors"
-                          title="View Details"
-                        >
-                          <FiEye className="text-sm" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewHistory(student);
-                          }}
-                          className="text-purple-600 hover:text-purple-900 p-2 rounded-lg hover:bg-purple-50 transition-colors"
-                          title="Promotion History"
-                        >
-                          <FiMapPin className="text-sm" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(student);
-                          }}
-                          className="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition-colors"
-                          title="Edit"
-                        >
-                          <FiEdit className="text-sm" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(student);
-                          }}
-                          className="text-red-600 hover:text-red-900 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                          title="Delete"
-                        >
-                          <FiTrash2 className="text-sm" />
-                        </motion.button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
+  <tbody className="divide-y divide-gray-200">
+  {currentStudents.map((student) => (
+    <motion.tr
+      key={student.id}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="hover:bg-gray-50 transition-colors cursor-pointer"
+      onClick={() => handleViewDetails(student)}
+    >
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center">
+          <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+            {student.name.charAt(0)}
+          </div>
+          <div className="ml-4">
+            <div className="text-sm font-semibold text-gray-900">{student.name}</div>
+            <div className="text-sm text-gray-500">{student.gender}</div>
+          </div>
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-sm font-mono text-gray-900">{student.admissionNumber}</div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-sm font-semibold text-gray-900">{student.form}</div>
+        <div className="text-sm text-gray-500">{student.stream} Stream</div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <StatusBadge status={student.status} />
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <PerformanceBadge level={student.academicPerformance} />
+        <div className="text-sm text-gray-500 mt-1">Attendance: {student.attendance}</div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-sm text-gray-900">{student.parentName}</div>
+        <div className="text-sm text-gray-500">{student.parentPhone}</div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        <div className="flex gap-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetails(student);
+            }}
+            className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors min-w-[40px]"
+            title="View Details"
+          >
+            View
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewHistory(student);
+            }}
+            className="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white text-xs rounded transition-colors min-w-[45px]"
+            title="Promotion History"
+          >
+            History
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(student);
+            }}
+            className="px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded transition-colors min-w-[40px]"
+            title="Edit"
+          >
+            Edit
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(student);
+            }}
+            className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded transition-colors min-w-[45px]"
+            title="Delete"
+          >
+            Delete
+          </button>
+        </div>
+      </td>
+    </motion.tr>
+  ))}
+</tbody>
             </table>
           </div>
 
@@ -2005,124 +1995,217 @@ const getStudentsByForm = (form) => {
 </AnimatePresence>
 
 
-      {/* Promotion/Graduation Modal */}
-      <AnimatePresence>
-        {showPromotionModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-            onClick={() => setShowPromotionModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl w-full max-w-md"
-              onClick={(e) => e.stopPropagation()}
+{/* Confirmation Modal */}
+<AnimatePresence>
+  {showConfirmModal && studentToDelete && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[60]"
+      onClick={() => setShowConfirmModal(false)}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-white rounded-xl w-full max-w-md"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <FiXCircle className="text-red-600 text-xl" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800">Confirm Deletion</h3>
+          </div>
+          
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to delete <span className="font-semibold text-gray-800">{studentToDelete.name}</span>? 
+            This action cannot be undone.
+          </p>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setShowConfirmModal(false);
+                setStudentToDelete(null);
+              }}
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors text-sm"
             >
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-800">Promote/Graduate Class</h2>
-                  <button
-                    onClick={() => setShowPromotionModal(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <FiX className="text-xl text-gray-600" />
-                  </button>
-                </div>
-              </div>
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              disabled={loading}
+              className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <FiRefreshCcw className="animate-spin text-sm" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <FiTrash2 className="text-sm" />
+                  Delete Student
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
-              <div className="p-6 space-y-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Select Class
-                  </label>
-                  <select
-                    value={promotionClass}
-                    onChange={(e) => setPromotionClass(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select a class</option>
-                    {forms.map(form => (
-                      <option key={form} value={form}>{form}</option>
-                    ))}
-                  </select>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Action
-                  </label>
-                  <select
-                    value={promotionAction}
-                    onChange={(e) => setPromotionAction(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="promote">Promote to Next Class</option>
-                    <option value="graduate">Graduate Class</option>
-                  </select>
-                </div>
+     {/* Promotion/Graduation Modal */}
+<AnimatePresence>
+  {showPromotionModal && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+      onClick={() => setShowPromotionModal(false)}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-white rounded-2xl w-full max-w-md"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-800">Promote/Graduate Class</h2>
+            <button
+              onClick={() => setShowPromotionModal(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <FiX className="text-xl text-gray-600" />
+            </button>
+          </div>
+        </div>
 
-                {promotionClass && (
-                  <div className="bg-blue-50 p-4 rounded-xl">
-                    <h4 className="font-semibold text-blue-800 mb-2">Action Preview:</h4>
-                    <p className="text-blue-700 text-sm">
-                      {promotionAction === 'promote' ? (
-                        <>
-                          All <span className="font-bold">{promotionClass}</span> students will be promoted to{' '}
-                          <span className="font-bold">{promotionMap[promotionClass]}</span>
-                          {promotionMap[promotionClass] === 'Graduated' && ' and marked as Graduated'}
-                        </>
-                      ) : (
-                        <>
-                          All <span className="font-bold">{promotionClass}</span> students will be marked as{' '}
-                          <span className="font-bold">Graduated</span>
-                        </>
-                      )}
-                    </p>
-                    <p className="text-blue-600 text-xs mt-2">
-                      Affected students: {getStudentsByForm(promotionClass)}
-                    </p>
-                  </div>
-                )}
+        <div className="p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Select Class
+            </label>
+            <select
+              value={promotionClass}
+              onChange={(e) => setPromotionClass(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Select a class</option>
+              {forms.map(form => (
+                <option key={form} value={form}>{form}</option>
+              ))}
+            </select>
+          </div>
 
-                <div className="flex gap-4 pt-4">
-                  <button
-                    onClick={() => setShowPromotionModal(false)}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handlePromotion}
-                    disabled={!promotionClass || loading}
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {loading ? (
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Action
+            </label>
+            <select
+              value={promotionAction}
+              onChange={(e) => setPromotionAction(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="promote">Promote to Next Class</option>
+              <option value="graduate">Graduate Class</option>
+            </select>
+          </div>
+
+          {promotionClass && (
+            <div className={`p-4 rounded-xl ${
+              promotionAction === 'promote' && promotionClass !== 'Form 4' 
+                ? 'bg-yellow-50 border border-yellow-200' 
+                : 'bg-blue-50'
+            }`}>
+              <h4 className="font-semibold mb-2 ${
+                promotionAction === 'promote' && promotionClass !== 'Form 4' 
+                  ? 'text-yellow-800' 
+                  : 'text-blue-800'
+              }">
+                Action Preview:
+              </h4>
+              <p className={`text-sm ${
+                promotionAction === 'promote' && promotionClass !== 'Form 4' 
+                  ? 'text-yellow-700' 
+                  : 'text-blue-700'
+              }`}>
+                {promotionAction === 'promote' ? (
+                  <>
+                    All <span className="font-bold">{promotionClass}</span> students will be promoted to{' '}
+                    <span className="font-bold">{promotionMap[promotionClass]}</span>
+                    {promotionMap[promotionClass] === 'Graduated' && ' and marked as Graduated'}
+                    {promotionClass !== 'Form 4' && (
                       <>
-                        <FiLoader className="animate-spin" />
-                        Processing...
-                      </>
-                    ) : promotionAction === 'promote' ? (
-                      <>
-                        <FiTrendingUp />
-                        Promote Class
-                      </>
-                    ) : (
-                      <>
-<FiAward />
-                        Graduate Class
+                        <br /><br />
+                        <span className="font-semibold text-yellow-600">
+                          ⚠️ Important: Promotion will only succeed if {promotionMap[promotionClass]} is empty.
+                          If there are existing students in {promotionMap[promotionClass]}, 
+                          you must graduate them first.
+                        </span>
                       </>
                     )}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  </>
+                ) : (
+                  <>
+                    All <span className="font-bold">{promotionClass}</span> students will be marked as{' '}
+                    <span className="font-bold">Graduated</span>
+                  </>
+                )}
+              </p>
+              <p className={`text-xs mt-2 ${
+                promotionAction === 'promote' && promotionClass !== 'Form 4' 
+                  ? 'text-yellow-600' 
+                  : 'text-blue-600'
+              }`}>
+                Affected students: {getStudentsByForm(promotionClass)}
+              </p>
+            </div>
+          )}
+
+          <div className="flex gap-4 pt-4">
+            <button
+              onClick={() => setShowPromotionModal(false)}
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handlePromotion}
+              disabled={!promotionClass || loading}
+              className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <FiLoader className="animate-spin" />
+                  Processing...
+                </>
+              ) : promotionAction === 'promote' ? (
+                <>
+                  <FiTrendingUp />
+                  Promote Class
+                </>
+              ) : (
+                <>
+                  <FiAward />
+                  Graduate Class
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
     </div>
   );
 }

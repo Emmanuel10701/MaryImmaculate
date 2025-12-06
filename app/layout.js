@@ -20,11 +20,10 @@ export const metadata = {
     "Official website for Katwanyaa High School. Discover our academic programs, vibrant community, and achievements in STEAM and co-curricular activities.",
   icons: {
     icon: [
-      { url: "../public/logo.jpg", type: "image/jpg", sizes: "32x32" },
-      { url: "../public/logo.png", type: "image/png", sizes: "32x32" },
+      { url: "/lll.png", type: "image/png", sizes: "32x32" },
+      { url: "/lll.png", type: "image/png", sizes: "32x32" },
     ],
-    apple: "../public/logo.jpg",
-  },
+  apple: "/lll.png",},
 };
 
 export default function RootLayout({ children }) {

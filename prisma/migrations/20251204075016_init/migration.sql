@@ -205,8 +205,48 @@ CREATE TABLE `Student` (
     `status` VARCHAR(191) NOT NULL DEFAULT 'Active',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `isClassPrefect` BOOLEAN NOT NULL DEFAULT false,
+    `isClassAssistant` BOOLEAN NOT NULL DEFAULT false,
+    `isBellRinger` BOOLEAN NOT NULL DEFAULT false,
 
     UNIQUE INDEX `Student_admissionNumber_key`(`admissionNumber`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `student_councils` (
+    `id` VARCHAR(191) NOT NULL,
+    `position` ENUM('President', 'DeputyPresident', 'SchoolCaptain', 'DeputyCaptain', 'AcademicsSecretary', 'SportsSecretary', 'EntertainmentSecretary', 'CleaningSecretary', 'MealsSecretary', 'BellRinger', 'DisciplineSecretary', 'HealthSecretary', 'LibrarySecretary', 'TransportSecretary', 'EnvironmentSecretary', 'SpiritualSecretary', 'TechnologySecretary', 'Assistant', 'ClassRepresentative', 'ClassAssistant') NOT NULL,
+    `department` ENUM('Presidency', 'Academics', 'Sports', 'Entertainment', 'Cleaning', 'Meals', 'Discipline', 'Health', 'Library', 'Transport', 'Environment', 'Spiritual', 'Technology', 'General') NULL,
+    `studentId` INTEGER NOT NULL,
+    `form` VARCHAR(191) NULL,
+    `stream` VARCHAR(191) NULL,
+    `startDate` DATETIME(3) NOT NULL,
+    `endDate` DATETIME(3) NULL,
+    `status` ENUM('Active', 'Inactive', 'Graduated') NOT NULL DEFAULT 'Active',
+    `image` VARCHAR(191) NULL,
+    `achievements` VARCHAR(191) NULL,
+    `responsibilities` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `student_councils_studentId_position_department_form_stream_key`(`studentId`, `position`, `department`, `form`, `stream`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `PromotionHistory` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `studentId` INTEGER NOT NULL,
+    `fromForm` VARCHAR(191) NOT NULL,
+    `toForm` VARCHAR(191) NOT NULL,
+    `fromStream` VARCHAR(191) NOT NULL,
+    `toStream` VARCHAR(191) NOT NULL,
+    `promotedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `promotedBy` VARCHAR(191) NOT NULL DEFAULT 'System',
+
+    INDEX `PromotionHistory_studentId_idx`(`studentId`),
+    INDEX `PromotionHistory_promotedAt_idx`(`promotedAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -235,3 +275,9 @@ CREATE TABLE `SchoolInfo` (
 
 -- AddForeignKey
 ALTER TABLE `PasswordReset` ADD CONSTRAINT `PasswordReset_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `student_councils` ADD CONSTRAINT `student_councils_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PromotionHistory` ADD CONSTRAINT `PromotionHistory_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

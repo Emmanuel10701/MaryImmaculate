@@ -8,6 +8,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 // ==========================================
@@ -49,15 +50,13 @@ model VerificationToken {
 }
 
 model PasswordReset {
-  id          String    @id @default(cuid())
-  userId      String
-  token       String    @unique
-  createdAt   DateTime  @default(now())
-  expiresAt   DateTime
-  used        Boolean   @default(false) 
-  ipAddress   String?
-  
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expires   DateTime
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ==========================================
@@ -177,28 +176,52 @@ model GalleryImage {
   id          Int        @id @default(autoincrement())
   title       String
   description String?
-  category    Category
-  department  Department
+  category    Category   // Single unified category field
   files       Json       // store array of file paths (images/videos)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
 
 enum Category {
-  SPORTS
-  ADMINISTRATION
-  STUDENT_COUNCIL
-  DRAMA
-  MUSIC
-  ART
-  OTHER
-}
-
-enum Department {
-  SCIENCES
-  EXAMS
-  HUMANITIES
-  ARTS
+  GENERAL
+  CLASSROOMS
+  LABORATORIES
+  DORMITORIES
+  DINING_HALL
+  SPORTS_FACILITIES
+  
+  // Academic
+  TEACHING
+  SCIENCE_LAB
+  COMPUTER_LAB
+  
+  // Events
+  SPORTS_DAY
+  MUSIC_FESTIVAL
+  DRAMA_PERFORMANCE
+  ART_EXHIBITION
+  DEBATE_COMPETITION
+  SCIENCE_FAIR
+  
+  // Administrative
+  ADMIN_OFFICES
+  STAFF
+  PRINCIPAL
+  BOARD
+  
+  // Special Occasions
+  GRADUATION
+  AWARD_CEREMONY
+  PARENTS_DAY
+  OPEN_DAY
+  VISITORS
+  
+  // Student Life
+  STUDENT_ACTIVITIES
+  CLUBS
+  COUNCIL
+  LEADERSHIP
+  
   OTHER
 }
 
@@ -327,7 +350,7 @@ model PromotionHistory {
 model SchoolInfo {
   id               Int       @id @default(autoincrement())
   name             String
-  description      String?
+  description      String   @db.Text
   videoTour        String?   // URL or local path
   videoType        String?   // "youtube" | "file"
   studentCount     Int
