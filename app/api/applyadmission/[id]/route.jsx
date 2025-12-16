@@ -453,11 +453,6 @@ function getApplicantConfirmationTemplate(name, appNumber) {
                 <p style="margin: 0; font-weight: 600; font-size: 15px;">${CONTACT_EMAIL}</p>
                 <p class="text-small">Email Us</p>
               </div>
-              <div class="contact-item">
-                <span class="contact-icon">🏫</span>
-                <p style="margin: 0; font-weight: 600; font-size: 15px;">${SCHOOL_LOCATION}</p>
-                <p class="text-small">Visit Us</p>
-              </div>
             </div>
             <p style="margin-top: 15px; font-size: 13px; color: #666;">
               Office Hours: Monday - Friday, 8:00 AM - 5:00 PM
@@ -1266,10 +1261,7 @@ function getStatusUpdateTemplate(application, newStatus, updateData = {}) {
                 <p style="margin: 0; font-weight: 600; font-size: 14px;">${CONTACT_EMAIL}</p>
                 <p class="label">Email Us</p>
               </div>
-              <div class="contact-item">
-                <p style="margin: 0; font-weight: 600; font-size: 14px;">${SCHOOL_LOCATION}</p>
-                <p class="label">Visit Us</p>
-              </div>
+      
             </div>
             <p style="margin-top: 12px; font-size: 12px; color: #666; text-align: center;">
               Office Hours: Monday - Friday, 8:00 AM - 5:00 PM

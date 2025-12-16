@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { toast } from 'sonner'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { Toaster, toast } from 'sonner'
 import {
   User,
   Calendar,
@@ -38,24 +38,108 @@ import {
   BookOpen,
   Target,
   Award,
-  Trophy
+  Trophy,
+  Check,
+  MoreVertical,
+  Trash2,
+  FileUp,
+  CheckSquare,
+  Square,
+  Send,
+  FileText,
+  Upload,
+  FileSpreadsheet,
+  Archive,
+  FileX,
+  AlertTriangle,
+  UserPlus,
+  MailCheck,
+  FileCheck,
+  Columns,
+  Settings,
+  Bell,
+  ExternalLink,
+  Briefcase,
+  School,
+  Home,
+  Globe,
+  Map,
+  Heart,
+  TargetIcon,
+  BookMarked,
+  BookOpenCheck,
+  AwardIcon,
+  Crown,
+  Sparkles,
+  Zap,
+  Rocket,
+  TrendingUp as TrendingUpIcon,
+  ChevronRight,
+  ChevronLeft,
+  FileDown,
+  Printer,
+  Share2,
+  Copy,
+  FilterX,
+  CalendarDays,
+  UserCircle,
+  MailOpen,
+  Smartphone,
+  MessageSquare,
+  FilePlus,
+  CheckCheck
 } from 'lucide-react'
 
-// ====================================================================
-// DECISION MAKING DASHBOARD COMPONENT
-// ====================================================================
+// Modern Calendar Component
+const ModernCalendar = ({ value, onChange, placeholder = "Select date" }) => {
+  return (
+    <div className="relative">
+      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+      <input
+        type="date"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+        placeholder={placeholder}
+      />
+    </div>
+  )
+}
 
-export default function EnhancedDecisionDashboard() {
+// Modern Modal Component
+const ModernModal = ({ children, open, onClose, maxWidth = '800px' }) => {
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+      <div 
+        className="bg-white rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden"
+        style={{ 
+          width: '85%',
+          maxWidth: maxWidth,
+          maxHeight: '85vh',
+          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
+export default function ModernApplicationsDashboard() {
   // Main State
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   
   // View States
-  const [activeView, setActiveView] = useState('all') // 'all', 'pending', 'decided'
+  const [activeView, setActiveView] = useState('all')
+  const [selectedApplications, setSelectedApplications] = useState(new Set())
   const [selectedApplication, setSelectedApplication] = useState(null)
-  const [showDetailModal, setShowDetailModal] = useState(false)
   const [showDecisionModal, setShowDecisionModal] = useState(false)
+  const [showBulkModal, setShowBulkModal] = useState(false)
+  const [showDetailSidebar, setShowDetailSidebar] = useState(false)
   
   // Filter States
   const [searchTerm, setSearchTerm] = useState('')
@@ -64,16 +148,15 @@ export default function EnhancedDecisionDashboard() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [sortBy, setSortBy] = useState('newest')
-  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
   
   // Decision State
+  const [decisionType, setDecisionType] = useState('')
   const [decisionData, setDecisionData] = useState({
     status: '',
     notes: '',
     admissionClass: '',
     assignedStream: '',
     reportingDate: '',
-    feeStructure: '',
     conditions: '',
     conditionDeadline: '',
     rejectionReason: '',
@@ -84,10 +167,19 @@ export default function EnhancedDecisionDashboard() {
     admissionOfficer: 'Admissions Committee'
   })
   
+  // Bulk Decision State
+  const [bulkDecisionType, setBulkDecisionType] = useState('')
+  const [bulkDecisionData, setBulkDecisionData] = useState({
+    status: '',
+    notes: '',
+    sendEmail: true
+  })
+  
   // Loading States
   const [loadingStates, setLoadingStates] = useState({
     detail: false,
-    decision: false
+    decision: false,
+    bulk: false
   })
   
   // Stats
@@ -116,24 +208,61 @@ export default function EnhancedDecisionDashboard() {
   // Status options
   const statusOptions = [
     { value: 'all', label: 'All Status' },
-    { value: 'PENDING', label: 'Pending', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-    { value: 'UNDER_REVIEW', label: 'Under Review', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-    { value: 'INTERVIEW_SCHEDULED', label: 'Interview Scheduled', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
-    { value: 'INTERVIEWED', label: 'Interviewed', color: 'bg-purple-100 text-purple-800 border-purple-200' },
-    { value: 'ACCEPTED', label: 'Accepted', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
-    { value: 'CONDITIONAL_ACCEPTANCE', label: 'Conditional', color: 'bg-teal-100 text-teal-800 border-teal-200' },
-    { value: 'WAITLISTED', label: 'Waitlisted', color: 'bg-orange-100 text-orange-800 border-orange-200' },
-    { value: 'REJECTED', label: 'Rejected', color: 'bg-rose-100 text-rose-800 border-rose-200' }
+    { value: 'PENDING', label: 'Pending', color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: Clock },
+    { value: 'UNDER_REVIEW', label: 'Under Review', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: Eye },
+    { value: 'INTERVIEW_SCHEDULED', label: 'Interview Scheduled', color: 'bg-indigo-100 text-indigo-800 border-indigo-200', icon: CalendarDays },
+    { value: 'INTERVIEWED', label: 'Interviewed', color: 'bg-purple-100 text-purple-800 border-purple-200', icon: UserCheck },
+    { value: 'ACCEPTED', label: 'Accepted', color: 'bg-emerald-100 text-emerald-800 border-emerald-200', icon: CheckCircle2 },
+    { value: 'CONDITIONAL_ACCEPTANCE', label: 'Conditional', color: 'bg-teal-100 text-teal-800 border-teal-200', icon: ShieldCheck },
+    { value: 'WAITLISTED', label: 'Waitlisted', color: 'bg-amber-100 text-amber-800 border-amber-200', icon: Clock },
+    { value: 'REJECTED', label: 'Rejected', color: 'bg-rose-100 text-rose-800 border-rose-200', icon: XCircle }
   ]
   
   // Decision types
   const decisionTypes = [
-    { value: 'ACCEPTED', label: 'Accept', color: 'bg-emerald-500 hover:bg-emerald-600', icon: CheckCircle2 },
-    { value: 'CONDITIONAL_ACCEPTANCE', label: 'Conditional', color: 'bg-teal-500 hover:bg-teal-600', icon: ShieldCheck },
-    { value: 'WAITLISTED', label: 'Waitlist', color: 'bg-amber-500 hover:bg-amber-600', icon: Clock },
-    { value: 'REJECTED', label: 'Reject', color: 'bg-rose-500 hover:bg-rose-600', icon: XCircle },
-    { value: 'INTERVIEW_SCHEDULED', label: 'Schedule Interview', color: 'bg-indigo-500 hover:bg-indigo-600', icon: Calendar },
-    { value: 'UNDER_REVIEW', label: 'Mark for Review', color: 'bg-blue-500 hover:bg-blue-600', icon: Eye }
+    { 
+      value: 'ACCEPTED', 
+      label: 'Accept', 
+      color: 'bg-gradient-to-r from-emerald-500 to-green-500', 
+      icon: CheckCircle2 
+    },
+    { 
+      value: 'CONDITIONAL_ACCEPTANCE', 
+      label: 'Conditional', 
+      color: 'bg-gradient-to-r from-teal-500 to-cyan-500', 
+      icon: ShieldCheck 
+    },
+    { 
+      value: 'WAITLISTED', 
+      label: 'Waitlist', 
+      color: 'bg-gradient-to-r from-amber-500 to-orange-500', 
+      icon: Clock 
+    },
+    { 
+      value: 'REJECTED', 
+      label: 'Reject', 
+      color: 'bg-gradient-to-r from-rose-500 to-pink-500', 
+      icon: XCircle 
+    },
+    { 
+      value: 'INTERVIEW_SCHEDULED', 
+      label: 'Schedule Interview', 
+      color: 'bg-gradient-to-r from-indigo-500 to-purple-500', 
+      icon: Calendar 
+    }
+  ]
+  
+  // Table columns
+  const columns = [
+    { key: 'select', label: '', width: 'w-12' },
+    { key: 'applicant', label: 'Applicant', width: 'w-48' },
+    { key: 'applicationNumber', label: 'Application #', width: 'w-32' },
+    { key: 'kcpeMarks', label: 'KCPE Score', width: 'w-28' },
+    { key: 'preferredStream', label: 'Stream', width: 'w-28' },
+    { key: 'status', label: 'Status', width: 'w-36' },
+    { key: 'submitted', label: 'Submitted', width: 'w-36' },
+    { key: 'score', label: 'Score', width: 'w-28' },
+    { key: 'actions', label: 'Actions', width: 'w-24' }
   ]
   
   // Fetch applications
@@ -146,9 +275,7 @@ export default function EnhancedDecisionDashboard() {
       setRefreshing(true)
       const response = await fetch('/api/applyadmission')
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
+      if (!response.ok) throw new Error('Failed to fetch applications')
       
       const data = await response.json()
       
@@ -156,12 +283,13 @@ export default function EnhancedDecisionDashboard() {
         const apps = data.applications || []
         setApplications(apps)
         updateStats(apps)
+        toast.success(`Loaded ${apps.length} applications`)
       } else {
         toast.error(data.error || 'Failed to load applications')
       }
     } catch (error) {
-      console.error('Error fetching applications:', error)
-      toast.error('Network error. Please check your connection.')
+      console.error('Error:', error)
+      toast.error('Network error. Please check connection.')
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -192,10 +320,8 @@ export default function EnhancedDecisionDashboard() {
       if (app.status === 'CONDITIONAL_ACCEPTANCE') newStats.conditional++
       if (app.status === 'WAITLISTED') newStats.waitlisted++
       if (app.status === 'REJECTED') newStats.rejected++
-      if (app.status === 'WITHDRAWN') newStats.withdrawn++
     })
     
-    // Calculate decision rate
     const decided = apps.filter(app => 
       app.status !== 'PENDING' && app.status !== 'UNDER_REVIEW'
     ).length
@@ -206,7 +332,7 @@ export default function EnhancedDecisionDashboard() {
     setStats(newStats)
   }
   
-  // Filter and categorize applications
+  // Filter and sort applications
   const filteredApplications = useMemo(() => {
     return applications
       .filter(app => {
@@ -220,7 +346,6 @@ export default function EnhancedDecisionDashboard() {
         const matchesStatus = filterStatus === 'all' || app.status === filterStatus
         const matchesStream = filterStream === 'all' || app.preferredStream === filterStream
         
-        // Date filtering
         let matchesDate = true
         if (startDate || endDate) {
           const appDate = new Date(app.createdAt)
@@ -234,7 +359,6 @@ export default function EnhancedDecisionDashboard() {
           }
         }
         
-        // View filtering
         let matchesView = true
         if (activeView === 'pending') {
           matchesView = app.status === 'PENDING' || app.status === 'UNDER_REVIEW'
@@ -264,144 +388,24 @@ export default function EnhancedDecisionDashboard() {
       })
   }, [applications, searchTerm, filterStatus, filterStream, startDate, endDate, activeView, sortBy])
   
-  // Get applications for current view
-  const currentApplications = useMemo(() => {
-    return filteredApplications
-  }, [filteredApplications])
-  
-  // View application details
-  const viewApplicationDetails = async (application) => {
-    try {
-      setLoadingStates(prev => ({ ...prev, detail: true }))
-      const response = await fetch(`/api/applyadmission/${application.id}`)
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        setSelectedApplication(data.application)
-        setShowDetailModal(true)
-      } else {
-        toast.error(data.error || 'Failed to load application details')
-      }
-    } catch (error) {
-      console.error('Error fetching application details:', error)
-      toast.error('Network error')
-    } finally {
-      setLoadingStates(prev => ({ ...prev, detail: false }))
+  // Toggle selection
+  const toggleSelectAll = () => {
+    if (selectedApplications.size === filteredApplications.length) {
+      setSelectedApplications(new Set())
+    } else {
+      const allIds = new Set(filteredApplications.map(app => app.id))
+      setSelectedApplications(allIds)
     }
   }
   
-  // Open decision modal
-  const openDecisionModal = (application, decisionType = null) => {
-    setSelectedApplication(application)
-    setDecisionData({
-      status: decisionType || application.status,
-      notes: '',
-      admissionClass: application.admissionClass || '',
-      assignedStream: application.assignedStream || application.preferredStream || '',
-      reportingDate: application.reportingDate || '',
-      feeStructure: '',
-      conditions: application.conditions || '',
-      conditionDeadline: application.conditionDeadline || '',
-      rejectionReason: application.rejectionReason || '',
-      alternativeSuggestions: application.alternativeSuggestions || '',
-      waitlistPosition: application.waitlistPosition || '',
-      waitlistNotes: application.waitlistNotes || '',
-      sendEmail: true,
-      admissionOfficer: 'Admissions Committee'
-    })
-    setShowDecisionModal(true)
-  }
-  
-  // Update application status
-  const updateApplicationStatus = async () => {
-    if (!selectedApplication) return
-    
-    try {
-      setLoadingStates(prev => ({ ...prev, decision: true }))
-      
-      const requestBody = {
-        status: decisionData.status,
-        notes: decisionData.notes,
-        admissionOfficer: decisionData.admissionOfficer,
-        decisionDate: new Date().toISOString()
-      }
-      
-      // Add decision-specific data
-      if (decisionData.status === 'ACCEPTED') {
-        requestBody.assignedStream = decisionData.assignedStream
-        requestBody.admissionClass = decisionData.admissionClass
-        requestBody.reportingDate = decisionData.reportingDate
-        requestBody.admissionDate = new Date().toISOString()
-      } else if (decisionData.status === 'REJECTED') {
-        requestBody.rejectionReason = decisionData.rejectionReason
-        requestBody.alternativeSuggestions = decisionData.alternativeSuggestions
-        requestBody.rejectionDate = new Date().toISOString()
-      } else if (decisionData.status === 'WAITLISTED') {
-        requestBody.waitlistPosition = decisionData.waitlistPosition
-        requestBody.waitlistNotes = decisionData.waitlistNotes
-      } else if (decisionData.status === 'CONDITIONAL_ACCEPTANCE') {
-        requestBody.conditions = decisionData.conditions
-        requestBody.conditionDeadline = decisionData.conditionDeadline
-      }
-      
-      const response = await fetch(`/api/applyadmission/${selectedApplication.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody)
-      })
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        toast.success(`Application ${decisionData.status.toLowerCase()} successfully`)
-        
-        // Update local state
-        const updatedApplications = applications.map(app => 
-          app.id === selectedApplication.id ? { 
-            ...app, 
-            ...requestBody,
-            status: decisionData.status
-          } : app
-        )
-        
-        setApplications(updatedApplications)
-        updateStats(updatedApplications)
-        
-        // Close modal
-        setShowDecisionModal(false)
-        setSelectedApplication(null)
-        setDecisionData({
-          status: '',
-          notes: '',
-          admissionClass: '',
-          assignedStream: '',
-          reportingDate: '',
-          feeStructure: '',
-          conditions: '',
-          conditionDeadline: '',
-          rejectionReason: '',
-          alternativeSuggestions: '',
-          waitlistPosition: '',
-          waitlistNotes: '',
-          sendEmail: true,
-          admissionOfficer: 'Admissions Committee'
-        })
-      } else {
-        toast.error(data.error || 'Failed to update application')
-      }
-    } catch (error) {
-      console.error('Error updating application:', error)
-      toast.error('Network error. Please try again.')
-    } finally {
-      setLoadingStates(prev => ({ ...prev, decision: false }))
+  const toggleSelectApplication = (id) => {
+    const newSelection = new Set(selectedApplications)
+    if (newSelection.has(id)) {
+      newSelection.delete(id)
+    } else {
+      newSelection.add(id)
     }
+    setSelectedApplications(newSelection)
   }
   
   // Calculate application score
@@ -424,113 +428,359 @@ export default function EnhancedDecisionDashboard() {
     return Math.min(100, Math.round(score))
   }
   
-  const getScoreColor = (score) => {
-    if (score >= 80) return 'bg-gradient-to-r from-emerald-500 to-green-500'
-    if (score >= 60) return 'bg-gradient-to-r from-blue-500 to-cyan-500'
-    if (score >= 40) return 'bg-gradient-to-r from-amber-500 to-orange-500'
-    return 'bg-gradient-to-r from-rose-500 to-red-500'
-  }
-  
+  // Get status badge
   const getStatusBadge = (status) => {
     const statusConfig = statusOptions.find(s => s.value === status)
     if (!statusConfig) return null
     
+    const Icon = statusConfig.icon || CheckCircle2
+    
     return (
-      <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${statusConfig.color}`}>
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>
+        <Icon className="w-3 h-3" />
         {statusConfig.label}
       </span>
     )
   }
   
+  // Get stream badge
   const getStreamBadge = (streamValue) => {
     const stream = streams.find(s => s.value === streamValue) || streams[0]
     return (
-      <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-100 to-blue-50 text-blue-800 border border-blue-200">
+      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-800 border border-blue-200">
         <span>{stream.icon}</span>
         {stream.label}
       </span>
     )
   }
   
+  // Format date
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
+      year: 'numeric'
     })
   }
   
-  const calculateAge = (dateOfBirth) => {
-    if (!dateOfBirth) return 'N/A'
-    const today = new Date()
-    const birthDate = new Date(dateOfBirth)
-    let age = today.getFullYear() - birthDate.getFullYear()
-    const monthDiff = today.getMonth() - birthDate.getMonth()
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--
+  // Open decision modal for single application
+  const openDecisionModal = (application, type = '') => {
+    setSelectedApplication(application)
+    setDecisionType(type)
+    setDecisionData({
+      status: type || application.status,
+      notes: '',
+      admissionClass: application.admissionClass || '',
+      assignedStream: application.assignedStream || application.preferredStream || '',
+      reportingDate: application.reportingDate || '',
+      conditions: application.conditions || '',
+      conditionDeadline: application.conditionDeadline || '',
+      rejectionReason: application.rejectionReason || '',
+      alternativeSuggestions: application.alternativeSuggestions || '',
+      waitlistPosition: application.waitlistPosition || '',
+      waitlistNotes: application.waitlistNotes || '',
+      sendEmail: true,
+      admissionOfficer: 'Admissions Committee'
+    })
+    setShowDecisionModal(true)
+  }
+  
+  // Open bulk decision modal
+  const openBulkModal = (type = '') => {
+    if (selectedApplications.size === 0) {
+      toast.error('Please select applications first')
+      return
     }
-    return age
+    
+    setBulkDecisionType(type)
+    setBulkDecisionData({
+      status: type || '',
+      notes: '',
+      sendEmail: true
+    })
+    setShowBulkModal(true)
+  }
+  
+  // Update single application status
+  const updateApplicationStatus = async () => {
+    if (!selectedApplication || !decisionType) return
+    
+    try {
+      setLoadingStates(prev => ({ ...prev, decision: true }))
+      
+      const requestBody = {
+        status: decisionType,
+        notes: decisionData.notes,
+        admissionOfficer: decisionData.admissionOfficer,
+        decisionDate: new Date().toISOString()
+      }
+      
+      // Add decision-specific data
+      if (decisionType === 'ACCEPTED') {
+        requestBody.assignedStream = decisionData.assignedStream
+        requestBody.admissionClass = decisionData.admissionClass
+        requestBody.reportingDate = decisionData.reportingDate
+        requestBody.admissionDate = new Date().toISOString()
+      } else if (decisionType === 'REJECTED') {
+        requestBody.rejectionReason = decisionData.rejectionReason
+        requestBody.alternativeSuggestions = decisionData.alternativeSuggestions
+        requestBody.rejectionDate = new Date().toISOString()
+      } else if (decisionType === 'WAITLISTED') {
+        requestBody.waitlistPosition = decisionData.waitlistPosition
+        requestBody.waitlistNotes = decisionData.waitlistNotes
+      } else if (decisionType === 'CONDITIONAL_ACCEPTANCE') {
+        requestBody.conditions = decisionData.conditions
+        requestBody.conditionDeadline = decisionData.conditionDeadline
+      }
+      
+      const response = await fetch(`/api/applyadmission/${selectedApplication.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        toast.success(`Application ${decisionType.toLowerCase()} successfully`)
+        
+        // Update local state
+        const updatedApplications = applications.map(app => 
+          app.id === selectedApplication.id ? { 
+            ...app, 
+            ...requestBody,
+            status: decisionType
+          } : app
+        )
+        
+        setApplications(updatedApplications)
+        updateStats(updatedApplications)
+        setShowDecisionModal(false)
+        setSelectedApplication(null)
+      } else {
+        toast.error(data.error || 'Failed to update application')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      toast.error('Network error. Please try again.')
+    } finally {
+      setLoadingStates(prev => ({ ...prev, decision: false }))
+    }
+  }
+  
+  // Bulk update application status
+  const updateBulkApplicationStatus = async () => {
+    if (selectedApplications.size === 0 || !bulkDecisionType) {
+      toast.error('Please select applications and a decision type')
+      return
+    }
+    
+    try {
+      setLoadingStates(prev => ({ ...prev, bulk: true }))
+      
+      const updates = Array.from(selectedApplications).map(async (applicationId) => {
+        const requestBody = {
+          status: bulkDecisionType,
+          notes: bulkDecisionData.notes,
+          decisionDate: new Date().toISOString(),
+          admissionOfficer: 'Admissions Committee'
+        }
+        
+        return fetch(`/api/applyadmission/${applicationId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        })
+      })
+      
+      const responses = await Promise.all(updates)
+      const results = await Promise.all(responses.map(res => res.json()))
+      
+      const allSuccess = results.every(result => result.success)
+      
+      if (allSuccess) {
+        toast.success(`Updated ${selectedApplications.size} applications to ${bulkDecisionType}`)
+        
+        // Update local state
+        const updatedApplications = applications.map(app => 
+          selectedApplications.has(app.id) ? { 
+            ...app, 
+            status: bulkDecisionType,
+            notes: bulkDecisionData.notes
+          } : app
+        )
+        
+        setApplications(updatedApplications)
+        updateStats(updatedApplications)
+        setShowBulkModal(false)
+        setSelectedApplications(new Set())
+      } else {
+        toast.error('Some updates failed')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      toast.error('Network error. Please try again.')
+    } finally {
+      setLoadingStates(prev => ({ ...prev, bulk: false }))
+    }
+  }
+  
+  // Delete applications
+  const deleteApplications = async () => {
+    if (selectedApplications.size === 0) {
+      toast.error('Please select applications to delete')
+      return
+    }
+    
+    if (!confirm(`Are you sure you want to delete ${selectedApplications.size} application(s)? This action cannot be undone.`)) {
+      return
+    }
+    
+    try {
+      const deletes = Array.from(selectedApplications).map(async (applicationId) => {
+        return fetch(`/api/applyadmission/${applicationId}`, {
+          method: 'DELETE'
+        })
+      })
+      
+      const responses = await Promise.all(deletes)
+      const results = await Promise.all(responses.map(res => res.json()))
+      
+      const allSuccess = results.every(result => result.success)
+      
+      if (allSuccess) {
+        toast.success(`Deleted ${selectedApplications.size} application(s)`)
+        
+        // Update local state
+        const updatedApplications = applications.filter(app => !selectedApplications.has(app.id))
+        setApplications(updatedApplications)
+        updateStats(updatedApplications)
+        setSelectedApplications(new Set())
+      } else {
+        toast.error('Some deletions failed')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      toast.error('Network error. Please try again.')
+    }
+  }
+  
+  // Export applications
+  const exportApplications = () => {
+    const dataToExport = filteredApplications.map(app => ({
+      'Application Number': app.applicationNumber,
+      'First Name': app.firstName,
+      'Last Name': app.lastName,
+      'Email': app.email,
+      'Phone': app.phone,
+      'KCPE Marks': app.kcpeMarks,
+      'Preferred Stream': app.preferredStream,
+      'Status': app.status,
+      'Submitted Date': formatDate(app.createdAt),
+      'County': app.county,
+      'Previous School': app.previousSchool
+    }))
+    
+    const csvContent = [
+      Object.keys(dataToExport[0] || {}).join(','),
+      ...dataToExport.map(row => Object.values(row).join(','))
+    ].join('\n')
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `applications_${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+    
+    toast.success('Applications exported successfully')
+  }
+  
+  // Reset filters
+  const resetFilters = () => {
+    setSearchTerm('')
+    setFilterStatus('all')
+    setFilterStream('all')
+    setStartDate('')
+    setEndDate('')
+    setSortBy('newest')
   }
   
   // Loading skeleton
   const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-6 animate-pulse">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <div className="h-3 bg-gray-200 rounded"></div>
-            <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-            <div className="h-3 bg-gray-200 rounded w-4/6"></div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="h-2 bg-gray-200 rounded-full"></div>
-          </div>
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden">
+      <div className="p-6 border-b border-gray-100">
+        <div className="flex items-center gap-4">
+          <div className="h-8 w-24 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-8 w-24 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-8 w-24 bg-gray-200 rounded animate-pulse"></div>
         </div>
-      ))}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-gray-100">
+              {columns.map((col, index) => (
+                <th key={index} className="p-4 text-left">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 4, 5].map((row) => (
+              <tr key={row} className="border-b border-gray-50">
+                {columns.map((col, colIndex) => (
+                  <td key={colIndex} className="p-4">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 p-4 md:p-6">
+      <Toaster position="top-right" richColors />
+      
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
         <div className="mb-4 lg:mb-0">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-white rounded-xl shadow-xs border border-gray-100">
-              <GraduationCap className="text-blue-600 text-lg w-5 h-5" />
+            <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-lg">
+              <GraduationCap className="text-white text-lg w-6 h-6" />
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-emerald-900 bg-clip-text text-transparent">
-                Nyaribu Admissions Dashboard
+                Admissions Dashboard
               </h1>
-              <p className="text-gray-600 mt-1">Review and make decisions on admission applications</p>
+              <p className="text-gray-600 mt-1">Manage and review student applications</p>
             </div>
           </div>
         </div>
-        <div className="flex gap-2 md:gap-3">
+        <div className="flex gap-2 md:gap-3 flex-wrap">
           <button
             onClick={fetchApplications}
             disabled={refreshing}
-            className="inline-flex items-center gap-2 bg-white text-gray-700 px-3 md:px-4 py-2 md:py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-xs border border-gray-200 font-medium cursor-pointer disabled:opacity-50 text-sm md:text-base"
+            className="inline-flex items-center gap-2 bg-white text-gray-700 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-xs border border-gray-200 font-medium disabled:opacity-50 text-sm md:text-base"
           >
-            <RefreshCw className={`text-sm w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             {refreshing ? 'Refreshing...' : 'Refresh'}
           </button>
-          <button className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 md:px-4 py-2 md:py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl font-medium cursor-pointer text-sm md:text-base">
-            <Download className="text-sm w-4 h-4" />
-            Export
+          <button
+            onClick={exportApplications}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-lg font-medium text-sm md:text-base"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
           </button>
         </div>
       </div>
@@ -539,69 +789,112 @@ export default function EnhancedDecisionDashboard() {
       <div className="flex flex-wrap gap-2 mb-6">
         <button
           onClick={() => setActiveView('all')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+          className={`px-4 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 ${
             activeView === 'all'
-              ? 'bg-gray-800 text-white shadow-md'
-              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+              ? 'bg-gradient-to-r from-gray-800 to-gray-700 text-white shadow-lg'
+              : 'bg-white text-gray-700 border border-gray-200'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            All Applications ({stats.total})
-          </div>
+          <Users className="w-4 h-4" />
+          All ({stats.total})
         </button>
         <button
           onClick={() => setActiveView('pending')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+          className={`px-4 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 ${
             activeView === 'pending'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+              ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+              : 'bg-white text-gray-700 border border-gray-200'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            Pending Decisions ({stats.pending + stats.underReview})
-          </div>
+          <Clock className="w-4 h-4" />
+          Pending ({stats.pending + stats.underReview})
         </button>
         <button
           onClick={() => setActiveView('decided')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+          className={`px-4 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 ${
             activeView === 'decided'
-              ? 'bg-emerald-600 text-white shadow-md'
-              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+              ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg'
+              : 'bg-white text-gray-700 border border-gray-200'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" />
-            Decisions Made ({stats.total - (stats.pending + stats.underReview)})
-          </div>
+          <CheckCircle2 className="w-4 h-4" />
+          Decided ({stats.total - (stats.pending + stats.underReview)})
         </button>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 mb-6">
         {[
-          { label: 'Total', value: stats.total, icon: Users, color: 'blue', change: 'applications' },
-          { label: 'Pending', value: stats.pending + stats.underReview, icon: Clock, color: 'yellow', change: 'needs review' },
-          { label: 'Accepted', value: stats.accepted, icon: CheckCircle2, color: 'emerald', change: 'admissions' },
-          { label: 'Rejected', value: stats.rejected, icon: XCircle, color: 'rose', change: 'rejections' },
-          { label: 'Interview', value: stats.interviewScheduled + stats.interviewed, icon: UserCheck, color: 'purple', change: 'interviews' },
-          { label: 'Decision Rate', value: `${stats.decisionRate}%`, icon: Percent, color: 'indigo', change: 'processed' }
+          { label: 'Total', value: stats.total, icon: Users, color: 'blue' },
+          { label: 'Pending', value: stats.pending + stats.underReview, icon: Clock, color: 'yellow' },
+          { label: 'Accepted', value: stats.accepted, icon: CheckCircle2, color: 'emerald' },
+          { label: 'Rejected', value: stats.rejected, icon: XCircle, color: 'rose' },
+          { label: 'Interview', value: stats.interviewScheduled + stats.interviewed, icon: UserCheck, color: 'purple' },
+          { label: 'Decision Rate', value: `${stats.decisionRate}%`, icon: Percent, color: 'indigo' }
         ].map((stat, index) => (
-          <div key={stat.label} className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-3 md:p-4 hover:shadow-md transition-all duration-300">
+          <div key={stat.label} className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs md:text-sm font-medium text-gray-600 mb-1">{stat.label}</p>
                 <p className="text-lg md:text-xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                <p className="text-xs text-gray-500">{stat.change}</p>
               </div>
               <div className={`p-2 bg-${stat.color}-50 rounded-lg`}>
-                <stat.icon className={`text-${stat.color}-600 text-base w-4 h-4`} />
+                <stat.icon className={`text-${stat.color}-600 text-base w-5 h-5`} />
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Selection Actions Bar */}
+      {selectedApplications.size > 0 && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mb-6 animate-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-medium flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" />
+                {selectedApplications.size} selected
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => openBulkModal('ACCEPTED')}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Accept
+                </button>
+                <button
+                  onClick={() => openBulkModal('REJECTED')}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white px-3 py-1.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm"
+                >
+                  <XCircle className="w-4 h-4" />
+                  Reject
+                </button>
+                <button
+                  onClick={() => openBulkModal()}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm"
+                >
+                  <Edit className="w-4 h-4" />
+                  Update
+                </button>
+                <button
+                  onClick={deleteApplications}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-gray-700 to-gray-600 text-white px-3 py-1.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedApplications(new Set())}
+              className="text-gray-500 p-1 rounded-lg"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4 mb-6">
@@ -613,7 +906,7 @@ export default function EnhancedDecisionDashboard() {
               placeholder="Search applications..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+              className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
             />
           </div>
           
@@ -621,7 +914,7 @@ export default function EnhancedDecisionDashboard() {
             <select 
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-pointer"
+              className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-pointer"
             >
               {statusOptions.map(status => (
                 <option key={status.value} value={status.value}>{status.label}</option>
@@ -631,7 +924,7 @@ export default function EnhancedDecisionDashboard() {
             <select 
               value={filterStream}
               onChange={(e) => setFilterStream(e.target.value)}
-              className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-pointer"
+              className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-pointer"
             >
               <option value="all">All Streams</option>
               {streams.map(stream => (
@@ -640,18 +933,14 @@ export default function EnhancedDecisionDashboard() {
             </select>
             
             <div className="flex gap-2">
-              <input
-                type="date"
+              <ModernCalendar
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                onChange={setStartDate}
                 placeholder="From"
               />
-              <input
-                type="date"
+              <ModernCalendar
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                onChange={setEndDate}
                 placeholder="To"
               />
             </div>
@@ -659,7 +948,7 @@ export default function EnhancedDecisionDashboard() {
             <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-pointer"
+              className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-pointer"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -669,506 +958,539 @@ export default function EnhancedDecisionDashboard() {
               <option value="score-low">Lowest Score</option>
             </select>
             
-            <div className="flex border border-gray-200 rounded-lg overflow-hidden">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`px-3 py-2 ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'bg-white text-gray-700'} hover:bg-gray-50 transition-all duration-200`}
-              >
-                <Grid className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-3 py-2 ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'bg-white text-gray-700'} hover:bg-gray-50 transition-all duration-200`}
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
+            <button
+              onClick={resetFilters}
+              className="inline-flex items-center gap-2 px-3 py-2.5 bg-gray-100 border border-gray-200 rounded-lg transition-all duration-200 text-sm font-medium text-gray-700"
+            >
+              <FilterX className="w-4 h-4" />
+              Reset
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Applications Grid */}
-      {loading ? (
-        <LoadingSkeleton />
-      ) : currentApplications.length === 0 ? (
-        <div className="col-span-full text-center py-16 bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60">
-          <Users className="text-gray-400 w-16 h-16 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Applications Found</h3>
-          <p className="text-gray-600 mb-4">
-            {activeView === 'pending' 
-              ? 'No pending applications to review'
-              : activeView === 'decided'
-              ? 'No decisions have been made yet'
-              : 'No applications match your filters'
-            }
-          </p>
-        </div>
-      ) : (
-        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-4 md:gap-6`}>
-          {currentApplications.map((application) => {
-            const score = getApplicationScore(application)
-            
-            return (
-              <div 
-                key={application.id} 
-                className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4 md:p-6 hover:shadow-md transition-all duration-300 hover:border-gray-300/60"
-              >
-                {/* Header with applicant info */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
-                          <User className="text-white w-6 h-6" />
-                        </div>
-                        <div className={`absolute -bottom-1 -right-1 w-6 h-6 ${score >= 80 ? 'bg-gradient-to-r from-red-500 to-pink-500' : score >= 60 ? 'bg-gradient-to-r from-orange-500 to-amber-500' : 'bg-gradient-to-r from-green-500 to-emerald-500'} rounded-full flex items-center justify-center`}>
-                          <Star className="text-white w-3 h-3" />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-lg font-semibold text-gray-900 truncate">
-                          {application.firstName} {application.lastName}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {calculateAge(application.dateOfBirth)} years • {application.gender}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap gap-2">
-                        {getStatusBadge(application.status)}
-                        {getStreamBadge(application.preferredStream)}
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Mail className="text-gray-400 w-4 h-4" />
-                        <span className="truncate">{application.email}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Phone className="text-gray-400 w-4 h-4" />
-                        <span>{application.phone}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <MapPin className="text-gray-400 w-4 h-4" />
-                        <span>{application.county}</span>
-                      </div>
-                      
-                      {application.kcpeMarks && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">KCPE Score:</span>
-                          <span className="text-lg font-bold text-gray-900">{application.kcpeMarks}/500</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Application Score */}
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Application Score</span>
-                    <span className="text-lg font-bold text-gray-900">{score}/100</span>
-                  </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full ${getScoreColor(score)}`}
-                      style={{ width: `${score}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Decision buttons */}
-                <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
-                  <button
-                    onClick={() => viewApplicationDetails(application)}
-                    disabled={loadingStates.detail}
-                    className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-all duration-200 text-sm font-medium flex-1 disabled:opacity-50"
-                  >
-                    {loadingStates.detail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
-                    View Details
-                  </button>
-                  
-                  {(activeView === 'pending' || activeView === 'all') && (
-                    <button
-                      onClick={() => openDecisionModal(application)}
-                      className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg hover:bg-emerald-200 transition-all duration-200 text-sm font-medium flex-1"
-                    >
-                      <Edit className="w-4 h-4" />
-                      Make Decision
-                    </button>
-                  )}
-                </div>
-
-                {/* Quick decision buttons for pending applications */}
-                {(activeView === 'pending' || activeView === 'all') && (
-                  <div className="grid grid-cols-2 gap-2 mt-3">
-                    {decisionTypes.slice(0, 4).map(decision => (
+      {/* Applications Table */}
+      <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden">
+        {loading ? (
+          <LoadingSkeleton />
+        ) : filteredApplications.length === 0 ? (
+          <div className="text-center py-16">
+            <Users className="text-gray-400 w-16 h-16 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Applications Found</h3>
+            <p className="text-gray-600 mb-6">
+              {activeView === 'pending' 
+                ? 'No pending applications to review'
+                : activeView === 'decided'
+                ? 'No decisions have been made yet'
+                : 'No applications match your filters'
+              }
+            </p>
+            <button
+              onClick={resetFilters}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2.5 rounded-xl transition-all duration-200 font-medium"
+            >
+              Clear Filters
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100/50">
+                    <th className="p-4 text-left">
                       <button
-                        key={decision.value}
-                        onClick={() => openDecisionModal(application, decision.value)}
-                        className={`inline-flex items-center justify-center gap-1 px-3 py-2 ${decision.color} text-white rounded-lg hover:opacity-90 transition-all duration-200 text-sm font-medium`}
+                        onClick={toggleSelectAll}
+                        className="p-1.5 rounded"
                       >
-                        <decision.icon className="w-4 h-4" />
-                        {decision.label}
+                        {selectedApplications.size === filteredApplications.length ? (
+                          <CheckSquare className="w-4 h-4 text-blue-600" />
+                        ) : (
+                          <Square className="w-4 h-4 text-gray-400" />
+                        )}
                       </button>
+                    </th>
+                    {columns.slice(1).map((column) => (
+                      <th key={column.key} className={`p-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider ${column.width}`}>
+                        {column.label}
+                      </th>
                     ))}
-                  </div>
-                )}
-
-                {/* Footer */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-3 h-3" />
-                    <span>{formatDate(application.createdAt)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Hash className="w-3 h-3" />
-                    <span>{application.applicationNumber}</span>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Application Detail Modal */}
-      {showDetailModal && selectedApplication && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900">Application Details</h3>
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 hover:bg-gray-100 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredApplications.map((application) => {
+                    const score = getApplicationScore(application)
+                    const isSelected = selectedApplications.has(application.id)
+                    
+                    return (
+                      <tr 
+                        key={application.id} 
+                        className={`transition-colors duration-150 ${isSelected ? 'bg-blue-50/50' : ''}`}
+                        onClick={() => toggleSelectApplication(application.id)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {/* Select checkbox */}
+                        <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => toggleSelectApplication(application.id)}
+                            className="p-1.5 rounded-full"
+                          >
+                            {isSelected ? (
+                              <CheckSquare className="w-4 h-4 text-blue-600" />
+                            ) : (
+                              <Square className="w-4 h-4 text-gray-400" />
+                            )}
+                          </button>
+                        </td>
+                        
+                        {/* Applicant */}
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                              <User className="text-white w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-medium text-gray-900 truncate text-sm">
+                                {application.firstName} {application.lastName}
+                              </h4>
+                              <div className="flex items-center gap-2 text-xs text-gray-500">
+                                <Mail className="w-3 h-3" />
+                                <span className="truncate">{application.email}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        
+                        {/* Application Number */}
+                        <td className="p-4">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">
+                            <Hash className="w-3 h-3" />
+                            {application.applicationNumber.substring(0, 8)}...
+                          </span>
+                        </td>
+                        
+                        {/* KCPE Score */}
+                        <td className="p-4">
+                          <div className="text-center">
+                            <span className="text-base font-bold text-gray-900">{application.kcpeMarks || 0}</span>
+                            <span className="text-xs text-gray-500 ml-1">/500</span>
+                          </div>
+                        </td>
+                        
+                        {/* Stream */}
+                        <td className="p-4">
+                          {getStreamBadge(application.preferredStream)}
+                        </td>
+                        
+                        {/* Status */}
+                        <td className="p-4">
+                          {getStatusBadge(application.status)}
+                        </td>
+                        
+                        {/* Submitted */}
+                        <td className="p-4">
+                          <div className="text-xs text-gray-600 flex items-center gap-2">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(application.createdAt)}
+                          </div>
+                        </td>
+                        
+                        {/* Score */}
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-12">
+                              <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full ${score >= 80 ? 'bg-gradient-to-r from-emerald-500 to-green-500' : score >= 60 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : 'bg-gradient-to-r from-amber-500 to-orange-500'}`}
+                                  style={{ width: `${score}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                            <span className={`text-xs font-bold ${score >= 80 ? 'text-emerald-700' : score >= 60 ? 'text-blue-700' : 'text-amber-700'}`}>
+                              {score}
+                            </span>
+                          </div>
+                        </td>
+                        
+                        {/* Actions */}
+                        <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => openDecisionModal(application)}
+                              className="p-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full transition-colors"
+                              title="Make Decision"
+                            >
+                              <Edit className="w-3 h-3" />
+                            </button>
+                            
+                            <button
+                              onClick={() => {
+                                setSelectedApplication(application)
+                                setShowDetailSidebar(true)
+                              }}
+                              className="p-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full transition-colors"
+                              title="View Details"
+                            >
+                              <Eye className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
             
-            <div className="p-6">
-              <div className="mb-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-blue-800">
-                    <strong>Application Number:</strong> {selectedApplication.applicationNumber}<br />
-                    <strong>Status:</strong> {selectedApplication.status}<br />
-                    <strong>Submitted:</strong> {formatDate(selectedApplication.createdAt)}
-                  </p>
+            {/* Table Footer */}
+            <div className="px-6 py-4 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100/50">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Showing <span className="font-semibold">{filteredApplications.length}</span> of{' '}
+                  <span className="font-semibold">{applications.length}</span> applications
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Personal Information */}
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <User className="w-5 h-5 text-blue-600" />
-                      Personal Information
-                    </h4>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm text-gray-600">Full Name</p>
-                        <p className="font-medium">{selectedApplication.firstName} {selectedApplication.middleName} {selectedApplication.lastName}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Gender & Age</p>
-                        <p className="font-medium">{selectedApplication.gender}, {calculateAge(selectedApplication.dateOfBirth)} years</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Date of Birth</p>
-                        <p className="font-medium">{formatDate(selectedApplication.dateOfBirth)}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Nationality</p>
-                        <p className="font-medium">{selectedApplication.nationality}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Contact Information */}
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Phone className="w-5 h-5 text-blue-600" />
-                      Contact Information
-                    </h4>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm text-gray-600">Email</p>
-                        <p className="font-medium">{selectedApplication.email}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Phone</p>
-                        <p className="font-medium">{selectedApplication.phone}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Address</p>
-                        <p className="font-medium">{selectedApplication.postalAddress}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">County</p>
-                        <p className="font-medium">{selectedApplication.county}, {selectedApplication.constituency}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Academic Information */}
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <GraduationCap className="w-5 h-5 text-blue-600" />
-                      Academic Information
-                    </h4>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm text-gray-600">Previous School</p>
-                        <p className="font-medium">{selectedApplication.previousSchool}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Previous Class</p>
-                        <p className="font-medium">{selectedApplication.previousClass}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">KCPE Marks</p>
-                        <p className="font-medium">{selectedApplication.kcpeMarks || 'N/A'}/500</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Preferred Stream</p>
-                        <p className="font-medium">{selectedApplication.preferredStream}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Parent/Guardian Information */}
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Users className="w-5 h-5 text-blue-600" />
-                      Parent/Guardian Information
-                    </h4>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm text-gray-600">Father's Name</p>
-                        <p className="font-medium">{selectedApplication.fatherName || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Mother's Name</p>
-                        <p className="font-medium">{selectedApplication.motherName || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Guardian's Name</p>
-                        <p className="font-medium">{selectedApplication.guardianName || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Guardian's Phone</p>
-                        <p className="font-medium">{selectedApplication.guardianPhone || 'N/A'}</p>
-                      </div>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const emailIds = filteredApplications.map(app => app.email).filter(Boolean).join(',')
+                      if (emailIds) {
+                        window.location.href = `mailto:?bcc=${emailIds}`
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg transition-all duration-200 text-sm font-medium text-gray-700"
+                    disabled={filteredApplications.length === 0}
+                  >
+                    <Mail className="w-4 h-4" />
+                    Email All
+                  </button>
+                  <button
+                    onClick={exportApplications}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg transition-all duration-200 text-sm font-medium text-gray-700"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export List
+                  </button>
                 </div>
-              </div>
-              
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-6 border-t border-gray-200">
-                <button
-                  onClick={() => {
-                    setShowDetailModal(false)
-                    openDecisionModal(selectedApplication)
-                  }}
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-200 font-medium"
-                >
-                  Make Decision
-                </button>
-                <button
-                  onClick={() => setShowDetailModal(false)}
-                  className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition duration-200 font-medium"
-                >
-                  Close
-                </button>
               </div>
             </div>
+          </>
+        )}
+      </div>
+
+      {/* Decision Modal - Modern Design */}
+      <ModernModal open={showDecisionModal} onClose={() => setShowDecisionModal(false)} maxWidth="700px">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-4 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm">
+                <Edit className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Make Decision</h2>
+                <p className="text-blue-100 opacity-90 text-sm">
+                  {selectedApplication ? `${selectedApplication.firstName} ${selectedApplication.lastName}` : 'Select application'}
+                </p>
+              </div>
+            </div>
+            <button onClick={() => setShowDecisionModal(false)} className="p-1 rounded-lg cursor-pointer">
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
-      )}
 
-      {/* Decision Modal */}
-      {showDecisionModal && selectedApplication && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900">Make Decision</h3>
-              <button
-                onClick={() => setShowDecisionModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 hover:bg-gray-100 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
+        {/* Content */}
+        <div className="max-h-[calc(85vh-150px)] overflow-y-auto">
+          <div className="p-4 space-y-4">
+            {/* Decision Type Selection */}
+            <div className="space-y-2">
+              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                <Target className="text-blue-600 w-4 h-4" />
+                Decision Type
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                {decisionTypes.map((decision) => {
+                  const Icon = decision.icon
+                  const isSelected = decisionType === decision.value
+                  
+                  return (
+                    <button
+                      key={decision.value}
+                      onClick={() => setDecisionType(decision.value)}
+                      className={`p-3 rounded-lg border transition-all duration-200 ${
+                        isSelected 
+                          ? 'border-blue-500 bg-blue-50' 
+                          : 'border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={`p-1.5 rounded ${isSelected ? decision.color : 'bg-gray-100'}`}>
+                          <Icon className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-gray-600'}`} />
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">{decision.label}</span>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
             
-            <div className="p-6">
-              <div className="mb-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-blue-800">
-                    <strong>Applicant:</strong> {selectedApplication.firstName} {selectedApplication.lastName}<br />
-                    <strong>Application:</strong> {selectedApplication.applicationNumber}<br />
-                    <strong>Current Status:</strong> {selectedApplication.status}
-                  </p>
-                </div>
-                
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Decision Type</label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {decisionTypes.map(decision => (
-                      <button
-                        key={decision.value}
-                        onClick={() => setDecisionData({...decisionData, status: decision.value})}
-                        className={`p-4 border rounded-lg text-left transition-all duration-200 cursor-pointer ${
-                          decisionData.status === decision.value
-                            ? 'ring-2 ring-blue-500 border-blue-500'
-                            : 'border-gray-200 hover:border-blue-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${decision.color.split(' ')[0]}`}>
-                            <decision.icon className="text-white w-4 h-4" />
-                          </div>
-                          <div>
-                            <span className="font-medium text-sm">{decision.label}</span>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Additional fields based on decision type */}
-                {decisionData.status === 'ACCEPTED' && (
-                  <div className="space-y-4 mb-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Assigned Stream</label>
-                      <select 
-                        value={decisionData.assignedStream}
-                        onChange={(e) => setDecisionData({...decisionData, assignedStream: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Select Stream</option>
-                        {streams.map(stream => (
-                          <option key={stream.value} value={stream.value}>{stream.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Decision Details */}
+            {decisionType && (
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-200">
+                  <h3 className="text-base font-bold text-gray-900 mb-3">Details</h3>
+                  
+                  {decisionType === 'ACCEPTED' && (
+                    <div className="grid grid-cols-1 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Admission Class</label>
+                        <label className="block text-xs font-bold text-gray-800 mb-1">Assigned Stream</label>
+                        <select 
+                          value={decisionData.assignedStream}
+                          onChange={(e) => setDecisionData({...decisionData, assignedStream: e.target.value})}
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        >
+                          <option value="">Select Stream</option>
+                          {streams.map(stream => (
+                            <option key={stream.value} value={stream.value}>{stream.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs font-bold text-gray-800 mb-1">Admission Class</label>
                         <input
                           type="text"
                           value={decisionData.admissionClass}
                           onChange={(e) => setDecisionData({...decisionData, admissionClass: e.target.value})}
-                          placeholder="e.g., Form 1A"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Form 1A"
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                         />
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Reporting Date</label>
-                        <input
-                          type="date"
+                        <label className="block text-xs font-bold text-gray-800 mb-1">Reporting Date</label>
+                        <ModernCalendar
                           value={decisionData.reportingDate}
-                          onChange={(e) => setDecisionData({...decisionData, reportingDate: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          onChange={(value) => setDecisionData({...decisionData, reportingDate: value})}
+                          placeholder="Select date"
                         />
                       </div>
                     </div>
-                  </div>
-                )}
-                
-                {decisionData.status === 'REJECTED' && (
-                  <div className="space-y-4 mb-6">
+                  )}
+                  
+                  {decisionType === 'REJECTED' && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Rejection Reason</label>
+                      <label className="block text-xs font-bold text-gray-800 mb-1">Reason</label>
                       <textarea
                         value={decisionData.rejectionReason}
                         onChange={(e) => setDecisionData({...decisionData, rejectionReason: e.target.value})}
-                        placeholder="Enter reason for rejection..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        rows="3"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Alternative Suggestions</label>
-                      <textarea
-                        value={decisionData.alternativeSuggestions}
-                        onChange={(e) => setDecisionData({...decisionData, alternativeSuggestions: e.target.value})}
-                        placeholder="Suggest alternative schools or paths..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter reason..."
+                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                         rows="2"
                       />
                     </div>
-                  </div>
-                )}
-                
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Decision Notes</label>
-                  <textarea
-                    value={decisionData.notes}
-                    onChange={(e) => setDecisionData({...decisionData, notes: e.target.value})}
-                    placeholder="Add notes about this decision..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows="3"
-                  />
-                </div>
-                
-                <div className="flex items-center gap-2 mb-6">
-                  <input
-                    type="checkbox"
-                    id="sendEmail"
-                    checked={decisionData.sendEmail}
-                    onChange={(e) => setDecisionData({...decisionData, sendEmail: e.target.checked})}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="sendEmail" className="text-sm text-gray-700">
-                    Send email notification to applicant
-                  </label>
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <button
-                  onClick={updateApplicationStatus}
-                  disabled={!decisionData.status || loadingStates.decision}
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loadingStates.decision ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Processing...
-                    </span>
-                  ) : (
-                    'Submit Decision'
                   )}
-                </button>
-                <button
-                  onClick={() => setShowDecisionModal(false)}
-                  className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition duration-200 font-medium"
-                >
-                  Cancel
-                </button>
+                  
+                  {/* Decision Notes */}
+                  <div className="mt-3">
+                    <label className="block text-xs font-bold text-gray-800 mb-1">Notes</label>
+                    <textarea
+                      value={decisionData.notes}
+                      onChange={(e) => setDecisionData({...decisionData, notes: e.target.value})}
+                      placeholder="Add notes..."
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      rows="2"
+                    />
+                  </div>
+                  
+                  {/* Email Notification */}
+                  <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg mt-3">
+                    <Mail className="text-blue-600 w-4 h-4" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="sendEmail"
+                          checked={decisionData.sendEmail}
+                          onChange={(e) => setDecisionData({...decisionData, sendEmail: e.target.checked})}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <label htmlFor="sendEmail" className="text-xs font-medium text-gray-700">
+                          Send email notification
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
-      )}
-      
-      {/* Custom CSS for animations */}
-      <style jsx>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        .animate-pulse {
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-      `}</style>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-100">
+          <div className="flex gap-2">
+            <button
+              onClick={updateApplicationStatus}
+              disabled={!decisionType || loadingStates.decision}
+              className="flex-1 bg-gradient-to-r from-emerald-500 to-green-500 text-white py-2.5 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingStates.decision ? (
+                <span className="flex items-center justify-center gap-1">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Processing...</span>
+                </span>
+              ) : (
+                <span className="text-sm">Submit Decision</span>
+              )}
+            </button>
+            <button
+              onClick={() => setShowDecisionModal(false)}
+              className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg transition-all duration-200 font-medium"
+            >
+              <span className="text-sm">Cancel</span>
+            </button>
+          </div>
+        </div>
+      </ModernModal>
+
+      {/* Bulk Decision Modal - Modern Design */}
+      <ModernModal open={showBulkModal} onClose={() => setShowBulkModal(false)} maxWidth="600px">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-700 p-4 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Bulk Decision</h2>
+                <p className="text-blue-100 opacity-90 text-sm">
+                  {selectedApplications.size} selected applications
+                </p>
+              </div>
+            </div>
+            <button onClick={() => setShowBulkModal(false)} className="p-1 rounded-lg cursor-pointer">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="max-h-[calc(85vh-150px)] overflow-y-auto">
+          <div className="p-4 space-y-4">
+            {/* Decision Type Selection */}
+            <div className="space-y-2">
+              <h3 className="text-base font-bold text-gray-900">Decision Type</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {decisionTypes.slice(0, 4).map((decision) => {
+                  const Icon = decision.icon
+                  const isSelected = bulkDecisionType === decision.value
+                  
+                  return (
+                    <button
+                      key={decision.value}
+                      onClick={() => setBulkDecisionType(decision.value)}
+                      className={`p-3 rounded-lg border transition-all duration-200 ${
+                        isSelected 
+                          ? 'border-purple-500 bg-purple-50' 
+                          : 'border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={`p-1.5 rounded ${isSelected ? decision.color : 'bg-gray-100'}`}>
+                          <Icon className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-gray-600'}`} />
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">{decision.label}</span>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+            
+            {/* Bulk Decision Details */}
+            {bulkDecisionType && (
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
+                  <h3 className="text-base font-bold text-gray-900 mb-3">Details</h3>
+                  
+                  {/* Decision Notes */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-800 mb-1">Notes</label>
+                    <textarea
+                      value={bulkDecisionData.notes}
+                      onChange={(e) => setBulkDecisionData({...bulkDecisionData, notes: e.target.value})}
+                      placeholder="Add notes..."
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      rows="2"
+                    />
+                  </div>
+                  
+                  {/* Email Notification */}
+                  <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg mt-3">
+                    <Mail className="text-purple-600 w-4 h-4" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="bulkSendEmail"
+                          checked={bulkDecisionData.sendEmail}
+                          onChange={(e) => setBulkDecisionData({...bulkDecisionData, sendEmail: e.target.checked})}
+                          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                        />
+                        <label htmlFor="bulkSendEmail" className="text-xs font-medium text-gray-700">
+                          Send email notifications
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Warning */}
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg mt-3">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="text-amber-600 w-4 h-4 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-amber-800">Notice</p>
+                        <p className="text-xs text-amber-700 mt-1">
+                          This will update {selectedApplications.size} applications.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-100">
+          <div className="flex gap-2">
+            <button
+              onClick={updateBulkApplicationStatus}
+              disabled={!bulkDecisionType || loadingStates.bulk}
+              className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2.5 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingStates.bulk ? (
+                <span className="flex items-center justify-center gap-1">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Processing...</span>
+                </span>
+              ) : (
+                <span className="text-sm">Apply to {selectedApplications.size} Selected</span>
+              )}
+            </button>
+            <button
+              onClick={() => setShowBulkModal(false)}
+              className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg transition-all duration-200 font-medium"
+            >
+              <span className="text-sm">Cancel</span>
+            </button>
+          </div>
+        </div>
+      </ModernModal>
     </div>
   )
 }

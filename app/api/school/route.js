@@ -48,6 +48,33 @@ const isValidYouTubeUrl = (url) => {
   return youtubeRegex.test(url);
 };
 
+// Helper function to parse and validate date
+const parseDate = (dateString) => {
+  if (!dateString || dateString.trim() === '') {
+    return null;
+  }
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? null : date;
+};
+
+// Helper function to parse numeric fields
+const parseNumber = (value) => {
+  if (!value || value.trim() === '') {
+    return null;
+  }
+  const num = parseFloat(value);
+  return isNaN(num) ? null : num;
+};
+
+// Helper function to parse integer fields
+const parseIntField = (value) => {
+  if (!value || value.trim() === '') {
+    return null;
+  }
+  const num = parseInt(value);
+  return isNaN(num) ? null : num;
+};
+
 // 🟢 CREATE (only once)
 export async function POST(req) {
   try {
@@ -76,6 +103,18 @@ export async function POST(req) {
     const youtubeLink = formData.get("youtubeLink");
     const videoTour = formData.get("videoTour");
     const curriculumPDF = formData.get("curriculumPDF");
+
+    // Parse admission fields
+    const admissionOpenDate = parseDate(formData.get("admissionOpenDate"));
+    const admissionCloseDate = parseDate(formData.get("admissionCloseDate"));
+    const admissionRequirements = formData.get("admissionRequirements");
+    const admissionFee = parseNumber(formData.get("admissionFee"));
+    const admissionCapacity = parseIntField(formData.get("admissionCapacity"));
+    const admissionContactEmail = formData.get("admissionContactEmail");
+    const admissionContactPhone = formData.get("admissionContactPhone");
+    const admissionWebsite = formData.get("admissionWebsite");
+    const admissionLocation = formData.get("admissionLocation");
+    const admissionOfficeHours = formData.get("admissionOfficeHours");
 
     let videoPath = null;
     let videoType = null;
@@ -155,14 +194,20 @@ export async function POST(req) {
     }
 
     // Parse JSON fields with error handling
-    let feesDistribution, subjects, departments;
+    let feesDistribution, subjects, departments, admissionDocumentsRequired;
     try {
       feesDistribution = JSON.parse(formData.get("feesDistribution"));
       subjects = JSON.parse(formData.get("subjects"));
       departments = JSON.parse(formData.get("departments"));
+      
+      // Parse admission documents if provided
+      const admissionDocsStr = formData.get("admissionDocumentsRequired");
+      if (admissionDocsStr) {
+        admissionDocumentsRequired = JSON.parse(admissionDocsStr);
+      }
     } catch (parseError) {
       return NextResponse.json(
-        { success: false, error: "Invalid JSON format in feesDistribution, subjects, or departments" },
+        { success: false, error: "Invalid JSON format in one of the JSON fields" },
         { status: 400 }
       );
     }
@@ -183,6 +228,19 @@ export async function POST(req) {
         subjects,
         departments,
         curriculumPDF: curriculumPath,
+        
+        // Admission fields
+        admissionOpenDate,
+        admissionCloseDate,
+        admissionRequirements,
+        admissionFee,
+        admissionCapacity,
+        admissionContactEmail,
+        admissionContactPhone,
+        admissionWebsite,
+        admissionLocation,
+        admissionOfficeHours,
+        admissionDocumentsRequired: admissionDocumentsRequired || [],
       },
     });
 
@@ -193,6 +251,9 @@ export async function POST(req) {
         feesDistribution: typeof school.feesDistribution === 'object' ? school.feesDistribution : JSON.parse(school.feesDistribution),
         subjects: typeof school.subjects === 'object' ? school.subjects : JSON.parse(school.subjects),
         departments: typeof school.departments === 'object' ? school.departments : JSON.parse(school.departments),
+        admissionDocumentsRequired: typeof school.admissionDocumentsRequired === 'object' 
+          ? school.admissionDocumentsRequired 
+          : (school.admissionDocumentsRequired ? JSON.parse(school.admissionDocumentsRequired) : []),
       }
     });
   } catch (error) {
@@ -221,6 +282,9 @@ export async function GET() {
       feesDistribution: typeof school.feesDistribution === 'object' ? school.feesDistribution : JSON.parse(school.feesDistribution),
       subjects: typeof school.subjects === 'object' ? school.subjects : JSON.parse(school.subjects),
       departments: typeof school.departments === 'object' ? school.departments : JSON.parse(school.departments),
+      admissionDocumentsRequired: typeof school.admissionDocumentsRequired === 'object' 
+        ? school.admissionDocumentsRequired 
+        : (school.admissionDocumentsRequired ? JSON.parse(school.admissionDocumentsRequired) : []),
     };
 
     return NextResponse.json({ success: true, school: responseSchool });
@@ -248,6 +312,18 @@ export async function PUT(req) {
     const youtubeLink = formData.get("youtubeLink");
     const videoTour = formData.get("videoTour");
     const curriculumPDF = formData.get("curriculumPDF");
+
+    // Parse admission fields
+    const admissionOpenDate = parseDate(formData.get("admissionOpenDate"));
+    const admissionCloseDate = parseDate(formData.get("admissionCloseDate"));
+    const admissionRequirements = formData.get("admissionRequirements");
+    const admissionFee = parseNumber(formData.get("admissionFee"));
+    const admissionCapacity = parseIntField(formData.get("admissionCapacity"));
+    const admissionContactEmail = formData.get("admissionContactEmail");
+    const admissionContactPhone = formData.get("admissionContactPhone");
+    const admissionWebsite = formData.get("admissionWebsite");
+    const admissionLocation = formData.get("admissionLocation");
+    const admissionOfficeHours = formData.get("admissionOfficeHours");
 
     let videoPath = existing.videoTour;
     let videoType = existing.videoType;
@@ -343,6 +419,7 @@ export async function PUT(req) {
     let feesDistribution = existing.feesDistribution;
     let subjects = existing.subjects;
     let departments = existing.departments;
+    let admissionDocumentsRequired = existing.admissionDocumentsRequired;
 
     if (formData.get("feesDistribution")) {
       try {
@@ -377,6 +454,17 @@ export async function PUT(req) {
       }
     }
 
+    if (formData.get("admissionDocumentsRequired")) {
+      try {
+        admissionDocumentsRequired = JSON.parse(formData.get("admissionDocumentsRequired"));
+      } catch (parseError) {
+        return NextResponse.json(
+          { success: false, error: "Invalid JSON format in admissionDocumentsRequired" },
+          { status: 400 }
+        );
+      }
+    }
+
     const updated = await prisma.schoolInfo.update({
       where: { id: existing.id },
       data: {
@@ -394,6 +482,19 @@ export async function PUT(req) {
         subjects,
         departments,
         curriculumPDF: curriculumPath,
+        
+        // Admission fields - update only if provided
+        admissionOpenDate: admissionOpenDate !== undefined ? admissionOpenDate : existing.admissionOpenDate,
+        admissionCloseDate: admissionCloseDate !== undefined ? admissionCloseDate : existing.admissionCloseDate,
+        admissionRequirements: admissionRequirements !== null ? admissionRequirements : existing.admissionRequirements,
+        admissionFee: admissionFee !== null ? admissionFee : existing.admissionFee,
+        admissionCapacity: admissionCapacity !== null ? admissionCapacity : existing.admissionCapacity,
+        admissionContactEmail: admissionContactEmail !== null ? admissionContactEmail : existing.admissionContactEmail,
+        admissionContactPhone: admissionContactPhone !== null ? admissionContactPhone : existing.admissionContactPhone,
+        admissionWebsite: admissionWebsite !== null ? admissionWebsite : existing.admissionWebsite,
+        admissionLocation: admissionLocation !== null ? admissionLocation : existing.admissionLocation,
+        admissionOfficeHours: admissionOfficeHours !== null ? admissionOfficeHours : existing.admissionOfficeHours,
+        admissionDocumentsRequired: admissionDocumentsRequired !== undefined ? admissionDocumentsRequired : existing.admissionDocumentsRequired,
       },
     });
 
@@ -404,6 +505,9 @@ export async function PUT(req) {
         feesDistribution: typeof updated.feesDistribution === 'object' ? updated.feesDistribution : JSON.parse(updated.feesDistribution),
         subjects: typeof updated.subjects === 'object' ? updated.subjects : JSON.parse(updated.subjects),
         departments: typeof updated.departments === 'object' ? updated.departments : JSON.parse(updated.departments),
+        admissionDocumentsRequired: typeof updated.admissionDocumentsRequired === 'object' 
+          ? updated.admissionDocumentsRequired 
+          : (updated.admissionDocumentsRequired ? JSON.parse(updated.admissionDocumentsRequired) : []),
       }
     });
   } catch (error) {

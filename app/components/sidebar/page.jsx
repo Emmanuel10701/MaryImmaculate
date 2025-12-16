@@ -481,7 +481,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
   // Show loading state while checking authentication
   if (loading) {
     return (
-      <div className="fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 w-[416px] lg:w-[374px] xl:w-[416px] bg-white shadow-xl border-r border-gray-200 backdrop-blur-xl overflow-hidden flex items-center justify-center">
+      <div className="fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 w-full max-w-[320px] lg:max-w-[280px] xl:max-w-[320px] bg-white shadow-xl border-r border-gray-200 backdrop-blur-xl overflow-hidden flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4 animate-spin"></div>
           <p className="text-gray-600 text-sm">Checking authentication...</p>
@@ -585,7 +585,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
 
       {/* Sidebar */}
       <div 
-        className={`fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 w-[416px] lg:w-[374px] xl:w-[416px] bg-white shadow-xl border-r border-gray-200 backdrop-blur-xl overflow-hidden transition-transform duration-300 ${
+        className={`fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 w-full max-w-[320px] lg:max-w-[280px] xl:max-w-[320px] 2xl:max-w-[350px] bg-white shadow-xl border-r border-gray-200 backdrop-blur-xl overflow-hidden transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
         style={{
@@ -601,23 +601,23 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
         
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+          <div className="flex items-center justify-between p-4 lg:p-5 border-b border-gray-200 flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="relative hover:scale-105 transition-transform duration-200">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30">
                   <img 
-          src="/llil.png" 
-          alt="School Logo" 
-          className="w-full h-full object-contain p-2"
-        />
+                    src="/llil.png" 
+                    alt="School Logo" 
+                    className="w-full h-full object-contain p-2"
+                  />
                 </div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
               </div>
-              <div>
-                <h1 className="text-lg font-bold text-gray-800">
+              <div className="min-w-0">
+                <h1 className="text-sm lg:text-lg font-bold text-gray-800 truncate">
                   Nyaribu Secondary School
                 </h1>
-                <p className="text-gray-600 text-sm font-medium">Admin Portal</p>
+                <p className="text-gray-600 text-xs lg:text-sm font-medium truncate">Admin Portal</p>
               </div>
             </div>
             
@@ -633,15 +633,15 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-6 overflow-y-auto hide-scrollbar">
-            <div className="space-y-2">
+          <nav className="flex-1 p-4 lg:p-5 overflow-y-auto hide-scrollbar">
+            <div className="space-y-1 lg:space-y-2">
               {safeTabs.map((tab) => {
                 const TabIcon = tab.icon || FiUser;
                 return (
                  <button
                    key={tab.id}
                    onClick={() => handleTabClick(tab.id)}
-                   className={`w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-200 group relative overflow-hidden ${
+                   className={`w-full flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-3 lg:py-4 rounded-2xl transition-all duration-200 group relative overflow-hidden ${
                      activeTab === tab.id
                        ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-lg shadow-blue-500/10 backdrop-blur-sm border border-blue-200'
                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:translate-x-1'
@@ -649,7 +649,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
                  >
                   {/* Active indicator */}
                   {activeTab === tab.id && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-gradient-to-b from-blue-500 to-purple-500 rounded-r-full shadow-lg shadow-blue-400/50"></div>
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 lg:h-10 bg-gradient-to-b from-blue-500 to-purple-500 rounded-r-full shadow-lg shadow-blue-400/50"></div>
                   )}
                   
                   {/* Icon */}
@@ -658,12 +658,12 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
                       ? 'bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-lg' 
                       : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200 group-hover:text-gray-800'
                   }`}>
-                    <TabIcon className="text-lg relative z-10" />
+                    <TabIcon className="text-sm lg:text-lg relative z-10" />
                   </div>
 
                   {/* Label */}
                   <div className="flex items-center justify-between flex-1 min-w-0">
-                    <span className="font-semibold text-sm lg:text-base relative z-10 text-left">
+                    <span className="font-semibold text-xs lg:text-sm xl:text-base relative z-10 text-left truncate">
                       {tab.label}
                     </span>
                   </div>
@@ -671,7 +671,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
                   {/* Active chevron */}
                   {activeTab === tab.id && (
                     <div className="text-blue-500">
-                      <FiChevronRight className="text-lg" />
+                      <FiChevronRight className="text-sm lg:text-lg" />
                     </div>
                   )}
                 </button>
@@ -680,27 +680,27 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
             </div>
 
             {/* Quick Stats with Real Data */}
-            <div className="mt-8 space-y-4">
+            <div className="mt-6 lg:mt-8 space-y-3 lg:space-y-4">
               {/* Main Stats */}
-              <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200 backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-blue-600 mb-4">
-                  <IoSparkles className="text-lg" />
-                  <span className="font-semibold text-sm">Live Stats</span>
+              <div className="p-4 lg:p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200 backdrop-blur-sm">
+                <div className="flex items-center gap-2 text-blue-600 mb-3 lg:mb-4">
+                  <IoSparkles className="text-sm lg:text-lg" />
+                  <span className="font-semibold text-xs lg:text-sm">Live Stats</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 lg:gap-3">
                   {quickStats.map((stat, index) => {
                     const StatIcon = stat.icon || FiUser;
                     return (
                      <div
                        key={stat.label}
-                       className="text-center p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105 cursor-pointer shadow-sm"
+                       className="text-center p-2 lg:p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105 cursor-pointer shadow-sm"
                      >
-                      <div className={`w-8 h-8 rounded-lg bg-${stat.color}-100 flex items-center justify-center mx-auto mb-2 transition-transform hover:scale-110`}>
-                        <StatIcon className={`text-${stat.color}-600 text-sm`} />
+                      <div className={`w-6 h-6 lg:w-8 lg:h-8 rounded-lg bg-${stat.color}-100 flex items-center justify-center mx-auto mb-1 lg:mb-2 transition-transform hover:scale-110`}>
+                        <StatIcon className={`text-${stat.color}-600 text-xs lg:text-sm`} />
                       </div>
-                      <div className="text-gray-800 font-bold text-sm">{stat.value}</div>
-                      <div className="text-gray-600 text-xs mt-1">{stat.label}</div>
-                      <div className={`text-${stat.color}-600 text-xs font-semibold mt-1`}>
+                      <div className="text-gray-800 font-bold text-xs lg:text-sm">{stat.value}</div>
+                      <div className="text-gray-600 text-[10px] lg:text-xs mt-1 truncate">{stat.label}</div>
+                      <div className={`text-${stat.color}-600 text-[10px] lg:text-xs font-semibold mt-1 truncate`}>
                         {stat.change}
                       </div>
                      </div>
@@ -711,30 +711,30 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
 
               {/* Resource Type Breakdown */}
               {realStats.totalResources > 0 && (
-                <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl border border-emerald-200 backdrop-blur-sm">
-                  <div className="flex items-center justify-between mb-3">
+                <div className="p-3 lg:p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl border border-emerald-200 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-2 lg:mb-3">
                     <div className="flex items-center gap-2 text-emerald-600">
-                      <FiFolder className="text-lg" />
-                      <span className="font-semibold text-sm">Resource Types</span>
+                      <FiFolder className="text-sm lg:text-lg" />
+                      <span className="font-semibold text-xs lg:text-sm">Resource Types</span>
                     </div>
-                    <span className="text-emerald-600 text-xs font-bold">
+                    <span className="text-emerald-600 text-[10px] lg:text-xs font-bold">
                       {realStats.totalResources} total
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1 lg:gap-2">
                     {resourceStats.map((stat, index) => {
                       const StatIcon = stat.icon;
                       return (
                         <div
                           key={stat.label}
-                          className="flex items-center gap-2 p-2 bg-white/80 rounded-lg border border-emerald-100 hover:border-emerald-200 transition-colors duration-200"
+                          className="flex items-center gap-1 lg:gap-2 p-1 lg:p-2 bg-white/80 rounded-lg border border-emerald-100 hover:border-emerald-200 transition-colors duration-200"
                         >
-                          <div className={`w-7 h-7 rounded-lg bg-${stat.color}-100 flex items-center justify-center`}>
-                            <StatIcon className={`text-${stat.color}-600 text-xs`} />
+                          <div className={`w-5 h-5 lg:w-7 lg:h-7 rounded-lg bg-${stat.color}-100 flex items-center justify-center`}>
+                            <StatIcon className={`text-${stat.color}-600 text-[10px] lg:text-xs`} />
                           </div>
-                          <div className="flex-1">
-                            <div className="text-emerald-800 font-bold text-sm">{stat.value}</div>
-                            <div className="text-gray-600 text-xs">{stat.label}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-emerald-800 font-bold text-xs lg:text-sm truncate">{stat.value}</div>
+                            <div className="text-gray-600 text-[10px] lg:text-xs truncate">{stat.label}</div>
                           </div>
                         </div>
                       );
@@ -746,28 +746,28 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
           </nav>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-200 flex-shrink-0">
+          <div className="p-4 lg:p-5 border-t border-gray-200 flex-shrink-0">
             {/* User Profile */}
             <div 
-              className="flex items-center gap-3 p-3 rounded-2xl border border-gray-200 mb-4 cursor-pointer transition-all duration-200 hover:scale-102 hover:bg-blue-50 hover:border-blue-200"
+              className="flex items-center gap-2 lg:gap-3 p-2 lg:p-3 rounded-2xl border border-gray-200 mb-3 lg:mb-4 cursor-pointer transition-all duration-200 hover:scale-102 hover:bg-blue-50 hover:border-blue-200"
               onClick={() => handleTabClick('admins-profile')}
             >
               <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg hover:scale-105 transition-transform duration-200">
+                <div className="w-8 h-8 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-400 to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg hover:scale-105 transition-transform duration-200">
                   {user.name?.charAt(0) || 'A'}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white animate-pulse"></div>
+                <div className="absolute -bottom-1 -right-1 w-2 h-2 lg:w-3 lg:h-3 bg-emerald-400 rounded-full border-2 border-white animate-pulse"></div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-800 text-sm truncate">
+                <p className="font-semibold text-gray-800 text-xs lg:text-sm truncate">
                   {user.name}
                 </p>
-                <p className="text-gray-600 text-xs truncate">
+                <p className="text-gray-600 text-[10px] lg:text-xs truncate">
                   {user.email}
                 </p>
-                <div className="flex items-center gap-1 mt-1">
-                  <FiShield className="text-emerald-500 text-xs" />
-                  <span className="text-emerald-600 text-xs font-medium capitalize">
+                <div className="flex items-center gap-1 mt-0.5 lg:mt-1">
+                  <FiShield className="text-emerald-500 text-[10px] lg:text-xs" />
+                  <span className="text-emerald-600 text-[10px] lg:text-xs font-medium capitalize truncate">
                     {user.role?.replace('_', ' ') || 'administrator'}
                   </span>
                 </div>
@@ -775,37 +775,37 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="grid grid-cols-2 gap-1 lg:gap-2 mb-2 lg:mb-3">
               <button
-                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 rounded-xl transition-all duration-200 text-sm hover:bg-gray-100 hover:scale-105"
+                className="flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1 lg:py-2 text-gray-600 hover:text-gray-800 rounded-xl transition-all duration-200 text-xs lg:text-sm hover:bg-gray-100 hover:scale-105"
                 onClick={() => handleTabClick('admins-profile')}
               >
-                <FiSettings className="text-base" />
-                <span>Settings</span>
+                <FiSettings className="text-sm lg:text-base" />
+                <span className="truncate">Settings</span>
               </button>
               <button
-                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 rounded-xl transition-all duration-200 text-sm hover:bg-gray-100 hover:scale-105"
+                className="flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1 lg:py-2 text-gray-600 hover:text-gray-800 rounded-xl transition-all duration-200 text-xs lg:text-sm hover:bg-gray-100 hover:scale-105"
                 onClick={handleSupportClick}
               >
-                <FiHelpCircle className="text-base" />
-                <span>Support</span>
+                <FiHelpCircle className="text-sm lg:text-base" />
+                <span className="truncate">Support</span>
               </button>
             </div>
 
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:text-red-700 rounded-xl transition-all duration-200 border border-red-200 hover:border-red-300 hover:bg-red-50 hover:scale-102 group"
+              className="w-full flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 text-red-600 hover:text-red-700 rounded-xl transition-all duration-200 border border-red-200 hover:border-red-300 hover:bg-red-50 hover:scale-102 group"
             >
               <div className="group-hover:rotate-180 transition-transform duration-300">
-                <FiLogOut className="text-lg" />
+                <FiLogOut className="text-sm lg:text-lg" />
               </div>
-              <span className="font-semibold text-sm">Sign Out</span>
+              <span className="font-semibold text-xs lg:text-sm truncate">Sign Out</span>
             </button>
 
             {/* Version Info */}
-            <div className="text-center mt-4 pt-4 border-t border-gray-200">
-              <p className="text-gray-400 text-xs">
+            <div className="text-center mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-gray-200">
+              <p className="text-gray-400 text-[10px] lg:text-xs">
                 v2.1.0 • Nyaribu Secondary School
               </p>
             </div>

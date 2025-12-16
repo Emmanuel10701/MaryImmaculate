@@ -196,18 +196,21 @@ model Staff {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
-
-
 model EmailCampaign {
-  id             Int       @id @default(autoincrement())
-  title          String
-  subject        String
-  content        String     // HTML content
-  recipients     String
-  status         String     // "draft" | "published"
-  sentAt         DateTime?  
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  id            String   @id @default(cuid())
+  title         String
+  subject       String
+  content       String   @db.Text
+  recipients    String
+  recipientType String   @default("all")
+  status        String   @default("draft")
+  sentAt        DateTime?
+  sentCount     Int?
+  failedCount   Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("email_campaigns")
 }
 model GalleryImage {
   id          Int        @id @default(autoincrement())
@@ -385,23 +388,37 @@ model PromotionHistory {
 }
 
 model SchoolInfo {
-  id               Int       @id @default(autoincrement())
-  name             String
-  description      String   @db.Text
-  videoTour        String?   // URL or local path
-  videoType        String?   // "youtube" | "file"
-  studentCount     Int
-  staffCount       Int
-  feesBoarding     Float
-  feesDay          Float
-  feesDistribution Json
-  openDate         DateTime
-  closeDate        DateTime
-  subjects         Json
-  departments      Json
-  curriculumPDF    String?   // uploaded curriculum PDF path
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                          Int       @id @default(autoincrement())
+  name                        String
+  description                 String   @db.Text
+  videoTour                   String?   // URL or local path
+  videoType                  String?   // "youtube" | "file"
+  studentCount                Int
+  staffCount                  Int
+  feesBoarding                Float
+  feesDay                     Float
+  feesDistribution           Json
+  openDate                   DateTime
+  closeDate                  DateTime
+  subjects                   Json
+  departments                Json
+  curriculumPDF              String?   // uploaded curriculum PDF path
+  
+  // New Admission Fields
+  admissionOpenDate          DateTime?  // When admissions open
+  admissionCloseDate         DateTime?  // When admissions close
+  admissionRequirements      String?   @db.Text  // Admission requirements text
+  admissionFee               Float?     // Admission fee (not application fee)
+  admissionCapacity          Int?       // Maximum number of students to admit
+  admissionContactEmail      String?    // Contact email for admissions
+  admissionContactPhone      String?    // Contact phone for admissions
+  admissionWebsite           String?    // Admissions website URL
+  admissionLocation          String?    // Admission office location
+  admissionOfficeHours       String?    // Office hours for admissions
+  admissionDocumentsRequired Json?      // List of required documents for admission
+  
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
 }
 
 // =====================================================

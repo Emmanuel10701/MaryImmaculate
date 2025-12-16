@@ -1,440 +1,163 @@
-### ====================================
-### NYARIBU SECONDARY SCHOOL ADMISSIONS API TESTS
-### ====================================
-
-### 1. GET ALL APPLICATIONS
-GET http://localhost:3001/api/applyadmission
-Content-Type: application/json
-
-### 2. GET APPLICATIONS BY STATUS
-GET http://localhost:3001/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-### 3. GET APPLICATIONS BY EMAIL
-GET http://localhost:3000/api/applyadmission?email=john.doe@example.com
-Content-Type: application/json
-
-### 4. GET APPLICATIONS BY PHONE
-GET http://localhost:3000/api/applyadmission?phone=0712345678
-Content-Type: application/json
-
-### 5. GET SINGLE APPLICATION BY ID
-GET http://localhost:3000/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-### 6. GET SINGLE APPLICATION BY APPLICATION NUMBER
-GET http://localhost:3000/api/applyadmission/NSS/2024/ABC123
-Content-Type: application/json
-
-### 7. CREATE NEW APPLICATION (VALID)
-POST http://localhost:3001/api/applyadmission
+### Create Student 1
+POST http://localhost:3001/api/student
 Content-Type: application/json
 
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "middleName": "Kamau",
-  "gender": "MALE",
+  "admissionNumber": "ADM001",
+  "name": "Brian Otieno",
+  "form": "Form 1",
+  "stream": "East",
+  "gender": "Male",
+  "dateOfBirth": "2010-03-14",
+  "enrollmentDate": "2024-01-08",
+  "kcpeMarks": 372,
+  "previousSchool": "Lakeview Primary School",
+  "parentName": "Peter Otieno",
+  "parentEmail": "peter.otieno@gmail.com",
+  "parentPhone": "0712345678",
+  "emergencyContact": "0700111222",
+  "address": "Kisumu",
+  "medicalInfo": "None",
+  "hobbies": "Football, Chess",
+  "academicPerformance": "Good",
+  "attendance": "Excellent",
+  "disciplineRecord": "Clean",
+  "status": "Active"
+}
+
+### Create Student 2
+POST http://localhost:3001/api/student
+Content-Type: application/json
+
+{
+  "admissionNumber": "ADM002",
+  "name": "Amina Hassan",
+  "form": "Form 2",
+  "stream": "West",
+  "gender": "Female",
+  "dateOfBirth": "2009-07-22",
+  "enrollmentDate": "2023-01-10",
+  "kcpeMarks": 389,
+  "previousSchool": "Garissa Primary School",
+  "parentName": "Hassan Ali",
+  "parentEmail": "hassan.ali@gmail.com",
+  "parentPhone": "0723456789",
+  "emergencyContact": "0711222333",
+  "address": "Garissa",
+  "medicalInfo": "Asthma",
+  "hobbies": "Reading, Debate",
+  "academicPerformance": "Very Good",
+  "attendance": "Good",
+  "disciplineRecord": "Clean",
+  "status": "Active"
+}
+
+### Create Student 3
+POST http://localhost:3001/api/student
+Content-Type: application/json
+
+{
+  "admissionNumber": "ADM003",
+  "name": "Kevin Mwangi",
+  "form": "Form 3",
+  "stream": "North",
+  "gender": "Male",
+  "dateOfBirth": "2008-11-05",
+  "enrollmentDate": "2022-01-12",
+  "kcpeMarks": 355,
+  "previousSchool": "Thika Road Academy",
+  "parentName": "Joseph Mwangi",
+  "parentEmail": "jmwangi@gmail.com",
+  "parentPhone": "0734567890",
+  "emergencyContact": "0799887766",
+  "address": "Thika",
+  "medicalInfo": "None",
+  "hobbies": "Basketball, Coding",
+  "academicPerformance": "Average",
+  "attendance": "Good",
+  "disciplineRecord": "Warning Issued Once",
+  "status": "Active"
+}
+
+### Create Student 4
+POST http://localhost:3001/api/student
+Content-Type: application/json
+
+{
+  "admissionNumber": "ADM004",
+  "name": "Faith Wanjiku",
+  "form": "Form 4",
+  "stream": "South",
+  "gender": "Female",
+  "dateOfBirth": "2007-02-18",
+  "enrollmentDate": "2021-01-15",
+  "kcpeMarks": 401,
+  "previousSchool": "Nairobi Primary School",
+  "parentName": "Mary Wanjiku",
+  "parentEmail": "mary.wanjiku@gmail.com",
+  "parentPhone": "0745678901",
+  "emergencyContact": "0788996655",
+  "address": "Nairobi",
+  "medicalInfo": "Allergy to peanuts",
+  "hobbies": "Music, Writing",
+  "academicPerformance": "Excellent",
+  "attendance": "Excellent",
+  "disciplineRecord": "Clean",
+  "status": "Active"
+}
+
+
+### Create Student 5
+POST http://localhost:3001/api/student
+Content-Type: application/json
+
+{
+  "admissionNumber": "ADM101",
+  "name": "John Makau",
+  "form": "Form 3",
+  "stream": "East",
+  "gender": "Male",
   "dateOfBirth": "2008-05-15",
-  "nationality": "Kenyan",
-  "county": "Nyeri",
-  "constituency": "Kieni",
-  "ward": "Kiganjo",
-  "village": "Muthinga",
-  "email": "emmanuelmakau53@gmail.com",
-  "phone": "0712345678",
-  "alternativePhone": "0723456789",
-  "postalAddress": "P.O Box 123-10100",
-  "postalCode": "10100",
-  "fatherName": "James Doe",
-  "fatherPhone": "0734567890",
-  "fatherEmail": "james.doe@example.com",
-  "fatherOccupation": "Farmer",
-  "motherName": "Mary Doe",
-  "motherPhone": "0745678901",
-  "motherEmail": "mary.doe@example.com",
-  "motherOccupation": "Teacher",
-  "guardianName": "Peter Mwangi",
-  "guardianPhone": "0756789012",
-  "guardianEmail": "peter.m@example.com",
-  "guardianOccupation": "Business",
-  "previousSchool": "Kiganjo Primary School",
-  "previousClass": "Grade 8",
-  "kcpeYear": 2023,
-  "kcpeIndex": "12345678",
+  "enrollmentDate": "2024-01-08",
   "kcpeMarks": 380,
-  "meanGrade": "B+",
-  "preferredStream": "SCIENCE",
-  "medicalCondition": "None",
-  "allergies": "None",
-  "bloodGroup": "O+",
-  "sportsInterests": "Football, Athletics",
-  "clubsInterests": "Science Club, Debate Club",
-  "talents": "Singing, Public Speaking"
+  "previousSchool": "Kiganjo Primary",
+  "parentName": "Emmanuel Makau",
+  "parentEmail": "emmanuelmakau90@gmail.com",
+  "parentPhone": "0720123456",
+  "emergencyContact": "0730987654",
+  "address": "Kiganjo, Nyeri",
+  "medicalInfo": "Asthma - uses inhaler",
+  "hobbies": "Football, Chess",
+  "academicPerformance": "Excellent",
+  "attendance": "98%",
+  "disciplineRecord": "Clean",
+  "status": "Active"
 }
 
-### 8. CREATE APPLICATION WITH INVALID EMAIL
-POST http://localhost:3000/api/applyadmission
+
+### Create Student 5
+POST http://localhost:3001/api/student
 Content-Type: application/json
 
 {
-  "firstName": "Test",
-  "lastName": "User",
-  "gender": "FEMALE",
-  "dateOfBirth": "2009-03-20",
-  "nationality": "Kenyan",
-  "county": "Kiambu",
-  "constituency": "Githunguri",
-  "ward": "Githiga",
-  "email": "invalid-email",
-  "phone": "0711111111",
-  "postalAddress": "P.O Box 456",
-  "previousSchool": "Test Primary",
-  "previousClass": "Grade 8",
-  "preferredStream": "ARTS"
-}
-
-### 9. CREATE APPLICATION WITH INVALID PHONE
-POST http://localhost:3000/api/applyadmission
-Content-Type: application/json
-
-{
-  "firstName": "Test",
-  "lastName": "User",
-  "gender": "FEMALE",
-  "dateOfBirth": "2009-03-20",
-  "nationality": "Kenyan",
-  "county": "Kiambu",
-  "constituency": "Githunguri",
-  "ward": "Githiga",
-  "email": "test@example.com",
-  "phone": "12345",
-  "postalAddress": "P.O Box 456",
-  "previousSchool": "Test Primary",
-  "previousClass": "Grade 8",
-  "preferredStream": "ARTS"
-}
-
-### 10. CREATE APPLICATION WITH MISSING REQUIRED FIELDS
-POST http://localhost:3000/api/applyadmission
-Content-Type: application/json
-
-{
-  "firstName": "Test",
-  "lastName": "User",
-  "email": "test@example.com",
-  "phone": "0712345678"
-}
-
-### 11. UPDATE APPLICATION STATUS TO ACCEPTED
-PATCH http://localhost:3001/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-{
-  "status": "ACCEPTED",
-  "notes": "Excellent academic performance and extracurricular activities",
-  "admissionOfficer": "Mrs. Wanjiku",
-  "assignedStream": "SCIENCE",
-  "admissionClass": "Form 1A",
-  "reportingDate": "2024-01-15",
-  "sendEmail": true
-}
-
-### 12. UPDATE APPLICATION STATUS TO REJECTED
-PATCH http://localhost:3000/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-{
-  "status": "REJECTED",
-  "rejectionReason": "Limited available spots in preferred stream",
-  "alternativeSuggestions": "Consider applying to other schools or different streams",
-  "notes": "Applicant meets requirements but slots are full",
-  "admissionOfficer": "Mr. Otieno",
-  "sendEmail": true
-}
-
-### 13. UPDATE APPLICATION TO WAITLISTED
-PATCH http://localhost:3000/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-{
-  "status": "WAITLISTED",
-  "waitlistPosition": 5,
-  "waitlistNotes": "Position may improve if other applicants decline",
-  "notes": "Good candidate but not enough spots currently",
-  "admissionOfficer": "Ms. Akinyi",
-  "sendEmail": true
-}
-
-### 14. UPDATE APPLICATION TO CONDITIONAL ACCEPTANCE
-PATCH http://localhost:3000/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-{
-  "status": "CONDITIONAL_ACCEPTANCE",
-  "conditions": "1. Submit original KCPE certificate\n2. Complete medical examination\n3. Submit birth certificate copy",
-  "conditionDeadline": "2023-12-30",
-  "notes": "Admission conditional upon document submission",
-  "admissionOfficer": "Dr. Maina",
-  "sendEmail": true
-}
-
-### 15. SCHEDULE INTERVIEW
-PATCH http://localhost:3000/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-{
-  "status": "INTERVIEW_SCHEDULED",
-  "interviewDate": "2023-11-20",
-  "interviewTime": "10:00 AM",
-  "interviewVenue": "School Administration Block",
-  "interviewNotes": "Bring all original documents",
-  "notes": "Interview scheduled for assessment",
-  "admissionOfficer": "Mrs. Wanjiku",
-  "sendEmail": true
-}
-
-### 16. MARK AS UNDER REVIEW
-PATCH http://localhost:3000/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-{
-  "status": "UNDER_REVIEW",
-  "notes": "Application moved to review stage",
-  "admissionOfficer": "Review Team",
-  "sendEmail": false
-}
-
-### 17. UPDATE APPLICATION WITH MINIMAL DATA
-PATCH http://localhost:3000/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-{
-  "status": "ACCEPTED"
-}
-
-### 18. DELETE APPLICATION
-DELETE http://localhost:3000/api/applyadmission/cmj1cccq80000kk7cpmkbt46l
-Content-Type: application/json
-
-### 19. DELETE APPLICATION BY APPLICATION NUMBER
-DELETE http://localhost:3000/api/applyadmission/NSS/2024/ABC123
-Content-Type: application/json
-
-### 20. TEST WITH INVALID ID
-GET http://localhost:3000/api/applyadmission/invalid-id-123
-Content-Type: application/json
-
-### 21. TEST WITH NON-EXISTENT APPLICATION NUMBER
-GET http://localhost:3000/api/applyadmission/NSS/2024/XYZ999
-Content-Type: application/json
-
-### 22. UPDATE NON-EXISTENT APPLICATION
-PATCH http://localhost:3000/api/applyadmission/nonexistent-id-123
-Content-Type: application/json
-
-{
-  "status": "ACCEPTED"
-}
-
-### 23. DELETE NON-EXISTENT APPLICATION
-DELETE http://localhost:3000/api/applyadmission/nonexistent-id-123
-Content-Type: application/json
-
-### 24. BULK STATUS UPDATE TEST (Multiple applications)
-PATCH http://localhost:3001/api/applyadmission/cmj1lpelp0001kk7cdpwmhz4k
-Content-Type: application/json
-
-{
-  "status": "ACCEPTED",
-  "assignedStream": "SCIENCE",
-  "admissionClass": "Form 1A",
-  "reportingDate": "2024-01-15",
-  "feeStructure": "KES 45,000 per term",
-  "admissionOfficer": "Admissions Office",
-  "decisionDate": "2023-11-15",
-  "admissionDate": "2023-11-15",
-  "sendEmail": true
-}
-
-### 25. TEST WITH SPECIAL CHARACTERS IN NAMES
-POST http://localhost:3000/api/applyadmission
-Content-Type: application/json
-
-{
-  "firstName": "Mwanajuma",
-  "lastName": "O'Connor-Smith",
-  "middleName": "Njeri",
-  "gender": "FEMALE",
-  "dateOfBirth": "2008-08-25",
-  "nationality": "Kenyan",
-  "county": "Mombasa",
-  "constituency": "Mvita",
-  "ward": "Mji Wa Kale",
-  "email": "mwanajuma.oconnor@example.com",
-  "phone": "0722222222",
-  "postalAddress": "P.O Box 789-80100",
-  "previousSchool": "Mombasa Primary",
-  "previousClass": "Grade 8",
-  "preferredStream": "BUSINESS"
-}
-
-### 26. TEST WITH HIGH KCPE MARKS
-POST http://localhost:3000/api/applyadmission
-Content-Type: application/json
-
-{
-  "firstName": "Bright",
-  "lastName": "Student",
-  "gender": "MALE",
-  "dateOfBirth": "2008-11-30",
-  "nationality": "Kenyan",
-  "county": "Nairobi",
-  "constituency": "Westlands",
-  "ward": "Parklands",
-  "email": "bright.student@example.com",
-  "phone": "0733333333",
-  "postalAddress": "P.O Box 1000-00100",
-  "previousSchool": "Nairobi Primary",
-  "previousClass": "Grade 8",
-  "kcpeYear": 2023,
-  "kcpeMarks": 425,
-  "meanGrade": "A",
-  "preferredStream": "SCIENCE",
-  "sportsInterests": "Swimming, Chess",
-  "clubsInterests": "Mathematics Club, Robotics Club",
-  "talents": "Programming, Mathematics"
-}
-
-### 27. TEST EMPTY RESPONSE FOR NO APPLICATIONS
-GET http://localhost:3000/api/applyadmission?status=WITHDRAWN
-Content-Type: application/json
-
-### 28. TEST WITH WHITESPACE IN PHONE NUMBERS
-POST http://localhost:3000/api/applyadmission
-Content-Type: application/json
-
-{
-  "firstName": "Test",
-  "lastName": "Whitespace",
-  "gender": "MALE",
-  "dateOfBirth": "2009-01-15",
-  "nationality": "Kenyan",
-  "county": "Kisumu",
-  "constituency": "Kisumu Central",
-  "ward": "Kisumu Central Ward",
-  "email": "test.whitespace@example.com",
-  "phone": "07 444 444 44",
-  "postalAddress": "P.O Box 222",
-  "previousSchool": "Kisumu Primary",
-  "previousClass": "Grade 8",
-  "preferredStream": "TECHNICAL"
-}
-
-### 29. TEST CASE INSENSITIVE EMAIL
-POST http://localhost:3000/api/applyadmission
-Content-Type: application/json
-
-{
-  "firstName": "Case",
-  "lastName": "Test",
-  "gender": "FEMALE",
-  "dateOfBirth": "2008-12-10",
-  "nationality": "Kenyan",
-  "county": "Nakuru",
-  "constituency": "Naivasha",
-  "ward": "Naivasha East",
-  "email": "CASE.TEST@EXAMPLE.COM",
-  "phone": "0755555555",
-  "postalAddress": "P.O Box 333",
-  "previousSchool": "Naivasha Primary",
-  "previousClass": "Grade 8",
-  "preferredStream": "ARTS"
-}
-
-### 30. COMPREHENSIVE APPLICATION WITH ALL FIELDS
-POST http://localhost:3001/api/applyadmission
-Content-Type: application/json
-
-{
-  "firstName": "Comprehensive",
-  "lastName": "Application",
-  "middleName": "Test",
-  "gender": "MALE",
-  "dateOfBirth": "2008-06-18",
-  "nationality": "Kenyan",
-  "county": "Uasin Gishu",
-  "constituency": "Ainabkoi",
-  "ward": "Kapseret",
-  "village": "Ziwa",
-  "email": "emmanuelmakau90@gmail.com",
-  "phone": "0766666666",
-  "alternativePhone": "0777777777",
-  "postalAddress": "P.O Box 444-30100",
-  "postalCode": "30100",
-  "fatherName": "Father Comprehensive",
-  "fatherPhone": "0788888888",
-  "fatherEmail": "father.comp@example.com",
-  "fatherOccupation": "Engineer",
-  "motherName": "Mother Comprehensive",
-  "motherPhone": "0799999999",
-  "motherEmail": "mother.comp@example.com",
-  "motherOccupation": "Doctor",
-  "guardianName": "Guardian Comprehensive",
-  "guardianPhone": "0700000000",
-  "guardianEmail": "guardian.comp@example.com",
-  "guardianOccupation": "Lawyer",
-  "previousSchool": "Comprehensive Primary",
-  "previousClass": "Grade 8",
-  "kcpeYear": 2023,
-  "kcpeIndex": "2023123456",
-  "kcpeMarks": 398,
-  "meanGrade": "A-",
-  "preferredStream": "SCIENCE",
-  "medicalCondition": "Asthma (controlled with inhaler)",
-  "allergies": "Peanuts, Dust",
-  "bloodGroup": "A+",
-  "sportsInterests": "Basketball, Tennis, Swimming",
-  "clubsInterests": "Science Club, Music Club, Environmental Club",
-  "talents": "Playing Piano, Painting, Creative Writing"
-}
-
-### 31. HEALTH CHECK - GET API STATUS
-GET http://localhost:3000/api/applyadmission
-Accept: application/json
-X-Health-Check: true
-
-### 32. TEST WITH DIFFERENT CONTENT TYPE
-POST http://localhost:3000/api/applyadmission
-Content-Type: application/x-www-form-urlencoded
-
-firstName=Test&lastName=Form&email=test.form@example.com
-
-### 33. TEST CORS HEADERS
-OPTIONS http://localhost:3000/api/applyadmission
-Origin: http://localhost:3001
-Access-Control-Request-Method: POST
-Access-Control-Request-Headers: Content-Type
-
-### 34. TEST WITH MALFORMED JSON
-POST http://localhost:3001/api/applyadmission
-Content-Type: application/json
-
-{
-  "firstName": "Malformed",
-  "lastName": "JSON",
-  "gender": "MALE",
-  "dateOfBirth": "2009-02-14",
-  "nationality": "Kenyan",
-  "county": "Machakos",
-  "constituency": "Machakos Town",
-  "ward": "Muvuti",
-  "email": "malformed@example.com",
-  "phone": "0710101010",
-  "postalAddress": "P.O Box 555",
-  "previousSchool": "Machakos Primary",
-  "previousClass": "Grade 8",
-  "preferredStream": "BUSINESS"
-
-
+  "admissionNumber": "ADM102",
+  "name": "Sarah Makau",
+  "form": "Form 2",
+  "stream": "West",
+  "gender": "Female",
+  "dateOfBirth": "2009-07-22",
+  "enrollmentDate": "2024-01-08",
+  "kcpeMarks": 365,
+  "previousSchool": "Nyeri Primary",
+  "parentName": "Emmanuel Makau",
+  "parentEmail": "emmanuelmakau53@gmail.com",
+  "parentPhone": "0721123456",
+  "emergencyContact": "0731987654",
+  "address": "Kiganjo, Nyeri",
+  "medicalInfo": "None",
+  "hobbies": "Dancing, Reading",
+  "academicPerformance": "Very Good",
+  "attendance": "96%",
+  "disciplineRecord": "Clean",
+  "status": "Active"
 }

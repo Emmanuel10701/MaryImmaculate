@@ -509,29 +509,6 @@ export default function AdminDashboard() {
                   <FiAward className="text-xl text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                    {(() => {
-                      const navItems = {
-                        overview: 'Dashboard Overview',
-                        'school-info': 'School Information',
-                        'guidance-counseling': 'Guidance Counseling',
-                        students: 'Student Management',
-                        staff: 'Staff & BOM Management',
-                        assignments: 'Assignments Manager',
-                        admissions: 'Admission Applications',
-                        resources: 'Resources',
-                        newsevents: 'News & Events',
-                        gallery: 'Media Gallery',
-                        subscribers: 'Subscriber Management',
-                        email: 'Email Campaigns',
-                        'admins-profile': 'Admins & Profile'
-                      };
-                      return navItems[activeTab] || 'Dashboard';
-                    })()}
-                  </h1>
-                  <p className="text-sm text-gray-500 hidden sm:block">
-                    Nyaribu Secondary School • Excellence in Education
-                  </p>
                 </div>
               </div>
             </div>
