@@ -13,7 +13,8 @@ import {
 } from 'react-icons/io5';
 import Link from 'next/link';
 
-const modern404 = () => {
+// ✅ FIXED: Changed 'modern404' to 'Modern404' (uppercase)
+const Modern404 = () => {
   const [currentMessage, setCurrentMessage] = useState(0);
 
   const quickLinks = [
@@ -165,4 +166,4 @@ const modern404 = () => {
   );
 };
 
-export default modern404;
+export default Modern404;

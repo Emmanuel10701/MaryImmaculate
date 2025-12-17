@@ -3,13 +3,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, ShieldQuestion, LoaderCircle, CheckCircle, X } from 'lucide-react';
 
-const useRouter = () => ({
-  push: (path) => console.log(`Navigating to ${path}`),
-  back: () => console.log(`Going back`)
-});
-
-const router = useRouter();
-
 const MessageBox = ({ message, type, onClose }) => {
   const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
   const icon = type === 'success' ? (
@@ -34,8 +27,9 @@ const MessageBox = ({ message, type, onClose }) => {
   );
 };
 
-
 const ForgotPasswordPage = () => {
+  // ✅ useRouter removed - using window.history.back() instead
+  
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [gmailEnabled, setGmailEnabled] = useState(false);
@@ -48,7 +42,6 @@ const ForgotPasswordPage = () => {
 
     try {
       const res = await fetch("/api/forgot", {
-        // 👈 Make sure this matches your API folder name
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -70,6 +63,7 @@ const ForgotPasswordPage = () => {
       setLoading(false);
     }
   };
+
   const handleGmailClick = () => {
     window.location.href = `mailto:${email}`;
   };
@@ -160,17 +154,17 @@ const ForgotPasswordPage = () => {
           </motion.div>
         </form>
 
-       <motion.div variants={itemVariants} className="mt-8 text-center text-sm text-gray-400">
-        <p>
-          Remembered your password?{' '}
-          <span
-                onClick={() => window.history.back()}
-            className="text-indigo-400 font-medium hover:underline cursor-pointer transition-colors duration-200"
-          >
-            Log in
-          </span>
-        </p>
-      </motion.div>
+        <motion.div variants={itemVariants} className="mt-8 text-center text-sm text-gray-400">
+          <p>
+            Remembered your password?{' '}
+            <span
+              onClick={() => window.history.back()}
+              className="text-indigo-400 font-medium hover:underline cursor-pointer transition-colors duration-200"
+            >
+              Log in
+            </span>
+          </p>
+        </motion.div>
       </motion.div>
       <AnimatePresence>
         {message && <MessageBox message={message.text} type={message.type} onClose={handleCloseMessage} />}
@@ -179,8 +173,4 @@ const ForgotPasswordPage = () => {
   );
 };
 
-export default function App() {
-  return (
-    <ForgotPasswordPage />
-  )
-}
+export default ForgotPasswordPage;

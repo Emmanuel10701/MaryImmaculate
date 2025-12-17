@@ -7,7 +7,7 @@ import nodemailer from "nodemailer";
 // ====================================================================
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Email transporter configuration - REMOVED ALL DEBUGGING
+// Email transporter configuration
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
@@ -15,10 +15,10 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
   pool: true,
-  maxConnections: 3, // Reduced connections for better stability
+  maxConnections: 3,
   maxMessages: 50,
-  rateDelta: 2000, // Send 1 email every 2 seconds
-  rateLimit: 5, // 5 emails per rateDelta (2000ms)
+  rateDelta: 2000,
+  rateLimit: 5,
 });
 
 // School Information
@@ -28,6 +28,34 @@ const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Soaring for Excellence';
 const CONTACT_PHONE = process.env.CONTACT_PHONE || '+254720123456';
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@nyaribusecondary.sc.ke';
 const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://nyaribusecondary.sc.ke';
+
+// Social Media Configuration
+const SOCIAL_MEDIA = {
+  facebook: {
+    url: process.env.SCHOOL_FACEBOOK || 'https://facebook.com/nyaribusecondary',
+    color: '#1877F2',
+  },
+  instagram: {
+    url: process.env.SCHOOL_INSTAGRAM || 'https://instagram.com/nyaribusecondary',
+    color: '#E4405F',
+  },
+  youtube: {
+    url: process.env.SCHOOL_YOUTUBE || 'https://youtube.com/c/nyaribusecondary',
+    color: '#FF0000',
+  },
+  tiktok: {
+    url: process.env.SCHOOL_TIKTOK || 'https://tiktok.com/@nyaribusecondary',
+    color: '#000000',
+  },
+  linkedin: {
+    url: process.env.SCHOOL_LINKEDIN || 'https://linkedin.com/school/nyaribu-secondary',
+    color: '#0A66C2',
+  },
+  twitter: {
+    url: process.env.SCHOOL_TWITTER || 'https://twitter.com/nyaribusecondary',
+    color: '#1DA1F2',
+  }
+};
 
 // ====================================================================
 // HELPER FUNCTIONS
@@ -61,7 +89,6 @@ function getModernEmailTemplate({
   subject = '', 
   content = '',
   senderName = 'School Administration',
-  campaignTitle = '',
   recipientType = 'all'
 }) {
   
@@ -74,183 +101,556 @@ function getModernEmailTemplate({
     <html>
     <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
       <meta name="x-apple-disable-message-reformatting">
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <title>${subject} | ${SCHOOL_NAME}</title>
       <style>
-        /* MOBILE-FIRST RESPONSIVE STYLES */
+        /* RESET & BASE STYLES */
         * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
           -webkit-text-size-adjust: 100%;
           -ms-text-size-adjust: 100%;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
         }
         
         body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
-          line-height: 1.5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+          line-height: 1.6;
           color: #333333;
           margin: 0;
-          padding: 0;
+          padding: 20px;
           width: 100% !important;
           background-color: #f5f7fa;
+          -webkit-text-size-adjust: 100%;
+          -ms-text-size-adjust: 100%;
         }
         
+        /* CONTAINER - RESPONSIVE */
         .container {
           max-width: 600px !important;
           width: 100% !important;
-          margin: 0 auto;
+          margin: 0 auto !important;
           background: #ffffff;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
         
-        /* HEADER */
+        /* HEADER - FIXED FOR MOBILE */
         .header {
           background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
           color: #ffffff;
-          padding: 30px 20px;
+          padding: 40px 25px;
+          text-align: center;
+          position: relative;
+        }
+        
+        .school-name {
+          font-size: 26px !important;
+          font-weight: 700;
+          line-height: 1.3;
+          margin: 0 0 15px 0;
+          letter-spacing: -0.3px;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        
+        .email-subject {
+          font-size: 20px !important;
+          font-weight: 600;
+          opacity: 0.95;
+          margin: 0 0 15px 0;
+          color: #f0f7ff;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        
+        .school-motto {
+          font-size: 15px !important;
+          font-style: italic;
+          font-weight: 400;
+          opacity: 0.9;
+          margin: 15px 0 0 0;
+          color: #dbeafe;
+        }
+        
+        /* CONTENT SECTION - RESPONSIVE */
+        .content {
+          padding: 30px 25px !important;
+        }
+        
+        /* CAMPAIGN BADGE - SMALLER FOR MOBILE */
+        .campaign-badge {
+          display: inline-flex;
+          align-items: center;
+          background: linear-gradient(135deg, #f0f7ff 0%, #dbeafe 100%);
+          padding: 10px 20px;
+          border-radius: 50px;
+          margin-bottom: 20px;
+          border: 1px solid #e5e7eb;
+          font-size: 14px !important;
+        }
+        
+        .badge-icon {
+          margin-right: 8px;
+          font-size: 16px;
+          color: #1e3c72;
+        }
+        
+        .recipient-type {
+          color: #1e3c72;
+          font-weight: 600;
+          letter-spacing: 0.3px;
+        }
+        
+        /* MESSAGE CARD - RESPONSIVE */
+        .message-card {
+          background: #ffffff;
+          padding: 30px 25px !important;
+          border-radius: 12px;
+          margin: 20px 0 30px 0;
+          border: 1px solid #e5e7eb;
+          font-size: 16px !important;
+          line-height: 1.7;
+          color: #4b5563;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        
+        .message-card p {
+          margin: 0 0 20px 0;
+          font-size: 16px !important;
+          line-height: 1.7;
+        }
+        
+        .message-card p:last-child {
+          margin-bottom: 0;
+        }
+        
+        /* CONTACT INFO - STACK ON MOBILE */
+        .contact-info {
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          padding: 25px !important;
+          border-radius: 12px;
+          margin: 30px 0;
           text-align: center;
         }
         
-        .header h1 {
-          font-size: 24px;
+        .contact-title {
+          font-size: 16px !important;
+          color: #1e3c72;
+          font-weight: 600;
+          margin-bottom: 15px;
+        }
+        
+        .contact-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          margin: 20px 0;
+        }
+        
+        .contact-item {
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .contact-label {
+          font-size: 12px !important;
+          color: #6b7280;
+          margin: 0 0 5px 0;
+        }
+        
+        .contact-value {
+          font-size: 15px !important;
+          color: #1e3c72;
+          font-weight: 600;
+          margin: 0;
+          word-break: break-all;
+        }
+        
+        /* SENDER INFO - RESPONSIVE */
+        .sender-info {
+          text-align: center;
+          margin-top: 30px;
+          padding: 25px;
+          background: #f8fafc;
+          border-radius: 12px;
+          border-left: 4px solid #3b82f6;
+        }
+        
+        .sender-name {
+          font-size: 16px !important;
+          color: #1e3c72;
+          font-weight: 600;
+          margin-bottom: 10px;
+        }
+        
+        .sender-title {
+          font-size: 15px !important;
+          color: #333;
+          margin: 0 0 8px 0;
+          line-height: 1.5;
+        }
+        
+        .sender-note {
+          margin-top: 15px;
+          font-size: 13px !important;
+          color: #6b7280;
+          line-height: 1.6;
+        }
+        
+        /* FOOTER - RESPONSIVE */
+        .footer {
+          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+          color: #b0b0b0;
+          padding: 40px 25px 30px;
+          text-align: center;
+          position: relative;
+        }
+        
+        .footer-school {
+          font-size: 20px !important;
           font-weight: 700;
-          line-height: 1.3;
+          color: #ffffff;
+          margin: 0 0 10px 0;
+          letter-spacing: 0.3px;
+        }
+        
+        .footer-location {
+          font-size: 15px !important;
+          color: #d1d5db;
           margin: 0 0 8px 0;
         }
         
-        .header h2 {
-          font-size: 16px;
+        .footer-motto {
+          font-size: 14px !important;
+          font-style: italic;
+          color: #9ca3af;
+          margin: 0 0 25px 0;
           font-weight: 400;
-          opacity: 0.9;
-          margin: 0;
         }
         
-        /* CONTENT */
-        .content {
-          padding: 30px 20px;
-        }
-        
-        /* CAMPAIGN INFO */
-        .campaign-info {
-          background: linear-gradient(135deg, #f0f7ff 0%, #dbeafe 100%);
-          padding: 25px 20px;
-          margin: 20px 0;
-          border-radius: 10px;
-          text-align: center;
-        }
-        
-        .campaign-title {
-          color: #1e3c72;
-          font-size: 20px;
-          font-weight: 600;
-          margin: 0 0 10px 0;
-        }
-        
-        .recipient-badge {
-          display: inline-block;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 8px 20px;
-          border-radius: 50px;
-          font-weight: 600;
-          font-size: 13px;
-          margin: 10px 0;
-        }
-        
-        /* MESSAGE CONTENT */
-        .message-content {
-          background: #ffffff;
-          padding: 25px;
-          border-radius: 8px;
+        /* SOCIAL ICONS - FIXED SIZE & VISIBILITY */
+        .social-icons {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
           margin: 25px 0;
-          border: 1px solid #e5e7eb;
-          font-size: 16px;
-          line-height: 1.6;
-          color: #4b5563;
+          flex-wrap: wrap;
         }
         
-        .message-content p {
-          margin: 0 0 18px 0;
+        .social-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px !important;
+          height: 40px !important;
+          border-radius: 50%;
+          text-decoration: none;
+          transition: transform 0.2s ease;
+          box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+        }
+        
+        .social-icon:hover {
+          transform: translateY(-2px);
+        }
+        
+        .social-icon svg {
+          width: 20px !important;
+          height: 20px !important;
+          fill: currentColor;
+        }
+        
+        /* FACEBOOK */
+        .social-facebook {
+          background: #1877F2 !important;
+          color: white !important;
+        }
+        
+        /* INSTAGRAM */
+        .social-instagram {
+          background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D) !important;
+          color: white !important;
+        }
+        
+        /* YOUTUBE */
+        .social-youtube {
+          background: #FF0000 !important;
+          color: white !important;
+        }
+        
+        /* TIKTOK */
+        .social-tiktok {
+          background: #000000 !important;
+          color: white !important;
+        }
+        
+        /* LINKEDIN */
+        .social-linkedin {
+          background: #0A66C2 !important;
+          color: white !important;
+        }
+        
+        /* TWITTER */
+        .social-twitter {
+          background: #1DA1F2 !important;
+          color: white !important;
+        }
+        
+        /* COPYRIGHT */
+        .copyright {
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid #374151;
+          font-size: 12px !important;
+          color: #9ca3af;
+          line-height: 1.6;
         }
         
         /* RESPONSIVE MEDIA QUERIES */
         @media only screen and (max-width: 480px) {
+          body {
+            padding: 10px !important;
+          }
+          
+          .container {
+            border-radius: 8px;
+          }
+          
           .header {
-            padding: 25px 15px;
+            padding: 30px 20px !important;
           }
           
-          .header h1 {
-            font-size: 22px;
+          .school-name {
+            font-size: 22px !important;
+            margin-bottom: 12px;
           }
           
-          .header h2 {
-            font-size: 14px;
+          .email-subject {
+            font-size: 18px !important;
+            margin-bottom: 12px;
+          }
+          
+          .school-motto {
+            font-size: 14px !important;
           }
           
           .content {
-            padding: 25px 15px;
+            padding: 25px 20px !important;
           }
           
-          .campaign-info {
-            padding: 22px 18px;
+          .message-card {
+            padding: 25px 20px !important;
+            font-size: 15px !important;
+            line-height: 1.6;
           }
           
-          .message-content {
-            padding: 20px;
+          .message-card p {
+            font-size: 15px !important;
+            line-height: 1.6;
+          }
+          
+          .contact-info {
+            padding: 20px !important;
+          }
+          
+          .contact-title {
+            font-size: 15px !important;
+          }
+          
+          .contact-value {
+            font-size: 14px !important;
+          }
+          
+          .social-icon {
+            width: 36px !important;
+            height: 36px !important;
+          }
+          
+          .social-icon svg {
+            width: 18px !important;
+            height: 18px !important;
+          }
+          
+          .footer {
+            padding: 30px 20px 25px !important;
+          }
+          
+          .footer-school {
+            font-size: 18px !important;
+          }
+          
+          .footer-location {
+            font-size: 14px !important;
+          }
+          
+          .footer-motto {
+            font-size: 13px !important;
           }
         }
         
-        /* FORCE MOBILE OPTIMIZATION */
-        @media only screen and (max-width: 600px) {
-          .container {
-            min-width: 320px !important;
+        @media only screen and (min-width: 481px) and (max-width: 600px) {
+          .contact-grid {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
           }
           
-          img {
-            max-width: 100% !important;
-            height: auto !important;
+          .contact-item {
+            min-width: 150px;
           }
+        }
+        
+        @media only screen and (min-width: 601px) {
+          .contact-grid {
+            flex-direction: row;
+            justify-content: center;
+            gap: 30px;
+          }
+        }
+        
+        /* PRINT STYLES */
+        @media print {
+          body {
+            background: white !important;
+            padding: 0 !important;
+          }
+          
+          .container {
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            max-width: 100% !important;
+          }
+          
+          .social-icons {
+            display: none !important;
+          }
+        }
+        
+        /* OUTLOOK SPECIFIC FIXES */
+        .ExternalClass {
+          width: 100%;
+        }
+        
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+          line-height: 100%;
+        }
+        
+        /* FORCE TABLES ON OLD EMAIL CLIENTS */
+        table {
+          border-collapse: collapse;
+          mso-table-lspace: 0pt;
+          mso-table-rspace: 0pt;
+        }
+        
+        img {
+          -ms-interpolation-mode: bicubic;
+          border: 0;
+          height: auto;
+          line-height: 100%;
+          outline: none;
+          text-decoration: none;
         }
       </style>
     </head>
     <body>
       <div class="container">
+        <!-- HEADER -->
         <div class="header">
-          <h2>${subject}</h2>
-          <h2>${SCHOOL_NAME}</h2>
+          <h1 class="school-name">${SCHOOL_NAME}</h1>
+          <h2 class="email-subject">${subject}</h2>
+          <p class="school-motto">"${SCHOOL_MOTTO}"</p>
         </div>
         
+        <!-- CONTENT -->
         <div class="content">
-          <div class="message-content">
+          <!-- Campaign Badge -->
+          <div class="campaign-badge">
+            <span class="badge-icon">📨</span>
+            <span class="recipient-type">${recipientTypeLabel}</span>
+          </div>
+          
+          <!-- Message Content -->
+          <div class="message-card">
             ${safeContent}
           </div>
           
-          <div style="text-align: center; margin-top: 30px; padding-top: 25px; border-top: 1px solid #e9ecef;">
-            <p style="font-size: 17px; color: #1e3c72; font-weight: 600; margin-bottom: 12px;">
-              Best Regards,
-            </p>
-            <p style="font-size: 15px; color: #333; margin: 0;">
+          
+          
+          <!-- Sender Info -->
+          <div class="sender-info">
+            <p class="sender-name">Best Regards,</p>
+            <p class="sender-title">
               <strong>${senderName}</strong><br>
-              ${SCHOOL_NAME} Administration
+              <span>${SCHOOL_NAME} Administration</span>
             </p>
-            <p style="margin-top: 20px; font-size: 14px; color: #666;">
-              <strong>Contact Information:</strong><br>
-              Phone: ${CONTACT_PHONE} | Email: ${CONTACT_EMAIL}<br>
-              Website: ${SCHOOL_WEBSITE}
+            <p class="sender-note">
+              This is an official communication from ${SCHOOL_NAME}.<br>
+              Please do not reply directly to this automated message.
             </p>
           </div>
         </div>
         
-        <div style="background: #1a1a2e; color: #b0b0b0; padding: 20px; text-align: center; font-size: 12px;">
-          <p style="margin: 0 0 8px 0; font-weight: 600; color: #ffffff;">${SCHOOL_NAME}</p>
-          <p style="margin: 0 0 8px 0;">${SCHOOL_LOCATION}</p>
-          <p style="margin: 0 0 8px 0; font-style: italic;">"${SCHOOL_MOTTO}"</p>
-          <p style="margin: 20px 0 0 0; padding-top: 15px; border-top: 1px solid #374151;">
+        <!-- FOOTER -->
+        <div class="footer">
+          <h3 class="footer-school">${SCHOOL_NAME}</h3>
+          <p class="footer-location">${SCHOOL_LOCATION}</p>
+          <p class="footer-motto">"${SCHOOL_MOTTO}"</p>
+          
+          <!-- Social Media Icons - FIXED -->
+          <div class="social-icons">
+            <a href="${SOCIAL_MEDIA.facebook.url}" target="_blank" class="social-icon social-facebook" title="Follow us on Facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </a>
+            
+            <a href="${SOCIAL_MEDIA.instagram.url}" target="_blank" class="social-icon social-instagram" title="Follow us on Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/>
+              </svg>
+            </a>
+            
+            <a href="${SOCIAL_MEDIA.youtube.url}" target="_blank" class="social-icon social-youtube" title="Subscribe on YouTube">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816z"/>
+              </svg>
+            </a>
+            
+            <a href="${SOCIAL_MEDIA.tiktok.url}" target="_blank" class="social-icon social-tiktok" title="Follow us on TikTok">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+              </svg>
+            </a>
+            
+            <a href="${SOCIAL_MEDIA.linkedin.url}" target="_blank" class="social-icon social-linkedin" title="Connect on LinkedIn">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+            </a>
+            
+            <a href="${SOCIAL_MEDIA.twitter.url}" target="_blank" class="social-icon social-twitter" title="Follow us on Twitter">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.99 0 007.557 2.213c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+              </svg>
+            </a>
+          </div>
+          
+          <!-- Copyright -->
+          <div class="copyright">
             © ${currentYear} ${SCHOOL_NAME}. All rights reserved.<br>
-            This is an official school communication.
-          </p>
+            <span>This email was sent to you as an important member of our school community.</span>
+          </div>
         </div>
       </div>
     </body>
@@ -267,15 +667,13 @@ async function sendModernEmails(campaign) {
   const sentRecipients = [];
   const failedRecipients = [];
   
-  // Optimized sequential processing to avoid Gmail timeouts
-  // Using sequential instead of parallel to avoid "Timeout - closing connection" errors
+  // Optimized sequential processing
   for (const recipient of recipients) {
     try {
       const htmlContent = getModernEmailTemplate({
         subject: campaign.subject,
         content: campaign.content,
         senderName: 'School Administration',
-        campaignTitle: campaign.title,
         recipientType: recipientType
       });
 
@@ -351,10 +749,10 @@ async function sendModernEmails(campaign) {
 }
 
 // ====================================================================
-// API HANDLERS - MAIN ROUTE
+// API HANDLERS
 // ====================================================================
 
-// 🔹 POST - Create a new campaign
+// 🔹 POST - Create a new email campaign
 export async function POST(req) {
   let campaign = null;
   

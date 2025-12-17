@@ -199,7 +199,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
         fetch('/api/assignment'),
         fetch('/api/gallery'),
         fetch('/api/guidance'),
-        fetch('/api/admissions/applications'),
+        fetch('/api/applyadmission'),
         fetch('/api/resources?accessLevel=admin&limit=100'),
       ]);
 

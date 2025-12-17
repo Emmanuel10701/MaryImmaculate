@@ -7,7 +7,7 @@ import nodemailer from "nodemailer";
 // ====================================================================
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Email transporter configuration - REMOVED ALL DEBUGGING
+// Email transporter configuration
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
@@ -15,14 +15,19 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
   pool: true,
-  maxConnections: 3, // Reduced for better stability
+  maxConnections: 3,
   maxMessages: 50,
-  rateDelta: 2000, // Send 1 email every 2 seconds
-  rateLimit: 5, // 5 emails per rateDelta (2000ms)
+  rateDelta: 2000,
+  rateLimit: 5,
 });
 
 // School Information
 const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Nyaribu Secondary School';
+const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Kiganjo, Nyeri County';
+const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Soaring for Excellence';
+const CONTACT_PHONE = process.env.CONTACT_PHONE || '+254720123456';
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@nyaribusecondary.sc.ke';
+const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://nyaribusecondary.sc.ke';
 
 // ====================================================================
 // HELPER FUNCTIONS
@@ -62,6 +67,7 @@ function getModernEmailTemplate({
   
   const recipientTypeLabel = getRecipientTypeLabel(recipientType);
   const safeContent = sanitizeContent(content);
+  const currentYear = new Date().getFullYear();
   
   return `
     <!DOCTYPE html>
@@ -73,6 +79,7 @@ function getModernEmailTemplate({
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <title>${subject} | ${SCHOOL_NAME}</title>
       <style>
+        /* MOBILE-FIRST RESPONSIVE STYLES */
         * {
           margin: 0;
           padding: 0;
@@ -98,6 +105,104 @@ function getModernEmailTemplate({
           background: #ffffff;
         }
         
+        /* HEADER */
+        .header {
+          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+          color: #ffffff;
+          padding: 30px 20px;
+          text-align: center;
+        }
+        
+        .header h1 {
+          font-size: 24px;
+          font-weight: 700;
+          line-height: 1.3;
+          margin: 0 0 8px 0;
+        }
+        
+        .header h2 {
+          font-size: 16px;
+          font-weight: 400;
+          opacity: 0.9;
+          margin: 0;
+        }
+        
+        /* CONTENT */
+        .content {
+          padding: 30px 20px;
+        }
+        
+        /* CAMPAIGN INFO */
+        .campaign-info {
+          background: linear-gradient(135deg, #f0f7ff 0%, #dbeafe 100%);
+          padding: 25px 20px;
+          margin: 20px 0;
+          border-radius: 10px;
+          text-align: center;
+        }
+        
+        .campaign-title {
+          color: #1e3c72;
+          font-size: 20px;
+          font-weight: 600;
+          margin: 0 0 10px 0;
+        }
+        
+        .recipient-badge {
+          display: inline-block;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 8px 20px;
+          border-radius: 50px;
+          font-weight: 600;
+          font-size: 13px;
+          margin: 10px 0;
+        }
+        
+        /* MESSAGE CONTENT */
+        .message-content {
+          background: #ffffff;
+          padding: 25px;
+          border-radius: 8px;
+          margin: 25px 0;
+          border: 1px solid #e5e7eb;
+          font-size: 16px;
+          line-height: 1.6;
+          color: #4b5563;
+        }
+        
+        .message-content p {
+          margin: 0 0 18px 0;
+        }
+        
+        /* RESPONSIVE MEDIA QUERIES */
+        @media only screen and (max-width: 480px) {
+          .header {
+            padding: 25px 15px;
+          }
+          
+          .header h1 {
+            font-size: 22px;
+          }
+          
+          .header h2 {
+            font-size: 14px;
+          }
+          
+          .content {
+            padding: 25px 15px;
+          }
+          
+          .campaign-info {
+            padding: 22px 18px;
+          }
+          
+          .message-content {
+            padding: 20px;
+          }
+        }
+        
+        /* FORCE MOBILE OPTIMIZATION */
         @media only screen and (max-width: 600px) {
           .container {
             min-width: 320px !important;
@@ -112,23 +217,40 @@ function getModernEmailTemplate({
     </head>
     <body>
       <div class="container">
-        <div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #ffffff; padding: 30px 20px; text-align: center;">
-          <h1 style="font-size: 24px; font-weight: 700; line-height: 1.3; margin: 0 0 8px 0;">📧 ${subject}</h1>
-          <h2 style="font-size: 16px; font-weight: 400; opacity: 0.9; margin: 0;">${SCHOOL_NAME}</h2>
+        <div class="header">
+          <h2>${subject}</h2>
+          <h2>${SCHOOL_NAME}</h2>
         </div>
         
-        <div style="padding: 30px 20px;">
-          <div style="background: linear-gradient(135deg, #f0f7ff 0%, #dbeafe 100%); padding: 25px 20px; margin: 20px 0; border-radius: 10px; text-align: center;">
-            <h3 style="color: #1e3c72; font-size: 20px; font-weight: 600; margin: 0 0 10px 0;">${campaignTitle || 'School Communication'}</h3>
-            <div style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 20px; border-radius: 50px; font-weight: 600; font-size: 13px; margin: 10px 0;">${recipientTypeLabel}</div>
-            <p style="margin: 12px 0 0 0; color: #6b7280; font-size: 14px;">
-              Official Communication from ${SCHOOL_NAME} Administration
-            </p>
-          </div>
-          
-          <div style="background: #ffffff; padding: 25px; border-radius: 8px; margin: 25px 0; border: 1px solid #e5e7eb; font-size: 16px; line-height: 1.6; color: #4b5563;">
+        <div class="content">
+          <div class="message-content">
             ${safeContent}
           </div>
+          
+          <div style="text-align: center; margin-top: 30px; padding-top: 25px; border-top: 1px solid #e9ecef;">
+            <p style="font-size: 17px; color: #1e3c72; font-weight: 600; margin-bottom: 12px;">
+              Best Regards,
+            </p>
+            <p style="font-size: 15px; color: #333; margin: 0;">
+              <strong>${senderName}</strong><br>
+              ${SCHOOL_NAME} Administration
+            </p>
+            <p style="margin-top: 20px; font-size: 14px; color: #666;">
+              <strong>Contact Information:</strong><br>
+              Phone: ${CONTACT_PHONE} | Email: ${CONTACT_EMAIL}<br>
+              Website: ${SCHOOL_WEBSITE}
+            </p>
+          </div>
+        </div>
+        
+        <div style="background: #1a1a2e; color: #b0b0b0; padding: 20px; text-align: center; font-size: 12px;">
+          <p style="margin: 0 0 8px 0; font-weight: 600; color: #ffffff;">${SCHOOL_NAME}</p>
+          <p style="margin: 0 0 8px 0;">${SCHOOL_LOCATION}</p>
+          <p style="margin: 0 0 8px 0; font-style: italic;">"${SCHOOL_MOTTO}"</p>
+          <p style="margin: 20px 0 0 0; padding-top: 15px; border-top: 1px solid #374151;">
+            © ${currentYear} ${SCHOOL_NAME}. All rights reserved.<br>
+            This is an official school communication.
+          </p>
         </div>
       </div>
     </body>
@@ -144,19 +266,18 @@ async function sendModernEmails(campaign) {
   
   const sentRecipients = [];
   const failedRecipients = [];
-
-  // Sequential processing to avoid Gmail timeouts
+  
+  // Optimized sequential processing to avoid Gmail timeouts
+  // Using sequential instead of parallel to avoid "Timeout - closing connection" errors
   for (const recipient of recipients) {
     try {
-      const templateData = {
+      const htmlContent = getModernEmailTemplate({
         subject: campaign.subject,
         content: campaign.content,
         senderName: 'School Administration',
         campaignTitle: campaign.title,
         recipientType: recipientType
-      };
-
-      const htmlContent = getModernEmailTemplate(templateData);
+      });
 
       const mailOptions = {
         from: `"${SCHOOL_NAME} Administration" <${process.env.EMAIL_USER}>`,
@@ -263,7 +384,7 @@ export async function GET(req, { params }) {
       id: campaign.id,
       title: campaign.title,
       subject: campaign.subject,
-      content: campaign.content, // Return full content for single view
+      content: campaign.content,
       recipients: campaign.recipients,
       recipientCount,
       recipientType,
@@ -299,8 +420,10 @@ export async function GET(req, { params }) {
   }
 }
 
-// 🔹 PUT - Update a campaign
+// 🔹 PUT - Update a campaign (with email sending when status changes to published)
 export async function PUT(req, { params }) {
+  let emailResults = null;
+  
   try {
     const { id } = await params;
     
@@ -367,43 +490,104 @@ export async function PUT(req, { params }) {
     if (recipientType !== undefined) updateData.recipientType = recipientType;
     updateData.updatedAt = new Date();
     
-    const campaign = await prisma.emailCampaign.update({
-      where: { id },
-      data: updateData,
-    });
+    // Check if we're changing status from draft to published
+    const isChangingToPublished = existingCampaign.status === 'draft' && status === 'published';
     
-    // If updating status to published and hasn't been sent before, send emails
-    let emailResults = null;
-    if (status === 'published' && !existingCampaign.sentAt) {
-      emailResults = await sendModernEmails(campaign);
+    // If changing to published, we need to send emails
+    if (isChangingToPublished) {
+      // First update the campaign with the new data
+      const updatedCampaign = await prisma.emailCampaign.update({
+        where: { id },
+        data: updateData,
+      });
+      
+      // Then send the emails
+      try {
+        emailResults = await sendModernEmails(updatedCampaign);
+        
+        // Fetch the updated campaign with email stats
+        const finalCampaign = await prisma.emailCampaign.findUnique({
+          where: { id },
+        });
+        
+        const emailList = finalCampaign.recipients.split(",").map(r => r.trim());
+        const uniqueEmails = [...new Set(emailList)];
+        
+        const responseData = {
+          id: finalCampaign.id,
+          title: finalCampaign.title,
+          subject: finalCampaign.subject,
+          content: finalCampaign.content,
+          recipients: finalCampaign.recipients,
+          recipientCount: uniqueEmails.length,
+          recipientType: finalCampaign.recipientType || 'all',
+          recipientTypeLabel: getRecipientTypeLabel(finalCampaign.recipientType || 'all'),
+          status: finalCampaign.status,
+          sentAt: finalCampaign.sentAt,
+          sentCount: finalCampaign.sentCount,
+          failedCount: finalCampaign.failedCount,
+          createdAt: finalCampaign.createdAt,
+          updatedAt: finalCampaign.updatedAt,
+        };
+        
+        return NextResponse.json({ 
+          success: true, 
+          campaign: responseData,
+          emailResults,
+          message: `Campaign updated and sent to ${emailResults.summary.successful} recipients successfully`
+        });
+        
+      } catch (emailError) {
+        console.error(`Email sending failed:`, emailError);
+        
+        // If email sending fails, revert status to draft
+        await prisma.emailCampaign.update({
+          where: { id },
+          data: { 
+            status: 'draft',
+            failedCount: existingCampaign.recipients.split(',').length
+          },
+        });
+        
+        return NextResponse.json({ 
+          success: false, 
+          error: `Failed to send emails: ${emailError.message}`,
+          campaign: existingCampaign
+        }, { status: 500 });
+      }
+    } else {
+      // Regular update without email sending
+      const campaign = await prisma.emailCampaign.update({
+        where: { id },
+        data: updateData,
+      });
+      
+      const emailList = campaign.recipients.split(",").map(r => r.trim());
+      const uniqueEmails = [...new Set(emailList)];
+      
+      const responseData = {
+        id: campaign.id,
+        title: campaign.title,
+        subject: campaign.subject,
+        content: campaign.content,
+        recipients: campaign.recipients,
+        recipientCount: uniqueEmails.length,
+        recipientType: campaign.recipientType || 'all',
+        recipientTypeLabel: getRecipientTypeLabel(campaign.recipientType || 'all'),
+        status: campaign.status,
+        sentAt: campaign.sentAt,
+        sentCount: campaign.sentCount,
+        failedCount: campaign.failedCount,
+        createdAt: campaign.createdAt,
+        updatedAt: campaign.updatedAt,
+      };
+      
+      return NextResponse.json({ 
+        success: true, 
+        campaign: responseData,
+        message: "Campaign updated successfully" + (status === 'published' && existingCampaign.sentAt ? " (already sent)" : "")
+      });
     }
-    
-    const emailList = campaign.recipients.split(",").map(r => r.trim());
-    const uniqueEmails = [...new Set(emailList)];
-    
-    const responseData = {
-      id: campaign.id,
-      title: campaign.title,
-      subject: campaign.subject,
-      content: campaign.content,
-      recipients: campaign.recipients,
-      recipientCount: uniqueEmails.length,
-      recipientType: campaign.recipientType || 'all',
-      recipientTypeLabel: getRecipientTypeLabel(campaign.recipientType || 'all'),
-      status: campaign.status,
-      sentAt: campaign.sentAt,
-      sentCount: campaign.sentCount,
-      failedCount: campaign.failedCount,
-      createdAt: campaign.createdAt,
-      updatedAt: campaign.updatedAt,
-    };
-    
-    return NextResponse.json({ 
-      success: true, 
-      campaign: responseData,
-      emailResults,
-      message: "Campaign updated successfully" + (emailResults ? ` and sent to ${emailResults.summary.successful} recipients` : '')
-    });
     
   } catch (error) {
     console.error(`PUT Error:`, error);
@@ -418,11 +602,147 @@ export async function PUT(req, { params }) {
         success: false, 
         error: "Data too long for database column" 
       }, { status: 400 });
+    } else if (error.code === 'P2002') {
+      return NextResponse.json({ 
+        success: false, 
+        error: "A campaign with similar data already exists" 
+      }, { status: 409 });
     }
     
     return NextResponse.json({ 
       success: false, 
       error: error.message || "Failed to update campaign"
+    }, { status: 500 });
+  }
+}
+
+// 🔹 PATCH - Update campaign status (send emails when changing to published)
+export async function PATCH(req, { params }) {
+  let emailResults = null;
+  
+  try {
+    const { id } = await params;
+    
+    if (!id) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Campaign ID is required" 
+      }, { status: 400 });
+    }
+    
+    const { status, forceResend = false } = await req.json();
+    
+    if (!status) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Status is required" 
+      }, { status: 400 });
+    }
+    
+    const campaign = await prisma.emailCampaign.findUnique({
+      where: { id },
+    });
+    
+    if (!campaign) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Campaign not found" 
+      }, { status: 404 });
+    }
+    
+    if (status === 'published') {
+      // Check if already sent and not forcing resend
+      if (campaign.sentAt && !forceResend) {
+        return NextResponse.json({ 
+          success: false, 
+          error: "Campaign has already been sent. Use forceResend=true to resend."
+        }, { status: 400 });
+      }
+      
+      // Send emails
+      try {
+        emailResults = await sendModernEmails(campaign);
+        
+        const updatedCampaign = await prisma.emailCampaign.findUnique({
+          where: { id },
+        });
+        
+        const recipientCount = updatedCampaign.recipients.split(',').length;
+        
+        return NextResponse.json({ 
+          success: true, 
+          campaign: {
+            id: updatedCampaign.id,
+            title: updatedCampaign.title,
+            subject: updatedCampaign.subject,
+            content: updatedCampaign.content,
+            recipients: updatedCampaign.recipients,
+            recipientCount,
+            recipientType: updatedCampaign.recipientType || 'all',
+            recipientTypeLabel: getRecipientTypeLabel(updatedCampaign.recipientType || 'all'),
+            status: updatedCampaign.status,
+            sentAt: updatedCampaign.sentAt,
+            sentCount: updatedCampaign.sentCount,
+            failedCount: updatedCampaign.failedCount,
+            successRate: updatedCampaign.sentCount && recipientCount > 0 
+              ? Math.round((updatedCampaign.sentCount / recipientCount) * 100)
+              : 0
+          },
+          emailResults,
+          message: `Campaign sent successfully to ${emailResults.summary.successful} recipients`
+        });
+        
+      } catch (emailError) {
+        console.error(`Email sending failed:`, emailError);
+        
+        // Revert to draft if sending fails
+        await prisma.emailCampaign.update({
+          where: { id },
+          data: { 
+            status: 'draft',
+            failedCount: campaign.recipients.split(',').length
+          },
+        });
+        
+        return NextResponse.json({ 
+          success: false, 
+          error: `Failed to send emails: ${emailError.message}`
+        }, { status: 500 });
+      }
+      
+    } else if (status === 'draft') {
+      // Just update status to draft
+      await prisma.emailCampaign.update({
+        where: { id },
+        data: { 
+          status: 'draft',
+          updatedAt: new Date()
+        },
+      });
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: "Campaign moved to draft",
+        campaign: {
+          id: campaign.id,
+          title: campaign.title,
+          subject: campaign.subject,
+          status: 'draft'
+        }
+      });
+    } else {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Invalid status. Use 'published' or 'draft'." 
+      }, { status: 400 });
+    }
+    
+  } catch (error) {
+    console.error(`PATCH Error:`, error);
+    
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message || "Failed to update campaign status"
     }, { status: 500 });
   }
 }
@@ -478,104 +798,6 @@ export async function DELETE(req, { params }) {
     return NextResponse.json({ 
       success: false, 
       error: error.message || "Failed to delete campaign"
-    }, { status: 500 });
-  }
-}
-
-// 🔹 PATCH - Update campaign status (send emails)
-export async function PATCH(req, { params }) {
-  try {
-    const { id } = await params;
-    
-    if (!id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Campaign ID is required" 
-      }, { status: 400 });
-    }
-    
-    const { status, forceResend = false } = await req.json();
-    
-    if (!status) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Status is required" 
-      }, { status: 400 });
-    }
-    
-    const campaign = await prisma.emailCampaign.findUnique({
-      where: { id },
-    });
-    
-    if (!campaign) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Campaign not found" 
-      }, { status: 404 });
-    }
-    
-    if (status === 'published') {
-      // Check if already sent and not forcing resend
-      if (campaign.sentAt && !forceResend) {
-        return NextResponse.json({ 
-          success: false, 
-          error: "Campaign has already been sent. Use forceResend=true to resend."
-        }, { status: 400 });
-      }
-      
-      const emailResults = await sendModernEmails(campaign);
-      
-      const updatedCampaign = await prisma.emailCampaign.findUnique({
-        where: { id },
-      });
-      
-      const recipientCount = updatedCampaign.recipients.split(',').length;
-      
-      return NextResponse.json({ 
-        success: true, 
-        campaign: {
-          id: updatedCampaign.id,
-          title: updatedCampaign.title,
-          subject: updatedCampaign.subject,
-          status: updatedCampaign.status,
-          sentAt: updatedCampaign.sentAt,
-          sentCount: updatedCampaign.sentCount,
-          failedCount: updatedCampaign.failedCount,
-          recipientCount,
-          successRate: updatedCampaign.sentCount && recipientCount > 0 
-            ? Math.round((updatedCampaign.sentCount / recipientCount) * 100)
-            : 0
-        },
-        emailResults,
-        message: `Campaign sent successfully to ${emailResults.summary.successful} recipients`
-      });
-      
-    } else if (status === 'draft') {
-      await prisma.emailCampaign.update({
-        where: { id },
-        data: { 
-          status: 'draft',
-          updatedAt: new Date()
-        },
-      });
-      
-      return NextResponse.json({ 
-        success: true, 
-        message: "Campaign moved to draft"
-      });
-    } else {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Invalid status. Use 'published' or 'draft'." 
-      }, { status: 400 });
-    }
-    
-  } catch (error) {
-    console.error(`PATCH Error:`, error);
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message || "Failed to update campaign status"
     }, { status: 500 });
   }
 }

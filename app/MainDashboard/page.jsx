@@ -164,7 +164,7 @@ export default function AdminDashboard() {
         fetch('/api/assignment'),
         fetch('/api/gallery'),
         fetch('/api/guidance'),
-        fetch('/api/admissions/applications'),
+        fetch('/api/applyadmission'),
         fetch('/api/resources')
       ]);
 

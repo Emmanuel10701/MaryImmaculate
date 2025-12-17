@@ -138,7 +138,7 @@ export default function DashboardOverview() {
           fetch('/api/news'),
           fetch('/api/school'),
           fetch('/api/register'),
-          fetch('/api/admissions/applications')  // Admissions endpoint
+          fetch('/api/applyadmission')  // Admissions endpoint
         ]);
 
         // Process responses
