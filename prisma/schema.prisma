@@ -389,38 +389,115 @@ model PromotionHistory {
   @@index([promotedAt])
 }
 
+
+
 model SchoolInfo {
   id                          Int       @id @default(autoincrement())
   name                        String
   description                 String   @db.Text
-  videoTour                   String?   // URL or local path
-  videoType                  String?   // "youtube" | "file"
+  
+  // School Identity
+  motto                       String?   
+  vision                      String?   
+  mission                     String?   
+  
+  // Media
+  videoTour                   String?   
+  videoType                  String?   // "youtube" | "file" | "vimeo"
+  
+  // Statistics
   studentCount                Int
   staffCount                  Int
-  feesBoarding                Float
-  feesDay                     Float
-  feesDistribution           Json
+  
+  // DAY SCHOOL FEES SECTION
+  feesDay                     Float?                  // Total day school fees
+  feesDayDistributionJson    Json?                   // JSON object of day fee breakdown (structured data)
+  feesDayDistributionPdf     String?                 // PDF upload for day fee breakdown
+  feesDayPdfName             String?                 // Original PDF filename
+  feesDayPdfSize             Int?                    // File size in bytes
+  feesDayPdfUploadDate       DateTime?               // When PDF was uploaded
+  
+  // BOARDING SCHOOL FEES SECTION
+  feesBoarding                Float?                  // Total boarding fees
+  feesBoardingDistributionJson Json?                 // JSON object of boarding fee breakdown
+  feesBoardingDistributionPdf String?                 // PDF upload for boarding fee breakdown
+  feesBoardingPdfName         String?                 // Original PDF filename
+  feesBoardingPdfSize         Int?                    // File size in bytes
+  feesBoardingPdfUploadDate   DateTime?               // When PDF was uploaded
+  
+  // Academic Calendar
   openDate                   DateTime
   closeDate                  DateTime
-  subjects                   Json
-  departments                Json
-  curriculumPDF              String?   // uploaded curriculum PDF path
   
-  // New Admission Fields
-  admissionOpenDate          DateTime?  // When admissions open
-  admissionCloseDate         DateTime?  // When admissions close
-  admissionRequirements      String?   @db.Text  // Admission requirements text
-  admissionFee               Float?     // Admission fee (not application fee)
-  admissionCapacity          Int?       // Maximum number of students to admit
-  admissionContactEmail      String?    // Contact email for admissions
-  admissionContactPhone      String?    // Contact phone for admissions
-  admissionWebsite           String?    // Admissions website URL
-  admissionLocation          String?    // Admission office location
-  admissionOfficeHours       String?    // Office hours for admissions
-  admissionDocumentsRequired Json?      // List of required documents for admission
+  // Academic Information
+  subjects                   Json                    // Array of subjects offered
+  departments                Json                    // Array of departments
   
+  // Curriculum PDF Upload
+  curriculumPDF              String?                 // Curriculum PDF path
+  curriculumPdfName          String?                 // Original filename
+  curriculumPdfSize          Int?                    // File size
+  
+  // Admission Information
+  admissionOpenDate          DateTime?
+  admissionCloseDate         DateTime?
+  admissionRequirements      String?   @db.Text
+  admissionFee               Float?
+  admissionFeeDistribution   Json?                   // JSON object for admission fee breakdown
+  admissionCapacity          Int?
+  admissionContactEmail      String?
+  admissionContactPhone      String?
+  admissionWebsite           String?
+  admissionLocation          String?
+  admissionOfficeHours       String?
+  admissionDocumentsRequired Json?                    // Array of required documents
+  
+  // ADMISSION FEE PDF
+  admissionFeePdf            String?                 // PDF for admission fee breakdown
+  admissionFeePdfName        String?                 // Original filename
+  
+  // EXAM RESULTS
+  form1ResultsPdf           String?                 // PDF path
+  form1ResultsPdfName       String?                 // Original filename
+  form1ResultsPdfSize       Int?                    // File size
+  form1ResultsYear          Int?                    // Exam year
+  
+  form2ResultsPdf           String?                 // PDF path
+  form2ResultsPdfName       String?                 // Original filename
+  form2ResultsPdfSize       Int?                    // File size
+  form2ResultsYear          Int?                    // Exam year
+  
+  form3ResultsPdf           String?                 // PDF path
+  form3ResultsPdfName       String?                 // Original filename
+  form3ResultsPdfSize       Int?                    // File size
+  form3ResultsYear          Int?                    // Exam year
+  
+  form4ResultsPdf           String?                 // PDF path
+  form4ResultsPdfName       String?                 // Original filename
+  form4ResultsPdfSize       Int?                    // File size
+  form4ResultsYear          Int?                    // Exam year
+  
+  mockExamsResultsPdf       String?                 // PDF path
+  mockExamsPdfName          String?                 // Original filename
+  mockExamsPdfSize          Int?                    // File size
+  mockExamsYear             Int?                    // Exam year
+  
+  kcseResultsPdf            String?                 // PDF path
+  kcsePdfName               String?                 // Original filename
+  kcsePdfSize               Int?                    // File size
+  kcseYear                  Int?                    // Exam year
+  
+  // Other Results
+  additionalResultsFiles    Json?                   // Array of {filename, filepath, filetype, year, description}
+  
+  // Timestamps
   createdAt                  DateTime  @default(now())
   updatedAt                  DateTime  @updatedAt
+  
+  // Indexes
+  @@index([name])
+  @@index([admissionOpenDate, admissionCloseDate])
+  @@index([kcseYear])
 }
 
 // =====================================================

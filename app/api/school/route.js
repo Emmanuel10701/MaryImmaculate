@@ -1,3 +1,4 @@
+// app/api/school/route.js
 import { NextResponse } from "next/server";
 import { prisma } from "../../../libs/prisma";
 import { writeFile, unlink } from "fs/promises";
@@ -10,16 +11,21 @@ const ensureDir = (dir) => {
 };
 
 const videoDir = path.join(process.cwd(), "public/infomation/videos");
-const pdfDir = path.join(process.cwd(), "public/infomation/curriculum");
+const pdfDir = path.join(process.cwd(), "public/infomation/pdfs");
+const dayFeesDir = path.join(pdfDir, "day-fees");
+const boardingFeesDir = path.join(pdfDir, "boarding-fees");
+const curriculumDir = path.join(pdfDir, "curriculum");
+const admissionDir = path.join(pdfDir, "admission");
+const examResultsDir = path.join(pdfDir, "exam-results");
 
-ensureDir(videoDir);
-ensureDir(pdfDir);
+// Create all directories
+[pdfDir, videoDir, dayFeesDir, boardingFeesDir, curriculumDir, admissionDir, examResultsDir].forEach(dir => ensureDir(dir));
 
 // Helper function to validate required fields
 const validateRequiredFields = (formData) => {
   const required = [
-    'name', 'studentCount', 'staffCount', 'feesBoarding', 'feesDay',
-    'feesDistribution', 'openDate', 'closeDate', 'subjects', 'departments'
+    'name', 'studentCount', 'staffCount', 
+    'openDate', 'closeDate', 'subjects', 'departments'
   ];
   
   const missing = required.filter(field => !formData.get(field));
@@ -44,8 +50,9 @@ const deleteOldFile = async (filePath) => {
 
 // Helper to validate YouTube URL
 const isValidYouTubeUrl = (url) => {
-  const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-  return youtubeRegex.test(url);
+  if (!url || url.trim() === '') return false;
+  const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  return youtubeRegex.test(url.trim());
 };
 
 // Helper function to parse and validate date
@@ -75,6 +82,122 @@ const parseIntField = (value) => {
   return isNaN(num) ? null : num;
 };
 
+// Helper function to parse JSON fields
+const parseJsonField = (value, fieldName) => {
+  if (!value || value.trim() === '') {
+    return null;
+  }
+  try {
+    return JSON.parse(value);
+  } catch (parseError) {
+    throw new Error(`Invalid JSON format in ${fieldName}: ${parseError.message}`);
+  }
+};
+
+// Helper to parse fee distribution JSON specifically
+const parseFeeDistributionJson = (value, fieldName) => {
+  if (!value || value.trim() === '') {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(value);
+    // Validate it's an object (not array or other types)
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      throw new Error(`${fieldName} must be a JSON object`);
+    }
+    return parsed;
+  } catch (parseError) {
+    throw new Error(`Invalid JSON format in ${fieldName}: ${parseError.message}`);
+  }
+};
+
+// MAIN PDF UPLOAD HANDLER
+const handlePdfUpload = async (pdfFile, uploadDir, fieldName, existingFilePath = null) => {
+  if (!pdfFile || pdfFile.size === 0) {
+    return {
+      path: existingFilePath,
+      name: null,
+      size: null
+    };
+  }
+
+  // Delete old file if exists
+  if (existingFilePath) {
+    await deleteOldFile(existingFilePath);
+  }
+
+  // Validate file type
+  if (pdfFile.type !== 'application/pdf') {
+    throw new Error(`Only PDF files are allowed for ${fieldName}`);
+  }
+
+  // Validate file size (20MB limit)
+  const maxSize = 20 * 1024 * 1024;
+  if (pdfFile.size > maxSize) {
+    throw new Error(`${fieldName} PDF file too large. Maximum size: 20MB`);
+  }
+
+  const buffer = Buffer.from(await pdfFile.arrayBuffer());
+  const fileName = `${Date.now()}_${fieldName}_${pdfFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+  const filePath = `/infomation/pdfs/${uploadDir}/${fileName}`;
+  
+  await writeFile(path.join(process.cwd(), "public", filePath), buffer);
+  
+  return {
+    path: filePath,
+    name: pdfFile.name,
+    size: pdfFile.size
+  };
+};
+
+// Helper to handle video upload
+const handleVideoUpload = async (youtubeLink, videoTourFile, existingVideo = null) => {
+  let videoPath = existingVideo?.videoTour || null;
+  let videoType = existingVideo?.videoType || null;
+
+  // If YouTube link is provided
+  if (youtubeLink && youtubeLink.trim() !== '') {
+    // Delete old video file if exists (if it was a local file)
+    if (existingVideo?.videoType === 'file' && existingVideo?.videoTour) {
+      await deleteOldFile(existingVideo.videoTour);
+    }
+    
+    if (!isValidYouTubeUrl(youtubeLink)) {
+      throw new Error("Invalid YouTube URL format. Please provide a valid YouTube watch URL or youtu.be link.");
+    }
+    videoPath = youtubeLink.trim();
+    videoType = "youtube";
+  }
+  // If local video file upload
+  else if (videoTourFile && videoTourFile.size > 0) {
+    // Delete old video file if exists
+    if (existingVideo?.videoType === 'file' && existingVideo?.videoTour) {
+      await deleteOldFile(existingVideo.videoTour);
+    }
+
+    // Validate file type
+    const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
+    if (!allowedVideoTypes.includes(videoTourFile.type)) {
+      throw new Error("Invalid video format. Only MP4, WebM, and OGG files are allowed.");
+    }
+
+    // Validate file size (100MB limit)
+    const maxSize = 100 * 1024 * 1024;
+    if (videoTourFile.size > maxSize) {
+      throw new Error("Video file too large. Maximum size: 100MB");
+    }
+
+    const buffer = Buffer.from(await videoTourFile.arrayBuffer());
+    const fileName = `${Date.now()}_${videoTourFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const filePath = `/infomation/videos/${fileName}`;
+    await writeFile(path.join(process.cwd(), "public", filePath), buffer);
+    videoPath = filePath;
+    videoType = "file";
+  }
+
+  return { videoPath, videoType };
+};
+
 // 🟢 CREATE (only once)
 export async function POST(req) {
   try {
@@ -98,163 +221,211 @@ export async function POST(req) {
       );
     }
 
-    const name = formData.get("name");
-    const description = formData.get("description");
-    const youtubeLink = formData.get("youtubeLink");
-    const videoTour = formData.get("videoTour");
-    const curriculumPDF = formData.get("curriculumPDF");
-
-    // Parse admission fields
-    const admissionOpenDate = parseDate(formData.get("admissionOpenDate"));
-    const admissionCloseDate = parseDate(formData.get("admissionCloseDate"));
-    const admissionRequirements = formData.get("admissionRequirements");
-    const admissionFee = parseNumber(formData.get("admissionFee"));
-    const admissionCapacity = parseIntField(formData.get("admissionCapacity"));
-    const admissionContactEmail = formData.get("admissionContactEmail");
-    const admissionContactPhone = formData.get("admissionContactPhone");
-    const admissionWebsite = formData.get("admissionWebsite");
-    const admissionLocation = formData.get("admissionLocation");
-    const admissionOfficeHours = formData.get("admissionOfficeHours");
-
+    // Handle video upload
     let videoPath = null;
     let videoType = null;
-
-    // Validate video input (only one allowed)
-    if (youtubeLink && videoTour) {
+    try {
+      const youtubeLink = formData.get("youtubeLink");
+      const videoTour = formData.get("videoTour");
+      const videoResult = await handleVideoUpload(youtubeLink, videoTour);
+      videoPath = videoResult.videoPath;
+      videoType = videoResult.videoType;
+    } catch (videoError) {
       return NextResponse.json(
-        { success: false, error: "Please provide either YouTube link OR video file, not both." },
+        { success: false, error: videoError.message },
         { status: 400 }
       );
     }
 
-    // If YouTube link is provided
-    if (youtubeLink) {
-      if (!isValidYouTubeUrl(youtubeLink)) {
-        return NextResponse.json(
-          { success: false, error: "Invalid YouTube URL format. Please provide a valid YouTube watch URL or youtu.be link." },
-          { status: 400 }
-        );
-      }
-      videoPath = youtubeLink;
-      videoType = "youtube";
-    }
-    // If local MP4 file upload
-    else if (videoTour && videoTour.size > 0) {
-      // Validate file type
-      const allowedVideoTypes = ['video/mp4'];
-      if (!allowedVideoTypes.includes(videoTour.type)) {
-        return NextResponse.json(
-          { success: false, error: "Invalid video format. Only MP4 files are allowed." },
-          { status: 400 }
-        );
-      }
-
-      // Validate file size (100MB limit)
-      const maxSize = 100 * 1024 * 1024;
-      if (videoTour.size > maxSize) {
-        return NextResponse.json(
-          { success: false, error: "Video file too large. Maximum size: 100MB" },
-          { status: 400 }
-        );
-      }
-
-      const buffer = Buffer.from(await videoTour.arrayBuffer());
-      const fileName = `${Date.now()}_${videoTour.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filePath = `/infomation/videos/${fileName}`;
-      await writeFile(path.join(process.cwd(), "public", filePath), buffer);
-      videoPath = filePath;
-      videoType = "file";
-    }
-
-    // Curriculum PDF upload
-    let curriculumPath = null;
-    if (curriculumPDF && curriculumPDF.size > 0) {
-      // Validate file type
-      if (curriculumPDF.type !== 'application/pdf') {
-        return NextResponse.json(
-          { success: false, error: "Only PDF files are allowed for curriculum" },
-          { status: 400 }
-        );
-      }
-
-      // Validate file size (20MB limit)
-      const maxSize = 20 * 1024 * 1024;
-      if (curriculumPDF.size > maxSize) {
-        return NextResponse.json(
-          { success: false, error: "PDF file too large. Maximum size: 20MB" },
-          { status: 400 }
-        );
-      }
-
-      const buffer = Buffer.from(await curriculumPDF.arrayBuffer());
-      const fileName = `${Date.now()}_${curriculumPDF.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filePath = `/infomation/curriculum/${fileName}`;
-      await writeFile(path.join(process.cwd(), "public", filePath), buffer);
-      curriculumPath = filePath;
-    }
-
-    // Parse JSON fields with error handling
-    let feesDistribution, subjects, departments, admissionDocumentsRequired;
+    // Handle ALL PDF uploads
+    let pdfUploads = {};
+    
     try {
-      feesDistribution = JSON.parse(formData.get("feesDistribution"));
-      subjects = JSON.parse(formData.get("subjects"));
-      departments = JSON.parse(formData.get("departments"));
-      
-      // Parse admission documents if provided
-      const admissionDocsStr = formData.get("admissionDocumentsRequired");
-      if (admissionDocsStr) {
-        admissionDocumentsRequired = JSON.parse(admissionDocsStr);
+      // Curriculum PDF
+      const curriculumPDF = formData.get("curriculumPDF");
+      if (curriculumPDF) {
+        pdfUploads.curriculum = await handlePdfUpload(curriculumPDF, "curriculum", "curriculum");
       }
+
+      // Day fees PDF
+      const feesDayDistributionPdf = formData.get("feesDayDistributionPdf");
+      if (feesDayDistributionPdf) {
+        pdfUploads.dayFees = await handlePdfUpload(feesDayDistributionPdf, "day-fees", "day_fees");
+      }
+
+      // Boarding fees PDF
+      const feesBoardingDistributionPdf = formData.get("feesBoardingDistributionPdf");
+      if (feesBoardingDistributionPdf) {
+        pdfUploads.boardingFees = await handlePdfUpload(feesBoardingDistributionPdf, "boarding-fees", "boarding_fees");
+      }
+
+      // Admission fee PDF
+      const admissionFeePdf = formData.get("admissionFeePdf");
+      if (admissionFeePdf) {
+        pdfUploads.admissionFee = await handlePdfUpload(admissionFeePdf, "admission", "admission_fee");
+      }
+
+      // Exam results PDFs
+      const examFields = [
+        { key: 'form1', name: 'form1ResultsPdf', year: 'form1ResultsYear' },
+        { key: 'form2', name: 'form2ResultsPdf', year: 'form2ResultsYear' },
+        { key: 'form3', name: 'form3ResultsPdf', year: 'form3ResultsYear' },
+        { key: 'form4', name: 'form4ResultsPdf', year: 'form4ResultsYear' },
+        { key: 'mockExams', name: 'mockExamsResultsPdf', year: 'mockExamsYear' },
+        { key: 'kcse', name: 'kcseResultsPdf', year: 'kcseYear' }
+      ];
+
+      for (const exam of examFields) {
+        const pdfFile = formData.get(exam.name);
+        if (pdfFile) {
+          pdfUploads[exam.key] = {
+            pdfData: await handlePdfUpload(pdfFile, "exam-results", exam.key),
+            year: parseIntField(formData.get(exam.year))
+          };
+        }
+      }
+    } catch (pdfError) {
+      return NextResponse.json(
+        { success: false, error: pdfError.message },
+        { status: 400 }
+      );
+    }
+
+    // Parse JSON fields
+    let subjects, departments, admissionDocumentsRequired, additionalResultsFiles;
+    let feesDayDistributionJson, feesBoardingDistributionJson, admissionFeeDistribution;
+    
+    try {
+      // Parse academic JSON fields
+      subjects = parseJsonField(formData.get("subjects") || "[]", "subjects");
+      departments = parseJsonField(formData.get("departments") || "[]", "departments");
+      
+      const admissionDocsStr = formData.get("admissionDocumentsRequired");
+      admissionDocumentsRequired = admissionDocsStr ? parseJsonField(admissionDocsStr, "admissionDocumentsRequired") : [];
+      
+      const additionalResultsStr = formData.get("additionalResultsFiles");
+      additionalResultsFiles = additionalResultsStr ? parseJsonField(additionalResultsStr, "additionalResultsFiles") : [];
+      
+      // Parse fee distribution JSON fields
+      const dayDistributionStr = formData.get("feesDayDistributionJson");
+      if (dayDistributionStr) {
+        feesDayDistributionJson = parseFeeDistributionJson(dayDistributionStr, "feesDayDistributionJson");
+      }
+      
+      const boardingDistributionStr = formData.get("feesBoardingDistributionJson");
+      if (boardingDistributionStr) {
+        feesBoardingDistributionJson = parseFeeDistributionJson(boardingDistributionStr, "feesBoardingDistributionJson");
+      }
+      
+      const admissionFeeDistributionStr = formData.get("admissionFeeDistribution");
+      if (admissionFeeDistributionStr) {
+        admissionFeeDistribution = parseFeeDistributionJson(admissionFeeDistributionStr, "admissionFeeDistribution");
+      }
+      
     } catch (parseError) {
       return NextResponse.json(
-        { success: false, error: "Invalid JSON format in one of the JSON fields" },
+        { success: false, error: parseError.message },
         { status: 400 }
       );
     }
 
     const school = await prisma.schoolInfo.create({
       data: {
-        name,
-        description: description || null,
+        name: formData.get("name"),
+        description: formData.get("description") || null,
+        motto: formData.get("motto") || null,
+        vision: formData.get("vision") || null,
+        mission: formData.get("mission") || null,
         videoTour: videoPath,
         videoType,
-        studentCount: Number(formData.get("studentCount")),
-        staffCount: Number(formData.get("staffCount")),
-        feesBoarding: parseFloat(formData.get("feesBoarding")),
-        feesDay: parseFloat(formData.get("feesDay")),
-        feesDistribution,
-        openDate: new Date(formData.get("openDate")),
-        closeDate: new Date(formData.get("closeDate")),
+        studentCount: parseIntField(formData.get("studentCount")) || 0,
+        staffCount: parseIntField(formData.get("staffCount")) || 0,
+        
+        // Day School Fees - BOTH JSON AND PDF
+        feesDay: parseNumber(formData.get("feesDay")),
+        feesDayDistributionJson: feesDayDistributionJson || {},
+        feesDayDistributionPdf: pdfUploads.dayFees?.path || null,
+        feesDayPdfName: pdfUploads.dayFees?.name || null,
+        feesDayPdfSize: pdfUploads.dayFees?.size || null,
+        feesDayPdfUploadDate: pdfUploads.dayFees?.path ? new Date() : null,
+        
+        // Boarding School Fees - BOTH JSON AND PDF
+        feesBoarding: parseNumber(formData.get("feesBoarding")),
+        feesBoardingDistributionJson: feesBoardingDistributionJson || {},
+        feesBoardingDistributionPdf: pdfUploads.boardingFees?.path || null,
+        feesBoardingPdfName: pdfUploads.boardingFees?.name || null,
+        feesBoardingPdfSize: pdfUploads.boardingFees?.size || null,
+        feesBoardingPdfUploadDate: pdfUploads.boardingFees?.path ? new Date() : null,
+        
+        // Academic Calendar
+        openDate: parseDate(formData.get("openDate")) || new Date(),
+        closeDate: parseDate(formData.get("closeDate")) || new Date(),
+        
+        // Academic Information
         subjects,
         departments,
-        curriculumPDF: curriculumPath,
         
-        // Admission fields
-        admissionOpenDate,
-        admissionCloseDate,
-        admissionRequirements,
-        admissionFee,
-        admissionCapacity,
-        admissionContactEmail,
-        admissionContactPhone,
-        admissionWebsite,
-        admissionLocation,
-        admissionOfficeHours,
-        admissionDocumentsRequired: admissionDocumentsRequired || [],
+        // Curriculum
+        curriculumPDF: pdfUploads.curriculum?.path || null,
+        curriculumPdfName: pdfUploads.curriculum?.name || null,
+        curriculumPdfSize: pdfUploads.curriculum?.size || null,
+        
+        // Admission Information - BOTH JSON AND PDF
+        admissionOpenDate: parseDate(formData.get("admissionOpenDate")),
+        admissionCloseDate: parseDate(formData.get("admissionCloseDate")),
+        admissionRequirements: formData.get("admissionRequirements") || null,
+        admissionFee: parseNumber(formData.get("admissionFee")),
+        admissionFeeDistribution: admissionFeeDistribution || {},
+        admissionCapacity: parseIntField(formData.get("admissionCapacity")),
+        admissionContactEmail: formData.get("admissionContactEmail") || null,
+        admissionContactPhone: formData.get("admissionContactPhone") || null,
+        admissionWebsite: formData.get("admissionWebsite") || null,
+        admissionLocation: formData.get("admissionLocation") || null,
+        admissionOfficeHours: formData.get("admissionOfficeHours") || null,
+        admissionDocumentsRequired,
+        admissionFeePdf: pdfUploads.admissionFee?.path || null,
+        admissionFeePdfName: pdfUploads.admissionFee?.name || null,
+        
+        // Exam Results
+        form1ResultsPdf: pdfUploads.form1?.pdfData.path || null,
+        form1ResultsPdfName: pdfUploads.form1?.pdfData.name || null,
+        form1ResultsPdfSize: pdfUploads.form1?.pdfData.size || null,
+        form1ResultsYear: pdfUploads.form1?.year || null,
+        
+        form2ResultsPdf: pdfUploads.form2?.pdfData.path || null,
+        form2ResultsPdfName: pdfUploads.form2?.pdfData.name || null,
+        form2ResultsPdfSize: pdfUploads.form2?.pdfData.size || null,
+        form2ResultsYear: pdfUploads.form2?.year || null,
+        
+        form3ResultsPdf: pdfUploads.form3?.pdfData.path || null,
+        form3ResultsPdfName: pdfUploads.form3?.pdfData.name || null,
+        form3ResultsPdfSize: pdfUploads.form3?.pdfData.size || null,
+        form3ResultsYear: pdfUploads.form3?.year || null,
+        
+        form4ResultsPdf: pdfUploads.form4?.pdfData.path || null,
+        form4ResultsPdfName: pdfUploads.form4?.pdfData.name || null,
+        form4ResultsPdfSize: pdfUploads.form4?.pdfData.size || null,
+        form4ResultsYear: pdfUploads.form4?.year || null,
+        
+        mockExamsResultsPdf: pdfUploads.mockExams?.pdfData.path || null,
+        mockExamsPdfName: pdfUploads.mockExams?.pdfData.name || null,
+        mockExamsPdfSize: pdfUploads.mockExams?.pdfData.size || null,
+        mockExamsYear: pdfUploads.mockExams?.year || null,
+        
+        kcseResultsPdf: pdfUploads.kcse?.pdfData.path || null,
+        kcsePdfName: pdfUploads.kcse?.pdfData.name || null,
+        kcsePdfSize: pdfUploads.kcse?.pdfData.size || null,
+        kcseYear: pdfUploads.kcse?.year || null,
+        
+        // Additional Results
+        additionalResultsFiles,
       },
     });
 
     return NextResponse.json({ 
       success: true, 
-      school: {
-        ...school,
-        feesDistribution: typeof school.feesDistribution === 'object' ? school.feesDistribution : JSON.parse(school.feesDistribution),
-        subjects: typeof school.subjects === 'object' ? school.subjects : JSON.parse(school.subjects),
-        departments: typeof school.departments === 'object' ? school.departments : JSON.parse(school.departments),
-        admissionDocumentsRequired: typeof school.admissionDocumentsRequired === 'object' 
-          ? school.admissionDocumentsRequired 
-          : (school.admissionDocumentsRequired ? JSON.parse(school.admissionDocumentsRequired) : []),
-      }
+      message: "School info created successfully",
+      school: cleanSchoolResponse(school)
     });
   } catch (error) {
     console.error("❌ POST Error:", error);
@@ -265,7 +436,7 @@ export async function POST(req) {
   }
 }
 
-// 🟡 GET school info
+// 🟡 GET school info - CLEANED RESPONSE
 export async function GET() {
   try {
     const school = await prisma.schoolInfo.findFirst();
@@ -276,18 +447,10 @@ export async function GET() {
       );
     }
 
-    // Parse JSON fields for response
-    const responseSchool = {
-      ...school,
-      feesDistribution: typeof school.feesDistribution === 'object' ? school.feesDistribution : JSON.parse(school.feesDistribution),
-      subjects: typeof school.subjects === 'object' ? school.subjects : JSON.parse(school.subjects),
-      departments: typeof school.departments === 'object' ? school.departments : JSON.parse(school.departments),
-      admissionDocumentsRequired: typeof school.admissionDocumentsRequired === 'object' 
-        ? school.admissionDocumentsRequired 
-        : (school.admissionDocumentsRequired ? JSON.parse(school.admissionDocumentsRequired) : []),
-    };
-
-    return NextResponse.json({ success: true, school: responseSchool });
+    return NextResponse.json({ 
+      success: true, 
+      school: cleanSchoolResponse(school)
+    });
   } catch (error) {
     console.error("❌ GET Error:", error);
     return NextResponse.json(
@@ -296,6 +459,132 @@ export async function GET() {
     );
   }
 }
+
+// Helper function to clean school response
+const cleanSchoolResponse = (school) => {
+  // Parse JSON fields
+  const subjects = typeof school.subjects === 'object' ? school.subjects : JSON.parse(school.subjects || '[]');
+  const departments = typeof school.departments === 'object' ? school.departments : JSON.parse(school.departments || '[]');
+  const feesDayDistributionJson = typeof school.feesDayDistributionJson === 'object' ? school.feesDayDistributionJson : JSON.parse(school.feesDayDistributionJson || '{}');
+  const feesBoardingDistributionJson = typeof school.feesBoardingDistributionJson === 'object' ? school.feesBoardingDistributionJson : JSON.parse(school.feesBoardingDistributionJson || '{}');
+  const admissionFeeDistribution = typeof school.admissionFeeDistribution === 'object' ? school.admissionFeeDistribution : JSON.parse(school.admissionFeeDistribution || '{}');
+  const admissionDocumentsRequired = typeof school.admissionDocumentsRequired === 'object' ? school.admissionDocumentsRequired : JSON.parse(school.admissionDocumentsRequired || '[]');
+  const additionalResultsFiles = typeof school.additionalResultsFiles === 'object' ? school.additionalResultsFiles : JSON.parse(school.additionalResultsFiles || '[]');
+
+  // Build clean response
+  const response = {
+    id: school.id,
+    name: school.name,
+    description: school.description,
+    motto: school.motto,
+    vision: school.vision,
+    mission: school.mission,
+    videoTour: school.videoTour,
+    videoType: school.videoType,
+    studentCount: school.studentCount,
+    staffCount: school.staffCount,
+    
+    // Day School Fees - BOTH JSON AND PDF
+    feesDay: school.feesDay,
+    feesDayDistribution: feesDayDistributionJson,
+    ...(school.feesDayDistributionPdf && { feesDayDistributionPdf: school.feesDayDistributionPdf }),
+    ...(school.feesDayPdfName && { feesDayPdfName: school.feesDayPdfName }),
+    
+    // Boarding School Fees - BOTH JSON AND PDF
+    feesBoarding: school.feesBoarding,
+    feesBoardingDistribution: feesBoardingDistributionJson,
+    ...(school.feesBoardingDistributionPdf && { feesBoardingDistributionPdf: school.feesBoardingDistributionPdf }),
+    ...(school.feesBoardingPdfName && { feesBoardingPdfName: school.feesBoardingPdfName }),
+    
+    // Academic Calendar
+    openDate: school.openDate,
+    closeDate: school.closeDate,
+    
+    // Academic Information
+    subjects,
+    departments,
+    
+    // Curriculum
+    ...(school.curriculumPDF && { curriculumPDF: school.curriculumPDF }),
+    ...(school.curriculumPdfName && { curriculumPdfName: school.curriculumPdfName }),
+    
+    // Admission Information - BOTH JSON AND PDF
+    admissionOpenDate: school.admissionOpenDate,
+    admissionCloseDate: school.admissionCloseDate,
+    admissionRequirements: school.admissionRequirements,
+    admissionFee: school.admissionFee,
+    admissionFeeDistribution: admissionFeeDistribution,
+    admissionCapacity: school.admissionCapacity,
+    admissionContactEmail: school.admissionContactEmail,
+    admissionContactPhone: school.admissionContactPhone,
+    admissionWebsite: school.admissionWebsite,
+    admissionLocation: school.admissionLocation,
+    admissionOfficeHours: school.admissionOfficeHours,
+    admissionDocumentsRequired: admissionDocumentsRequired,
+    ...(school.admissionFeePdf && { admissionFeePdf: school.admissionFeePdf }),
+    ...(school.admissionFeePdfName && { admissionFeePdfName: school.admissionFeePdfName }),
+    
+    // Exam Results - Clean format
+    examResults: {
+      ...(school.form1ResultsPdf && {
+        form1: {
+          pdf: school.form1ResultsPdf,
+          name: school.form1ResultsPdfName,
+          year: school.form1ResultsYear
+        }
+      }),
+      ...(school.form2ResultsPdf && {
+        form2: {
+          pdf: school.form2ResultsPdf,
+          name: school.form2ResultsPdfName,
+          year: school.form2ResultsYear
+        }
+      }),
+      ...(school.form3ResultsPdf && {
+        form3: {
+          pdf: school.form3ResultsPdf,
+          name: school.form3ResultsPdfName,
+          year: school.form3ResultsYear
+        }
+      }),
+      ...(school.form4ResultsPdf && {
+        form4: {
+          pdf: school.form4ResultsPdf,
+          name: school.form4ResultsPdfName,
+          year: school.form4ResultsYear
+        }
+      }),
+      ...(school.mockExamsResultsPdf && {
+        mockExams: {
+          pdf: school.mockExamsResultsPdf,
+          name: school.mockExamsPdfName,
+          year: school.mockExamsYear
+        }
+      }),
+      ...(school.kcseResultsPdf && {
+        kcse: {
+          pdf: school.kcseResultsPdf,
+          name: school.kcsePdfName,
+          year: school.kcseYear
+        }
+      })
+    },
+    
+    // Additional Results
+    ...(additionalResultsFiles.length > 0 && { additionalResultsFiles }),
+    
+    // Timestamps
+    createdAt: school.createdAt,
+    updatedAt: school.updatedAt
+  };
+
+  // Remove empty examResults object
+  if (Object.keys(response.examResults).length === 0) {
+    delete response.examResults;
+  }
+
+  return response;
+};
 
 // 🟠 PUT update existing info
 export async function PUT(req) {
@@ -309,206 +598,253 @@ export async function PUT(req) {
     }
 
     const formData = await req.formData();
-    const youtubeLink = formData.get("youtubeLink");
-    const videoTour = formData.get("videoTour");
-    const curriculumPDF = formData.get("curriculumPDF");
-
-    // Parse admission fields
-    const admissionOpenDate = parseDate(formData.get("admissionOpenDate"));
-    const admissionCloseDate = parseDate(formData.get("admissionCloseDate"));
-    const admissionRequirements = formData.get("admissionRequirements");
-    const admissionFee = parseNumber(formData.get("admissionFee"));
-    const admissionCapacity = parseIntField(formData.get("admissionCapacity"));
-    const admissionContactEmail = formData.get("admissionContactEmail");
-    const admissionContactPhone = formData.get("admissionContactPhone");
-    const admissionWebsite = formData.get("admissionWebsite");
-    const admissionLocation = formData.get("admissionLocation");
-    const admissionOfficeHours = formData.get("admissionOfficeHours");
-
+    
+    // Handle video upload
     let videoPath = existing.videoTour;
     let videoType = existing.videoType;
-
-    // Validate video input (only one allowed)
-    if (youtubeLink && videoTour && videoTour.size > 0) {
+    try {
+      const youtubeLink = formData.get("youtubeLink");
+      const videoTour = formData.get("videoTour");
+      const videoResult = await handleVideoUpload(youtubeLink, videoTour, existing);
+      videoPath = videoResult.videoPath !== null ? videoResult.videoPath : existing.videoTour;
+      videoType = videoResult.videoType !== null ? videoResult.videoType : existing.videoType;
+    } catch (videoError) {
       return NextResponse.json(
-        { success: false, error: "Please provide either YouTube link OR video file, not both." },
+        { success: false, error: videoError.message },
         { status: 400 }
       );
     }
 
-    // Handle video updates
-    if (youtubeLink) {
-      // Delete old video file if exists (if it was a local file)
-      if (existing.videoType === 'file' && existing.videoTour) {
-        await deleteOldFile(existing.videoTour);
-      }
-      
-      if (!isValidYouTubeUrl(youtubeLink)) {
-        return NextResponse.json(
-          { success: false, error: "Invalid YouTube URL format. Please provide a valid YouTube watch URL or youtu.be link." },
-          { status: 400 }
-        );
-      }
-      videoPath = youtubeLink;
-      videoType = "youtube";
-    } else if (videoTour && videoTour.size > 0) {
-      // Delete old video file if exists
-      if (existing.videoType === 'file' && existing.videoTour) {
-        await deleteOldFile(existing.videoTour);
+    // Handle ALL PDF uploads
+    let pdfUploads = {};
+    
+    try {
+      // Curriculum PDF
+      const curriculumPDF = formData.get("curriculumPDF");
+      if (curriculumPDF) {
+        pdfUploads.curriculum = await handlePdfUpload(curriculumPDF, "curriculum", "curriculum", existing.curriculumPDF);
       }
 
-      // Validate file type
-      const allowedVideoTypes = ['video/mp4'];
-      if (!allowedVideoTypes.includes(videoTour.type)) {
-        return NextResponse.json(
-          { success: false, error: "Invalid video format. Only MP4 files are allowed." },
-          { status: 400 }
-        );
+      // Day fees PDF
+      const feesDayDistributionPdf = formData.get("feesDayDistributionPdf");
+      if (feesDayDistributionPdf) {
+        pdfUploads.dayFees = await handlePdfUpload(feesDayDistributionPdf, "day-fees", "day_fees", existing.feesDayDistributionPdf);
       }
 
-      // Validate file size (100MB limit)
-      const maxSize = 100 * 1024 * 1024;
-      if (videoTour.size > maxSize) {
-        return NextResponse.json(
-          { success: false, error: "Video file too large. Maximum size: 100MB" },
-          { status: 400 }
-        );
+      // Boarding fees PDF
+      const feesBoardingDistributionPdf = formData.get("feesBoardingDistributionPdf");
+      if (feesBoardingDistributionPdf) {
+        pdfUploads.boardingFees = await handlePdfUpload(feesBoardingDistributionPdf, "boarding-fees", "boarding_fees", existing.feesBoardingDistributionPdf);
       }
 
-      const buffer = Buffer.from(await videoTour.arrayBuffer());
-      const fileName = `${Date.now()}_${videoTour.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filePath = `/infomation/videos/${fileName}`;
-      await writeFile(path.join(process.cwd(), "public", filePath), buffer);
-      videoPath = filePath;
-      videoType = "file";
+      // Admission fee PDF
+      const admissionFeePdf = formData.get("admissionFeePdf");
+      if (admissionFeePdf) {
+        pdfUploads.admissionFee = await handlePdfUpload(admissionFeePdf, "admission", "admission_fee", existing.admissionFeePdf);
+      }
+
+      // Exam results PDFs
+      const examFields = [
+        { key: 'form1', name: 'form1ResultsPdf', year: 'form1ResultsYear', existing: existing.form1ResultsPdf },
+        { key: 'form2', name: 'form2ResultsPdf', year: 'form2ResultsYear', existing: existing.form2ResultsPdf },
+        { key: 'form3', name: 'form3ResultsPdf', year: 'form3ResultsYear', existing: existing.form3ResultsPdf },
+        { key: 'form4', name: 'form4ResultsPdf', year: 'form4ResultsYear', existing: existing.form4ResultsPdf },
+        { key: 'mockExams', name: 'mockExamsResultsPdf', year: 'mockExamsYear', existing: existing.mockExamsResultsPdf },
+        { key: 'kcse', name: 'kcseResultsPdf', year: 'kcseYear', existing: existing.kcseResultsPdf }
+      ];
+
+      for (const exam of examFields) {
+        const pdfFile = formData.get(exam.name);
+        if (pdfFile) {
+          pdfUploads[exam.key] = {
+            pdfData: await handlePdfUpload(pdfFile, "exam-results", exam.key, exam.existing),
+            year: formData.get(exam.year) ? parseIntField(formData.get(exam.year)) : null
+          };
+        }
+      }
+    } catch (pdfError) {
+      return NextResponse.json(
+        { success: false, error: pdfError.message },
+        { status: 400 }
+      );
     }
 
-    // Handle curriculum PDF updates
-    let curriculumPath = existing.curriculumPDF;
-    if (curriculumPDF && curriculumPDF.size > 0) {
-      // Delete old PDF file if exists
-      if (existing.curriculumPDF) {
-        await deleteOldFile(existing.curriculumPDF);
-      }
-
-      // Validate file type
-      if (curriculumPDF.type !== 'application/pdf') {
-        return NextResponse.json(
-          { success: false, error: "Only PDF files are allowed for curriculum" },
-          { status: 400 }
-        );
-      }
-
-      // Validate file size (20MB limit)
-      const maxSize = 20 * 1024 * 1024;
-      if (curriculumPDF.size > maxSize) {
-        return NextResponse.json(
-          { success: false, error: "PDF file too large. Maximum size: 20MB" },
-          { status: 400 }
-        );
-      }
-
-      const buffer = Buffer.from(await curriculumPDF.arrayBuffer());
-      const fileName = `${Date.now()}_${curriculumPDF.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filePath = `/infomation/curriculum/${fileName}`;
-      await writeFile(path.join(process.cwd(), "public", filePath), buffer);
-      curriculumPath = filePath;
-    }
-
-    // Parse JSON fields with error handling
-    let feesDistribution = existing.feesDistribution;
+    // Parse JSON fields
     let subjects = existing.subjects;
     let departments = existing.departments;
     let admissionDocumentsRequired = existing.admissionDocumentsRequired;
+    let additionalResultsFiles = existing.additionalResultsFiles;
+    let feesDayDistributionJson = existing.feesDayDistributionJson;
+    let feesBoardingDistributionJson = existing.feesBoardingDistributionJson;
+    let admissionFeeDistribution = existing.admissionFeeDistribution;
 
-    if (formData.get("feesDistribution")) {
-      try {
-        feesDistribution = JSON.parse(formData.get("feesDistribution"));
-      } catch (parseError) {
-        return NextResponse.json(
-          { success: false, error: "Invalid JSON format in feesDistribution" },
-          { status: 400 }
-        );
-      }
-    }
-
+    // Parse subjects
     if (formData.get("subjects")) {
       try {
-        subjects = JSON.parse(formData.get("subjects"));
+        subjects = parseJsonField(formData.get("subjects"), "subjects");
       } catch (parseError) {
         return NextResponse.json(
-          { success: false, error: "Invalid JSON format in subjects" },
+          { success: false, error: parseError.message },
           { status: 400 }
         );
       }
     }
 
+    // Parse departments
     if (formData.get("departments")) {
       try {
-        departments = JSON.parse(formData.get("departments"));
+        departments = parseJsonField(formData.get("departments"), "departments");
       } catch (parseError) {
         return NextResponse.json(
-          { success: false, error: "Invalid JSON format in departments" },
+          { success: false, error: parseError.message },
           { status: 400 }
         );
       }
     }
 
+    // Parse admission documents
     if (formData.get("admissionDocumentsRequired")) {
       try {
-        admissionDocumentsRequired = JSON.parse(formData.get("admissionDocumentsRequired"));
+        admissionDocumentsRequired = parseJsonField(formData.get("admissionDocumentsRequired"), "admissionDocumentsRequired");
       } catch (parseError) {
         return NextResponse.json(
-          { success: false, error: "Invalid JSON format in admissionDocumentsRequired" },
+          { success: false, error: parseError.message },
           { status: 400 }
         );
       }
     }
 
+    // Parse additional results files
+    if (formData.get("additionalResultsFiles")) {
+      try {
+        additionalResultsFiles = parseJsonField(formData.get("additionalResultsFiles"), "additionalResultsFiles");
+      } catch (parseError) {
+        return NextResponse.json(
+          { success: false, error: parseError.message },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Parse fee distribution JSON fields
+    try {
+      if (formData.get("feesDayDistributionJson")) {
+        feesDayDistributionJson = parseFeeDistributionJson(formData.get("feesDayDistributionJson"), "feesDayDistributionJson");
+      }
+      
+      if (formData.get("feesBoardingDistributionJson")) {
+        feesBoardingDistributionJson = parseFeeDistributionJson(formData.get("feesBoardingDistributionJson"), "feesBoardingDistributionJson");
+      }
+      
+      if (formData.get("admissionFeeDistribution")) {
+        admissionFeeDistribution = parseFeeDistributionJson(formData.get("admissionFeeDistribution"), "admissionFeeDistribution");
+      }
+    } catch (parseError) {
+      return NextResponse.json(
+        { success: false, error: parseError.message },
+        { status: 400 }
+      );
+    }
+
+    // Update school with all fields - WITH JSON DISTRIBUTIONS
     const updated = await prisma.schoolInfo.update({
       where: { id: existing.id },
       data: {
         name: formData.get("name") || existing.name,
-        description: formData.get("description") || existing.description,
+        description: formData.get("description") !== null ? formData.get("description") : existing.description,
+        motto: formData.get("motto") !== null ? formData.get("motto") : existing.motto,
+        vision: formData.get("vision") !== null ? formData.get("vision") : existing.vision,
+        mission: formData.get("mission") !== null ? formData.get("mission") : existing.mission,
         videoTour: videoPath,
         videoType,
-        studentCount: formData.get("studentCount") ? Number(formData.get("studentCount")) : existing.studentCount,
-        staffCount: formData.get("staffCount") ? Number(formData.get("staffCount")) : existing.staffCount,
-        feesBoarding: formData.get("feesBoarding") ? parseFloat(formData.get("feesBoarding")) : existing.feesBoarding,
-        feesDay: formData.get("feesDay") ? parseFloat(formData.get("feesDay")) : existing.feesDay,
-        feesDistribution,
-        openDate: formData.get("openDate") ? new Date(formData.get("openDate")) : existing.openDate,
-        closeDate: formData.get("closeDate") ? new Date(formData.get("closeDate")) : existing.closeDate,
+        studentCount: formData.get("studentCount") ? parseIntField(formData.get("studentCount")) : existing.studentCount,
+        staffCount: formData.get("staffCount") ? parseIntField(formData.get("staffCount")) : existing.staffCount,
+        
+        // Day School Fees - WITH JSON DISTRIBUTION
+        feesDay: formData.get("feesDay") ? parseNumber(formData.get("feesDay")) : existing.feesDay,
+        feesDayDistributionJson: feesDayDistributionJson !== undefined ? feesDayDistributionJson : existing.feesDayDistributionJson,
+        feesDayDistributionPdf: pdfUploads.dayFees?.path || existing.feesDayDistributionPdf,
+        feesDayPdfName: pdfUploads.dayFees?.name || existing.feesDayPdfName,
+        feesDayPdfSize: pdfUploads.dayFees?.size || existing.feesDayPdfSize,
+        feesDayPdfUploadDate: pdfUploads.dayFees?.path ? new Date() : existing.feesDayPdfUploadDate,
+        
+        // Boarding School Fees - WITH JSON DISTRIBUTION
+        feesBoarding: formData.get("feesBoarding") ? parseNumber(formData.get("feesBoarding")) : existing.feesBoarding,
+        feesBoardingDistributionJson: feesBoardingDistributionJson !== undefined ? feesBoardingDistributionJson : existing.feesBoardingDistributionJson,
+        feesBoardingDistributionPdf: pdfUploads.boardingFees?.path || existing.feesBoardingDistributionPdf,
+        feesBoardingPdfName: pdfUploads.boardingFees?.name || existing.feesBoardingPdfName,
+        feesBoardingPdfSize: pdfUploads.boardingFees?.size || existing.feesBoardingPdfSize,
+        feesBoardingPdfUploadDate: pdfUploads.boardingFees?.path ? new Date() : existing.feesBoardingPdfUploadDate,
+        
+        // Academic Calendar
+        openDate: formData.get("openDate") ? parseDate(formData.get("openDate")) : existing.openDate,
+        closeDate: formData.get("closeDate") ? parseDate(formData.get("closeDate")) : existing.closeDate,
+        
+        // Academic Information
         subjects,
         departments,
-        curriculumPDF: curriculumPath,
         
-        // Admission fields - update only if provided
-        admissionOpenDate: admissionOpenDate !== undefined ? admissionOpenDate : existing.admissionOpenDate,
-        admissionCloseDate: admissionCloseDate !== undefined ? admissionCloseDate : existing.admissionCloseDate,
-        admissionRequirements: admissionRequirements !== null ? admissionRequirements : existing.admissionRequirements,
-        admissionFee: admissionFee !== null ? admissionFee : existing.admissionFee,
-        admissionCapacity: admissionCapacity !== null ? admissionCapacity : existing.admissionCapacity,
-        admissionContactEmail: admissionContactEmail !== null ? admissionContactEmail : existing.admissionContactEmail,
-        admissionContactPhone: admissionContactPhone !== null ? admissionContactPhone : existing.admissionContactPhone,
-        admissionWebsite: admissionWebsite !== null ? admissionWebsite : existing.admissionWebsite,
-        admissionLocation: admissionLocation !== null ? admissionLocation : existing.admissionLocation,
-        admissionOfficeHours: admissionOfficeHours !== null ? admissionOfficeHours : existing.admissionOfficeHours,
-        admissionDocumentsRequired: admissionDocumentsRequired !== undefined ? admissionDocumentsRequired : existing.admissionDocumentsRequired,
+        // Curriculum
+        curriculumPDF: pdfUploads.curriculum?.path || existing.curriculumPDF,
+        curriculumPdfName: pdfUploads.curriculum?.name || existing.curriculumPdfName,
+        curriculumPdfSize: pdfUploads.curriculum?.size || existing.curriculumPdfSize,
+        
+        // Admission Information - WITH JSON DISTRIBUTION
+        admissionOpenDate: formData.get("admissionOpenDate") ? parseDate(formData.get("admissionOpenDate")) : existing.admissionOpenDate,
+        admissionCloseDate: formData.get("admissionCloseDate") ? parseDate(formData.get("admissionCloseDate")) : existing.admissionCloseDate,
+        admissionRequirements: formData.get("admissionRequirements") !== null ? formData.get("admissionRequirements") : existing.admissionRequirements,
+        admissionFee: formData.get("admissionFee") ? parseNumber(formData.get("admissionFee")) : existing.admissionFee,
+        admissionFeeDistribution: admissionFeeDistribution !== undefined ? admissionFeeDistribution : existing.admissionFeeDistribution,
+        admissionCapacity: formData.get("admissionCapacity") ? parseIntField(formData.get("admissionCapacity")) : existing.admissionCapacity,
+        admissionContactEmail: formData.get("admissionContactEmail") !== null ? formData.get("admissionContactEmail") : existing.admissionContactEmail,
+        admissionContactPhone: formData.get("admissionContactPhone") !== null ? formData.get("admissionContactPhone") : existing.admissionContactPhone,
+        admissionWebsite: formData.get("admissionWebsite") !== null ? formData.get("admissionWebsite") : existing.admissionWebsite,
+        admissionLocation: formData.get("admissionLocation") !== null ? formData.get("admissionLocation") : existing.admissionLocation,
+        admissionOfficeHours: formData.get("admissionOfficeHours") !== null ? formData.get("admissionOfficeHours") : existing.admissionOfficeHours,
+        admissionDocumentsRequired,
+        admissionFeePdf: pdfUploads.admissionFee?.path || existing.admissionFeePdf,
+        admissionFeePdfName: pdfUploads.admissionFee?.name || existing.admissionFeePdfName,
+        
+        // Exam Results
+        form1ResultsPdf: pdfUploads.form1?.pdfData.path || existing.form1ResultsPdf,
+        form1ResultsPdfName: pdfUploads.form1?.pdfData.name || existing.form1ResultsPdfName,
+        form1ResultsPdfSize: pdfUploads.form1?.pdfData.size || existing.form1ResultsPdfSize,
+        form1ResultsYear: pdfUploads.form1?.year !== undefined ? pdfUploads.form1?.year : existing.form1ResultsYear,
+        
+        form2ResultsPdf: pdfUploads.form2?.pdfData.path || existing.form2ResultsPdf,
+        form2ResultsPdfName: pdfUploads.form2?.pdfData.name || existing.form2ResultsPdfName,
+        form2ResultsPdfSize: pdfUploads.form2?.pdfData.size || existing.form2ResultsPdfSize,
+        form2ResultsYear: pdfUploads.form2?.year !== undefined ? pdfUploads.form2?.year : existing.form2ResultsYear,
+        
+        form3ResultsPdf: pdfUploads.form3?.pdfData.path || existing.form3ResultsPdf,
+        form3ResultsPdfName: pdfUploads.form3?.pdfData.name || existing.form3ResultsPdfName,
+        form3ResultsPdfSize: pdfUploads.form3?.pdfData.size || existing.form3ResultsPdfSize,
+        form3ResultsYear: pdfUploads.form3?.year !== undefined ? pdfUploads.form3?.year : existing.form3ResultsYear,
+        
+        form4ResultsPdf: pdfUploads.form4?.pdfData.path || existing.form4ResultsPdf,
+        form4ResultsPdfName: pdfUploads.form4?.pdfData.name || existing.form4ResultsPdfName,
+        form4ResultsPdfSize: pdfUploads.form4?.pdfData.size || existing.form4ResultsPdfSize,
+        form4ResultsYear: pdfUploads.form4?.year !== undefined ? pdfUploads.form4?.year : existing.form4ResultsYear,
+        
+        mockExamsResultsPdf: pdfUploads.mockExams?.pdfData.path || existing.mockExamsResultsPdf,
+        mockExamsPdfName: pdfUploads.mockExams?.pdfData.name || existing.mockExamsPdfName,
+        mockExamsPdfSize: pdfUploads.mockExams?.pdfData.size || existing.mockExamsPdfSize,
+        mockExamsYear: pdfUploads.mockExams?.year !== undefined ? pdfUploads.mockExams?.year : existing.mockExamsYear,
+        
+        kcseResultsPdf: pdfUploads.kcse?.pdfData.path || existing.kcseResultsPdf,
+        kcsePdfName: pdfUploads.kcse?.pdfData.name || existing.kcsePdfName,
+        kcsePdfSize: pdfUploads.kcse?.pdfData.size || existing.kcsePdfSize,
+        kcseYear: pdfUploads.kcse?.year !== undefined ? pdfUploads.kcse?.year : existing.kcseYear,
+        
+        // Additional Results
+        additionalResultsFiles,
       },
     });
 
     return NextResponse.json({ 
       success: true, 
-      school: {
-        ...updated,
-        feesDistribution: typeof updated.feesDistribution === 'object' ? updated.feesDistribution : JSON.parse(updated.feesDistribution),
-        subjects: typeof updated.subjects === 'object' ? updated.subjects : JSON.parse(updated.subjects),
-        departments: typeof updated.departments === 'object' ? updated.departments : JSON.parse(updated.departments),
-        admissionDocumentsRequired: typeof updated.admissionDocumentsRequired === 'object' 
-          ? updated.admissionDocumentsRequired 
-          : (updated.admissionDocumentsRequired ? JSON.parse(updated.admissionDocumentsRequired) : []),
-      }
+      message: "School info updated successfully",
+      school: cleanSchoolResponse(updated)
     });
   } catch (error) {
     console.error("❌ PUT Error:", error);
@@ -530,12 +866,41 @@ export async function DELETE() {
       );
     }
 
-    // Delete associated files
-    if (existing.videoType === 'file' && existing.videoTour) {
-      await deleteOldFile(existing.videoTour);
+    // Delete all associated files
+    const filesToDelete = [
+      existing.videoType === 'file' ? existing.videoTour : null,
+      existing.curriculumPDF,
+      existing.feesDayDistributionPdf,
+      existing.feesBoardingDistributionPdf,
+      existing.admissionFeePdf,
+      existing.form1ResultsPdf,
+      existing.form2ResultsPdf,
+      existing.form3ResultsPdf,
+      existing.form4ResultsPdf,
+      existing.mockExamsResultsPdf,
+      existing.kcseResultsPdf,
+    ].filter(Boolean);
+
+    // Delete additional results files
+    let additionalResultsFiles = [];
+    try {
+      additionalResultsFiles = typeof existing.additionalResultsFiles === 'object'
+        ? existing.additionalResultsFiles
+        : JSON.parse(existing.additionalResultsFiles || '[]');
+    } catch (e) {
+      console.warn("Could not parse additional results for deletion:", e.message);
     }
-    if (existing.curriculumPDF) {
-      await deleteOldFile(existing.curriculumPDF);
+
+    // Add additional results files to deletion list
+    additionalResultsFiles.forEach(result => {
+      if (result.filepath) {
+        filesToDelete.push(result.filepath);
+      }
+    });
+
+    // Delete each file
+    for (const filePath of filesToDelete) {
+      await deleteOldFile(filePath);
     }
 
     await prisma.schoolInfo.deleteMany();

@@ -1,920 +1,1656 @@
-### ============================================
-### Gallery API Test Suite (REFINED)
-### Save as: gallery-api-tests.http
-### ============================================
+### Variables
+@hostname = localhost
+@port = 3001
+@baseUrl = http://{{hostname}}:{{port}}/api/school
 
-@baseUrl = http://localhost:3001/api/gallery
-
-### 1. GET All Galleries
-GET {{baseUrl}}
+### 1. DELETE ALL EXISTING DATA (Cleanup)
+DELETE {{baseUrl}}
 Content-Type: application/json
 
-###
+### 2. GET SCHOOL INFO (Should return 404 when no data)
+GET {{baseUrl}}
 
-### 2. Upload Single Image (Sports Day)
+
+
+
+
+### Test with CURRENT schema (without JSON distribution fields)
 POST {{baseUrl}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
+Content-Disposition: form-data; name="name"
 
-Annual Sports Day 2024
+Greenwood International High School
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="description"
 
-Students participating in 100m race, long jump, and relay events
+A premier international school offering Cambridge and Kenyan curriculum with state-of-the-art facilities, experienced international staff, and comprehensive extracurricular programs.
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
+Content-Disposition: form-data; name="motto"
 
-SPORTS_DAY
+Knowledge, Character, Excellence
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="sports-day.jpg"
-Content-Type: image/jpeg
+Content-Disposition: form-data; name="vision"
 
-< ./test-assets/sample.jpg
+To be Africa's leading institution for holistic education and innovation
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mission"
+
+To provide world-class education that develops academic excellence, leadership skills, and global citizenship
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="youtubeLink"
+
+https://www.youtube.com/watch?v=9bZkp7q19f0
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="studentCount"
+
+2500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="staffCount"
+
+180
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDay"
+
+12500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoarding"
+
+35000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="openDate"
+
+2024-01-08T08:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="closeDate"
+
+2024-12-20T16:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subjects"
+
+[
+  "Mathematics",
+  "English Language",
+  "Kiswahili",
+  "Biology",
+  "Chemistry",
+  "Physics",
+  "History",
+  "Geography",
+  "Business Studies",
+  "Computer Studies",
+  "French",
+  "German",
+  "Music",
+  "Art and Design",
+  "Physical Education",
+  "Religious Education",
+  "Agriculture",
+  "Home Science"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+[
+  "Sciences Department",
+  "Mathematics Department",
+  "Languages Department",
+  "Humanities Department",
+  "Technical Department",
+  "Creative Arts Department",
+  "Sports Department",
+  "ICT Department"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionOpenDate"
+
+2024-02-01T08:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionCloseDate"
+
+2024-03-31T17:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionRequirements"
+
+Applicants must meet the following requirements:
+1. Completed primary education with minimum grade of B- in KCPE
+2. Original birth certificate
+3. Primary school leaving certificate
+4. Medical report from recognized hospital
+5. Four recent passport-size photographs
+6. Parent's/Guardian's national ID copy
+7. Previous school's recommendation letter
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFee"
+
+9500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionCapacity"
+
+600
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionContactEmail"
+
+admissions@greenwoodinternational.edu
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionContactPhone"
+
++254-711-123-456
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionWebsite"
+
+https://admissions.greenwoodinternational.edu
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionLocation"
+
+Main Administration Block, Room 101, Greenwood International High School, Off Limuru Road, Nairobi
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionOfficeHours"
+
+Monday to Friday: 8:00 AM - 5:00 PM
+Saturday: 9:00 AM - 1:00 PM
+Closed on Sundays and Public Holidays
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionDocumentsRequired"
+
+[
+  "Original Birth Certificate",
+  "KCPE Results Slip (Original)",
+  "Primary School Leaving Certificate",
+  "Passport Size Photos (4 copies)",
+  "Medical Report Form",
+  "Immunization Card",
+  "Parent's/Guardian's National ID (Copy)",
+  "Recommendation Letter from Previous School",
+  "Transfer Certificate (For Transfers)",
+  "Student's National ID (If 18+)"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFiles"
+
+[
+  {
+    "filename": "inter-house_competition_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/inter_house_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "Annual Inter-House Sports and Academic Competition Results"
+  },
+  {
+    "filename": "music_festival_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/music_festival_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "National Music Festival Participation Results"
+  },
+  {
+    "filename": "science_fair_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/science_fair_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "Regional Science Fair and Innovation Contest Results"
+  }
+]
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-###
 
-### 3. Upload Multiple Images (Science Lab)
+
+
+
+
+
+
+
+
+
+
+### 3. CREATE SCHOOL INFO (POST with ALL fields - Complete test)
 POST {{baseUrl}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
+Content-Disposition: form-data; name="name"
 
-New Chemistry Laboratory
+Greenwood International High School
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="description"
 
-State-of-the-art equipment for chemistry experiments
+A premier international school offering Cambridge and Kenyan curriculum with state-of-the-art facilities, experienced international staff, and comprehensive extracurricular programs.
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
+Content-Disposition: form-data; name="motto"
 
-SCIENCE_LAB
+Knowledge, Character, Excellence
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="lab1.jpg"
-Content-Type: image/jpeg
+Content-Disposition: form-data; name="vision"
 
-< ./test-assets/sample.jpg
+To be Africa's leading institution for holistic education and innovation
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="lab2.jpg"
-Content-Type: image/jpeg
+Content-Disposition: form-data; name="mission"
 
-< ./test-assets/sample.jpg
+To provide world-class education that develops academic excellence, leadership skills, and global citizenship
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="youtubeLink"
+
+https://www.youtube.com/watch?v=9bZkp7q19f0
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="studentCount"
+
+2500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="staffCount"
+
+180
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDay"
+
+12500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+{
+  "tuition_fee": 6000,
+  "activity_fee": 1500,
+  "library": 200,
+  "laboratory": 500,
+  "sports": 800,
+  "medical": 300,
+  "examination": 700,
+  "development": 1000,
+  "technology": 400,
+  "transportation": 600,
+  "uniform": 500
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoarding"
+
+35000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistribution"
+
+{
+  "tuition_fee": 6000,
+  "boarding_fee": 15000,
+  "accommodation": 8000,
+  "meals": 5000,
+  "activity_fee": 1500,
+  "library": 200,
+  "laboratory": 500,
+  "sports": 800,
+  "medical": 300,
+  "examination": 700,
+  "development": 1000,
+  "technology": 400,
+  "transportation": 600,
+  "uniform": 500,
+  "laundry": 300,
+  "evening_prep": 400
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="openDate"
+
+2024-01-08T08:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="closeDate"
+
+2024-12-20T16:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subjects"
+
+[
+  "Mathematics",
+  "English Language",
+  "Kiswahili",
+  "Biology",
+  "Chemistry",
+  "Physics",
+  "History",
+  "Geography",
+  "Business Studies",
+  "Computer Studies",
+  "French",
+  "German",
+  "Music",
+  "Art and Design",
+  "Physical Education",
+  "Religious Education",
+  "Agriculture",
+  "Home Science"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+[
+  "Sciences Department",
+  "Mathematics Department",
+  "Languages Department",
+  "Humanities Department",
+  "Technical Department",
+  "Creative Arts Department",
+  "Sports Department",
+  "ICT Department"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionOpenDate"
+
+2024-02-01T08:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionCloseDate"
+
+2024-03-31T17:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionRequirements"
+
+Applicants must meet the following requirements:
+1. Completed primary education with minimum grade of B- in KCPE
+2. Original birth certificate
+3. Primary school leaving certificate
+4. Medical report from recognized hospital
+5. Four recent passport-size photographs
+6. Parent's/Guardian's national ID copy
+7. Previous school's recommendation letter
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFee"
+
+9500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFeeDistribution"
+
+{
+  "application_fee": 2000,
+  "entrance_examination": 2500,
+  "interview_fee": 1000,
+  "registration_fee": 1500,
+  "medical_checkup": 800,
+  "uniform_measurement": 500,
+  "book_reservation": 1200
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionCapacity"
+
+600
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionContactEmail"
+
+admissions@greenwoodinternational.edu
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionContactPhone"
+
++254-711-123-456
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionWebsite"
+
+https://admissions.greenwoodinternational.edu
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionLocation"
+
+Main Administration Block, Room 101, Greenwood International High School, Off Limuru Road, Nairobi
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionOfficeHours"
+
+Monday to Friday: 8:00 AM - 5:00 PM
+Saturday: 9:00 AM - 1:00 PM
+Closed on Sundays and Public Holidays
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionDocumentsRequired"
+
+[
+  "Original Birth Certificate",
+  "KCPE Results Slip (Original)",
+  "Primary School Leaving Certificate",
+  "Passport Size Photos (4 copies)",
+  "Medical Report Form",
+  "Immunization Card",
+  "Parent's/Guardian's National ID (Copy)",
+  "Recommendation Letter from Previous School",
+  "Transfer Certificate (For Transfers)",
+  "Student's National ID (If 18+)"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form1ResultsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form2ResultsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form3ResultsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form4ResultsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mockExamsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kcseYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFiles"
+
+[
+  {
+    "filename": "inter-house_competition_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/inter_house_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "Annual Inter-House Sports and Academic Competition Results"
+  },
+  {
+    "filename": "music_festival_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/music_festival_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "National Music Festival Participation Results"
+  },
+  {
+    "filename": "science_fair_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/science_fair_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "Regional Science Fair and Innovation Contest Results"
+  }
+]
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-###
+### 4. GET SCHOOL INFO (After creation - verify all fields)
+GET {{baseUrl}}
 
-### 4. Upload with PNG Image
+### 5. UPDATE SCHOOL INFO (PUT - Update specific fields)
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Greenwood International High School & Junior Academy
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="studentCount"
+
+2800
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="staffCount"
+
+200
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDay"
+
+13500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+{
+  "tuition_fee": 6500,
+  "activity_fee": 1800,
+  "library": 250,
+  "laboratory": 600,
+  "sports": 900,
+  "medical": 350,
+  "examination": 800,
+  "development": 1200,
+  "technology": 500,
+  "transportation": 700,
+  "uniform": 600,
+  "music_lessons": 300
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoarding"
+
+38000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistribution"
+
+{
+  "tuition_fee": 6500,
+  "boarding_fee": 16000,
+  "accommodation": 8500,
+  "meals": 5500,
+  "activity_fee": 1800,
+  "library": 250,
+  "laboratory": 600,
+  "sports": 900,
+  "medical": 350,
+  "examination": 800,
+  "development": 1200,
+  "technology": 500,
+  "transportation": 700,
+  "uniform": 600,
+  "laundry": 350,
+  "evening_prep": 450,
+  "weekend_activities": 300
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFee"
+
+10500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFeeDistribution"
+
+{
+  "application_fee": 2500,
+  "entrance_examination": 3000,
+  "interview_fee": 1200,
+  "registration_fee": 1800,
+  "medical_checkup": 1000,
+  "uniform_measurement": 600,
+  "book_reservation": 1400
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionCapacity"
+
+650
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+[
+  "Sciences Department",
+  "Mathematics Department",
+  "Languages Department",
+  "Humanities Department",
+  "Technical Department",
+  "Creative Arts Department",
+  "Sports Department",
+  "ICT Department",
+  "Guidance and Counseling Department"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFiles"
+
+[
+  {
+    "filename": "inter-house_competition_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/inter_house_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "Annual Inter-House Sports and Academic Competition Results"
+  },
+  {
+    "filename": "music_festival_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/music_festival_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "National Music Festival Participation Results"
+  },
+  {
+    "filename": "science_fair_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/science_fair_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "Regional Science Fair and Innovation Contest Results"
+  },
+  {
+    "filename": "debate_championship_2024.pdf",
+    "filepath": "/infomation/pdfs/exam-results/debate_2024.pdf",
+    "filetype": "pdf",
+    "year": 2024,
+    "description": "National Schools Debate Championship Results"
+  }
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="motto"
+
+Knowledge, Character, Excellence, Innovation
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionContactPhone"
+
++254-711-123-456, +254-722-987-654
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 6. GET UPDATED SCHOOL INFO (Check all updates)
+GET {{baseUrl}}
+
+### 7. TEST PDF UPLOADS (Optional - test with actual PDF files)
+# To test actual PDF uploads, you'll need to create test PDF files first
+# Uncomment and modify the paths below if you want to test PDF uploads
+
+### Test 7.1: Create with PDF uploads (simulated - remove Content-Type lines for real files)
+# POST {{baseUrl}}
+# Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="name"
+
+# Test School with PDFs
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="studentCount"
+
+# 500
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="staffCount"
+
+# 30
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="openDate"
+
+# 2024-01-10
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="closeDate"
+
+# 2024-12-15
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="subjects"
+
+# ["Math", "English"]
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="departments"
+
+# ["Science"]
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="feesDay"
+
+# 5000
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="feesDayDistribution"
+
+# {
+#   "tuition": 3000,
+#   "activity": 1000,
+#   "library": 100
+# }
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="feesBoarding"
+
+# 15000
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="feesBoardingDistribution"
+
+# {
+#   "tuition": 3000,
+#   "boarding": 8000,
+#   "meals": 4000
+# }
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="curriculumPDF"; filename="curriculum.pdf"
+# Content-Type: application/pdf
+
+# < ./test-files/curriculum.pdf
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="feesDayDistributionPdf"; filename="day-fees.pdf"
+# Content-Type: application/pdf
+
+# < ./test-files/day-fees.pdf
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="feesBoardingDistributionPdf"; filename="boarding-fees.pdf"
+# Content-Type: application/pdf
+
+# < ./test-files/boarding-fees.pdf
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="admissionFeePdf"; filename="admission-fees.pdf"
+# Content-Type: application/pdf
+
+# < ./test-files/admission-fees.pdf
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="form1ResultsPdf"; filename="form1-results.pdf"
+# Content-Type: application/pdf
+
+# < ./test-files/form1-results.pdf
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="form1ResultsYear"
+
+# 2023
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 8. TEST ERROR CASES
+
+### Test 8.1: Invalid JSON in fee distribution (non-numeric values)
 POST {{baseUrl}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
+Content-Disposition: form-data; name="name"
 
-School Art Competition
+Test School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="studentCount"
+
+100
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="staffCount"
+
+10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="openDate"
+
+2024-01-10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="closeDate"
+
+2024-12-15
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subjects"
+
+["Math", "English"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+["Science"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+{
+  "tuition": "not-a-number",
+  "meals": 3000
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 8.2: Invalid JSON syntax
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Test School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="studentCount"
+
+100
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="staffCount"
+
+10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="openDate"
+
+2024-01-10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="closeDate"
+
+2024-12-15
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subjects"
+
+["Math", "English"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+["Science"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+{invalid json
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 8.3: Array instead of object for fee distribution
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Test School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="studentCount"
+
+100
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="staffCount"
+
+10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="openDate"
+
+2024-01-10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="closeDate"
+
+2024-12-15
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subjects"
+
+["Math", "English"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+["Science"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+[4500, 3000, 100]
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 8.4: Missing required fields
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Test School Only
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 8.5: Invalid date format
+POST {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Test School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="studentCount"
+
+100
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="staffCount"
+
+10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="openDate"
+
+invalid-date
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="closeDate"
+
+2024-12-15
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subjects"
+
+["Math", "English"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+["Science"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 8.6: Invalid YouTube URL
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="youtubeLink"
+
+invalid-youtube-url
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 9. TEST PARTIAL UPDATES (Update only fee distributions)
+
+### Test 9.1: Update only day fee distribution
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+{
+  "tuition_fee": 7000,
+  "activity_fee": 2000,
+  "library": 300,
+  "laboratory": 700,
+  "sports": 1000,
+  "medical": 400,
+  "examination": 900,
+  "development": 1500,
+  "technology": 600,
+  "transportation": 800,
+  "uniform": 700,
+  "music_lessons": 400,
+  "art_supplies": 300
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 9.2: Update only boarding fee distribution
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistribution"
+
+{
+  "tuition_fee": 7000,
+  "boarding_fee": 17000,
+  "accommodation": 9000,
+  "meals": 6000,
+  "activity_fee": 2000,
+  "library": 300,
+  "laboratory": 700,
+  "sports": 1000,
+  "medical": 400,
+  "examination": 900,
+  "development": 1500,
+  "technology": 600,
+  "transportation": 800,
+  "uniform": 700,
+  "laundry": 400,
+  "evening_prep": 500,
+  "weekend_activities": 400,
+  "swimming": 300
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 9.3: Update only admission fee distribution
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFeeDistribution"
+
+{
+  "application_fee": 3000,
+  "entrance_examination": 3500,
+  "interview_fee": 1500,
+  "registration_fee": 2000,
+  "medical_checkup": 1200,
+  "uniform_measurement": 800,
+  "book_reservation": 1600,
+  "caution_money": 2000
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 10. TEST WITH NULL/EMPTY VALUES
+
+### Test 10.1: Update with empty distribution (should keep existing)
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="description"
 
-Digital art submissions from students
+Updated description for testing empty values
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
+Content-Disposition: form-data; name="feesDayDistribution"
 
-ART_EXHIBITION
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="artwork.png"
-Content-Type: image/png
-
-< ./test-assets/sample.png
+null
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-###
+### Test 10.2: Update with empty string distribution
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-### 5. Upload WEBP Image (Modern Format)
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="motto"
+
+Updated motto testing
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistribution"
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 11. GET FINAL STATE (Verify all updates persisted)
+GET {{baseUrl}}
+
+### 12. TEST DELETE FUNCTIONALITY
+DELETE {{baseUrl}}
+
+### 13. VERIFY DELETE (Should return 404)
+GET {{baseUrl}}
+
+### 14. CREATE MINIMAL SCHOOL INFO (Only required fields)
 POST {{baseUrl}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
+Content-Disposition: form-data; name="name"
 
-School Website Banner
+Minimal Test School
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="description"
 
-High quality images for school website
+Minimal school for testing
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
+Content-Disposition: form-data; name="studentCount"
 
-GENERAL
+100
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="banner.webp"
-Content-Type: image/webp
+Content-Disposition: form-data; name="staffCount"
 
-< ./test-assets/sample.webp
+20
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="openDate"
+
+2024-01-15
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="closeDate"
+
+2024-12-10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subjects"
+
+["Mathematics", "English"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+["Sciences"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDay"
+
+5000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoarding"
+
+15000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFee"
+
+2000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+{
+  "tuition": 3000,
+  "activity": 1000,
+  "other": 1000
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistribution"
+
+{
+  "tuition": 3000,
+  "boarding": 8000,
+  "meals": 4000
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFeeDistribution"
+
+{
+  "application": 1000,
+  "registration": 1000
+}
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-###
+### 15. GET MINIMAL SCHOOL INFO
+GET {{baseUrl}}
 
-### 6. Upload GIF Image (Animated)
+### 16. CLEANUP
+DELETE {{baseUrl}}
+
+
+
+
+
+
+
+
+
+
+
+
+### Variables
+@hostname = localhost
+@port = 3001
+@baseUrl = http://{{hostname}}:{{port}}/api/school
+
+### 1. DELETE ALL EXISTING DATA
+DELETE {{baseUrl}}
+Content-Type: application/json
+
+### 2. CREATE SCHOOL WITH ALL FIELDS INCLUDING FEE DISTRIBUTIONS
 POST {{baseUrl}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
+Content-Disposition: form-data; name="name"
 
-Physics Experiment Demo
+Greenwood International High School
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="description"
 
-Animated demonstration of physics principles
+A premier international school offering Cambridge and Kenyan curriculum with state-of-the-art facilities, experienced international staff, and comprehensive extracurricular programs.
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
+Content-Disposition: form-data; name="motto"
 
-TEACHING
+Knowledge, Character, Excellence
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="experiment.gif"
-Content-Type: image/gif
+Content-Disposition: form-data; name="vision"
 
-< ./test-assets/sample.gif
+To be Africa's leading institution for holistic education and innovation
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mission"
+
+To provide world-class education that develops academic excellence, leadership skills, and global citizenship
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="youtubeLink"
+
+https://www.youtube.com/watch?v=9bZkp7q19f0
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="studentCount"
+
+2500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="staffCount"
+
+180
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDay"
+
+12500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+{
+  "tuition": 6000,
+  "activity_fee": 1500,
+  "library": 200,
+  "laboratory": 500,
+  "sports": 800,
+  "medical": 300,
+  "examination": 700,
+  "development": 1000,
+  "technology": 400,
+  "transportation": 600,
+  "uniform": 500
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoarding"
+
+35000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistribution"
+
+{
+  "tuition": 6000,
+  "boarding_fee": 15000,
+  "accommodation": 8000,
+  "meals": 5000,
+  "activity_fee": 1500,
+  "library": 200,
+  "laboratory": 500,
+  "sports": 800,
+  "medical": 300,
+  "examination": 700,
+  "development": 1000,
+  "technology": 400,
+  "transportation": 600,
+  "uniform": 500,
+  "laundry": 300,
+  "evening_prep": 400
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="openDate"
+
+2024-01-08T08:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="closeDate"
+
+2024-12-20T16:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subjects"
+
+[
+  "Mathematics",
+  "English Language",
+  "Kiswahili",
+  "Biology",
+  "Chemistry",
+  "Physics",
+  "History",
+  "Geography",
+  "Business Studies",
+  "Computer Studies",
+  "French",
+  "German",
+  "Music",
+  "Art and Design",
+  "Physical Education",
+  "Religious Education",
+  "Agriculture",
+  "Home Science"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+[
+  "Sciences Department",
+  "Mathematics Department",
+  "Languages Department",
+  "Humanities Department",
+  "Technical Department",
+  "Creative Arts Department",
+  "Sports Department",
+  "ICT Department"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionOpenDate"
+
+2024-02-01T08:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionCloseDate"
+
+2024-03-31T17:00:00.000Z
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionRequirements"
+
+Applicants must meet the following requirements:
+1. Completed primary education with minimum grade of B- in KCPE
+2. Original birth certificate
+3. Primary school leaving certificate
+4. Medical report from recognized hospital
+5. Four recent passport-size photographs
+6. Parent's/Guardian's national ID copy
+7. Previous school's recommendation letter
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFee"
+
+9500
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFeeDistribution"
+
+{
+  "application_fee": 2000,
+  "entrance_examination": 2500,
+  "interview_fee": 1000,
+  "registration_fee": 1500,
+  "medical_checkup": 800,
+  "uniform_measurement": 500,
+  "book_reservation": 1200
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionCapacity"
+
+600
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionContactEmail"
+
+admissions@greenwoodinternational.edu
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionContactPhone"
+
++254-711-123-456
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionWebsite"
+
+https://admissions.greenwoodinternational.edu
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionLocation"
+
+Main Administration Block, Room 101, Greenwood International High School, Off Limuru Road, Nairobi
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionOfficeHours"
+
+Monday to Friday: 8:00 AM - 5:00 PM
+Saturday: 9:00 AM - 1:00 PM
+Closed on Sundays and Public Holidays
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionDocumentsRequired"
+
+[
+  "Original Birth Certificate",
+  "KCPE Results Slip (Original)",
+  "Primary School Leaving Certificate",
+  "Passport Size Photos (4 copies)",
+  "Medical Report Form",
+  "Immunization Card",
+  "Parent's/Guardian's National ID (Copy)",
+  "Recommendation Letter from Previous School",
+  "Transfer Certificate (For Transfers)",
+  "Student's National ID (If 18+)"
+]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFiles"
+
+[
+  {
+    "filename": "inter-house_competition_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/inter_house_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "Annual Inter-House Sports and Academic Competition Results"
+  },
+  {
+    "filename": "music_festival_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/music_festival_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "National Music Festival Participation Results"
+  },
+  {
+    "filename": "science_fair_2023.pdf",
+    "filepath": "/infomation/pdfs/exam-results/science_fair_2023.pdf",
+    "filetype": "pdf",
+    "year": 2023,
+    "description": "Regional Science Fair and Innovation Contest Results"
+  }
+]
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-###
+### 3. GET SCHOOL INFO (Verify all fields including fee distributions)
+GET {{baseUrl}}
 
-### 7. Mixed Media Upload (Images + Video)
-POST {{baseUrl}}
+### 4. UPDATE SCHOOL WITH PDF UPLOADS (PUT Request - Add PDF attachments)
+PUT {{baseUrl}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Music Festival Highlights
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Photos and videos from annual music festival
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-MUSIC_FESTIVAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="photo1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="video1.mp4"
-Content-Type: video/mp4
-
-< ./test-assets/sample.mp4
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 8. Upload with Empty Description
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-School Library Reading Area
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-GENERAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="library.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 9. Large File Test (Approaching 10MB Limit)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-High Resolution Campus Panorama
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Ultra high resolution image of entire campus
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-GENERAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="panorama.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/large-image.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 10. ALL Category Types Test
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Campus Facilities Overview
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-All major campus facilities
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-SPORTS_FACILITIES
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="facilities.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 11. ERROR TEST: Missing Title (Should fail)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Test missing title - should fail
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-GENERAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="test.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 12. ERROR TEST: Invalid Category (Should fail)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Invalid Category Test
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Testing with invalid category - should fail
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-INVALID_CATEGORY_NAME
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="test.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 13. ERROR TEST: No Files (Should fail)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-No Files Test
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Testing without any files - should fail
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-GENERAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 14. ERROR TEST: Invalid File Type (Should fail)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Invalid File Type Test
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Testing with PDF file - should fail
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-GENERAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="document.pdf"
+Content-Disposition: form-data; name="curriculumPDF"; filename="curriculum.pdf"
 Content-Type: application/pdf
 
-< ./test-assets/sample.pdf
+< ./test-files/curriculum.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="curriculumPdfName"
+
+School Curriculum 2024-2025
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistributionPdf"; filename="day_fees_breakdown.pdf"
+Content-Type: application/pdf
+
+< ./test-files/day_fees.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayPdfName"
+
+Day School Fees Breakdown 2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistributionPdf"; filename="boarding_fees_breakdown.pdf"
+Content-Type: application/pdf
+
+< ./test-files/boarding_fees.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingPdfName"
+
+Boarding School Fees Breakdown 2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFeePdf"; filename="admission_fees.pdf"
+Content-Type: application/pdf
+
+< ./test-files/admission_fees.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFeePdfName"
+
+Admission Fees Structure 2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form1ResultsPdf"; filename="form1_results_2023.pdf"
+Content-Type: application/pdf
+
+< ./test-files/form1_results.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form1ResultsPdfName"
+
+Form 1 End of Year Results 2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form1ResultsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form2ResultsPdf"; filename="form2_results_2023.pdf"
+Content-Type: application/pdf
+
+< ./test-files/form2_results.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form2ResultsPdfName"
+
+Form 2 End of Year Results 2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form2ResultsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form3ResultsPdf"; filename="form3_results_2023.pdf"
+Content-Type: application/pdf
+
+< ./test-files/form3_results.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form3ResultsPdfName"
+
+Form 3 End of Year Results 2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form3ResultsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form4ResultsPdf"; filename="form4_results_2023.pdf"
+Content-Type: application/pdf
+
+< ./test-files/form4_results.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form4ResultsPdfName"
+
+Form 4 End of Year Results 2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form4ResultsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mockExamsResultsPdf"; filename="mock_exams_2023.pdf"
+Content-Type: application/pdf
+
+< ./test-files/mock_exams.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mockExamsPdfName"
+
+Mock Examinations 2023 Results
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mockExamsYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kcseResultsPdf"; filename="kcse_2023.pdf"
+Content-Type: application/pdf
+
+< ./test-files/kcse_results.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kcsePdfName"
+
+KCSE 2023 Examination Results
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kcseYear"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+{
+  "tuition": 6500,
+  "activity_fee": 1800,
+  "library": 250,
+  "laboratory": 600,
+  "sports": 900,
+  "medical": 350,
+  "examination": 800,
+  "development": 1200,
+  "technology": 500,
+  "transportation": 700,
+  "uniform": 600,
+  "music_lessons": 300
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistribution"
+
+{
+  "tuition": 6500,
+  "boarding_fee": 16000,
+  "accommodation": 8500,
+  "meals": 5500,
+  "activity_fee": 1800,
+  "library": 250,
+  "laboratory": 600,
+  "sports": 900,
+  "medical": 350,
+  "examination": 800,
+  "development": 1200,
+  "technology": 500,
+  "transportation": 700,
+  "uniform": 600,
+  "laundry": 350,
+  "evening_prep": 450,
+  "weekend_activities": 300
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFeeDistribution"
+
+{
+  "application_fee": 2500,
+  "entrance_examination": 3000,
+  "interview_fee": 1200,
+  "registration_fee": 1800,
+  "medical_checkup": 1000,
+  "uniform_measurement": 600,
+  "book_reservation": 1400
+}
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-###
 
-### 15. ERROR TEST: File Too Large (Should fail)
-POST {{baseUrl}}
+
+
+### UPDATE WITH BOTH JSON DISTRIBUTIONS AND PDFs
+PUT {{baseUrl}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
+Content-Disposition: form-data; name="feesDayDistribution"
 
-Oversized File Test
+{
+  "tuition": 6500,
+  "activity_fee": 1800,
+  "library": 250,
+  "laboratory": 600,
+  "sports": 900,
+  "medical": 350,
+  "examination": 800,
+  "development": 1200,
+  "technology": 500,
+  "transportation": 700,
+  "uniform": 600,
+  "music_lessons": 300
+}
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
+Content-Disposition: form-data; name="feesBoardingDistribution"
 
-File larger than 10MB - should fail
+{
+  "tuition": 6500,
+  "boarding_fee": 16000,
+  "accommodation": 8500,
+  "meals": 5500,
+  "activity_fee": 1800,
+  "library": 250,
+  "laboratory": 600,
+  "sports": 900,
+  "medical": 350,
+  "examination": 800,
+  "development": 1200,
+  "technology": 500,
+  "transportation": 700,
+  "uniform": 600,
+  "laundry": 350,
+  "evening_prep": 450,
+  "weekend_activities": 300
+}
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
+Content-Disposition: form-data; name="admissionFeeDistribution"
 
-GENERAL
+{
+  "application_fee": 2500,
+  "entrance_examination": 3000,
+  "interview_fee": 1200,
+  "registration_fee": 1800,
+  "medical_checkup": 1000,
+  "uniform_measurement": 600,
+  "book_reservation": 1400
+}
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="huge-video.mp4"
-Content-Type: video/mp4
+Content-Disposition: form-data; name="feesDayDistributionPdf"; filename="day_fees_breakdown.pdf"
+Content-Type: application/pdf
 
-< ./test-assets/oversized-video.mp4
+< ./test-files/day_fees.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayPdfName"
+
+Day School Fees Breakdown 2024
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 
 
-### ============================================
-### Additional Gallery API Tests (16-25)
-### ============================================
-
-@baseUrl = http://localhost:3001/api/gallery
-
-### 16. Upload for Debate Competition
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Inter-school Debate Championship Finals
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Final round of the annual inter-school debate competition
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-DEBATE_COMPETITION
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="debate1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="debate2.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 17. Upload for Science Fair (Multiple File Types)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Annual Science Fair 2024
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Students showcasing innovative science projects
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-SCIENCE_FAIR
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="science1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="science2.png"
-Content-Type: image/png
-
-< ./test-assets/sample.png
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="science3.mp4"
-Content-Type: video/mp4
-
-< ./test-assets/sample.mp4
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 18. Upload for Drama Performance
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Shakespeare's Macbeth Performance
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Drama club performance of classic Shakespeare play
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-DRAMA_PERFORMANCE
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="drama1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="drama-video.mp4"
-Content-Type: video/mp4
-
-< ./test-assets/sample.mp4
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 19. Upload for Dining Hall Facilities
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-New Dining Hall Interior
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Recently renovated dining hall with modern facilities
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-DINING_HALL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="dining1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="dining2.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="dining3.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 20. Upload for Award Ceremony
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Annual Awards Ceremony 2024
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Students receiving academic and sports awards
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-AWARD_CEREMONY
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="awards1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="awards2.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 21. Upload for Parents' Day
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Parents' Day 2024
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Parents visiting classrooms and interacting with teachers
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-PARENTS_DAY
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="parents1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 22. Upload for Open Day (Campus Tour)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-School Open Day Campus Tour
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Prospective students and parents touring the campus
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-OPEN_DAY
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="openday1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="openday2.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 23. Upload for Student Council Activities
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Student Council Meeting
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Monthly student council planning session
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-COUNCIL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="council1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 24. Upload for Leadership Program
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Student Leadership Workshop
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Leadership skills development workshop for student leaders
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-LEADERSHIP
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="leadership1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="leadership2.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 25. Upload for Visitors (VIP Guests)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Minister of Education School Visit
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Honorable minister visiting school facilities
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-VISITORS
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="minister1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 26. Upload for Principal's Office
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Principal's Office Tour
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Inside the principal's office and meeting area
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-PRINCIPAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="principal-office.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 27. Upload for Board Meeting
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Board of Directors Meeting
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Quarterly board meeting with school administrators
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-BOARD
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="board1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 28. Upload for Administrative Offices
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Administrative Block Tour
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Main administrative offices and reception area
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-ADMIN_OFFICES
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="admin1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="admin2.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 29. Upload for Student Activities (General)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Various Student Activities Compilation
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Collection of various student-led activities throughout the year
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-STUDENT_ACTIVITIES
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="activity1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="activity2.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="activity3.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 30. Upload for "OTHER" Category
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Miscellaneous School Event
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Event that doesn't fit into other specific categories
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-OTHER
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="other1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 31. ERROR TEST: Missing Category (Should fail)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Missing Category Test
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Testing without category field - should fail
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="test.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 32. ERROR TEST: Empty File (Zero bytes)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Empty File Test
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Testing with zero-byte file
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-GENERAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="empty.jpg"
-Content-Type: image/jpeg
-
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 33. ERROR TEST: Very Long Title (Boundary testing)
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-This is an extremely long title for testing the maximum length validation in the gallery upload API endpoint system to ensure proper handling of lengthy input fields and database storage constraints without breaking the user interface or backend processing pipeline
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Testing very long title input
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-GENERAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="long-title-test.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 34. PERFORMANCE TEST: Multiple Concurrent Uploads Simulation
-POST {{baseUrl}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="title"
-
-Performance Test - 5 Files
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
-
-Testing upload performance with multiple files simultaneously
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category"
-
-GENERAL
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="perf1.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="perf2.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="perf3.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="perf4.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="perf5.jpg"
-Content-Type: image/jpeg
-
-< ./test-assets/sample.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-###
-
-### 35. FINAL GET: Verify All Uploads
+### 5. GET UPDATED SCHOOL INFO (Check PDFs and updated distributions)
 GET {{baseUrl}}
-Content-Type: application/json
+
+### 6. UPDATE WITHOUT PDFS (Just update fee distributions)
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistribution"
+
+{
+  "tuition": 7000,
+  "activity_fee": 2000,
+  "library": 300,
+  "laboratory": 700,
+  "sports": 1000,
+  "medical": 400,
+  "examination": 900,
+  "development": 1500,
+  "technology": 600,
+  "transportation": 800,
+  "uniform": 700,
+  "music_lessons": 400,
+  "art_supplies": 300
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistribution"
+
+{
+  "tuition": 7000,
+  "boarding_fee": 17000,
+  "accommodation": 9000,
+  "meals": 6000,
+  "activity_fee": 2000,
+  "library": 300,
+  "laboratory": 700,
+  "sports": 1000,
+  "medical": 400,
+  "examination": 900,
+  "development": 1500,
+  "technology": 600,
+  "transportation": 800,
+  "uniform": 700,
+  "laundry": 400,
+  "evening_prep": 500,
+  "weekend_activities": 400,
+  "swimming": 300
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 7. GET FINAL STATE
+GET {{baseUrl}}
+
+### 8. TEST INDIVIDUAL PDF UPDATES
+
+### 8.1 Update only Form 1 results
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form1ResultsPdf"; filename="form1_results_2024.pdf"
+Content-Type: application/pdf
+
+< ./test-files/form1_2024.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form1ResultsPdfName"
+
+Form 1 Mid-Term Results 2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form1ResultsYear"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 8.2 Update only KCSE results
+PUT {{baseUrl}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kcseResultsPdf"; filename="kcse_2024.pdf"
+Content-Type: application/pdf
+
+< ./test-files/kcse_2024.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kcsePdfName"
+
+KCSE 2024 Examination Results
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kcseYear"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 9. GET TO VERIFY UPDATES
+GET {{baseUrl}}
+
+### 10. DELETE SCHOOL INFO
+DELETE {{baseUrl}}
+
+### 11. VERIFY DELETE
+GET {{baseUrl}}
