@@ -645,3 +645,38 @@ model AdmissionApplication {
   @@index([preferredStream])
   @@index([kcpeMarks])
 }
+
+
+model CareerJob {
+  id                  String    @id @default(cuid())   // Changed from Int to String for cuid
+  jobTitle            String
+  department          String
+  category            String    // e.g., Teaching, Administrative, Support Staff
+
+  // Job Details
+  jobDescription      String   @db.Text
+  requirements        String   @db.Text
+  experience          String   // e.g., "2+ years", "Fresh graduate"
+  qualifications      String   @db.Text
+
+  // Job Specifications
+  positionsAvailable  Int      @default(1)
+  jobType             String   // "full-time", "part-time", "contract", "internship"
+
+  // Application Details
+  applicationDeadline DateTime
+  contactEmail        String?
+  contactPhone        String?
+
+  // Timestamps
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Indexes
+  @@index([jobTitle])
+  @@index([department])
+  @@index([category])
+  @@index([jobType])
+  @@index([applicationDeadline])
+  @@index([createdAt])
+}

@@ -22,7 +22,8 @@ import {
   FaLightbulb, FaNewspaper, FaStickyNote, FaSun, FaMoon,
   FaYoutube, FaFileVideo, FaFileAlt, FaFileExport,
   FaFileUpload, FaFileCode, FaFileAudio, FaFile, FaCheck,
-  FaUser, FaTag, FaCogs, FaUniversity, FaBlackTie
+  FaUser, FaTag, FaCogs, FaUniversity, FaBlackTie,
+  FaPlay, FaPlayCircle
 } from 'react-icons/fa';
 import { CircularProgress, Modal, Box, TextField, TextareaAutosize, FormControlLabel, Switch } from '@mui/material';
 import { debounce } from 'lodash';
@@ -128,6 +129,176 @@ function TagInput({ label, tags, onTagsChange, placeholder = "Type and press Ent
       )}
     </div>
   )
+}
+
+// Customizable Fee Breakdown Component
+function CustomFeeBreakdown({ 
+  title, 
+  color, 
+  fees = [], 
+  onFeesChange, 
+  totalField,
+  onTotalChange 
+}) {
+  const [newFeeName, setNewFeeName] = useState('');
+  const [newFeeAmount, setNewFeeAmount] = useState('');
+
+  // Calculate total from fees
+  const calculatedTotal = fees.reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0);
+
+  // Update total when fees change
+  useEffect(() => {
+    if (onTotalChange && Math.abs(calculatedTotal - (parseFloat(totalField) || 0)) > 0.01) {
+      onTotalChange(calculatedTotal.toString());
+    }
+  }, [calculatedTotal, totalField, onTotalChange]);
+
+  const handleAddFee = () => {
+    if (newFeeName.trim() && newFeeAmount) {
+      const newFee = {
+        name: newFeeName.trim(),
+        amount: parseFloat(newFeeAmount) || 0
+      };
+      
+      onFeesChange([...fees, newFee]);
+      setNewFeeName('');
+      setNewFeeAmount('');
+    }
+  };
+
+  const handleRemoveFee = (index) => {
+    const updatedFees = fees.filter((_, i) => i !== index);
+    onFeesChange(updatedFees);
+  };
+
+  const updateFeeAmount = (index, amount) => {
+    const updatedFees = [...fees];
+    updatedFees[index] = { 
+      ...updatedFees[index], 
+      amount: parseFloat(amount) || 0 
+    };
+    onFeesChange(updatedFees);
+  };
+
+  const updateFeeName = (index, name) => {
+    const updatedFees = [...fees];
+    updatedFees[index] = { 
+      ...updatedFees[index], 
+      name: name.trim() 
+    };
+    onFeesChange(updatedFees);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && newFeeName && newFeeAmount) {
+      e.preventDefault();
+      handleAddFee();
+    }
+  };
+
+  return (
+    <div className={`bg-gradient-to-br ${color} rounded-lg p-4 border ${color.includes('green') ? 'border-green-200' : color.includes('blue') ? 'border-blue-200' : 'border-orange-200'}`}>
+      <div className="flex justify-between items-center mb-4">
+        <h4 className="font-bold text-gray-900 text-sm">{title} Breakdown</h4>
+        <div className="text-sm font-bold text-gray-700">
+          Total: KES {calculatedTotal.toLocaleString()}
+        </div>
+      </div>
+      
+      {/* Add New Fee Form */}
+      <div className="bg-white rounded-lg p-3 mb-4 border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-gray-600 mb-1.5">
+              Fee Name
+            </label>
+            <input
+              type="text"
+              value={newFeeName}
+              onChange={(e) => setNewFeeName(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="e.g., Tuition, Activity, Library"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-xs font-bold text-gray-600 mb-1.5">
+              Amount (KES)
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={newFeeAmount}
+              onChange={(e) => setNewFeeAmount(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Enter amount"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            />
+          </div>
+          
+          <div className="flex items-end">
+            <button
+              type="button"
+              onClick={handleAddFee}
+              disabled={!newFeeName.trim() || !newFeeAmount}
+              className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition duration-200 font-bold disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            >
+              <FaPlus className="inline mr-1" /> Add Fee
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Existing Fees List */}
+      <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+        {fees.length === 0 ? (
+          <div className="text-center py-4 text-gray-500 text-sm">
+            No fees added yet. Add your first fee item above.
+          </div>
+        ) : (
+          fees.map((fee, index) => (
+            <div key={index} className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <input
+                    type="text"
+                    value={fee.name}
+                    onChange={(e) => updateFeeName(index, e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
+                  />
+                </div>
+                
+                <div>
+                  <input
+                    type="number"
+                    min="0"
+                    value={fee.amount || ''}
+                    onChange={(e) => updateFeeAmount(index, e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-gray-700">
+                    KES {(parseFloat(fee.amount) || 0).toLocaleString()}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveFee(index)}
+                    className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
+                    title="Remove fee"
+                  >
+                    <FaTimes className="text-sm" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
 }
 
 // Modern PDF Upload Component
@@ -479,6 +650,197 @@ function ModernVideoUpload({ videoType, videoPath, youtubeLink, onVideoChange, o
   )
 }
 
+// Additional Files Upload Component
+function AdditionalFilesUpload({ files, onFilesChange, label = "Additional Files" }) {
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleFileChange = (e) => {
+    const newFiles = Array.from(e.target.files);
+    if (newFiles.length > 0) {
+      onFilesChange([...files, ...newFiles]);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const newFiles = Array.from(e.dataTransfer.files);
+    if (newFiles.length > 0) {
+      onFilesChange([...files, ...newFiles]);
+    }
+  };
+
+  const handleRemoveFile = (index) => {
+    const updatedFiles = files.filter((_, i) => i !== index);
+    onFilesChange(updatedFiles);
+  };
+
+  const getFileIcon = (fileType) => {
+    if (fileType.includes('pdf')) return <FaFilePdf className="text-red-500" />;
+    if (fileType.includes('image')) return <FaFileAlt className="text-green-500" />;
+    if (fileType.includes('video')) return <FaFileVideo className="text-blue-500" />;
+    if (fileType.includes('audio')) return <FaFileAudio className="text-purple-500" />;
+    return <FaFile className="text-gray-500" />;
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between items-center">
+        <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+          <FaPaperclip className="text-gray-500" />
+          <span>{label}</span>
+        </label>
+        <button
+          type="button"
+          onClick={() => document.getElementById('additional-files-upload').click()}
+          className="flex items-center gap-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-1.5 rounded-lg hover:from-blue-700 hover:to-blue-800 transition duration-200 font-bold shadow cursor-pointer text-xs"
+        >
+          <FaPlus className="text-xs" /> Add File
+        </button>
+      </div>
+
+      <div
+        className={`border-2 border-dashed rounded-xl p-4 text-center transition-all duration-300 cursor-pointer group ${
+          dragOver 
+            ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-blue-100' 
+            : 'border-gray-300 hover:border-blue-300 bg-gradient-to-br from-gray-50 to-gray-100 hover:shadow-sm'
+        }`}
+        onDrop={handleDrop}
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+        onDragLeave={() => setDragOver(false)}
+        onClick={() => document.getElementById('additional-files-upload').click()}
+      >
+        <div className="relative">
+          <FaUpload className={`mx-auto text-2xl mb-2 transition-all duration-300 ${
+            dragOver ? 'text-blue-500 scale-110' : 'text-gray-400 group-hover:text-blue-500'
+          }`} />
+        </div>
+        <p className="text-gray-700 mb-1 font-medium transition-colors duration-300 group-hover:text-gray-800 text-sm">
+          {dragOver ? '📁 Drop files here!' : 'Drag & drop or click to upload additional files'}
+        </p>
+        <p className="text-xs text-gray-600 transition-colors duration-300 group-hover:text-gray-700">
+          PDF, Images, Videos • Max 20MB each
+        </p>
+        <input 
+          type="file" 
+          multiple
+          onChange={handleFileChange} 
+          className="hidden" 
+          id="additional-files-upload" 
+        />
+      </div>
+
+      {files.length > 0 && (
+        <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+          {files.map((file, index) => (
+            <div key={index} className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    {getFileIcon(file.type)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm truncate max-w-[180px]">{file.name}</p>
+                    <p className="text-xs text-gray-600">{formatFileSize(file.size)} • {file.type}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveFile(index)}
+                  className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
+                  title="Remove file"
+                >
+                  <FaTimes className="text-sm" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Video Modal Component
+function VideoModal({ open, onClose, videoType, videoPath }) {
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return '';
+    // Extract video ID from various YouTube URL formats
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    const videoId = (match && match[2].length === 11) ? match[2] : null;
+    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : url;
+  };
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '90%',
+        maxWidth: '800px',
+        bgcolor: 'background.paper',
+        borderRadius: 2,
+        boxShadow: 24,
+        overflow: 'hidden',
+        outline: 'none'
+      }}>
+        <div className="bg-gradient-to-r from-gray-900 to-black p-4 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <FaVideo className="text-red-500" />
+              <h2 className="text-lg font-bold">School Video Tour</h2>
+            </div>
+            <button 
+              onClick={onClose}
+              className="p-1 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-200 cursor-pointer"
+            >
+              <FaTimes className="text-lg" />
+            </button>
+          </div>
+        </div>
+        
+        <div className="p-4 bg-black">
+          {videoType === 'youtube' ? (
+            <div className="relative pt-[56.25%]"> {/* 16:9 Aspect Ratio */}
+              <iframe
+                src={getYouTubeEmbedUrl(videoPath)}
+                className="absolute top-0 left-0 w-full h-full rounded-lg"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="School Video Tour"
+              />
+            </div>
+          ) : videoType === 'file' ? (
+            <video
+              controls
+              autoPlay
+              className="w-full rounded-lg"
+              src={videoPath}
+              title="School Video Tour"
+            />
+          ) : (
+            <div className="text-center py-8 text-white">
+              <FaVideo className="text-4xl mx-auto mb-4 text-gray-400" />
+              <p className="text-lg">No video available</p>
+            </div>
+          )}
+        </div>
+      </Box>
+    </Modal>
+  );
+}
+
 // Enhanced Modern Delete Confirmation Modal
 function ModernDeleteModal({ onClose, onConfirm, loading }) {
   const [confirmText, setConfirmText] = useState('')
@@ -582,35 +944,9 @@ function ModernDeleteModal({ onClose, onConfirm, loading }) {
   )
 }
 
-// Modern School Info Modal with 3 steps - UPDATED WITH FEE BREAKDOWN FIELDS
+// Modern School Info Modal with 3 steps - UPDATED WITH CUSTOM FEE BREAKDOWN
 function ModernSchoolModal({ onClose, onSave, school, loading }) {
   const [currentStep, setCurrentStep] = useState(0)
-  
-  // Default fee breakdown structure with sample values
-  const defaultDayFeeBreakdown = {
-    tuition: '3000',
-    activity: '',
-    library: '',
-    medical: '',
-    maintenance: '',
-    development: ''
-  }
-  
-  const defaultBoardingFeeBreakdown = {
-    boarding: '',
-    meals: '',
-    laundry: '',
-    accommodation: ''
-  }
-  
-  const defaultAdmissionFeeBreakdown = {
-    application: '',
-    registration: '',
-    medical: '',
-    admission: ''
-  }
-
-  // Initialize form data with current school data or defaults
   const [formData, setFormData] = useState({
     // Step 1: Basic Information
     name: school?.name || '',
@@ -628,16 +964,16 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     departments: school?.departments || [],
     youtubeLink: school?.videoType === 'youtube' ? school.videoTour : '',
     
-    // Step 3: Financial & Admission - WITH FEE BREAKDOWN FIELDS
+    // Step 3: Financial & Admission
     feesDay: school?.feesDay?.toString() || '',
-    feesDayDistributionJson: school?.feesDayDistribution ? JSON.stringify(school.feesDayDistribution) : JSON.stringify(defaultDayFeeBreakdown),
+    feesDayDistributionJson: school?.feesDayDistribution ? JSON.stringify(school.feesDayDistribution) : '[]',
     feesBoarding: school?.feesBoarding?.toString() || '',
-    feesBoardingDistributionJson: school?.feesBoardingDistribution ? JSON.stringify(school.feesBoardingDistribution) : JSON.stringify(defaultBoardingFeeBreakdown),
+    feesBoardingDistributionJson: school?.feesBoardingDistribution ? JSON.stringify(school.feesBoardingDistribution) : '[]',
     admissionOpenDate: school?.admissionOpenDate ? new Date(school.admissionOpenDate).toISOString().split('T')[0] : '',
     admissionCloseDate: school?.admissionCloseDate ? new Date(school.admissionCloseDate).toISOString().split('T')[0] : '',
     admissionRequirements: school?.admissionRequirements || '',
     admissionFee: school?.admissionFee?.toString() || '',
-    admissionFeeDistribution: school?.admissionFeeDistribution ? JSON.stringify(school.admissionFeeDistribution) : JSON.stringify(defaultAdmissionFeeBreakdown),
+    admissionFeeDistribution: school?.admissionFeeDistribution ? JSON.stringify(school.admissionFeeDistribution) : '[]',
     admissionCapacity: school?.admissionCapacity?.toString() || '',
     admissionContactEmail: school?.admissionContactEmail || '',
     admissionContactPhone: school?.admissionContactPhone || '',
@@ -657,7 +993,7 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     feesBoardingDistributionPdf: null,
     admissionFeePdf: null,
     
-    // Exam Results PDFs - REARRANGED: Form 1 & 2 left, others right
+    // Exam Results PDFs
     form1ResultsPdf: null,
     form2ResultsPdf: null,
     form3ResultsPdf: null,
@@ -665,6 +1001,9 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     mockExamsResultsPdf: null,
     kcseResultsPdf: null
   })
+
+  // Additional Files State
+  const [additionalFiles, setAdditionalFiles] = useState([]);
 
   const [examYears, setExamYears] = useState({
     form1ResultsYear: school?.examResults?.form1?.year?.toString() || '',
@@ -675,11 +1014,24 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     kcseYear: school?.examResults?.kcse?.year?.toString() || ''
   })
 
-  const [feeBreakdown, setFeeBreakdown] = useState({
-    feesDay: school?.feesDayDistribution || defaultDayFeeBreakdown,
-    feesBoarding: school?.feesBoardingDistribution || defaultBoardingFeeBreakdown,
-    admissionFee: school?.admissionFeeDistribution || defaultAdmissionFeeBreakdown
-  })
+  // Custom Fee Breakdown States
+  const [dayFees, setDayFees] = useState(
+    school?.feesDayDistribution && Object.keys(school.feesDayDistribution).length > 0 
+      ? Object.entries(school.feesDayDistribution).map(([name, amount]) => ({ name, amount }))
+      : []
+  );
+
+  const [boardingFees, setBoardingFees] = useState(
+    school?.feesBoardingDistribution && Object.keys(school.feesBoardingDistribution).length > 0 
+      ? Object.entries(school.feesBoardingDistribution).map(([name, amount]) => ({ name, amount }))
+      : []
+  );
+
+  const [admissionFees, setAdmissionFees] = useState(
+    school?.admissionFeeDistribution && Object.keys(school.admissionFeeDistribution).length > 0 
+      ? Object.entries(school.admissionFeeDistribution).map(([name, amount]) => ({ name, amount }))
+      : []
+  );
 
   const steps = [
     { 
@@ -732,19 +1084,24 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
             formDataToSend.append('youtubeLink', formData.youtubeLink.trim())
           }
         } else if (key.includes('DistributionJson') || key === 'admissionFeeDistribution') {
-          // Handle fee distribution JSON
-          if (formData[key] && formData[key].trim()) {
-            try {
-              const parsed = JSON.parse(formData[key])
-              // Filter out empty values
-              const filtered = Object.fromEntries(
-                Object.entries(parsed).filter(([_, value]) => value !== '' && value !== null)
-              )
-              formDataToSend.append(key, JSON.stringify(filtered))
-            } catch (e) {
-              toast.error(`Invalid JSON format in ${key}`)
-              throw e
-            }
+          // Convert custom fee arrays to JSON objects
+          let feeObject = {};
+          if (key === 'feesDayDistributionJson') {
+            dayFees.forEach(fee => {
+              feeObject[fee.name] = fee.amount;
+            });
+          } else if (key === 'feesBoardingDistributionJson') {
+            boardingFees.forEach(fee => {
+              feeObject[fee.name] = fee.amount;
+            });
+          } else if (key === 'admissionFeeDistribution') {
+            admissionFees.forEach(fee => {
+              feeObject[fee.name] = fee.amount;
+            });
+          }
+          
+          if (Object.keys(feeObject).length > 0) {
+            formDataToSend.append(key, JSON.stringify(feeObject));
           }
         } else {
           formDataToSend.append(key, formData[key] || '')
@@ -775,6 +1132,11 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
           formDataToSend.append(field, files[field])
         }
       })
+
+      // Add additional files
+      additionalFiles.forEach((file, index) => {
+        formDataToSend.append(`additionalFile_${index}`, file);
+      });
 
       // Add exam years
       Object.keys(examYears).forEach(yearField => {
@@ -823,32 +1185,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     setFiles(prev => ({ ...prev, [field]: null }))
   }
 
-  const handleFeeBreakdownChange = (feeType, field, value) => {
-    setFeeBreakdown(prev => ({
-      ...prev,
-      [feeType]: {
-        ...prev[feeType],
-        [field]: value
-      }
-    }))
-    
-    // Also update the JSON in formData
-    const updatedBreakdown = {
-      ...feeBreakdown[feeType],
-      [field]: value
-    }
-    
-    // Update the corresponding JSON field
-    let jsonField = ''
-    if (feeType === 'feesDay') jsonField = 'feesDayDistributionJson'
-    else if (feeType === 'feesBoarding') jsonField = 'feesBoardingDistributionJson'
-    else if (feeType === 'admissionFee') jsonField = 'admissionFeeDistribution'
-    
-    if (jsonField) {
-      handleChange(jsonField, JSON.stringify(updatedBreakdown, null, 2))
-    }
-  }
-
   const isStepValid = () => {
     switch (currentStep) {
       case 0: // Basic Info
@@ -862,48 +1198,12 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     }
   }
 
-  // Function to render fee breakdown fields
-  const renderFeeBreakdownFields = (feeType, title, color, fields) => {
-    const breakdown = feeBreakdown[feeType] || {}
-    
-    return (
-      <div className={`bg-gradient-to-br ${color} rounded-lg p-4 border mt-4 ${color.includes('green') ? 'border-green-200' : color.includes('blue') ? 'border-blue-200' : 'border-orange-200'}`}>
-        <h4 className="font-bold text-gray-900 text-sm mb-3">{title} Breakdown</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {Object.entries(fields).map(([key, label]) => (
-            <div key={key}>
-              <label className="block text-xs font-bold text-gray-600 mb-1.5">
-                {label} (KES)
-              </label>
-              <TextField 
-                fullWidth 
-                size="small"
-                type="number"
-                min="0"
-                value={breakdown[key] || ''}
-                onChange={(e) => handleFeeBreakdownChange(feeType, key, e.target.value)}
-                placeholder="Enter amount"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    backgroundColor: 'white',
-                    fontSize: '0.875rem'
-                  }
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
   return (
     <Modal open={true} onClose={onClose}>
       <Box sx={{
         position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '90%', // Reduced by 10% (from 100% to 90%)
-        maxWidth: '1080px', // Reduced from 1200px
+        width: '90%',
+        maxWidth: '1080px',
         maxHeight: '95vh',
         bgcolor: 'background.paper',
         borderRadius: 2,
@@ -1207,11 +1507,11 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
               </div>
             )}
 
-            {/* Step 3: Financial & Admission - WITH FEE BREAKDOWN AND REARRANGED EXAM UPLOADS */}
+            {/* Step 3: Financial & Admission - WITH CUSTOM FEE BREAKDOWN AND ADDITIONAL FILES */}
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* LEFT COLUMN: Day Fees & Form 1-2 Results */}
+                  {/* LEFT COLUMN: Day Fees, Form 1-2 Results & Additional Files */}
                   <div className="space-y-6">
                     {/* Day Fee Structure */}
                     <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
@@ -1244,15 +1544,15 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           />
                         </div>
 
-                        {/* Day Fee Breakdown Fields */}
-                        {renderFeeBreakdownFields('feesDay', 'Day School Fee', 'from-green-50 to-green-100', {
-                          tuition: 'Tuition Fees',
-                          activity: 'Activity Fees',
-                          library: 'Library Fees',
-                          medical: 'Medical Fees',
-                          maintenance: 'Maintenance Fees',
-                          development: 'Development Fees'
-                        })}
+                        {/* Custom Day Fee Breakdown */}
+                        <CustomFeeBreakdown
+                          title="Day School Fee"
+                          color="from-green-50 to-green-100"
+                          fees={dayFees}
+                          onFeesChange={setDayFees}
+                          totalField={formData.feesDay}
+                          onTotalChange={(value) => handleChange('feesDay', value)}
+                        />
 
                         {/* Day Fee PDF Upload */}
                         <div className="mt-4">
@@ -1266,7 +1566,7 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       </div>
                     </div>
 
-                    {/* Form 1 & 2 Results - Left Side */}
+                    {/* Form 1 & 2 Results with Additional Files */}
                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
                       <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <FaAward className="text-purple-600" />
@@ -1337,6 +1637,15 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                             label="Form 2 Results PDF"
                           />
                         </div>
+
+                        {/* Additional Files Upload */}
+                        <div className="pt-4 border-t border-purple-200">
+                          <AdditionalFilesUpload
+                            files={additionalFiles}
+                            onFilesChange={setAdditionalFiles}
+                            label="Additional Files (Form 1 & 2)"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1374,13 +1683,15 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           />
                         </div>
 
-                        {/* Boarding Fee Breakdown Fields */}
-                        {renderFeeBreakdownFields('feesBoarding', 'Boarding Fee', 'from-blue-50 to-blue-100', {
-                          boarding: 'Boarding Fees',
-                          meals: 'Meals Fees',
-                          laundry: 'Laundry Fees',
-                          accommodation: 'Accommodation Fees'
-                        })}
+                        {/* Custom Boarding Fee Breakdown */}
+                        <CustomFeeBreakdown
+                          title="Boarding Fee"
+                          color="from-blue-50 to-blue-100"
+                          fees={boardingFees}
+                          onFeesChange={setBoardingFees}
+                          totalField={formData.feesBoarding}
+                          onTotalChange={(value) => handleChange('feesBoarding', value)}
+                        />
 
                         {/* Boarding Fee PDF Upload */}
                         <div className="mt-4">
@@ -1467,13 +1778,15 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           />
                         </div>
 
-                        {/* Admission Fee Breakdown Fields */}
-                        {renderFeeBreakdownFields('admissionFee', 'Admission Fee', 'from-orange-50 to-orange-100', {
-                          application: 'Application Fee',
-                          registration: 'Registration Fee',
-                          medical: 'Medical Fee',
-                          admission: 'Admission Fee'
-                        })}
+                        {/* Custom Admission Fee Breakdown */}
+                        <CustomFeeBreakdown
+                          title="Admission Fee"
+                          color="from-orange-50 to-orange-100"
+                          fees={admissionFees}
+                          onFeesChange={setAdmissionFees}
+                          totalField={formData.admissionFee}
+                          onTotalChange={(value) => handleChange('admissionFee', value)}
+                        />
 
                         {/* Admission Fee PDF Upload */}
                         <div className="mt-4">
@@ -1668,6 +1981,70 @@ const schoolApiService = {
   }
 }
 
+// Video Thumbnail Component
+function VideoThumbnail({ videoType, videoPath, onClick }) {
+  const getYouTubeThumbnail = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    const videoId = (match && match[2].length === 11) ? match[2] : null;
+    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
+  };
+
+  const thumbnail = videoType === 'youtube' ? getYouTubeThumbnail(videoPath) : null;
+
+  return (
+    <div 
+      className="relative group cursor-pointer overflow-hidden rounded-xl border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.02]"
+      onClick={onClick}
+    >
+      {thumbnail ? (
+        <div className="relative aspect-video">
+          <img 
+            src={thumbnail} 
+            alt="Video Thumbnail" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+              <FaPlay className="text-white ml-1" />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+          <div className="text-center">
+            <FaVideo className="text-gray-400 text-3xl mx-auto mb-2" />
+            <p className="text-gray-600 text-sm">Video Preview</p>
+          </div>
+        </div>
+      )}
+      
+      <div className="p-3 bg-white">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {videoType === 'youtube' ? (
+              <>
+                <FaYoutube className="text-red-500" />
+                <span className="text-xs font-medium text-gray-700">YouTube Video</span>
+              </>
+            ) : (
+              <>
+                <FaVideo className="text-blue-500" />
+                <span className="text-xs font-medium text-gray-700">Local Video</span>
+              </>
+            )}
+          </div>
+          <button className="text-xs text-blue-600 font-medium hover:text-blue-800 transition-colors">
+            Watch Video
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Main School Information Management Component
 export default function ModernSchoolInformation() {
   const [schoolInfo, setSchoolInfo] = useState(null)
@@ -1675,6 +2052,7 @@ export default function ModernSchoolInformation() {
   const [actionLoading, setActionLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showVideoModal, setShowVideoModal] = useState(false)
 
   useEffect(() => {
     loadSchoolInfo()
@@ -1736,22 +2114,6 @@ export default function ModernSchoolInformation() {
   const renderFeeDistribution = (distribution, title, color) => {
     if (!distribution || Object.keys(distribution).length === 0) return null
     
-    const feeLabels = {
-      tuition: 'Tuition Fees',
-      activity: 'Activity Fees',
-      library: 'Library Fees',
-      medical: 'Medical Fees',
-      maintenance: 'Maintenance Fees',
-      development: 'Development Fees',
-      boarding: 'Boarding Fees',
-      meals: 'Meals Fees',
-      laundry: 'Laundry Fees',
-      accommodation: 'Accommodation Fees',
-      application: 'Application Fee',
-      registration: 'Registration Fee',
-      admission: 'Admission Fee'
-    }
-
     return (
       <div className="mt-4">
         <h4 className="text-sm font-bold text-gray-700 mb-3">{title} Breakdown</h4>
@@ -1760,7 +2122,7 @@ export default function ModernSchoolInformation() {
             value > 0 && (
               <div key={key} className={`bg-gradient-to-br ${color} rounded-lg p-3 border ${color.includes('green') ? 'border-green-200' : 'border-blue-200'}`}>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600">{feeLabels[key] || key}</span>
+                  <span className="text-xs text-gray-600">{key}</span>
                   <span className="text-sm font-bold text-gray-900">KES {parseFloat(value).toLocaleString()}</span>
                 </div>
               </div>
@@ -1800,6 +2162,16 @@ export default function ModernSchoolInformation() {
           background: #4338ca;
         }
       `}</style>
+
+      {/* Video Modal */}
+      {schoolInfo?.videoTour && (
+        <VideoModal
+          open={showVideoModal}
+          onClose={() => setShowVideoModal(false)}
+          videoType={schoolInfo.videoType}
+          videoPath={schoolInfo.videoTour}
+        />
+      )}
 
       {/* Header Section */}
       <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl shadow border border-blue-200 p-4 md:p-6 mb-6">
@@ -1896,29 +2268,19 @@ export default function ModernSchoolInformation() {
               )}
             </div>
 
-            {/* Video Tour */}
+            {/* Video Tour - THUMBNAIL VERSION */}
             {schoolInfo.videoTour && (
               <div className="mb-6">
                 <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                   <FaVideo className="text-red-500" />
                   Video Tour
                 </h3>
-                <div className="bg-gray-900 rounded-lg overflow-hidden">
-                  {schoolInfo.videoType === 'youtube' && schoolInfo.videoTour.includes('youtube.com') ? (
-                    <iframe
-                      src={schoolInfo.videoTour.replace('watch?v=', 'embed/')}
-                      className="w-full h-48 md:h-64"
-                      allowFullScreen
-                      title="School Video Tour"
-                    />
-                  ) : (
-                    <video
-                      controls
-                      className="w-full h-48 md:h-64"
-                      src={schoolInfo.videoTour}
-                      title="School Video Tour"
-                    />
-                  )}
+                <div className="max-w-md">
+                  <VideoThumbnail
+                    videoType={schoolInfo.videoType}
+                    videoPath={schoolInfo.videoTour}
+                    onClick={() => setShowVideoModal(true)}
+                  />
                 </div>
               </div>
             )}
@@ -1994,7 +2356,7 @@ export default function ModernSchoolInformation() {
               </div>
             </div>
 
-            {/* Fee Structure - WITH FEE BREAKDOWN */}
+            {/* Fee Structure - WITH CUSTOM FEE BREAKDOWN */}
             <div className="mb-6">
               <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <FaDollarSign className="text-green-600" />
@@ -2015,7 +2377,7 @@ export default function ModernSchoolInformation() {
                       </div>
                     </div>
                     
-                    {/* Individual Fee Distribution Display */}
+                    {/* Custom Fee Distribution Display */}
                     {schoolInfo.feesDayDistribution && renderFeeDistribution(
                       schoolInfo.feesDayDistribution,
                       'Day School Fee',
@@ -2071,7 +2433,7 @@ export default function ModernSchoolInformation() {
                       </div>
                     </div>
                     
-                    {/* Individual Fee Distribution Display */}
+                    {/* Custom Fee Distribution Display */}
                     {schoolInfo.feesBoardingDistribution && renderFeeDistribution(
                       schoolInfo.feesBoardingDistribution,
                       'Boarding Fee',
@@ -2172,7 +2534,7 @@ export default function ModernSchoolInformation() {
                           </div>
                         </div>
                         
-                        {/* Admission Fee Distribution Display */}
+                        {/* Custom Admission Fee Distribution Display */}
                         {schoolInfo.admissionFeeDistribution && renderFeeDistribution(
                           schoolInfo.admissionFeeDistribution,
                           'Admission Fee',
