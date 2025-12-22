@@ -23,48 +23,60 @@ import {
   FaYoutube, FaFileVideo, FaFileAlt, FaFileExport,
   FaFileUpload, FaFileCode, FaFileAudio, FaFile, FaCheck,
   FaUser, FaTag, FaCogs, FaUniversity, FaBlackTie,
-  FaPlay, FaPlayCircle
+  FaPlay, FaPlayCircle, FaCamera, FaImage, FaInfoCircle,FiTrash2,FiEdit2 
 } from 'react-icons/fa';
-import { CircularProgress, Modal, Box, TextField, TextareaAutosize, FormControlLabel, Switch } from '@mui/material';
-import { debounce } from 'lodash';
+import { CircularProgress, Modal, Box, TextField, TextareaAutosize } from '@mui/material';
 
 // Modern Loading Spinner Component
-function ModernLoadingSpinner({ message = "Loading...", size = "medium" }) {
+// Modern Loading Spinner Component - Matching Guidance Counseling Style
+function ModernLoadingSpinner({ message = "Loading sessions from the database…", size = "medium" }) {
   const sizes = {
-    small: { outer: 60, inner: 24 },
-    medium: { outer: 100, inner: 40 },
-    large: { outer: 120, inner: 48 }
+    small: { outer: 48, inner: 24 },
+    medium: { outer: 64, inner: 32 },
+    large: { outer: 80, inner: 40 }
   }
 
   const { outer, inner } = sizes[size]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 flex items-center justify-center z-50">
       <div className="text-center">
         <div className="relative inline-block">
+          {/* Main spinner */}
           <div className="relative">
             <CircularProgress 
               size={outer} 
-              thickness={4}
-              className="text-blue-600"
+              thickness={5}
+              className="text-indigo-600"
             />
+            {/* Pulsing inner circle */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className={`bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-ping opacity-20`}
+              <div className="bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full animate-ping opacity-25"
                    style={{ width: inner, height: inner }}></div>
             </div>
           </div>
-          <div className="absolute -inset-8 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full blur-2xl opacity-30 animate-pulse"></div>
+          {/* Outer glow effect */}
+          <div className="absolute -inset-6 bg-gradient-to-r from-indigo-100 to-violet-100 rounded-full blur-xl opacity-30 animate-pulse"></div>
         </div>
-        <div className="mt-8 space-y-2">
-          <span className="block text-xl font-semibold text-gray-700 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+        
+        {/* Text content */}
+        <div className="mt-6 space-y-3">
+          <span className="block text-lg font-semibold text-gray-800">
             {message}
           </span>
-          <div className="flex justify-center space-x-2">
+          
+          {/* Bouncing dots */}
+          <div className="flex justify-center space-x-1.5">
             {[0, 1, 2].map(i => (
-              <div key={i} className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" 
-                   style={{ animationDelay: `${i * 0.2}s` }}></div>
+              <div key={i} className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" 
+                   style={{ animationDelay: `${i * 0.15}s` }}></div>
             ))}
           </div>
+          
+          {/* Optional subtitle */}
+          <p className="text-gray-500 text-sm mt-2">
+            Please wait while we fetch school public data
+          </p>
         </div>
       </div>
     </div>
@@ -457,21 +469,400 @@ function ModernPdfUpload({ pdfFile, onPdfChange, onRemove, label = "PDF File", r
   )
 }
 
-// Modern Video Upload Component
-function ModernVideoUpload({ videoType, videoPath, youtubeLink, onVideoChange, onYoutubeLinkChange, onRemove, label = "Video Tour" }) {
+function VideoThumbnailOptions({ videoFile, onThumbnailSelect, onClose }) {
+  const [selectedThumbnail, setSelectedThumbnail] = useState(null);
+  const [thumbnails, setThumbnails] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isGenerating, setIsGenerating] = useState(true);
+  const [error, setError] = useState(null);
+  const videoURLRef = useRef(null);
+
+  // Clean up URL on unmount
+  useEffect(() => {
+    return () => {
+      if (videoURLRef.current) {
+        URL.revokeObjectURL(videoURLRef.current);
+      }
+    };
+  }, []);
+
+  // Generate thumbnails when component mounts
+  useEffect(() => {
+    if (!videoFile) {
+      setError('No video file provided');
+      setIsGenerating(false);
+      return;
+    }
+
+    const generateThumbnails = async () => {
+      try {
+        setIsGenerating(true);
+        setError(null);
+        
+        // Create video URL
+        const videoURL = URL.createObjectURL(videoFile);
+        videoURLRef.current = videoURL;
+        
+        // Set video source
+        const video = document.createElement('video');
+        video.src = videoURL;
+        
+        // Wait for video metadata to load
+        await new Promise((resolve, reject) => {
+          video.onloadedmetadata = () => {
+            if (video.duration && video.videoWidth && video.videoHeight) {
+              resolve();
+            } else {
+              reject(new Error('Could not load video metadata'));
+            }
+          };
+          video.onerror = () => reject(new Error('Failed to load video'));
+          video.load();
+        });
+
+        const duration = video.duration;
+        
+        // Validate video duration
+        if (!duration || duration <= 0) {
+          throw new Error('Invalid video duration');
+        }
+
+        // Generate thumbnails at specific intervals
+        const thumbnailTimes = [
+          0, // First frame
+          duration * 0.25, // 25%
+          duration * 0.5, // 50%
+          duration * 0.75 // 75%
+        ];
+
+        const generatedThumbnails = [];
+        
+        for (let i = 0; i < thumbnailTimes.length; i++) {
+          const time = thumbnailTimes[i];
+          
+          try {
+            const thumbnail = await generateThumbnailAtTime(video, time);
+            generatedThumbnails.push({
+              url: thumbnail,
+              time: time,
+              index: i
+            });
+          } catch (err) {
+            console.warn(`Failed to generate thumbnail at ${time}s:`, err);
+            // Create a fallback placeholder
+            generatedThumbnails.push({
+              url: createPlaceholderImage(),
+              time: time,
+              index: i,
+              isPlaceholder: true
+            });
+          }
+        }
+
+        setThumbnails(generatedThumbnails);
+        setIsGenerating(false);
+        
+      } catch (err) {
+        console.error('Failed to generate thumbnails:', err);
+        setError(err.message || 'Failed to generate thumbnails');
+        setIsGenerating(false);
+        
+        // Create fallback thumbnails
+        const fallbackThumbnails = Array.from({ length: 4 }, (_, i) => ({
+          url: createPlaceholderImage(i),
+          time: i * 5,
+          index: i,
+          isPlaceholder: true
+        }));
+        setThumbnails(fallbackThumbnails);
+      }
+    };
+
+    generateThumbnails();
+  }, [videoFile]);
+
+  const generateThumbnailAtTime = (video, time) => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas dimensions
+      canvas.width = 320;
+      canvas.height = 180;
+      
+      // Seek to the specific time
+      video.currentTime = time;
+      
+      // Set timeout to prevent hanging
+      const timeout = setTimeout(() => {
+        reject(new Error(`Timeout generating thumbnail at ${time}s`));
+      }, 5000);
+      
+      video.onseeked = () => {
+        try {
+          // Draw the video frame on canvas
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          // Convert to data URL
+          const thumbnailUrl = canvas.toDataURL('image/jpeg', 0.8);
+          
+          clearTimeout(timeout);
+          resolve(thumbnailUrl);
+        } catch (err) {
+          clearTimeout(timeout);
+          reject(err);
+        }
+      };
+      
+      video.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error('Video seek error'));
+      };
+    });
+  };
+
+  const createPlaceholderImage = (index = 0) => {
+    const colors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'];
+    const color = colors[index % colors.length];
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = 320;
+    canvas.height = 180;
+    const ctx = canvas.getContext('2d');
+    
+    // Draw background
+    ctx.fillStyle = color + '20';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw text
+    ctx.fillStyle = color;
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`Frame ${index + 1}`, canvas.width / 2, canvas.height / 2);
+    
+    ctx.font = '12px Arial';
+    ctx.fillText('Preview unavailable', canvas.width / 2, canvas.height / 2 + 25);
+    
+    return canvas.toDataURL('image/png');
+  };
+
+  const handleThumbnailSelect = (index) => {
+    setSelectedIndex(index);
+  };
+
+  const handleConfirm = () => {
+    if (thumbnails[selectedIndex]) {
+      onThumbnailSelect(thumbnails[selectedIndex].url);
+    }
+    onClose();
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    setThumbnails([]);
+    setIsGenerating(true);
+    
+    // Trigger re-generation
+    setTimeout(() => {
+      const event = new Event('retry');
+      window.dispatchEvent(event);
+    }, 100);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl">
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FaCamera className="text-blue-600" />
+              <h3 className="text-lg font-bold text-gray-900">Select Video Thumbnail</h3>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            >
+              <FaTimes className="text-gray-500" />
+            </button>
+          </div>
+          <p className="text-sm text-gray-600 mt-1">
+            Choose a thumbnail from the video or use the default
+          </p>
+        </div>
+
+        <div className="p-4">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center gap-2 text-red-700 mb-2">
+                <FaExclamationTriangle className="text-red-500" />
+                <span className="font-medium">Error: {error}</span>
+              </div>
+              <button
+                onClick={handleRetry}
+                className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
+          {isGenerating ? (
+            <div className="text-center py-12">
+              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Generating thumbnails from video...</p>
+              <p className="text-xs text-gray-500 mt-2">This may take a moment</p>
+              <button
+                onClick={handleRetry}
+                className="mt-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+              >
+                <FaSync className="inline mr-2" /> Regenerate
+              </button>
+            </div>
+          ) : thumbnails.length > 0 ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {thumbnails.map((thumbnail, index) => (
+                  <div
+                    key={index}
+                    className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedIndex === index
+                        ? 'border-blue-500 ring-2 ring-blue-200'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => handleThumbnailSelect(index)}
+                  >
+                    <img
+                      src={thumbnail.url}
+                      alt={`Thumbnail at ${thumbnail.time.toFixed(1)}s`}
+                      className="w-full h-32 object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                      <p className="text-xs text-white font-medium">
+                        {thumbnail.isPlaceholder ? 'Fallback' : `${thumbnail.time.toFixed(1)}s`}
+                      </p>
+                    </div>
+                    {selectedIndex === index && (
+                      <div className="absolute top-2 right-2 bg-blue-500 text-white p-1 rounded-full">
+                        <FaCheck className="text-xs" />
+                      </div>
+                    )}
+                    {thumbnail.isPlaceholder && (
+                      <div className="absolute top-2 left-2 bg-yellow-500 text-white text-[10px] px-1.5 py-0.5 rounded">
+                        Fallback
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <FaInfoCircle className="text-blue-500" />
+                <span>
+                  {thumbnails[selectedIndex]?.isPlaceholder 
+                    ? 'Using fallback image'
+                    : `Selected frame at ${thumbnails[selectedIndex]?.time.toFixed(1)} seconds`
+                  }
+                </span>
+              </div>
+              
+              <div className="flex justify-center gap-2">
+                <button
+                  onClick={handleRetry}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  <FaSync /> Regenerate Thumbnails
+                </button>
+                {thumbnails.some(t => t.isPlaceholder) && (
+                  <button
+                    onClick={() => {
+                      // Force use of default thumbnail
+                      onThumbnailSelect(thumbnails[0].url);
+                      onClose();
+                    }}
+                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium"
+                  >
+                    Use Default
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <FaCamera className="text-gray-400 text-xl" />
+              </div>
+              <p className="text-gray-600">No thumbnails generated</p>
+              <button
+                onClick={handleRetry}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 p-4 border-t border-gray-200 bg-gray-50">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-bold"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={thumbnails.length === 0}
+            className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Use Selected Thumbnail
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Modern Video Upload Component - UPDATED with thumbnail handling
+function ModernVideoUpload({ videoType, videoPath, youtubeLink, onVideoChange, onYoutubeLinkChange, onRemove, onThumbnailSelect, label = "Video Tour" }) {
   const [dragOver, setDragOver] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [localYoutubeLink, setLocalYoutubeLink] = useState(youtubeLink || '')
+  const [previewName, setPreviewName] = useState('')
+  const [fileToUpload, setFileToUpload] = useState(null)
+  const [selectedThumbnail, setSelectedThumbnail] = useState(null)
+  const [showThumbnailOptions, setShowThumbnailOptions] = useState(false)
+  const fileInputRef = useRef(null)
+
+  // Reset states when props change
+  useEffect(() => {
+    if (videoType === 'file' && videoPath) {
+      const fileName = videoPath.split('/').pop() || 'Video File'
+      setPreviewName(fileName)
+    } else if (videoType === 'youtube' && youtubeLink) {
+      setLocalYoutubeLink(youtubeLink)
+    }
+  }, [videoType, videoPath, youtubeLink])
 
   const handleYoutubeLinkChange = (e) => {
-    const value = e.target.value
-    setLocalYoutubeLink(value)
-    if (value.trim() === '') {
-      onYoutubeLinkChange('')
-    } else {
-      onYoutubeLinkChange(value)
+    const url = e.target.value;
+    setLocalYoutubeLink(url);
+    
+    // Clear MP4 file when YouTube is selected
+    if (url.trim()) {
+      setFileToUpload(null)
+      setPreviewName('')
+      setUploadProgress(0)
+      setSelectedThumbnail(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
-  }
+    
+    if (onYoutubeLinkChange) {
+      onYoutubeLinkChange(url);
+    }
+  };
 
   const simulateUpload = () => {
     setUploadProgress(0)
@@ -506,9 +897,9 @@ function ModernVideoUpload({ videoType, videoPath, youtubeLink, onVideoChange, o
     if (files.length > 0) {
       const file = files[0]
       
-      const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg']
+      const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-m4v']
       if (!allowedVideoTypes.includes(file.type)) {
-        toast.error('Invalid video format. Only MP4, WebM, and OGG files are allowed.')
+        toast.error('Invalid video format. Only MP4, WebM, OGG, MOV, and M4V files are allowed.')
         setUploadProgress(0)
         return
       }
@@ -520,7 +911,13 @@ function ModernVideoUpload({ videoType, videoPath, youtubeLink, onVideoChange, o
       }
 
       simulateUpload()
-      onVideoChange(file)
+      setFileToUpload(file)
+      setPreviewName(file.name)
+      // Clear YouTube link when uploading a file
+      setLocalYoutubeLink('')
+      if (onVideoChange) {
+        onVideoChange(file)
+      }
       setUploadProgress(100)
       
       setTimeout(() => setUploadProgress(0), 1000)
@@ -528,22 +925,82 @@ function ModernVideoUpload({ videoType, videoPath, youtubeLink, onVideoChange, o
   }
 
   const handleDrop = (e) => {
-    e.preventDefault()
-    setDragOver(false)
-    const files = Array.from(e.dataTransfer.files).slice(0, 1)
-    if (files.length > 0) handleFileChange({ target: { files } })
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      handleFileChange({ target: { files: [file] } });
+    }
+  };
 
   const handleRemove = () => {
-    onRemove()
-    setLocalYoutubeLink('')
-  }
+    setFileToUpload(null);
+    setPreviewName('');
+    setLocalYoutubeLink('');
+    setUploadProgress(0);
+    setSelectedThumbnail(null);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
+    // Call parent's onRemove
+    if (onRemove) {
+      onRemove();
+    }
+    
+    // Clear YouTube link in parent
+    if (onYoutubeLinkChange) {
+      onYoutubeLinkChange('');
+    }
+  };
+
+  const handleThumbnailSelect = (thumbnailUrl) => {
+    setSelectedThumbnail(thumbnailUrl);
+    if (onThumbnailSelect) {
+      onThumbnailSelect(thumbnailUrl);
+    }
+    toast.success('Thumbnail selected! It will be saved when you update the school info.');
+  };
 
   const isValidYouTubeUrl = (url) => {
     if (!url || url.trim() === '') return false
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
     return youtubeRegex.test(url.trim())
   }
+
+  const handleUploadAreaClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }
+
+  const handleUploadDifferentClick = () => {
+    // Clear the current file selection
+    setFileToUpload(null);
+    setPreviewName('');
+    setUploadProgress(0);
+    setSelectedThumbnail(null);
+    
+    // Reset the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
+    // Trigger file input after a short delay
+    setTimeout(() => {
+      if (fileInputRef.current) {
+        fileInputRef.current.click();
+      }
+    }, 50);
+  }
+
+  // Determine what to show
+  const hasExistingVideo = (videoType === 'file' && videoPath) || fileToUpload;
+  const hasYouTubeLink = localYoutubeLink && isValidYouTubeUrl(localYoutubeLink);
+  const showUploadUI = !hasExistingVideo || (hasExistingVideo && fileToUpload === null && !hasYouTubeLink);
 
   return (
     <div className="space-y-3">
@@ -552,10 +1009,36 @@ function ModernVideoUpload({ videoType, videoPath, youtubeLink, onVideoChange, o
         <span>{label}</span>
       </label>
       
+      {/* Thumbnail Preview - Only for MP4 */}
+      {selectedThumbnail && !hasYouTubeLink && (
+        <div className="mb-3">
+          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+            Selected Thumbnail (MP4 only)
+          </label>
+          <div className="relative group rounded-lg overflow-hidden border border-gray-200">
+            <img
+              src={selectedThumbnail}
+              alt="Video thumbnail"
+              className="w-full h-40 object-cover"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedThumbnail(null);
+                if (onThumbnailSelect) onThumbnailSelect(null);
+              }}
+              className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors"
+            >
+              <FaTimes className="text-xs" />
+            </button>
+          </div>
+        </div>
+      )}
+      
       <div className="space-y-3">
-        {/* YouTube URL Input */}
+        {/* YouTube Input */}
         <div>
-          <label className="block text-xs font-bold text-gray-600 mb-1">YouTube URL</label>
+          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">YouTube URL</label>
           <div className="relative">
             <FaYoutube className="absolute left-3 top-1/2 transform -translate-y-1/2 text-red-500" />
             <input
@@ -563,89 +1046,160 @@ function ModernVideoUpload({ videoType, videoPath, youtubeLink, onVideoChange, o
               value={localYoutubeLink}
               onChange={handleYoutubeLinkChange}
               placeholder="https://youtube.com/watch?v=..."
-              className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 bg-white text-sm"
+              className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 bg-white text-sm"
             />
           </div>
           {localYoutubeLink && !isValidYouTubeUrl(localYoutubeLink) && (
-            <p className="text-red-500 text-xs mt-1">Please enter a valid YouTube URL</p>
+            <p className="text-red-500 text-[10px] mt-1 font-bold italic">Please enter a valid YouTube URL</p>
           )}
         </div>
 
-        <div className="text-center text-gray-400 text-xs font-medium">OR</div>
+        <div className="text-center text-gray-300 text-[10px] font-bold">OR</div>
 
-        {/* Video File Upload */}
-        {videoType === 'file' && videoPath ? (
-          <div className="relative group">
-            <div className="relative overflow-hidden rounded-xl border-2 border-gray-300 shadow-sm transition-all duration-300 bg-gradient-to-br from-blue-50 to-cyan-50 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <FaFileVideo className="text-blue-600" />
+        {/* MP4 File Upload */}
+        <div>
+          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Local Video File (MP4)</label>
+          
+          {/* SHOW WHEN VIDEO FILE EXISTS OR IS BEING UPLOADED */}
+          {hasExistingVideo ? (
+            <div className="space-y-3">
+              <div className="relative group">
+                <div className="relative overflow-hidden rounded-xl border-2 border-blue-400 shadow-sm transition-all duration-300 bg-gradient-to-br from-blue-50 to-white p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-500 rounded-lg shadow-md">
+                        <FaFileVideo className="text-white" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-900 text-sm truncate max-w-[180px]">
+                          {previewName || (videoPath ? videoPath.split('/').pop() : 'Video File')}
+                        </p>
+                        <p className="text-[10px] text-blue-600 font-bold uppercase tracking-tighter">
+                          {fileToUpload ? 'Ready to Save' : 'Previously Uploaded'}
+                        </p>
+                        {fileToUpload && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            {(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemove}
+                      className="bg-white text-red-500 hover:bg-red-500 hover:text-white p-2 rounded-xl transition-all duration-300 shadow-sm border border-red-100 cursor-pointer"
+                      title="Remove Video"
+                    >
+                      <FaTimes />
+                    </button>
                   </div>
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm">Video File Uploaded</p>
-                    <p className="text-xs text-gray-600">Local MP4 file</p>
-                  </div>
+                  
+                  {/* Progress Bar - Shows during upload */}
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gray-200 h-1">
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-1 transition-all duration-300 ease-out"
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                  )}
                 </div>
+              </div>
+              
+              {/* Thumbnail Selection Button - Only for MP4 files */}
+              {fileToUpload && !hasYouTubeLink && (
                 <button
                   type="button"
-                  onClick={handleRemove}
-                  className="bg-red-500 text-white p-1.5 rounded-lg transition-all duration-300 shadow hover:shadow-md cursor-pointer hover:bg-red-600"
-                  title="Remove Video"
+                  onClick={() => setShowThumbnailOptions(true)}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 text-purple-700 px-4 py-2.5 rounded-lg hover:from-purple-100 hover:to-blue-100 transition-all duration-300 font-bold"
                 >
-                  <FaTimes className="text-xs" />
+                  <FaCamera />
+                  Select Thumbnail from Video (MP4 only)
+                </button>
+              )}
+              
+              {/* Option to upload another file */}
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={handleUploadDifferentClick}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium underline hover:no-underline transition-all"
+                >
+                  Upload different video file
                 </button>
               </div>
             </div>
-          </div>
-        ) : (
-          <div
-            className={`border-2 border-dashed rounded-xl p-4 text-center transition-all duration-300 cursor-pointer group ${
-              dragOver 
-                ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-blue-100' 
-                : 'border-gray-300 hover:border-blue-300 bg-gradient-to-br from-gray-50 to-gray-100 hover:shadow-sm'
-            }`}
-            onDrop={handleDrop}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-            onDragLeave={() => setDragOver(false)}
-            onClick={() => document.getElementById('video-upload').click()}
-          >
-            <div className="relative">
-              <FaUpload className={`mx-auto text-2xl mb-2 transition-all duration-300 ${
-                dragOver ? 'text-blue-500 scale-110' : 'text-gray-400 group-hover:text-blue-500'
-              }`} />
+          ) : (
+            /* SHOW UPLOAD UI WHEN NO VIDEO FILE IS SELECTED */
+            <div
+              className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 cursor-pointer group ${
+                dragOver 
+                  ? 'border-blue-400 bg-blue-50 ring-4 ring-blue-50' 
+                  : 'border-gray-200 hover:border-blue-300 bg-gray-50/50'
+              } ${hasYouTubeLink ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              onDrop={!hasYouTubeLink ? handleDrop : undefined}
+              onDragOver={!hasYouTubeLink ? (e) => { e.preventDefault(); e.stopPropagation(); setDragOver(true); } : undefined}
+              onDragLeave={!hasYouTubeLink ? () => setDragOver(false) : undefined}
+              onClick={!hasYouTubeLink ? handleUploadAreaClick : undefined}
+            >
+              <div className="relative">
+                <FaUpload className={`mx-auto text-2xl mb-2 transition-all duration-300 ${
+                  dragOver ? 'text-blue-500 scale-110' : 'text-gray-400 group-hover:text-blue-500'
+                }`} />
+              </div>
+              <p className="text-gray-700 mb-1 font-bold text-xs uppercase">
+                {hasYouTubeLink ? 'YouTube link selected' : dragOver ? 'Drop Video Now' : 'Click to Upload Video'}
+              </p>
+              <p className="text-[10px] text-gray-500">MP4, WebM, MOV, M4V (Max 100MB)</p>
+              <input 
+                ref={fileInputRef}
+                type="file" 
+                accept="video/mp4,video/x-m4v,video/*,video/quicktime" 
+                onChange={handleFileChange} 
+                className="hidden" 
+                id="video-upload"
+                disabled={hasYouTubeLink}
+              />
             </div>
-            <p className="text-gray-700 mb-1 font-medium transition-colors duration-300 group-hover:text-gray-800 text-sm">
-              {dragOver ? '🎬 Drop video file here!' : 'Drag & drop MP4 video file'}
-            </p>
-            <p className="text-xs text-gray-600 transition-colors duration-300 group-hover:text-gray-700">
-              MP4, WebM, OGG • Max 100MB
-            </p>
-            <input 
-              type="file" 
-              accept="video/*" 
-              onChange={handleFileChange} 
-              className="hidden" 
-              id="video-upload" 
-            />
-          </div>
-        )}
+          )}
+        </div>
       </div>
       
+      {/* Progress Bar Container */}
       {uploadProgress > 0 && uploadProgress < 100 && (
-        <div className="bg-gray-50 rounded-lg p-2">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold text-gray-700">Uploading...</span>
-            <span className="text-xs font-bold text-blue-600">{uploadProgress}%</span>
+        <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm mt-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Uploading...</span>
+            <span className="text-xs font-black text-purple-600">{uploadProgress}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
             <div 
-              className="bg-gradient-to-r from-blue-500 to-purple-600 h-1.5 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-purple-500 to-blue-500 h-full transition-all duration-500"
               style={{ width: `${uploadProgress}%` }}
             ></div>
           </div>
         </div>
       )}
+      
+      {/* Thumbnail Selection Modal - Only for MP4 */}
+      {showThumbnailOptions && fileToUpload && !hasYouTubeLink && (
+        <VideoThumbnailOptions
+          videoFile={fileToUpload}
+          onThumbnailSelect={handleThumbnailSelect}
+          onClose={() => setShowThumbnailOptions(false)}
+        />
+      )}
+      
+      {/* Hidden file input */}
+      <input 
+        ref={fileInputRef}
+        type="file" 
+        accept="video/mp4,video/x-m4v,video/*,video/quicktime" 
+        onChange={handleFileChange} 
+        className="hidden" 
+        id="video-upload-input"
+        disabled={hasYouTubeLink}
+      />
     </div>
   )
 }
@@ -769,72 +1323,122 @@ function AdditionalFilesUpload({ files, onFilesChange, label = "Additional Files
   );
 }
 
-// Video Modal Component
-function VideoModal({ open, onClose, videoType, videoPath }) {
+// Video Modal Component - UPDATED with thumbnail support
+// Video Modal Component - UPDATED with thumbnail support
+function VideoModal({ open, onClose, videoType, videoPath, videoThumbnail }) {
   const getYouTubeEmbedUrl = (url) => {
     if (!url) return '';
+    
     // Extract video ID from various YouTube URL formats
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
     const match = url.match(regExp);
-    const videoId = (match && match[2].length === 11) ? match[2] : null;
-    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : url;
+    
+    if (match && match[2].length === 11) {
+      const videoId = match[2];
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+    }
+    
+    // If it's already an embed URL, return it as is
+    if (url.includes('youtube.com/embed/')) {
+      return url.includes('?') ? `${url}&autoplay=1` : `${url}?autoplay=1`;
+    }
+    
+    return url;
   };
 
+  const getVideoSource = () => {
+    if (videoType === 'youtube') {
+      return getYouTubeEmbedUrl(videoPath);
+    } else if (videoType === 'file' && videoPath) {
+      if (videoPath.startsWith('/')) {
+        return videoPath;
+      }
+      return videoPath;
+    }
+    return null;
+  };
+
+  const videoSource = getVideoSource();
+
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal 
+      open={open} 
+      onClose={onClose}
+      sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        backdropFilter: 'blur(4px)',
+        p: 3 
+      }}
+    >
       <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '90%',
-        maxWidth: '800px',
-        bgcolor: 'background.paper',
-        borderRadius: 2,
-        boxShadow: 24,
+        position: 'relative',
+        width: {
+          xs: '95%',   
+          sm: '80%',    
+          md: '70%',    
+          lg: '700px'
+        },
+        bgcolor: '#0a0a0a',
+        borderRadius: '12px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
         overflow: 'hidden',
-        outline: 'none'
+        outline: 'none',
+        border: '1px solid rgba(255,255,255,0.08)',
       }}>
-        <div className="bg-gradient-to-r from-gray-900 to-black p-4 text-white">
+        
+        <div className="bg-zinc-900/50 px-4 py-2.5 text-white border-b border-white/5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <FaVideo className="text-red-500" />
-              <h2 className="text-lg font-bold">School Video Tour</h2>
+            <div className="flex items-center gap-2">
+              <FaVideo className="text-red-500 text-sm" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-300">
+                School Tour
+                {videoType === 'file' && videoThumbnail && (
+                  <span className="ml-2 text-[10px] bg-blue-900 text-blue-200 px-2 py-0.5 rounded-full">
+                    Custom Thumbnail
+                  </span>
+                )}
+              </h2>
             </div>
+            
             <button 
               onClick={onClose}
-              className="p-1 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-200 cursor-pointer"
+              className="p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
             >
-              <FaTimes className="text-lg" />
+              <FaTimes className="text-sm text-gray-400" />
             </button>
           </div>
         </div>
         
-        <div className="p-4 bg-black">
-          {videoType === 'youtube' ? (
-            <div className="relative pt-[56.25%]"> {/* 16:9 Aspect Ratio */}
+        <div className="p-1 bg-black">
+          <div className="relative w-full aspect-video bg-black rounded-b-lg overflow-hidden">
+            {videoType === 'youtube' && videoSource ? (
               <iframe
-                src={getYouTubeEmbedUrl(videoPath)}
-                className="absolute top-0 left-0 w-full h-full rounded-lg"
+                src={videoSource}
+                className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 title="School Video Tour"
+                frameBorder="0"
               />
-            </div>
-          ) : videoType === 'file' ? (
-            <video
-              controls
-              autoPlay
-              className="w-full rounded-lg"
-              src={videoPath}
-              title="School Video Tour"
-            />
-          ) : (
-            <div className="text-center py-8 text-white">
-              <FaVideo className="text-4xl mx-auto mb-4 text-gray-400" />
-              <p className="text-lg">No video available</p>
-            </div>
-          )}
+            ) : videoType === 'file' && videoSource ? (
+              <video
+                controls
+                autoPlay
+                className="w-full h-full"
+                src={videoSource}
+                poster={videoThumbnail || undefined}
+              >
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-zinc-600 bg-zinc-950">
+                <FaVideo className="text-2xl mb-2 opacity-20" />
+                <p className="text-[10px] uppercase font-bold">No Video Found</p>
+              </div>
+            )}
+          </div>
         </div>
       </Box>
     </Modal>
@@ -944,11 +1548,10 @@ function ModernDeleteModal({ onClose, onConfirm, loading }) {
   )
 }
 
-// Modern School Info Modal with 3 steps - UPDATED WITH CUSTOM FEE BREAKDOWN
+// Modern School Info Modal with 3 steps
 function ModernSchoolModal({ onClose, onSave, school, loading }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState({
-    // Step 1: Basic Information
     name: school?.name || '',
     description: school?.description || '',
     motto: school?.motto || '',
@@ -956,15 +1559,11 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     mission: school?.mission || '',
     studentCount: school?.studentCount?.toString() || '',
     staffCount: school?.staffCount?.toString() || '',
-    
-    // Step 2: Academic & Media
     openDate: school?.openDate ? new Date(school.openDate).toISOString().split('T')[0] : '',
     closeDate: school?.closeDate ? new Date(school.closeDate).toISOString().split('T')[0] : '',
     subjects: school?.subjects || [],
     departments: school?.departments || [],
     youtubeLink: school?.videoType === 'youtube' ? school.videoTour : '',
-    
-    // Step 3: Financial & Admission
     feesDay: school?.feesDay?.toString() || '',
     feesDayDistributionJson: school?.feesDayDistribution ? JSON.stringify(school.feesDayDistribution) : '[]',
     feesBoarding: school?.feesBoarding?.toString() || '',
@@ -984,16 +1583,11 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
   })
 
   const [files, setFiles] = useState({
-    // Media
     videoFile: null,
-    
-    // PDFs
     curriculumPDF: null,
     feesDayDistributionPdf: null,
     feesBoardingDistributionPdf: null,
     admissionFeePdf: null,
-    
-    // Exam Results PDFs
     form1ResultsPdf: null,
     form2ResultsPdf: null,
     form3ResultsPdf: null,
@@ -1002,7 +1596,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     kcseResultsPdf: null
   })
 
-  // Additional Files State
   const [additionalFiles, setAdditionalFiles] = useState([]);
 
   const [examYears, setExamYears] = useState({
@@ -1014,7 +1607,8 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     kcseYear: school?.examResults?.kcse?.year?.toString() || ''
   })
 
-  // Custom Fee Breakdown States
+  const [selectedThumbnail, setSelectedThumbnail] = useState(null);
+
   const [dayFees, setDayFees] = useState(
     school?.feesDayDistribution && Object.keys(school.feesDayDistribution).length > 0 
       ? Object.entries(school.feesDayDistribution).map(([name, amount]) => ({ name, amount }))
@@ -1070,21 +1664,17 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     try {
       const formDataToSend = new FormData()
       
-      // Add all text fields
       Object.keys(formData).forEach(key => {
         if (key === 'subjects' || key === 'departments' || key === 'admissionDocumentsRequired') {
-          // Handle arrays
           const items = formData[key]
           if (Array.isArray(items) && items.length > 0) {
             formDataToSend.append(key, JSON.stringify(items))
           }
         } else if (key === 'youtubeLink') {
-          // Handle YouTube link separately
           if (formData.youtubeLink.trim()) {
             formDataToSend.append('youtubeLink', formData.youtubeLink.trim())
           }
         } else if (key.includes('DistributionJson') || key === 'admissionFeeDistribution') {
-          // Convert custom fee arrays to JSON objects
           let feeObject = {};
           if (key === 'feesDayDistributionJson') {
             dayFees.forEach(fee => {
@@ -1108,12 +1698,16 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
         }
       })
 
-      // Add video file if present
+      // Video upload logic - Only send thumbnail for MP4 files
       if (files.videoFile) {
         formDataToSend.append('videoTour', files.videoFile)
+        
+        // Only add thumbnail for MP4 files (not YouTube)
+        if (selectedThumbnail && !formData.youtubeLink.trim()) {
+          formDataToSend.append('videoThumbnail', selectedThumbnail)
+        }
       }
 
-      // Add all PDF files
       const pdfFields = [
         'curriculumPDF',
         'feesDayDistributionPdf',
@@ -1133,12 +1727,10 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
         }
       })
 
-      // Add additional files
       additionalFiles.forEach((file, index) => {
         formDataToSend.append(`additionalFile_${index}`, file);
       });
 
-      // Add exam years
       Object.keys(examYears).forEach(yearField => {
         if (examYears[yearField]) {
           formDataToSend.append(yearField, examYears[yearField])
@@ -1185,14 +1777,23 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     setFiles(prev => ({ ...prev, [field]: null }))
   }
 
+  const handleVideoRemove = () => {
+    handleFileChange('videoFile', null);
+    setFormData(prev => ({ 
+      ...prev, 
+      youtubeLink: '' 
+    }));
+    setSelectedThumbnail(null);
+  };
+
   const isStepValid = () => {
     switch (currentStep) {
-      case 0: // Basic Info
+      case 0:
         return formData.name.trim() && formData.studentCount.trim() && formData.staffCount.trim()
-      case 1: // Academic
+      case 1:
         return formData.openDate.trim() && formData.closeDate.trim()
-      case 2: // Financial & Admission
-        return true // All fields are optional in this step
+      case 2:
+        return true
       default:
         return true
     }
@@ -1211,7 +1812,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
         overflow: 'hidden',
         background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
       }}>
-        {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-4 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -1231,7 +1831,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
           </div>
         </div>
 
-        {/* Progress Steps */}
         <div className="bg-white border-b border-gray-200 p-3">
           <div className="flex justify-center items-center space-x-3">
             {steps.map((step, index) => (
@@ -1261,7 +1860,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
 
         <div className="max-h-[calc(95vh-160px)] overflow-y-auto scrollbar-custom">
           <form onSubmit={handleFormSubmit} className="p-4 space-y-4">
-            {/* Step 1: Basic Information */}
             {currentStep === 0 && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -1398,12 +1996,10 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
               </div>
             )}
 
-            {/* Step 2: Academic & Media */}
             {currentStep === 1 && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="space-y-4">
-                    {/* Academic Calendar */}
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
                       <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
                         <FaCalendar className="text-blue-600" />
@@ -1455,7 +2051,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       </div>
                     </div>
 
-                    {/* Academic Programs */}
                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
                       <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
                         <FaBook className="text-purple-600" />
@@ -1481,21 +2076,17 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                   </div>
                   
                   <div className="space-y-4">
-                    {/* Video Tour */}
                     <ModernVideoUpload 
                       videoType={school?.videoType}
                       videoPath={school?.videoTour}
                       youtubeLink={formData.youtubeLink}
                       onVideoChange={(file) => handleFileChange('videoFile', file)}
                       onYoutubeLinkChange={(link) => handleChange('youtubeLink', link)}
-                      onRemove={() => {
-                        handleFileChange('videoFile', null)
-                        handleChange('youtubeLink', '')
-                      }}
+                      onRemove={handleVideoRemove}
+                      onThumbnailSelect={setSelectedThumbnail}
                       label="School Video Tour"
                     />
 
-                    {/* Curriculum PDF */}
                     <ModernPdfUpload 
                       pdfFile={files.curriculumPDF}
                       onPdfChange={(file) => handleFileChange('curriculumPDF', file)}
@@ -1507,13 +2098,10 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
               </div>
             )}
 
-            {/* Step 3: Financial & Admission - WITH CUSTOM FEE BREAKDOWN AND ADDITIONAL FILES */}
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* LEFT COLUMN: Day Fees, Form 1-2 Results & Additional Files */}
                   <div className="space-y-6">
-                    {/* Day Fee Structure */}
                     <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
                       <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <FaDollarSign className="text-green-600" />
@@ -1544,7 +2132,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           />
                         </div>
 
-                        {/* Custom Day Fee Breakdown */}
                         <CustomFeeBreakdown
                           title="Day School Fee"
                           color="from-green-50 to-green-100"
@@ -1554,7 +2141,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           onTotalChange={(value) => handleChange('feesDay', value)}
                         />
 
-                        {/* Day Fee PDF Upload */}
                         <div className="mt-4">
                           <ModernPdfUpload 
                             pdfFile={files.feesDayDistributionPdf}
@@ -1566,7 +2152,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       </div>
                     </div>
 
-                    {/* Form 1 & 2 Results with Additional Files */}
                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
                       <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <FaAward className="text-purple-600" />
@@ -1574,7 +2159,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       </h3>
                       
                       <div className="space-y-4">
-                        {/* Form 1 Results */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <label className="text-sm font-bold text-gray-700">Form 1 Results</label>
@@ -1606,7 +2190,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           />
                         </div>
 
-                        {/* Form 2 Results */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <label className="text-sm font-bold text-gray-700">Form 2 Results</label>
@@ -1638,7 +2221,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           />
                         </div>
 
-                        {/* Additional Files Upload */}
                         <div className="pt-4 border-t border-purple-200">
                           <AdditionalFilesUpload
                             files={additionalFiles}
@@ -1650,9 +2232,7 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                     </div>
                   </div>
 
-                  {/* RIGHT COLUMN: Boarding Fees, Admission & Other Results */}
                   <div className="space-y-6">
-                    {/* Boarding Fee Structure */}
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
                       <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <FaUniversity className="text-blue-600" />
@@ -1683,7 +2263,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           />
                         </div>
 
-                        {/* Custom Boarding Fee Breakdown */}
                         <CustomFeeBreakdown
                           title="Boarding Fee"
                           color="from-blue-50 to-blue-100"
@@ -1693,7 +2272,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           onTotalChange={(value) => handleChange('feesBoarding', value)}
                         />
 
-                        {/* Boarding Fee PDF Upload */}
                         <div className="mt-4">
                           <ModernPdfUpload 
                             pdfFile={files.feesBoardingDistributionPdf}
@@ -1705,7 +2283,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       </div>
                     </div>
 
-                    {/* Admission Information */}
                     <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-6 border border-orange-200">
                       <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <FaUserCheck className="text-orange-600" />
@@ -1757,16 +2334,19 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                         
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-2">
-                            Admission Fee (KES)
+                            Admission Fee and Uniform Breakdown (KES)
                           </label>
                           <TextField 
                             fullWidth 
                             size="medium"
                             type="number"
-                            min="0"
+                            inputProps={{ min: 0, step: 1 }} 
                             value={formData.admissionFee} 
-                            onChange={(e) => handleChange('admissionFee', e.target.value)}
-                            placeholder="Enter admission fee"
+                            onChange={(e) => {
+                              const val = e.target.value === '' ? '' : parseInt(e.target.value, 10);
+                              handleChange('admissionFee', val);
+                            }}
+                            placeholder="Enter admission and uniform fee"
                             sx={{
                               '& .MuiOutlinedInput-root': {
                                 borderRadius: '10px',
@@ -1778,7 +2358,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           />
                         </div>
 
-                        {/* Custom Admission Fee Breakdown */}
                         <CustomFeeBreakdown
                           title="Admission Fee"
                           color="from-orange-50 to-orange-100"
@@ -1788,13 +2367,12 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           onTotalChange={(value) => handleChange('admissionFee', value)}
                         />
 
-                        {/* Admission Fee PDF Upload */}
                         <div className="mt-4">
                           <ModernPdfUpload 
                             pdfFile={files.admissionFeePdf}
                             onPdfChange={(file) => handleFileChange('admissionFeePdf', file)}
                             onRemove={() => handleFileRemove('admissionFeePdf')}
-                            label="Admission Fee Breakdown PDF"
+                            label="Admission requirements Breakdown PDF"
                           />
                         </div>
 
@@ -1822,7 +2400,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       </div>
                     </div>
 
-                    {/* Other Exam Results - Right Side */}
                     <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-6 border border-indigo-200">
                       <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <FaGraduationCap className="text-indigo-600" />
@@ -1874,7 +2451,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
               </div>
             )}
 
-            {/* Navigation Buttons */}
             <div className="flex items-center justify-between pt-6 border-t border-gray-200">
               <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
                 <div className="flex items-center gap-1">
@@ -1936,6 +2512,99 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
   )
 }
 
+// Video Thumbnail Component - UPDATED
+function VideoThumbnail({ videoType, videoPath, videoThumbnail, onClick }) {
+  const getYouTubeThumbnail = (url) => {
+    if (!url) return null;
+    // Extract video ID from various YouTube URL formats
+    const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+    const match = url.match(regExp);
+    const videoId = (match && match[2].length === 11) ? match[2] : null;
+    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
+  };
+
+  // For MP4 files: show custom thumbnail if available, otherwise default
+  const getMp4Thumbnail = () => {
+    if (videoThumbnail) {
+      return videoThumbnail;
+    }
+    // Default video thumbnail for MP4
+    return null;
+  };
+
+  const thumbnail = videoType === 'youtube' ? getYouTubeThumbnail(videoPath) : getMp4Thumbnail();
+  const hasCustomThumbnail = videoType === 'file' && videoThumbnail;
+
+  return (
+    <div 
+      className="relative group cursor-pointer overflow-hidden rounded-xl border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-sm"
+      onClick={onClick}
+    >
+      <div className="relative aspect-video">
+        {thumbnail ? (
+          <>
+            <img 
+              src={thumbnail}
+              alt="Video Thumbnail" 
+              className="w-full h-full object-cover"
+            />
+            {hasCustomThumbnail && (
+              <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                <FaCamera className="text-xs" />
+                <span>Custom Thumbnail</span>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <div className="text-center">
+              <FaVideo className={`text-gray-400 text-3xl mx-auto mb-2 ${videoType === 'file' ? 'text-blue-500' : 'text-red-500'}`} />
+              <p className="text-gray-600 text-sm">
+                {videoType === 'file' ? 'MP4 Video' : 'YouTube Video'}
+              </p>
+              {videoType === 'file' && !videoThumbnail && (
+                <p className="text-xs text-gray-500 mt-1">Default thumbnail</p>
+              )}
+            </div>
+          </div>
+        )}
+        
+        <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 ${
+            videoType === 'youtube' ? 'bg-red-600' : 'bg-blue-600'
+          }`}>
+            <FaPlay className="text-white ml-1" />
+          </div>
+        </div>
+      </div>
+      
+      <div className="p-3 bg-white">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {videoType === 'youtube' ? (
+              <>
+                <FaYoutube className="text-red-500" />
+                <span className="text-xs font-medium text-gray-700">YouTube Video</span>
+              </>
+            ) : (
+              <>
+                <FaVideo className="text-blue-500" />
+                <span className="text-xs font-medium text-gray-700">
+                  {hasCustomThumbnail ? 'MP4 (Custom Thumbnail)' : 'MP4 Video'}
+                </span>
+              </>
+            )}
+          </div>
+          <button className="text-xs text-blue-600 font-medium hover:text-blue-800 transition-colors">
+            Watch Video
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // School API Service
 const schoolApiService = {
   async getSchoolInfo() {
@@ -1979,70 +2648,6 @@ const schoolApiService = {
     }
     return await response.json()
   }
-}
-
-// Video Thumbnail Component
-function VideoThumbnail({ videoType, videoPath, onClick }) {
-  const getYouTubeThumbnail = (url) => {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    const videoId = (match && match[2].length === 11) ? match[2] : null;
-    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
-  };
-
-  const thumbnail = videoType === 'youtube' ? getYouTubeThumbnail(videoPath) : null;
-
-  return (
-    <div 
-      className="relative group cursor-pointer overflow-hidden rounded-xl border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.02]"
-      onClick={onClick}
-    >
-      {thumbnail ? (
-        <div className="relative aspect-video">
-          <img 
-            src={thumbnail} 
-            alt="Video Thumbnail" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
-              <FaPlay className="text-white ml-1" />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-          <div className="text-center">
-            <FaVideo className="text-gray-400 text-3xl mx-auto mb-2" />
-            <p className="text-gray-600 text-sm">Video Preview</p>
-          </div>
-        </div>
-      )}
-      
-      <div className="p-3 bg-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {videoType === 'youtube' ? (
-              <>
-                <FaYoutube className="text-red-500" />
-                <span className="text-xs font-medium text-gray-700">YouTube Video</span>
-              </>
-            ) : (
-              <>
-                <FaVideo className="text-blue-500" />
-                <span className="text-xs font-medium text-gray-700">Local Video</span>
-              </>
-            )}
-          </div>
-          <button className="text-xs text-blue-600 font-medium hover:text-blue-800 transition-colors">
-            Watch Video
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 // Main School Information Management Component
@@ -2110,7 +2715,6 @@ export default function ModernSchoolInformation() {
     return <ModernLoadingSpinner message="Loading school information..." size="medium" />
   }
 
-  // Helper function to render fee distribution
   const renderFeeDistribution = (distribution, title, color) => {
     if (!distribution || Object.keys(distribution).length === 0) return null
     
@@ -2137,7 +2741,6 @@ export default function ModernSchoolInformation() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 p-4 md:p-6">
       <Toaster position="top-right" richColors />
 
-      {/* Custom scrollbar styles */}
       <style jsx global>{`
         .scrollbar-custom {
           scrollbar-width: thin;
@@ -2163,52 +2766,86 @@ export default function ModernSchoolInformation() {
         }
       `}</style>
 
-      {/* Video Modal */}
       {schoolInfo?.videoTour && (
         <VideoModal
           open={showVideoModal}
           onClose={() => setShowVideoModal(false)}
           videoType={schoolInfo.videoType}
           videoPath={schoolInfo.videoTour}
+          videoThumbnail={schoolInfo.videoThumbnail}
         />
       )}
 
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl shadow border border-blue-200 p-4 md:p-6 mb-6">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div>
-            <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-1">School Information Management</h1>
-            <p className="text-gray-600 text-xs lg:text-sm">Manage all school details, fees, admissions, and academic information</p>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={loadSchoolInfo} className="flex items-center gap-1 bg-gray-600 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 transition duration-200 font-bold shadow cursor-pointer text-xs">
-              <FaSync className={`text-xs ${loading ? 'animate-spin' : ''}`} /> Refresh
-            </button>
-            
-            {/* Delete button */}
-            {schoolInfo && (
-              <button 
-                onClick={() => setShowDeleteModal(true)} 
-                className="flex items-center gap-1 bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1.5 rounded-lg hover:from-red-700 hover:to-red-800 transition duration-200 font-bold shadow cursor-pointer text-xs"
-              >
-                <FaTrash className="text-xs" /> Delete
-              </button>
-            )}
-            
-            <button 
-              onClick={() => setShowModal(true)} 
-              className="flex items-center gap-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-1.5 rounded-lg hover:from-blue-700 hover:to-blue-800 transition duration-200 font-bold shadow cursor-pointer text-xs"
-            >
-              <FaPlus className="text-xs" /> {schoolInfo ? 'Update Information' : 'Create Information'}
-            </button>
-          </div>
+<div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl shadow-sm border border-blue-200 p-5 md:p-8 mb-8">
+  <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+    
+    {/* Text Section */}
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="bg-white p-2 rounded-lg shadow-sm ring-1 ring-gray-100">
+          <FaMapMarkerAlt className="text-blue-600 text-2xl" />
         </div>
+        <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+          Nyaribu Secondary School
+        </h1>
       </div>
+      <p className="text-gray-600 text-sm md:text-base font-medium max-w-2xl">
+        Manage and synchronize school profile details, fee structures, and admission data.
+      </p>
+    </div>
 
-      {/* Main Content - SHOWING DATA DIRECTLY */}
+    {/* Buttons Container - Fixed positioning on mobile */}
+    <div className="sticky bottom-4 left-0 right-0 sm:static flex flex-wrap sm:flex-nowrap items-center gap-3 w-full xl:w-auto sm:w-auto bg-white sm:bg-transparent p-4 sm:p-0 rounded-xl sm:rounded-none shadow-lg sm:shadow-none border border-gray-100 sm:border-none z-50">
+      
+      {/* Refresh Sync Button */}
+      <button 
+        onClick={loadSchoolInfo} 
+        disabled={loading}
+        className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-white border border-blue-200 text-blue-700 px-5 py-3 sm:py-2.5 rounded-xl hover:bg-blue-50 transition-all duration-200 font-semibold text-sm shadow-sm active:scale-[0.98] disabled:opacity-60"
+      >
+        {loading ? (
+          <CircularProgress size={16} color="inherit" thickness={6} />
+        ) : (
+          <FaChartBar className="text-sm" /> 
+        )}
+        <span className="whitespace-nowrap">
+          {loading ? 'Syncing...' : 'Refresh Info'}
+        </span>
+      </button>
+      
+      {schoolInfo && (
+        <button 
+          onClick={() => setShowDeleteModal(true)} 
+          className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-white text-red-600 border border-red-200 px-5 py-3 sm:py-2.5 rounded-xl hover:bg-red-50 transition-all duration-200 font-semibold text-sm active:scale-[0.98]"
+        >
+          <FaTrash className="text-sm" /> 
+          <span className="whitespace-nowrap">Delete</span>
+        </button>
+      )}
+      
+      {/* Primary Action Button */}
+      <button 
+        onClick={() => setShowModal(true)} 
+        className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-sm shadow-md active:scale-[0.98]"
+      >
+        {schoolInfo ? (
+          <>
+            <FaEdit className="text-sm" />
+            <span className="whitespace-nowrap">Update Profile</span>
+          </>
+        ) : (
+          <>
+            <FiPlusCircle className="text-sm" />
+            <span className="whitespace-nowrap">Initialize</span>
+          </>
+        )}
+      </button>
+    </div>
+  </div>
+</div>
+
       {schoolInfo ? (
         <div className="space-y-6">
-          {/* School Overview Card */}
           <div className="bg-white rounded-xl shadow border border-gray-200 p-4 md:p-6">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
               <div>
@@ -2225,19 +2862,19 @@ export default function ModernSchoolInformation() {
                       <FaQuoteLeft className="inline mr-1" /> "{schoolInfo.motto}"
                     </span>
                   )}
+                  {schoolInfo.videoType === 'file' && schoolInfo.videoThumbnail && (
+                    <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                      <FaCamera className="text-xs" />
+                      Custom Video Thumbnail
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => setShowModal(true)} 
-                  className="flex items-center gap-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-200 font-bold shadow cursor-pointer text-xs"
-                >
-                  <FaEdit className="text-xs" /> Update Information
-                </button>
+              
               </div>
             </div>
 
-            {/* Description */}
             {schoolInfo.description && (
               <div className="mb-6">
                 <h3 className="text-sm font-bold text-gray-700 mb-2">Description</h3>
@@ -2245,7 +2882,6 @@ export default function ModernSchoolInformation() {
               </div>
             )}
 
-            {/* Vision & Mission */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               {schoolInfo.vision && (
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
@@ -2268,24 +2904,35 @@ export default function ModernSchoolInformation() {
               )}
             </div>
 
-            {/* Video Tour - THUMBNAIL VERSION */}
             {schoolInfo.videoTour && (
               <div className="mb-6">
                 <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                   <FaVideo className="text-red-500" />
                   Video Tour
+                  {schoolInfo.videoType === 'file' && schoolInfo.videoThumbnail && (
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <FaCamera className="text-xs" />
+                      Custom Thumbnail
+                    </span>
+                  )}
                 </h3>
                 <div className="max-w-md">
                   <VideoThumbnail
                     videoType={schoolInfo.videoType}
                     videoPath={schoolInfo.videoTour}
+                    videoThumbnail={schoolInfo.videoThumbnail}
                     onClick={() => setShowVideoModal(true)}
                   />
+                  {schoolInfo.videoType === 'file' && !schoolInfo.videoThumbnail && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      <FaInfoCircle className="inline mr-1" />
+                      This MP4 video is using the default thumbnail
+                    </p>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Academic Information */}
             <div className="mb-6">
               <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <FaGraduationCap className="text-purple-600" />
@@ -2293,7 +2940,6 @@ export default function ModernSchoolInformation() {
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Academic Calendar */}
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
                   <h4 className="text-sm font-bold text-gray-900 mb-3">Academic Calendar</h4>
                   <div className="space-y-2">
@@ -2320,7 +2966,6 @@ export default function ModernSchoolInformation() {
                   </div>
                 </div>
 
-                {/* Subjects */}
                 {Array.isArray(schoolInfo.subjects) && schoolInfo.subjects.length > 0 && (
                   <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
                     <h4 className="text-sm font-bold text-gray-900 mb-3">Subjects</h4>
@@ -2337,7 +2982,6 @@ export default function ModernSchoolInformation() {
                   </div>
                 )}
 
-                {/* Departments */}
                 {Array.isArray(schoolInfo.departments) && schoolInfo.departments.length > 0 && (
                   <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
                     <h4 className="text-sm font-bold text-gray-900 mb-3">Departments</h4>
@@ -2356,7 +3000,6 @@ export default function ModernSchoolInformation() {
               </div>
             </div>
 
-            {/* Fee Structure - WITH CUSTOM FEE BREAKDOWN */}
             <div className="mb-6">
               <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <FaDollarSign className="text-green-600" />
@@ -2364,7 +3007,6 @@ export default function ModernSchoolInformation() {
               </h3>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Day Fees Section */}
                 {schoolInfo.feesDay && (
                   <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 md:p-6 border border-green-200">
                     <div className="flex justify-between items-start mb-4">
@@ -2377,14 +3019,12 @@ export default function ModernSchoolInformation() {
                       </div>
                     </div>
                     
-                    {/* Custom Fee Distribution Display */}
                     {schoolInfo.feesDayDistribution && renderFeeDistribution(
                       schoolInfo.feesDayDistribution,
                       'Day School Fee',
                       'from-green-50 to-green-100'
                     )}
 
-                    {/* PDF Section */}
                     {schoolInfo.feesDayDistributionPdf && (
                       <div className="mt-4 pt-4 border-t border-green-200">
                         <h4 className="text-sm font-bold text-gray-900 mb-2">Fee Breakdown Document</h4>
@@ -2420,7 +3060,6 @@ export default function ModernSchoolInformation() {
                   </div>
                 )}
 
-                {/* Boarding Fees Section */}
                 {schoolInfo.feesBoarding && (
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 md:p-6 border border-blue-200">
                     <div className="flex justify-between items-start mb-4">
@@ -2433,14 +3072,12 @@ export default function ModernSchoolInformation() {
                       </div>
                     </div>
                     
-                    {/* Custom Fee Distribution Display */}
                     {schoolInfo.feesBoardingDistribution && renderFeeDistribution(
                       schoolInfo.feesBoardingDistribution,
                       'Boarding Fee',
                       'from-blue-50 to-blue-100'
                     )}
 
-                    {/* PDF Section */}
                     {schoolInfo.feesBoardingDistributionPdf && (
                       <div className="mt-4 pt-4 border-t border-blue-200">
                         <h4 className="text-sm font-bold text-gray-900 mb-2">Fee Breakdown Document</h4>
@@ -2478,7 +3115,6 @@ export default function ModernSchoolInformation() {
               </div>
             </div>
 
-            {/* Admission Information */}
             {(schoolInfo.admissionOpenDate || schoolInfo.admissionFee) && (
               <div className="mb-6">
                 <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
@@ -2488,7 +3124,6 @@ export default function ModernSchoolInformation() {
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    {/* Admission Timeline */}
                     {(schoolInfo.admissionOpenDate || schoolInfo.admissionCloseDate) && (
                       <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
                         <h4 className="text-sm font-bold text-gray-900 mb-3">Admission Timeline</h4>
@@ -2521,35 +3156,33 @@ export default function ModernSchoolInformation() {
                       </div>
                     )}
 
-                    {/* Admission Fee */}
                     {schoolInfo.admissionFee && (
                       <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
                         <div className="flex justify-between items-start mb-3">
                           <div>
-                            <h4 className="text-sm font-bold text-gray-900">Admission Fee</h4>
-                            <p className="text-xs text-gray-600">One-time admission fee</p>
+                            <h4 className="text-sm font-bold text-gray-900">Admission Uniform </h4>
+                            <p className="text-xs text-gray-600">One-time preparation uniform fee</p>
                           </div>
                           <div className="text-lg font-bold text-green-600">
                             KES {schoolInfo.admissionFee?.toLocaleString()}
                           </div>
                         </div>
                         
-                        {/* Custom Admission Fee Distribution Display */}
                         {schoolInfo.admissionFeeDistribution && renderFeeDistribution(
                           schoolInfo.admissionFeeDistribution,
                           'Admission Fee',
                           'from-green-50 to-green-100'
                         )}
 
-                        {/* Admission Fee PDF */}
                         {schoolInfo.admissionFeePdf && (
                           <div className="mt-4 pt-4 border-t border-green-200">
                             <div className="bg-white rounded-lg p-3 border border-gray-200">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
+                                  <h2 className="text-sm font-bold text-gray-900">Admission requirements PDF</h2>
                                   <FaFilePdf className="text-red-500" />
                                   <span className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
-                                    {schoolInfo.admissionFeePdfName || 'Admission Fee PDF'}
+                                    {schoolInfo.admissionFeePdf || 'Admission Fee PDF'}
                                   </span>
                                 </div>
                                 <div className="flex gap-2">
@@ -2578,7 +3211,6 @@ export default function ModernSchoolInformation() {
                   </div>
 
                   <div className="space-y-4">
-                    {/* Admission Details */}
                     {(schoolInfo.admissionCapacity || schoolInfo.admissionContactEmail) && (
                       <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
                         <h4 className="text-sm font-bold text-gray-900 mb-3">Admission Details</h4>
@@ -2613,7 +3245,6 @@ export default function ModernSchoolInformation() {
                       </div>
                     )}
 
-                    {/* Required Documents */}
                     {Array.isArray(schoolInfo.admissionDocumentsRequired) && schoolInfo.admissionDocumentsRequired.length > 0 && (
                       <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200">
                         <h4 className="text-sm font-bold text-gray-900 mb-3">Required Documents</h4>
@@ -2634,7 +3265,6 @@ export default function ModernSchoolInformation() {
               </div>
             )}
 
-            {/* Curriculum PDF */}
             {schoolInfo.curriculumPDF && (
               <div className="mb-6">
                 <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
@@ -2672,7 +3302,6 @@ export default function ModernSchoolInformation() {
               </div>
             )}
 
-            {/* Exam Results */}
             {schoolInfo.examResults && Object.keys(schoolInfo.examResults).length > 0 && (
               <div>
                 <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
@@ -2728,7 +3357,6 @@ export default function ModernSchoolInformation() {
           </div>
         </div>
       ) : (
-        /* Empty State */
         <div className="bg-white rounded-xl shadow border border-gray-200 p-6 text-center">
           <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-blue-100">
             <FaSchool className="w-8 h-8 text-blue-600" />
@@ -2746,7 +3374,6 @@ export default function ModernSchoolInformation() {
         </div>
       )}
 
-      {/* Modals */}
       {showModal && (
         <ModernSchoolModal 
           onClose={() => setShowModal(false)} 

@@ -404,6 +404,8 @@ model SchoolInfo {
   // Media
   videoTour                   String?   
   videoType                  String?   // "youtube" | "file" | "vimeo"
+  videoThumbnail             String?   // Base64 or file path for thumbnail (for MP4 videos only)
+  videoThumbnailType         String?   // "generated" | "uploaded" | null (only for MP4)
   
   // Statistics
   studentCount                Int

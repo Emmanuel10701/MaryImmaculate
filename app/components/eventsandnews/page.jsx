@@ -28,7 +28,8 @@ import {
   FiBell,
   FiUser,
   FiAlertTriangle,
-  FiAlertCircle
+  FiAlertCircle,
+  FiBriefcase 
 } from 'react-icons/fi';
 import { 
   IoNewspaperOutline,
@@ -887,7 +888,7 @@ function ModernItemModal({ onClose, onSave, item, type, loading }) {
               <div className="space-y-6">
                 {/* Image Upload */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-xl border border-purple-200">
+                  <label className=" text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-xl border border-purple-200">
                     <FiImage className="text-purple-600 text-lg" /> 
                     Featured Image
                   </label>
@@ -931,7 +932,7 @@ function ModernItemModal({ onClose, onSave, item, type, loading }) {
 
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-blue-50 to-cyan-50 p-3 rounded-xl border border-blue-200">
+                  <label className=" text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-blue-50 to-cyan-50 p-3 rounded-xl border border-blue-200">
                     <FiBook className="text-blue-600 text-lg" /> 
                     Title *
                   </label>

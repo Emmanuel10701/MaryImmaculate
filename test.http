@@ -1,98 +1,162 @@
-### Create Teacher - Mathematics
-POST http://localhost:3001/api/career
-Content-Type: application/json
+### Update School Info with YouTube Video Tour
+PUT http://localhost:3001/api/school
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Katwnyaa School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+We are a high school recognized at the country level
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="motto"
+
+Education is light
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="vision"
+
+Build God-fearing citizens
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mission"
+
+Craft education knowledge for all
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="youtubeLink"
+
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="studentCount"
+
+1200
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="staffCount"
+
+12
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="openDate"
+
+2026-01-21
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="closeDate"
+
+2026-11-26
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDay"
+
+22000
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoarding"
+
+105999
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="subjects"
+
+["Mathematics", "Physics", "Chemistry", "Biology", "Computer", "Agriculture", "English", "Kiswahili"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="departments"
+
+["Sciences", "Humanities", "Languages", "Mathematics", "Technical"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesDayDistributionJson"
 
 {
-  "jobTitle": "Mathematics Teacher",
-  "department": "Academics",
-  "category": "Teaching",
-  "jobDescription": "Responsible for teaching mathematics to secondary school students from Form 1 to Form 4. The teacher will develop lesson plans, create assignments and assessments, provide remedial support for students who struggle, and participate in curriculum development meetings. They will also mentor students for mathematics competitions and track progress over the academic year.",
-  "requirements": "Strong knowledge in algebra, calculus, geometry, and statistics. Excellent classroom management, communication, and mentorship skills. Ability to integrate technology into lessons and use data to assess student performance.",
-  "experience": "Minimum 3 years of experience teaching mathematics at the secondary school level. Experience in designing curriculum and preparing students for national examinations is preferred.",
-  "qualifications": "Bachelor’s Degree in Education with a specialization in Mathematics or a relevant field. A Master’s Degree in Mathematics or Education is an advantage.",
-  "positionsAvailable": "3",
-  "jobType": "Full-time",
-  "applicationDeadline": "2026-02-15",
-  "contactEmail": "hr@school.ac.ke",
-  "contactPhone": "+254712345678"
+  "library": "2500",
+  "medical": "2000",
+  "tuition": "10000",
+  "activity": "500",
+  "accommodation": "1200",
+  "development": "2000",
+  "maintenance": "2000",
+  "examination": "800"
 }
-
-### Create Teacher - English
-POST http://localhost:3001/api/career
-Content-Type: application/json
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="feesBoardingDistributionJson"
 
 {
-  "jobTitle": "English Teacher",
-  "department": "Academics",
-  "category": "Teaching",
-  "jobDescription": "Responsible for teaching English language and literature to secondary school students. Duties include creating lesson plans, preparing students for literature and language exams, organizing reading and writing activities, supporting students with special language needs, and fostering a love for reading and creative writing. The teacher will also participate in school literary events and mentor students for essay and debate competitions.",
-  "requirements": "Excellent grammar and writing skills, strong communication, and the ability to engage students of varying abilities. Proficiency in educational technology and experience in differentiated instruction.",
-  "experience": "At least 3 years of teaching English at the secondary school level, including experience with exam preparation and extracurricular literary activities.",
-  "qualifications": "Bachelor’s Degree in Education or English Literature. Postgraduate qualifications or teaching certifications are a plus.",
-  "positionsAvailable": "2",
-  "jobType": "Full-time",
-  "applicationDeadline": "2026-02-20",
-  "contactEmail": "hr@school.ac.ke",
-  "contactPhone": "+254712345678"
+  "meals": "25000",
+  "laundry": "1000",
+  "boarding": "50000",
+  "entertainment": "5000",
+  "hostel": "20000",
+  "sports": "2999"
 }
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionOpenDate"
 
-### Create Cook / Kitchen Staff
-POST http://localhost:3001/api/career
-Content-Type: application/json
+2025-12-29
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionCloseDate"
+
+2025-12-30
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionRequirements"
+
+Birth certificate, National ID, Form 4 results slip, recommendation letter from previous school
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFee"
+
+3100
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionFeeDistribution"
 
 {
-  "jobTitle": "Cook",
-  "department": "Support Staff",
-  "category": "Catering",
-  "jobDescription": "Responsible for planning, preparing, and serving nutritious meals for students and staff, maintaining kitchen hygiene, and managing kitchen inventory. Duties include menu planning, supervising kitchen assistants, ensuring compliance with health and safety regulations, and catering for special dietary needs. The cook will also maintain records of stock and ensure minimal food waste.",
-  "requirements": "Strong experience in large-scale cooking, food safety and hygiene knowledge, ability to prepare balanced meals for a large group, and organizational skills.",
-  "experience": "Minimum of 5 years working in a professional kitchen environment, preferably in schools, hospitals, or similar institutions.",
-  "qualifications": "Certificate or Diploma in Culinary Arts or Hospitality Management. Training in food safety and hygiene is required.",
-  "positionsAvailable": "1",
-  "jobType": "Full-time",
-  "applicationDeadline": "2026-03-01",
-  "contactEmail": "hr@school.ac.ke",
-  "contactPhone": "+254712345678"
+  "registration": "1500",
+  "medical": "1000",
+  "studentId": "300",
+  "library": "300"
 }
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionCapacity"
 
-### Create Watchman / Security
-POST http://localhost:3001/api/career
-Content-Type: application/json
+200
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionContactEmail"
 
-{
-  "jobTitle": "Watchman",
-  "department": "Support Staff",
-  "category": "Security",
-  "jobDescription": "Responsible for ensuring the safety and security of students, staff, and school property. Duties include monitoring entrances and exits, patrolling school grounds, supervising dormitories at night, reporting security incidents, and assisting in emergency situations. The watchman will also maintain visitor logs and ensure all safety protocols are followed.",
-  "requirements": "Vigilant, disciplined, and able to handle emergencies calmly. Good interpersonal skills and knowledge of basic first aid and security procedures.",
-  "experience": "At least 3 years working in a security role, preferably in educational institutions or similar environments. Experience with CCTV monitoring and reporting is an advantage.",
-  "qualifications": "Certificate in Security Management or relevant training. Knowledge of safety regulations and emergency response procedures.",
-  "positionsAvailable": "2",
-  "jobType": "Full-time",
-  "applicationDeadline": "2026-02-28",
-  "contactEmail": "hr@school.ac.ke",
-  "contactPhone": "+254712345678"
-}
+admissions@katwnyaa.ac.ke
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionContactPhone"
 
-### Create Matron / Dormitory Supervisor
-POST http://localhost:3001/api/career
-Content-Type: application/json
++254793472960
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionWebsite"
 
-{
-  "jobTitle": "Matron",
-  "department": "Student Affairs",
-  "category": "Support Staff",
-  "jobDescription": "Responsible for the supervision and welfare of students in boarding houses. Duties include overseeing student routines, ensuring discipline, monitoring health and hygiene, supporting students’ emotional well-being, liaising with parents, and organizing dormitory activities. The matron will also manage dormitory staff and report any incidents to school administration.",
-  "requirements": "Excellent interpersonal and communication skills, patient and responsible, ability to handle emergencies, and strong organizational skills.",
-  "experience": "Minimum of 3 years working with students in residential care, boarding schools, or youth organizations.",
-  "qualifications": "Certificate or Diploma in Student Affairs, Social Work, or related field. Experience in pastoral care and student counseling is an advantage.",
-  "positionsAvailable": "1",
-  "jobType": "Full-time",
-  "applicationDeadline": "2026-03-05",
-  "contactEmail": "hr@school.ac.ke",
-  "contactPhone": "+254712345678"
-}
+https://www.katwnyaa.ac.ke
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionLocation"
 
+PO Box 64, Tala, Machakos County
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionOfficeHours"
 
-### Get All Careers
-GET http://localhost:3001/api/career
+Monday to Friday: 8:00 AM - 5:00 PM, Saturday: 9:00 AM - 1:00 PM
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="admissionDocumentsRequired"
+
+["Birth Certificate", "National ID/Passport", "Academic Transcripts", "Recommendation Letter", "Passport Photos"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form1ResultsYear"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form2ResultsYear"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form3ResultsYear"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="form4ResultsYear"
+
+2026
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="mockExamsYear"
+
+2025
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="kcseYear"
+
+2025
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

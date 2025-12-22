@@ -12,6 +12,7 @@ const ensureDir = (dir) => {
 
 const videoDir = path.join(process.cwd(), "public/infomation/videos");
 const pdfDir = path.join(process.cwd(), "public/infomation/pdfs");
+const thumbnailDir = path.join(process.cwd(), "public/infomation/thumbnails");
 const dayFeesDir = path.join(pdfDir, "day-fees");
 const boardingFeesDir = path.join(pdfDir, "boarding-fees");
 const curriculumDir = path.join(pdfDir, "curriculum");
@@ -19,7 +20,7 @@ const admissionDir = path.join(pdfDir, "admission");
 const examResultsDir = path.join(pdfDir, "exam-results");
 
 // Create all directories
-[pdfDir, videoDir, dayFeesDir, boardingFeesDir, curriculumDir, admissionDir, examResultsDir].forEach(dir => ensureDir(dir));
+[pdfDir, videoDir, thumbnailDir, dayFeesDir, boardingFeesDir, curriculumDir, admissionDir, examResultsDir].forEach(dir => ensureDir(dir));
 
 // Helper function to validate required fields
 const validateRequiredFields = (formData) => {
@@ -150,28 +151,109 @@ const handlePdfUpload = async (pdfFile, uploadDir, fieldName, existingFilePath =
   };
 };
 
-// Helper to handle video upload
-const handleVideoUpload = async (youtubeLink, videoTourFile, existingVideo = null) => {
+// Helper to handle thumbnail upload (for MP4 videos only)
+const handleThumbnailUpload = async (thumbnailData, existingThumbnail = null) => {
+  if (!thumbnailData || thumbnailData.trim() === '') {
+    // Delete old thumbnail if exists
+    if (existingThumbnail) {
+      await deleteOldFile(existingThumbnail);
+    }
+    return null;
+  }
+
+  // Check if it's a data URL (base64)
+  if (thumbnailData.startsWith('data:image/')) {
+    // Delete old thumbnail if exists
+    if (existingThumbnail) {
+      await deleteOldFile(existingThumbnail);
+    }
+
+    // Extract base64 data
+    const matches = thumbnailData.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      throw new Error("Invalid base64 thumbnail data");
+    }
+
+    const extension = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+    const base64Data = matches[2];
+    const buffer = Buffer.from(base64Data, 'base64');
+    
+    // Validate file size (max 2MB for thumbnails)
+    if (buffer.length > 2 * 1024 * 1024) {
+      throw new Error("Thumbnail too large. Maximum size: 2MB");
+    }
+
+    const fileName = `thumbnail_${Date.now()}.${extension}`;
+    const filePath = `/infomation/thumbnails/${fileName}`;
+    
+    await writeFile(path.join(process.cwd(), "public", filePath), buffer);
+    return {
+      path: filePath,
+      type: 'generated'
+    };
+  }
+
+  // If it's already a file path, return as-is
+  return {
+    path: thumbnailData,
+    type: 'existing'
+  };
+};
+
+// Helper to handle video upload with thumbnail support
+const handleVideoUpload = async (youtubeLink, videoTourFile, thumbnailData, existingVideo = null, existingThumbnail = null) => {
   let videoPath = existingVideo?.videoTour || null;
   let videoType = existingVideo?.videoType || null;
+  let thumbnailPath = existingThumbnail?.path || null;
+  let thumbnailType = existingThumbnail?.type || null;
+
+  // Handle thumbnail first (if provided) - ONLY for MP4 videos
+  if (thumbnailData !== undefined && thumbnailData !== null) {
+    try {
+      const thumbnailResult = await handleThumbnailUpload(thumbnailData, existingThumbnail?.path);
+      if (thumbnailResult) {
+        thumbnailPath = thumbnailResult.path;
+        thumbnailType = thumbnailResult.type;
+      } else {
+        thumbnailPath = null;
+        thumbnailType = null;
+      }
+    } catch (thumbnailError) {
+      console.warn('Thumbnail upload failed:', thumbnailError.message);
+      // Don't fail the whole upload if thumbnail fails
+    }
+  }
 
   // If YouTube link is provided
-  if (youtubeLink && youtubeLink.trim() !== '') {
-    // Delete old video file if exists (if it was a local file)
-    if (existingVideo?.videoType === 'file' && existingVideo?.videoTour) {
-      await deleteOldFile(existingVideo.videoTour);
+  if (youtubeLink !== null && youtubeLink !== undefined) {
+    if (youtubeLink.trim() !== '') {
+      // Delete old video file if exists (if it was a local file)
+      if (existingVideo?.videoType === 'file' && existingVideo?.videoTour) {
+        await deleteOldFile(existingVideo.videoTour);
+      }
+      
+      // Clear thumbnail when switching to YouTube
+      if (existingThumbnail?.path) {
+        await deleteOldFile(existingThumbnail.path);
+        thumbnailPath = null;
+        thumbnailType = null;
+      }
+      
+      if (!isValidYouTubeUrl(youtubeLink)) {
+        throw new Error("Invalid YouTube URL format. Please provide a valid YouTube watch URL or youtu.be link.");
+      }
+      videoPath = youtubeLink.trim();
+      videoType = "youtube";
+    } else if (existingVideo?.videoType === 'youtube') {
+      videoPath = null;
+      videoType = null;
     }
-    
-    if (!isValidYouTubeUrl(youtubeLink)) {
-      throw new Error("Invalid YouTube URL format. Please provide a valid YouTube watch URL or youtu.be link.");
-    }
-    videoPath = youtubeLink.trim();
-    videoType = "youtube";
   }
-  // If local video file upload
-  else if (videoTourFile && videoTourFile.size > 0) {
+  
+  // If local video file upload is provided (MP4 mode)
+  if (videoTourFile && videoTourFile.size > 0) {
     // Delete old video file if exists
-    if (existingVideo?.videoType === 'file' && existingVideo?.videoTour) {
+    if (existingVideo?.videoTour && existingVideo?.videoType === 'file') {
       await deleteOldFile(existingVideo.videoTour);
     }
 
@@ -193,9 +275,25 @@ const handleVideoUpload = async (youtubeLink, videoTourFile, existingVideo = nul
     await writeFile(path.join(process.cwd(), "public", filePath), buffer);
     videoPath = filePath;
     videoType = "file";
+    
+    // If no thumbnail was provided with MP4 upload, clear any existing thumbnail
+    if (thumbnailData === undefined && existingThumbnail?.path) {
+      await deleteOldFile(existingThumbnail.path);
+      thumbnailPath = null;
+      thumbnailType = null;
+    }
   }
 
-  return { videoPath, videoType };
+  // If video is being removed completely, also remove thumbnail
+  if ((!youtubeLink || youtubeLink.trim() === '') && !videoTourFile && existingVideo?.videoTour) {
+    if (existingThumbnail?.path) {
+      await deleteOldFile(existingThumbnail.path);
+      thumbnailPath = null;
+      thumbnailType = null;
+    }
+  }
+
+  return { videoPath, videoType, thumbnailPath, thumbnailType };
 };
 
 // 🟢 CREATE (only once)
@@ -221,15 +319,20 @@ export async function POST(req) {
       );
     }
 
-    // Handle video upload
+    // Handle video upload with thumbnail
     let videoPath = null;
     let videoType = null;
+    let thumbnailPath = null;
+    let thumbnailType = null;
     try {
       const youtubeLink = formData.get("youtubeLink");
       const videoTour = formData.get("videoTour");
-      const videoResult = await handleVideoUpload(youtubeLink, videoTour);
+      const thumbnail = formData.get("videoThumbnail");
+      const videoResult = await handleVideoUpload(youtubeLink, videoTour, thumbnail);
       videoPath = videoResult.videoPath;
       videoType = videoResult.videoType;
+      thumbnailPath = videoResult.thumbnailPath;
+      thumbnailType = videoResult.thumbnailType;
     } catch (videoError) {
       return NextResponse.json(
         { success: false, error: videoError.message },
@@ -338,6 +441,8 @@ export async function POST(req) {
         mission: formData.get("mission") || null,
         videoTour: videoPath,
         videoType,
+        videoThumbnail: thumbnailPath,
+        videoThumbnailType: thumbnailType,
         studentCount: parseIntField(formData.get("studentCount")) || 0,
         staffCount: parseIntField(formData.get("staffCount")) || 0,
         
@@ -481,6 +586,8 @@ const cleanSchoolResponse = (school) => {
     mission: school.mission,
     videoTour: school.videoTour,
     videoType: school.videoType,
+    videoThumbnail: school.videoThumbnail,
+    videoThumbnailType: school.videoThumbnailType,
     studentCount: school.studentCount,
     staffCount: school.staffCount,
     
@@ -586,7 +693,7 @@ const cleanSchoolResponse = (school) => {
   return response;
 };
 
-// 🟠 PUT update existing info
+// 🟠 PUT update existing info - FIXED video update handling
 export async function PUT(req) {
   try {
     const existing = await prisma.schoolInfo.findFirst();
@@ -599,15 +706,29 @@ export async function PUT(req) {
 
     const formData = await req.formData();
     
-    // Handle video upload
+    // Handle video upload with thumbnail
     let videoPath = existing.videoTour;
     let videoType = existing.videoType;
+    let thumbnailPath = existing.videoThumbnail;
+    let thumbnailType = existing.videoThumbnailType;
+    
     try {
       const youtubeLink = formData.get("youtubeLink");
       const videoTour = formData.get("videoTour");
-      const videoResult = await handleVideoUpload(youtubeLink, videoTour, existing);
+      const thumbnail = formData.get("videoThumbnail");
+      
+      const videoResult = await handleVideoUpload(
+        youtubeLink, 
+        videoTour, 
+        thumbnail, 
+        existing,
+        { path: existing.videoThumbnail, type: existing.videoThumbnailType }
+      );
+      
       videoPath = videoResult.videoPath !== null ? videoResult.videoPath : existing.videoTour;
       videoType = videoResult.videoType !== null ? videoResult.videoType : existing.videoType;
+      thumbnailPath = videoResult.thumbnailPath !== null ? videoResult.thumbnailPath : existing.videoThumbnail;
+      thumbnailType = videoResult.thumbnailType !== null ? videoResult.thumbnailType : existing.videoThumbnailType;
     } catch (videoError) {
       return NextResponse.json(
         { success: false, error: videoError.message },
@@ -757,6 +878,8 @@ export async function PUT(req) {
         mission: formData.get("mission") !== null ? formData.get("mission") : existing.mission,
         videoTour: videoPath,
         videoType,
+        videoThumbnail: thumbnailPath,
+        videoThumbnailType: thumbnailType,
         studentCount: formData.get("studentCount") ? parseIntField(formData.get("studentCount")) : existing.studentCount,
         staffCount: formData.get("staffCount") ? parseIntField(formData.get("staffCount")) : existing.staffCount,
         
@@ -866,9 +989,10 @@ export async function DELETE() {
       );
     }
 
-    // Delete all associated files
+    // Delete all associated files including thumbnails
     const filesToDelete = [
       existing.videoType === 'file' ? existing.videoTour : null,
+      existing.videoThumbnail, // Add thumbnail to deletion list
       existing.curriculumPDF,
       existing.feesDayDistributionPdf,
       existing.feesBoardingDistributionPdf,
