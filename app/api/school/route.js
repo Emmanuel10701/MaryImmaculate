@@ -1,4 +1,3 @@
-// app/api/school/route.js
 import { NextResponse } from "next/server";
 import { prisma } from "../../../libs/prisma";
 import { writeFile, unlink } from "fs/promises";
@@ -18,9 +17,10 @@ const boardingFeesDir = path.join(pdfDir, "boarding-fees");
 const curriculumDir = path.join(pdfDir, "curriculum");
 const admissionDir = path.join(pdfDir, "admission");
 const examResultsDir = path.join(pdfDir, "exam-results");
+const additionalResultsDir = path.join(pdfDir, "additional-results");
 
 // Create all directories
-[pdfDir, videoDir, thumbnailDir, dayFeesDir, boardingFeesDir, curriculumDir, admissionDir, examResultsDir].forEach(dir => ensureDir(dir));
+[pdfDir, videoDir, thumbnailDir, dayFeesDir, boardingFeesDir, curriculumDir, admissionDir, examResultsDir, additionalResultsDir].forEach(dir => ensureDir(dir));
 
 // Helper function to validate required fields
 const validateRequiredFields = (formData) => {
@@ -151,78 +151,176 @@ const handlePdfUpload = async (pdfFile, uploadDir, fieldName, existingFilePath =
   };
 };
 
+// NEW: Handle Additional Files Upload (supports multiple file types)
+const handleAdditionalFileUpload = async (file, existingFilePath = null) => {
+  if (!file || file.size === 0) {
+    return {
+      path: existingFilePath,
+      name: null,
+      size: null,
+      type: null
+    };
+  }
+
+  // Delete old file if exists
+  if (existingFilePath) {
+    await deleteOldFile(existingFilePath);
+  }
+
+  // Allowed file types for additional results
+  const allowedTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'text/plain'
+  ];
+
+  // Validate file type
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error(`Invalid file type. Allowed: PDF, Word, Excel, PowerPoint, Images, Text`);
+  }
+
+  // Validate file size (50MB limit)
+  const maxSize = 50 * 1024 * 1024;
+  if (file.size > maxSize) {
+    throw new Error(`File too large. Maximum size: 50MB`);
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+  const filePath = `/infomation/pdfs/additional-results/${fileName}`;
+  
+  await writeFile(path.join(process.cwd(), "public", filePath), buffer);
+  
+  // Determine file type for display
+  const fileType = getFileTypeFromMime(file.type);
+  
+  return {
+    path: filePath,
+    name: file.name,
+    size: file.size,
+    type: fileType
+  };
+};
+
+// Helper to determine file type from MIME type
+const getFileTypeFromMime = (mimeType) => {
+  if (mimeType.includes('pdf')) return 'pdf';
+  if (mimeType.includes('word') || mimeType.includes('document')) return 'doc';
+  if (mimeType.includes('excel') || mimeType.includes('sheet')) return 'xls';
+  if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return 'ppt';
+  if (mimeType.includes('image')) return 'image';
+  if (mimeType.includes('text')) return 'text';
+  return 'document';
+};
+
 // Helper to handle thumbnail upload (for MP4 videos only)
-const handleThumbnailUpload = async (thumbnailData, existingThumbnail = null) => {
-  if (!thumbnailData || thumbnailData.trim() === '') {
-    // Delete old thumbnail if exists
+const handleThumbnailUpload = async (thumbnailData, existingThumbnail = null, isUpdateOperation = false) => {
+  // If no thumbnail data is provided
+  if (!thumbnailData || (typeof thumbnailData === 'string' && thumbnailData.trim() === '')) {
+    // During update operations, preserve existing thumbnail if no new one is provided
+    if (isUpdateOperation) {
+      return existingThumbnail ? {
+        path: existingThumbnail.path,
+        type: 'existing'
+      } : null;
+    }
+    // During create operations, delete existing thumbnail if provided
     if (existingThumbnail) {
       await deleteOldFile(existingThumbnail);
     }
     return null;
   }
 
+  // Delete old thumbnail if exists (only when explicitly replacing)
+  if (existingThumbnail) {
+    await deleteOldFile(existingThumbnail);
+  }
+
+  // If it's a File object
+  if (thumbnailData instanceof File || (typeof thumbnailData === 'object' && thumbnailData.name)) {
+    try {
+      // Validate it's an image file
+      if (!thumbnailData.type.startsWith('image/')) {
+        throw new Error("Thumbnail must be an image file");
+      }
+
+      // Validate file size (max 2MB for thumbnails)
+      if (thumbnailData.size > 2 * 1024 * 1024) {
+        throw new Error("Thumbnail too large. Maximum size: 2MB");
+      }
+
+      const buffer = Buffer.from(await thumbnailData.arrayBuffer());
+      const fileName = `thumbnail_${Date.now()}_${thumbnailData.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const filePath = `/infomation/thumbnails/${fileName}`;
+      
+      await writeFile(path.join(process.cwd(), "public", filePath), buffer);
+      return {
+        path: filePath,
+        type: 'generated'
+      };
+    } catch (fileError) {
+      console.error('File thumbnail upload error:', fileError);
+      throw fileError;
+    }
+  }
+
   // Check if it's a data URL (base64)
-  if (thumbnailData.startsWith('data:image/')) {
-    // Delete old thumbnail if exists
-    if (existingThumbnail) {
-      await deleteOldFile(existingThumbnail);
-    }
+  if (typeof thumbnailData === 'string' && thumbnailData.startsWith('data:image/')) {
+    try {
+      // Extract base64 data
+      const matches = thumbnailData.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
+      if (!matches || matches.length !== 3) {
+        throw new Error("Invalid base64 thumbnail data");
+      }
 
-    // Extract base64 data
-    const matches = thumbnailData.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
-      throw new Error("Invalid base64 thumbnail data");
-    }
+      const extension = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+      const base64Data = matches[2];
+      const buffer = Buffer.from(base64Data, 'base64');
+      
+      // Validate file size (max 2MB for thumbnails)
+      if (buffer.length > 2 * 1024 * 1024) {
+        throw new Error("Thumbnail too large. Maximum size: 2MB");
+      }
 
-    const extension = matches[1] === 'jpeg' ? 'jpg' : matches[1];
-    const base64Data = matches[2];
-    const buffer = Buffer.from(base64Data, 'base64');
-    
-    // Validate file size (max 2MB for thumbnails)
-    if (buffer.length > 2 * 1024 * 1024) {
-      throw new Error("Thumbnail too large. Maximum size: 2MB");
+      const fileName = `thumbnail_${Date.now()}.${extension}`;
+      const filePath = `/infomation/thumbnails/${fileName}`;
+      
+      await writeFile(path.join(process.cwd(), "public", filePath), buffer);
+      return {
+        path: filePath,
+        type: 'generated'
+      };
+    } catch (base64Error) {
+      console.error('Base64 thumbnail upload error:', base64Error);
+      throw base64Error;
     }
-
-    const fileName = `thumbnail_${Date.now()}.${extension}`;
-    const filePath = `/infomation/thumbnails/${fileName}`;
-    
-    await writeFile(path.join(process.cwd(), "public", filePath), buffer);
-    return {
-      path: filePath,
-      type: 'generated'
-    };
   }
 
   // If it's already a file path, return as-is
-  return {
-    path: thumbnailData,
-    type: 'existing'
-  };
+  if (typeof thumbnailData === 'string' && thumbnailData.startsWith('/')) {
+    return {
+      path: thumbnailData,
+      type: 'existing'
+    };
+  }
+
+  throw new Error("Invalid thumbnail data format");
 };
 
-// Helper to handle video upload with thumbnail support
-const handleVideoUpload = async (youtubeLink, videoTourFile, thumbnailData, existingVideo = null, existingThumbnail = null) => {
+// Update the handleVideoUpload function to properly store thumbnails
+const handleVideoUpload = async (youtubeLink, videoTourFile, thumbnailData, existingVideo = null, existingThumbnail = null, isUpdateOperation = false) => {
   let videoPath = existingVideo?.videoTour || null;
   let videoType = existingVideo?.videoType || null;
   let thumbnailPath = existingThumbnail?.path || null;
   let thumbnailType = existingThumbnail?.type || null;
-
-  // Handle thumbnail first (if provided) - ONLY for MP4 videos
-  if (thumbnailData !== undefined && thumbnailData !== null) {
-    try {
-      const thumbnailResult = await handleThumbnailUpload(thumbnailData, existingThumbnail?.path);
-      if (thumbnailResult) {
-        thumbnailPath = thumbnailResult.path;
-        thumbnailType = thumbnailResult.type;
-      } else {
-        thumbnailPath = null;
-        thumbnailType = null;
-      }
-    } catch (thumbnailError) {
-      console.warn('Thumbnail upload failed:', thumbnailError.message);
-      // Don't fail the whole upload if thumbnail fails
-    }
-  }
 
   // If YouTube link is provided
   if (youtubeLink !== null && youtubeLink !== undefined) {
@@ -232,9 +330,9 @@ const handleVideoUpload = async (youtubeLink, videoTourFile, thumbnailData, exis
         await deleteOldFile(existingVideo.videoTour);
       }
       
-      // Clear thumbnail when switching to YouTube
-      if (existingThumbnail?.path) {
-        await deleteOldFile(existingThumbnail.path);
+      // Delete old thumbnail when switching to YouTube
+      if (thumbnailPath) {
+        await deleteOldFile(thumbnailPath);
         thumbnailPath = null;
         thumbnailType = null;
       }
@@ -244,6 +342,9 @@ const handleVideoUpload = async (youtubeLink, videoTourFile, thumbnailData, exis
       }
       videoPath = youtubeLink.trim();
       videoType = "youtube";
+      // YouTube doesn't need custom thumbnail storage
+      thumbnailPath = null;
+      thumbnailType = null;
     } else if (existingVideo?.videoType === 'youtube') {
       videoPath = null;
       videoType = null;
@@ -276,24 +377,61 @@ const handleVideoUpload = async (youtubeLink, videoTourFile, thumbnailData, exis
     videoPath = filePath;
     videoType = "file";
     
-    // If no thumbnail was provided with MP4 upload, clear any existing thumbnail
-    if (thumbnailData === undefined && existingThumbnail?.path) {
-      await deleteOldFile(existingThumbnail.path);
+    // Handle thumbnail for MP4 videos
+    if (thumbnailData) {
+      try {
+        const thumbnailResult = await handleThumbnailUpload(thumbnailData, thumbnailPath, isUpdateOperation);
+        if (thumbnailResult) {
+          thumbnailPath = thumbnailResult.path;
+          thumbnailType = thumbnailResult.type;
+        }
+      } catch (thumbnailError) {
+        console.warn('Thumbnail upload failed:', thumbnailError.message);
+        // Don't fail the whole upload if thumbnail fails
+      }
+    } else if (isUpdateOperation && existingVideo?.videoType === 'file' && thumbnailPath) {
+      // During update, preserve existing thumbnail if no new one provided
+      thumbnailType = existingVideo?.videoThumbnailType || 'existing';
+    } else {
+      // No thumbnail for this MP4 video
       thumbnailPath = null;
       thumbnailType = null;
+    }
+  } else if (isUpdateOperation && existingVideo?.videoType === 'file' && !videoTourFile) {
+    // During update, if video is not changed, preserve existing thumbnail
+    if (existingVideo?.videoThumbnail) {
+      thumbnailPath = existingVideo.videoThumbnail;
+      thumbnailType = existingVideo.videoThumbnailType || 'existing';
     }
   }
 
   // If video is being removed completely, also remove thumbnail
   if ((!youtubeLink || youtubeLink.trim() === '') && !videoTourFile && existingVideo?.videoTour) {
-    if (existingThumbnail?.path) {
-      await deleteOldFile(existingThumbnail.path);
+    if (thumbnailPath) {
+      await deleteOldFile(thumbnailPath);
       thumbnailPath = null;
       thumbnailType = null;
     }
   }
 
   return { videoPath, videoType, thumbnailPath, thumbnailType };
+};
+
+// Helper to parse existing additional files from database
+const parseExistingAdditionalFiles = (existingAdditionalFilesString) => {
+  try {
+    if (!existingAdditionalFilesString) return [];
+    
+    if (typeof existingAdditionalFilesString === 'string') {
+      return JSON.parse(existingAdditionalFilesString);
+    } else if (Array.isArray(existingAdditionalFilesString)) {
+      return existingAdditionalFilesString;
+    }
+    return [];
+  } catch (e) {
+    console.warn('Failed to parse existing additional files:', e.message);
+    return [];
+  }
 };
 
 // 🟢 CREATE (only once)
@@ -328,7 +466,7 @@ export async function POST(req) {
       const youtubeLink = formData.get("youtubeLink");
       const videoTour = formData.get("videoTour");
       const thumbnail = formData.get("videoThumbnail");
-      const videoResult = await handleVideoUpload(youtubeLink, videoTour, thumbnail);
+      const videoResult = await handleVideoUpload(youtubeLink, videoTour, thumbnail, null, null, false); // false = create operation
       videoPath = videoResult.videoPath;
       videoType = videoResult.videoType;
       thumbnailPath = videoResult.thumbnailPath;
@@ -383,7 +521,7 @@ export async function POST(req) {
         if (pdfFile) {
           pdfUploads[exam.key] = {
             pdfData: await handlePdfUpload(pdfFile, "exam-results", exam.key),
-            year: parseIntField(formData.get(exam.year))
+            year: formData.get(exam.year) ? parseIntField(formData.get(exam.year)) : null
           };
         }
       }
@@ -394,8 +532,52 @@ export async function POST(req) {
       );
     }
 
+    // Handle additional results files
+    let additionalResultsFiles = [];
+
+    try {
+      // Find the maximum index for new additional files
+      let maxNewIndex = 0;
+      for (const [key] of formData.entries()) {
+        if (key.startsWith('additionalResultsFile_')) {
+          const index = parseInt(key.replace('additionalResultsFile_', ''));
+          if (index > maxNewIndex) maxNewIndex = index;
+        }
+      }
+
+      // Process each new file
+      for (let i = 0; i <= maxNewIndex; i++) {
+        const file = formData.get(`additionalResultsFile_${i}`);
+        const year = formData.get(`additionalResultsYear_${i}`) || '';
+        const description = formData.get(`additionalResultsDesc_${i}`) || '';
+        
+        if (file && file.size > 0) {
+          try {
+            const uploadResult = await handleAdditionalFileUpload(file, null);
+            if (uploadResult.path) {
+              additionalResultsFiles.push({
+                filename: uploadResult.name,
+                filepath: uploadResult.path,
+                filetype: uploadResult.type,
+                year: year.trim() || null,
+                description: description.trim() || null,
+                filesize: uploadResult.size
+              });
+            }
+          } catch (uploadError) {
+            console.warn(`Failed to upload additional file ${i}:`, uploadError.message);
+            // Continue with other files
+          }
+        }
+      }
+    } catch (additionalError) {
+      console.warn('Additional files upload error:', additionalError.message);
+      additionalResultsFiles = [];
+    }
+    
+
     // Parse JSON fields
-    let subjects, departments, admissionDocumentsRequired, additionalResultsFiles;
+    let subjects, departments, admissionDocumentsRequired;
     let feesDayDistributionJson, feesBoardingDistributionJson, admissionFeeDistribution;
     
     try {
@@ -405,9 +587,6 @@ export async function POST(req) {
       
       const admissionDocsStr = formData.get("admissionDocumentsRequired");
       admissionDocumentsRequired = admissionDocsStr ? parseJsonField(admissionDocsStr, "admissionDocumentsRequired") : [];
-      
-      const additionalResultsStr = formData.get("additionalResultsFiles");
-      additionalResultsFiles = additionalResultsStr ? parseJsonField(additionalResultsStr, "additionalResultsFiles") : [];
       
       // Parse fee distribution JSON fields
       const dayDistributionStr = formData.get("feesDayDistributionJson");
@@ -523,7 +702,7 @@ export async function POST(req) {
         kcseYear: pdfUploads.kcse?.year || null,
         
         // Additional Results
-        additionalResultsFiles,
+        additionalResultsFiles: additionalResultsFiles.length > 0 ? JSON.stringify(additionalResultsFiles) : '[]',
       },
     });
 
@@ -574,7 +753,37 @@ const cleanSchoolResponse = (school) => {
   const feesBoardingDistributionJson = typeof school.feesBoardingDistributionJson === 'object' ? school.feesBoardingDistributionJson : JSON.parse(school.feesBoardingDistributionJson || '{}');
   const admissionFeeDistribution = typeof school.admissionFeeDistribution === 'object' ? school.admissionFeeDistribution : JSON.parse(school.admissionFeeDistribution || '{}');
   const admissionDocumentsRequired = typeof school.admissionDocumentsRequired === 'object' ? school.admissionDocumentsRequired : JSON.parse(school.admissionDocumentsRequired || '[]');
-  const additionalResultsFiles = typeof school.additionalResultsFiles === 'object' ? school.additionalResultsFiles : JSON.parse(school.additionalResultsFiles || '[]');
+  
+  // Parse additional results files - handle both array and JSON string
+  let additionalResultsFiles = [];
+  try {
+    if (school.additionalResultsFiles) {
+      if (typeof school.additionalResultsFiles === 'string') {
+        const parsed = JSON.parse(school.additionalResultsFiles || '[]');
+        // Normalize the structure
+        additionalResultsFiles = Array.isArray(parsed) ? parsed.map(file => ({
+          filename: file.filename || file.name || 'Document',
+          filepath: file.filepath || file.pdf || file.path || '',
+          filetype: file.filetype || getFileTypeFromMime(file.type) || 'pdf',
+          year: file.year || null,
+          description: file.description || file.desc || '',
+          filesize: file.filesize || file.size || 0
+        })) : [];
+      } else if (Array.isArray(school.additionalResultsFiles)) {
+        additionalResultsFiles = school.additionalResultsFiles.map(file => ({
+          filename: file.filename || file.name || 'Document',
+          filepath: file.filepath || file.pdf || file.path || '',
+          filetype: file.filetype || getFileTypeFromMime(file.type) || 'pdf',
+          year: file.year || null,
+          description: file.description || file.desc || '',
+          filesize: file.filesize || file.size || 0
+        }));
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to parse additionalResultsFiles:', e.message);
+    additionalResultsFiles = [];
+  }
 
   // Build clean response
   const response = {
@@ -586,8 +795,8 @@ const cleanSchoolResponse = (school) => {
     mission: school.mission,
     videoTour: school.videoTour,
     videoType: school.videoType,
-    videoThumbnail: school.videoThumbnail,
-    videoThumbnailType: school.videoThumbnailType,
+    videoThumbnail: school.videoThumbnail, // Make sure this is included
+    videoThumbnailType: school.videoThumbnailType, // Include thumbnail type
     studentCount: school.studentCount,
     staffCount: school.staffCount,
     
@@ -637,48 +846,54 @@ const cleanSchoolResponse = (school) => {
         form1: {
           pdf: school.form1ResultsPdf,
           name: school.form1ResultsPdfName,
-          year: school.form1ResultsYear
+          year: school.form1ResultsYear,
+          size: school.form1ResultsPdfSize
         }
       }),
       ...(school.form2ResultsPdf && {
         form2: {
           pdf: school.form2ResultsPdf,
           name: school.form2ResultsPdfName,
-          year: school.form2ResultsYear
+          year: school.form2ResultsYear,
+          size: school.form2ResultsPdfSize
         }
       }),
       ...(school.form3ResultsPdf && {
         form3: {
           pdf: school.form3ResultsPdf,
           name: school.form3ResultsPdfName,
-          year: school.form3ResultsYear
+          year: school.form3ResultsYear,
+          size: school.form3ResultsPdfSize
         }
       }),
       ...(school.form4ResultsPdf && {
         form4: {
           pdf: school.form4ResultsPdf,
           name: school.form4ResultsPdfName,
-          year: school.form4ResultsYear
+          year: school.form4ResultsYear,
+          size: school.form4ResultsPdfSize
         }
       }),
       ...(school.mockExamsResultsPdf && {
         mockExams: {
           pdf: school.mockExamsResultsPdf,
           name: school.mockExamsPdfName,
-          year: school.mockExamsYear
+          year: school.mockExamsYear,
+          size: school.mockExamsPdfSize
         }
       }),
       ...(school.kcseResultsPdf && {
         kcse: {
           pdf: school.kcseResultsPdf,
           name: school.kcsePdfName,
-          year: school.kcseYear
+          year: school.kcseYear,
+          size: school.kcsePdfSize
         }
       })
     },
     
-    // Additional Results
-    ...(additionalResultsFiles.length > 0 && { additionalResultsFiles }),
+    // Additional Results Files
+    additionalResultsFiles: additionalResultsFiles,
     
     // Timestamps
     createdAt: school.createdAt,
@@ -693,7 +908,7 @@ const cleanSchoolResponse = (school) => {
   return response;
 };
 
-// 🟠 PUT update existing info - FIXED video update handling
+// 🟠 PUT update existing info - COMPLETELY FIXED with proper additional files handling
 export async function PUT(req) {
   try {
     const existing = await prisma.schoolInfo.findFirst();
@@ -706,7 +921,7 @@ export async function PUT(req) {
 
     const formData = await req.formData();
     
-    // Handle video upload with thumbnail
+    // Handle video upload with thumbnail - PRESERVE existing thumbnail by default
     let videoPath = existing.videoTour;
     let videoType = existing.videoType;
     let thumbnailPath = existing.videoThumbnail;
@@ -717,18 +932,24 @@ export async function PUT(req) {
       const videoTour = formData.get("videoTour");
       const thumbnail = formData.get("videoThumbnail");
       
+      // Check if video is being modified
+      const isVideoModified = (youtubeLink && youtubeLink.trim() !== '' && youtubeLink !== existing.videoTour) || 
+                              (videoTour && videoTour.size > 0);
+      
       const videoResult = await handleVideoUpload(
         youtubeLink, 
         videoTour, 
         thumbnail, 
         existing,
-        { path: existing.videoThumbnail, type: existing.videoThumbnailType }
+        { path: existing.videoThumbnail, type: existing.videoThumbnailType },
+        true // true = update operation (preserve by default)
       );
       
-      videoPath = videoResult.videoPath !== null ? videoResult.videoPath : existing.videoTour;
-      videoType = videoResult.videoType !== null ? videoResult.videoType : existing.videoType;
-      thumbnailPath = videoResult.thumbnailPath !== null ? videoResult.thumbnailPath : existing.videoThumbnail;
-      thumbnailType = videoResult.thumbnailType !== null ? videoResult.thumbnailType : existing.videoThumbnailType;
+      // Only update if we have new values
+      videoPath = videoResult.videoPath !== undefined ? videoResult.videoPath : existing.videoTour;
+      videoType = videoResult.videoType !== undefined ? videoResult.videoType : existing.videoType;
+      thumbnailPath = videoResult.thumbnailPath !== undefined ? videoResult.thumbnailPath : existing.videoThumbnail;
+      thumbnailType = videoResult.thumbnailType !== undefined ? videoResult.thumbnailType : existing.videoThumbnailType;
     } catch (videoError) {
       return NextResponse.json(
         { success: false, error: videoError.message },
@@ -790,11 +1011,159 @@ export async function PUT(req) {
       );
     }
 
+    // FIXED: Handle additional results files from form data
+    let additionalResultsFiles = [];
+
+    try {
+      // Step 1: Get existing additional files from database
+      let existingAdditionalFiles = parseExistingAdditionalFiles(existing.additionalResultsFiles);
+
+      // Step 2: Parse cancelled files from form data
+      const cancelledAdditionalFilesJson = formData.get('cancelledAdditionalFiles');
+      let cancelledFilePaths = [];
+      
+      if (cancelledAdditionalFilesJson && cancelledAdditionalFilesJson.trim() !== '') {
+        try {
+          cancelledFilePaths = JSON.parse(cancelledAdditionalFilesJson);
+          if (!Array.isArray(cancelledFilePaths)) {
+            cancelledFilePaths = [];
+          }
+        } catch (e) {
+          console.warn('Failed to parse cancelledAdditionalFiles:', e.message);
+          cancelledFilePaths = [];
+        }
+      }
+
+      // Step 3: Remove cancelled files from existing files
+      const filteredExistingFiles = existingAdditionalFiles.filter(file => {
+        const fileIdentifier = file.filepath || file.filename || file.path || '';
+        // Check if this file should be removed
+        return !cancelledFilePaths.includes(fileIdentifier);
+      });
+
+      // Step 4: Process metadata updates for existing files
+      const updatedExistingFiles = [...filteredExistingFiles];
+      
+      // Find all existingAdditionalFilepath_X fields
+      const existingUpdateEntries = [];
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith('existingAdditionalFilepath_')) {
+          const index = key.replace('existingAdditionalFilepath_', '');
+          existingUpdateEntries.push({
+            index,
+            filepath: value,
+            year: formData.get(`existingAdditionalYear_${index}`) || '',
+            description: formData.get(`existingAdditionalDesc_${index}`) || ''
+          });
+        }
+      }
+
+      // Apply updates to existing files
+      for (const update of existingUpdateEntries) {
+        if (update.filepath) {
+          const existingFileIndex = updatedExistingFiles.findIndex(file => 
+            (file.filepath === update.filepath || file.filename === update.filepath || file.path === update.filepath)
+          );
+          
+          if (existingFileIndex !== -1) {
+            // Update metadata
+            if (update.year !== null && update.year !== undefined && update.year.trim() !== '') {
+              updatedExistingFiles[existingFileIndex].year = update.year.trim();
+            }
+            if (update.description !== null && update.description !== undefined && update.description.trim() !== '') {
+              updatedExistingFiles[existingFileIndex].description = update.description.trim();
+            }
+          }
+        }
+      }
+
+      // Step 5: Process new additional files
+      // Find all additionalResultsFile_X fields
+      const newFileEntries = [];
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith('additionalResultsFile_')) {
+          const index = key.replace('additionalResultsFile_', '');
+          newFileEntries.push({
+            index,
+            file: value,
+            year: formData.get(`additionalResultsYear_${index}`) || '',
+            description: formData.get(`additionalResultsDesc_${index}`) || ''
+          });
+        }
+      }
+
+      // Upload new files
+      for (const entry of newFileEntries) {
+        if (entry.file && entry.file.size > 0) {
+          try {
+            const uploadResult = await handleAdditionalFileUpload(entry.file, null);
+            if (uploadResult.path) {
+              updatedExistingFiles.push({
+                filename: uploadResult.name,
+                filepath: uploadResult.path,
+                filetype: uploadResult.type,
+                year: entry.year.trim() || null,
+                description: entry.description.trim() || null,
+                filesize: uploadResult.size
+              });
+            }
+          } catch (uploadError) {
+            console.warn(`Failed to upload new additional file ${entry.index}:`, uploadError.message);
+            // Continue with other files
+          }
+        }
+      }
+
+      // Step 6: Also check for files from ModernSchoolModal (different naming pattern)
+      // Some files might come from the main modal with different field names
+      const additionalFilesFromModal = formData.getAll('additionalFiles');
+      if (additionalFilesFromModal && additionalFilesFromModal.length > 0) {
+        for (let i = 0; i < additionalFilesFromModal.length; i++) {
+          const file = additionalFilesFromModal[i];
+          if (file && file.size > 0) {
+            try {
+              const uploadResult = await handleAdditionalFileUpload(file, null);
+              if (uploadResult.path) {
+                updatedExistingFiles.push({
+                  filename: uploadResult.name,
+                  filepath: uploadResult.path,
+                  filetype: uploadResult.type,
+                  year: null,
+                  description: null,
+                  filesize: uploadResult.size
+                });
+              }
+            } catch (uploadError) {
+              console.warn(`Failed to upload additional file from modal ${i}:`, uploadError.message);
+            }
+          }
+        }
+      }
+
+      // Step 7: Set the final array (remove any duplicates by filepath)
+      const uniqueFiles = [];
+      const seenFilepaths = new Set();
+      
+      for (const file of updatedExistingFiles) {
+        const filepath = file.filepath || file.path;
+        if (filepath && !seenFilepaths.has(filepath)) {
+          seenFilepaths.add(filepath);
+          uniqueFiles.push(file);
+        }
+      }
+      
+      additionalResultsFiles = uniqueFiles;
+
+    } catch (additionalError) {
+      console.error('Additional files processing error:', additionalError);
+      // In case of error, keep existing files from database
+      additionalResultsFiles = parseExistingAdditionalFiles(existing.additionalResultsFiles);
+    }
+
     // Parse JSON fields
     let subjects = existing.subjects;
     let departments = existing.departments;
     let admissionDocumentsRequired = existing.admissionDocumentsRequired;
-    let additionalResultsFiles = existing.additionalResultsFiles;
     let feesDayDistributionJson = existing.feesDayDistributionJson;
     let feesBoardingDistributionJson = existing.feesBoardingDistributionJson;
     let admissionFeeDistribution = existing.admissionFeeDistribution;
@@ -827,18 +1196,6 @@ export async function PUT(req) {
     if (formData.get("admissionDocumentsRequired")) {
       try {
         admissionDocumentsRequired = parseJsonField(formData.get("admissionDocumentsRequired"), "admissionDocumentsRequired");
-      } catch (parseError) {
-        return NextResponse.json(
-          { success: false, error: parseError.message },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Parse additional results files
-    if (formData.get("additionalResultsFiles")) {
-      try {
-        additionalResultsFiles = parseJsonField(formData.get("additionalResultsFiles"), "additionalResultsFiles");
       } catch (parseError) {
         return NextResponse.json(
           { success: false, error: parseError.message },
@@ -960,7 +1317,7 @@ export async function PUT(req) {
         kcseYear: pdfUploads.kcse?.year !== undefined ? pdfUploads.kcse?.year : existing.kcseYear,
         
         // Additional Results
-        additionalResultsFiles,
+        additionalResultsFiles: additionalResultsFiles.length > 0 ? JSON.stringify(additionalResultsFiles) : '[]',
       },
     });
 
@@ -1006,19 +1363,12 @@ export async function DELETE() {
     ].filter(Boolean);
 
     // Delete additional results files
-    let additionalResultsFiles = [];
-    try {
-      additionalResultsFiles = typeof existing.additionalResultsFiles === 'object'
-        ? existing.additionalResultsFiles
-        : JSON.parse(existing.additionalResultsFiles || '[]');
-    } catch (e) {
-      console.warn("Could not parse additional results for deletion:", e.message);
-    }
+    let additionalResultsFiles = parseExistingAdditionalFiles(existing.additionalResultsFiles);
 
     // Add additional results files to deletion list
     additionalResultsFiles.forEach(result => {
-      if (result.filepath) {
-        filesToDelete.push(result.filepath);
+      if (result.filepath || result.pdf || result.path) {
+        filesToDelete.push(result.filepath || result.pdf || result.path);
       }
     });
 

@@ -1,5 +1,10 @@
-### Update School Info with YouTube Video Tour
-GET http://localhost:3001/api/emails
+### Test 1: Get Current School Information
+GET http://localhost:3001/api/school
+Content-Type: application/json
+Accept: application/json
+
+### Test 2: Update Additional Files Metadata (No File Upload)
+PUT http://localhost:3001/api/school
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
@@ -7,156 +12,314 @@ Content-Disposition: form-data; name="name"
 
 Katwnyaa School
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="description"
+Content-Disposition: form-data; name="existingAdditionalFilepath_0"
 
-We are a high school recognized at the country level
+/infomation/pdfs/additional-results/1766576695151_Recommendation_Letter_makau.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="motto"
+Content-Disposition: form-data; name="existingAdditionalYear_0"
 
-Education is light
+2023
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="vision"
+Content-Disposition: form-data; name="existingAdditionalDesc_0"
 
-Build God-fearing citizens
+Student Recommendation Letter
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="mission"
+Content-Disposition: form-data; name="existingAdditionalFilepath_1"
 
-Craft education knowledge for all
+/infomation/pdfs/additional-results/1766576695156_Registrar_AA_R_StudentReport.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="youtubeLink"
+Content-Disposition: form-data; name="existingAdditionalYear_1"
 
-https://www.youtube.com/watch?v=dQw4w9WgXcQ
+2024
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="studentCount"
+Content-Disposition: form-data; name="existingAdditionalDesc_1"
 
-1200
+Student Report Card 2024
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="staffCount"
+Content-Disposition: form-data; name="existingAdditionalFilepath_2"
 
-12
+/infomation/pdfs/additional-results/1766576695158_Course_Catalog.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="openDate"
+Content-Disposition: form-data; name="existingAdditionalYear_2"
 
-2026-01-21
+2025
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="closeDate"
+Content-Disposition: form-data; name="existingAdditionalDesc_2"
 
-2026-11-26
+Updated Course Catalog 2025 Edition
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 3: Add New Additional File with Metadata
+PUT http://localhost:3001/api/school
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="feesDay"
+Content-Disposition: form-data; name="name"
 
-22000
+Katwnyaa School
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="feesBoarding"
+Content-Disposition: form-data; name="additionalResultsFile_0"; filename="new_results.pdf"
+Content-Type: application/pdf
 
-105999
+< ./test-file.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="subjects"
+Content-Disposition: form-data; name="additionalResultsYear_0"
 
-["Mathematics", "Physics", "Chemistry", "Biology", "Computer", "Agriculture", "English", "Kiswahili"]
+2024
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="departments"
+Content-Disposition: form-data; name="additionalResultsDesc_0"
 
-["Sciences", "Humanities", "Languages", "Mathematics", "Technical"]
+Term 2 Examination Results
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="feesDayDistributionJson"
+Content-Disposition: form-data; name="additionalResultsFile_1"; filename="report_card.png"
+Content-Type: image/png
 
-{
-  "library": "2500",
-  "medical": "2000",
-  "tuition": "10000",
-  "activity": "500",
-  "accommodation": "1200",
-  "development": "2000",
-  "maintenance": "2000",
-  "examination": "800"
-}
+< ./test-image.png
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="feesBoardingDistributionJson"
+Content-Disposition: form-data; name="additionalResultsYear_1"
 
-{
-  "meals": "25000",
-  "laundry": "1000",
-  "boarding": "50000",
-  "entertainment": "5000",
-  "hostel": "20000",
-  "sports": "2999"
-}
+2023
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionOpenDate"
+Content-Disposition: form-data; name="additionalResultsDesc_1"
 
-2025-12-29
+Annual Report Card
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 4: Cancel/Remove Existing Additional File
+PUT http://localhost:3000/api/school
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionCloseDate"
+Content-Disposition: form-data; name="name"
 
-2025-12-30
+Katwnyaa School
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionRequirements"
+Content-Disposition: form-data; name="cancelledAdditionalFiles"
 
-Birth certificate, National ID, Form 4 results slip, recommendation letter from previous school
+["/infomation/pdfs/additional-results/1766576695151_Recommendation_Letter_makau.pdf"]
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionFee"
+Content-Disposition: form-data; name="existingAdditionalFilepath_0"
 
-3100
+/infomation/pdfs/additional-results/1766576695156_Registrar_AA_R_StudentReport.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionFeeDistribution"
+Content-Disposition: form-data; name="existingAdditionalYear_0"
 
-{
-  "registration": "1500",
-  "medical": "1000",
-  "studentId": "300",
-  "library": "300"
-}
+2024
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionCapacity"
+Content-Disposition: form-data; name="existingAdditionalDesc_0"
 
-200
+Updated Student Report
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 5: Comprehensive Update - Add, Update, and Remove
+PUT http://localhost:3000/api/school
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionContactEmail"
+Content-Disposition: form-data; name="name"
 
-admissions@katwnyaa.ac.ke
+Katwnyaa School
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionContactPhone"
+Content-Disposition: form-data; name="cancelledAdditionalFiles"
 
-+254793472960
+["/infomation/pdfs/additional-results/1766576695151_Recommendation_Letter_makau.pdf", "/infomation/pdfs/additional-results/1766576695158_Course_Catalog.pdf"]
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionWebsite"
+Content-Disposition: form-data; name="existingAdditionalFilepath_0"
 
-https://www.katwnyaa.ac.ke
+/infomation/pdfs/additional-results/1766576695156_Registrar_AA_R_StudentReport.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionLocation"
+Content-Disposition: form-data; name="existingAdditionalYear_0"
 
-PO Box 64, Tala, Machakos County
+2024
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionOfficeHours"
+Content-Disposition: form-data; name="existingAdditionalDesc_0"
 
-Monday to Friday: 8:00 AM - 5:00 PM, Saturday: 9:00 AM - 1:00 PM
+Final Student Report 2024
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="admissionDocumentsRequired"
+Content-Disposition: form-data; name="additionalResultsFile_0"; filename="midterm_results.pdf"
+Content-Type: application/pdf
 
-["Birth Certificate", "National ID/Passport", "Academic Transcripts", "Recommendation Letter", "Passport Photos"]
+< ./midterm.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsYear_0"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsDesc_0"
+
+Mid-term Examination Results
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFile_1"; filename="attendance_record.docx"
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+
+< ./attendance.docx
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsYear_1"
+
+2025
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsDesc_1"
+
+Term 1 Attendance Record
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 6: Update Exam Results Years (Mixed with Additional Files)
+PUT http://localhost:3000/api/school
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Katwnyaa School
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="form1ResultsYear"
 
-2024
+2023
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="form2ResultsYear"
 
-2024
+2023
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="form3ResultsYear"
+Content-Disposition: form-data; name="existingAdditionalFilepath_0"
+
+/infomation/pdfs/additional-results/1766576695151_Recommendation_Letter_makau.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="existingAdditionalYear_0"
+
+2023
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="existingAdditionalDesc_0"
+
+Updated recommendation
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFile_0"; filename="mock_exam_analysis.pdf"
+Content-Type: application/pdf
+
+< ./analysis.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsYear_0"
 
 2024
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="form4ResultsYear"
+Content-Disposition: form-data; name="additionalResultsDesc_0"
 
-2026
+Mock Exam Analysis Report
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 7: Test with Minimal Fields - Just Additional Files
+PUT http://localhost:3000/api/school
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="mockExamsYear"
+Content-Disposition: form-data; name="additionalResultsFile_0"; filename="simple_doc.pdf"
+Content-Type: application/pdf
 
-2025
+< ./simple.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="kcseYear"
+Content-Disposition: form-data; name="additionalResultsYear_0"
 
-2025
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsDesc_0"
+
+Simple Test Document
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 8: Test with Empty Additional Files (Reset)
+PUT http://localhost:3000/api/school
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Katwnyaa School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="cancelledAdditionalFiles"
+
+["/infomation/pdfs/additional-results/1766576695151_Recommendation_Letter_makau.pdf", "/infomation/pdfs/additional-results/1766576695156_Registrar_AA_R_StudentReport.pdf", "/infomation/pdfs/additional-results/1766576695158_Course_Catalog.pdf"]
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 9: Test Error Case - Invalid File Type
+PUT http://localhost:3000/api/school
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Katwnyaa School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFile_0"; filename="virus.exe"
+Content-Type: application/x-msdownload
+
+< ./test.exe
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsYear_0"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsDesc_0"
+
+Invalid File Test
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Test 10: Test with All Types of Files (PDF, Image, Document)
+PUT http://localhost:3000/api/school
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Katwnyaa School
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFile_0"; filename="results.pdf"
+Content-Type: application/pdf
+
+< ./results.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsYear_0"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsDesc_0"
+
+Final Results PDF
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFile_1"; filename="chart.png"
+Content-Type: image/png
+
+< ./chart.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsYear_1"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsDesc_1"
+
+Performance Chart
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFile_2"; filename="report.docx"
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+
+< ./report.docx
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsYear_2"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsDesc_2"
+
+Annual Report Document
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsFile_3"; filename="data.xlsx"
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+< ./data.xlsx
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsYear_3"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="additionalResultsDesc_3"
+
+Student Data Spreadsheet
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--

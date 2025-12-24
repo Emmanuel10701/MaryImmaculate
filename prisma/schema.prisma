@@ -400,12 +400,11 @@ model PromotionHistory {
 model SchoolInfo {
   id                          Int       @id @default(autoincrement())
   name                        String
-  description                 String   @db.Text
+  description             String?   @db.Text // Changed to Text for longer content
+  motto                   String?   @db.Text // Changed to Text for longer content
+  vision                  String?   @db.Text // Changed to Text for longer content
+  mission                 String?   @db.Text // Changed to Text for longer content
   
-  // School Identity
-  motto                       String?   
-  vision                      String?   
-  mission                     String?   
   
   // Media
   videoTour                   String?   
