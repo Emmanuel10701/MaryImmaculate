@@ -9,15 +9,16 @@ export default function ClientLayoutWrapper({ children }) {
   const pathname = usePathname();
   const isMainDashboard = pathname === "/MainDashboard";
   const isStudentportal = pathname === "/pages/StudentPortal";
+  const isMain = pathname === "/pages/main";
 
   return (
     <>
-      {!isMainDashboard && !isStudentportal && <ModernNavbar />}
+      {!isMainDashboard && !isStudentportal && !isMain && <ModernNavbar />}
 
 
       <main className="min-h-screen">{children}</main>
 
-      {!isMainDashboard && !isStudentportal && <Footer />}
+      {!isMainDashboard && !isStudentportal && !isMain && <Footer />}
     </>
   );
 }

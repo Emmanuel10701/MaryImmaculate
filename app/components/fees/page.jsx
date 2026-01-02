@@ -267,222 +267,192 @@ function ModernFeeDetailModal({ fee, student, onClose, onEdit, onDelete, showNot
 
   return (
     <>
-      <Modal open={true} onClose={onClose}>
-        <Box sx={{
-          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: '95vw',
-          maxWidth: '900px',
-          maxHeight: '95vh',
-          bgcolor: 'background.paper',
-          borderRadius: 3,
-          boxShadow: 24,
-          overflow: 'hidden',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
-        }}>
-          <div className="bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white bg-opacity-20 rounded-2xl">
-                  <IoCash className="text-2xl" />
+  <Modal open={true} onClose={onClose}>
+  <Box
+    sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '96vw',
+      maxWidth: '880px',
+      maxHeight: '95vh',
+      bgcolor: 'background.paper',
+      borderRadius: 3,
+      boxShadow: 24,
+      overflow: 'hidden',
+    }}
+  >
+    {/* Header */}
+    <div className="bg-slate-900 px-6 py-4 text-white">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-white/10">
+            <IoCash className="text-lg" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Fee Details</h2>
+            <p className="text-xs text-slate-300">
+              Balance & payment overview
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-2 rounded-lg hover:bg-white/10 transition"
+        >
+          <FiX />
+        </button>
+      </div>
+    </div>
+
+    <div className="max-h-[calc(95vh-64px)] overflow-y-auto p-6 space-y-6">
+      {/* Student Summary */}
+      <div className="flex items-center gap-4 bg-white rounded-xl p-4 border shadow-sm">
+        <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+          <FiDollarSign />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-gray-900">
+            {student?.firstName} {student?.lastName}
+          </h3>
+          <p className="text-xs text-gray-500">
+            Admission #{fee.admissionNumber}
+          </p>
+        </div>
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${
+            fee.paymentStatus === 'paid'
+              ? 'bg-green-100 text-green-700'
+              : fee.paymentStatus === 'partial'
+              ? 'bg-amber-100 text-amber-700'
+              : 'bg-red-100 text-red-700'
+          }`}
+        >
+          {fee.paymentStatus.toUpperCase()}
+        </span>
+      </div>
+
+      {/* Payment Progress */}
+      <div className="bg-slate-50 rounded-xl p-5 border">
+        <div className="flex justify-between items-center mb-2">
+          <h4 className="text-sm font-semibold text-gray-800">
+            Payment Progress
+          </h4>
+          <span className="text-sm font-semibold text-blue-600">
+            {calculateProgress().toFixed(1)}%
+          </span>
+        </div>
+
+        <div className="h-2 bg-slate-200 rounded-full overflow-hidden mb-4">
+          <div
+            className="h-full bg-blue-600 rounded-full transition-all"
+            style={{ width: `${calculateProgress()}%` }}
+          />
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="bg-white p-3 rounded-lg border">
+            <p className="text-xs text-gray-500">Total</p>
+            <p className="text-sm font-semibold">
+              {formatCurrency(fee.amount)}
+            </p>
+          </div>
+          <div className="bg-white p-3 rounded-lg border">
+            <p className="text-xs text-gray-500">Paid</p>
+            <p className="text-sm font-semibold">
+              {formatCurrency(fee.amountPaid)}
+            </p>
+          </div>
+          <div className="bg-white p-3 rounded-lg border">
+            <p className="text-xs text-gray-500">Balance</p>
+            <p className="text-sm font-semibold">
+              {formatCurrency(fee.balance)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Details */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Academic */}
+        <div className="bg-white rounded-xl border p-5">
+          <h4 className="text-sm font-semibold text-gray-900 mb-4">
+            Academic Info
+          </h4>
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-500">Term</span>
+              <span className="font-medium">{fee.term}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Year</span>
+              <span className="font-medium">{fee.academicYear}</span>
+            </div>
+            {student && (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Form</span>
+                  <span className="font-medium">{student.form}</span>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Fee Balance Details</h2>
-                  <p className="text-blue-100 opacity-90 text-sm mt-1">
-                    Complete fee information and payment tracking
-                  </p>
-                </div>
-              </div>
-              <button onClick={onClose} className="p-2 bg-white bg-opacity-20 rounded-2xl">
-                <FiX className="text-xl" />
-              </button>
+                {student.stream && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Stream</span>
+                    <span className="font-medium">{student.stream}</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Payment */}
+        <div className="bg-white rounded-xl border p-5">
+          <h4 className="text-sm font-semibold text-gray-900 mb-4">
+            Payment Info
+          </h4>
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-500">Status</span>
+              <span className="font-medium">
+                {fee.paymentStatus.toUpperCase()}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Due Date</span>
+              <span className="font-medium">
+                {fee.dueDate ? formatDate(fee.dueDate) : '—'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Updated</span>
+              <span className="font-medium">
+                {formatDate(fee.updatedAt)}
+              </span>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="max-h-[calc(95vh-80px)] overflow-y-auto p-6">
-            {/* Header Info */}
-            <div className="mb-8">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-6">
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center shadow-2xl ring-4 ring-blue-100 mx-auto md:mx-0">
-                  <FiDollarSign className="text-white text-3xl" />
-                </div>
-                <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-2xl font-bold text-gray-900 tracking-tight">
-                    {student ? `${student.firstName} ${student.lastName}` : 'Student'}
-                  </h3>
-                  <p className="text-gray-700 text-base font-semibold mt-2">
-                    Admission #{fee.admissionNumber}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
-                    <div className={`px-4 py-2 bg-gradient-to-r ${getStatusColor(fee.paymentStatus)} text-white rounded-xl font-bold text-sm`}>
-                      {fee.paymentStatus.toUpperCase()}
-                    </div>
-                    <div className="px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-700 text-white rounded-xl font-bold text-sm">
-                      {fee.term}
-                    </div>
-                    <div className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white rounded-xl font-bold text-sm">
-                      {fee.academicYear}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Actions */}
+      <div className="flex gap-3 pt-4 border-t">
+        <button
+          onClick={onEdit}
+          className="flex-1 py-3 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
+        >
+          Edit Fee
+        </button>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="flex-1 py-3 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </Box>
+</Modal>
 
-            {/* Payment Progress */}
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-300 mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-xl font-bold text-blue-900">Payment Progress</h4>
-                <span className="text-2xl font-bold text-blue-700">{calculateProgress().toFixed(1)}%</span>
-              </div>
-              <div className="w-full h-4 bg-blue-200 rounded-full overflow-hidden mb-4">
-                <div 
-                  className="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full"
-                  style={{ width: `${calculateProgress()}%` }}
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="text-center p-3 bg-white rounded-xl border border-blue-200">
-                  <div className="text-sm font-semibold text-blue-700">Total Fees</div>
-                  <div className="text-xl font-bold text-gray-900">{formatCurrency(fee.amount)}</div>
-                </div>
-                <div className="text-center p-3 bg-white rounded-xl border border-emerald-200">
-                  <div className="text-sm font-semibold text-emerald-700">Amount Paid</div>
-                  <div className="text-xl font-bold text-gray-900">{formatCurrency(fee.amountPaid)}</div>
-                </div>
-                <div className="text-center p-3 bg-white rounded-xl border border-red-200">
-                  <div className="text-sm font-semibold text-red-700">Balance</div>
-                  <div className="text-xl font-bold text-gray-900">{formatCurrency(fee.balance)}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Details Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
-                <h4 className="text-xl font-bold text-gray-900 mb-5 flex items-center gap-3">
-                  <div className="p-2.5 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl">
-                    <FiBook className="text-blue-700 text-xl" />
-                  </div>
-                  Academic Information
-                </h4>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Term</span>
-                    <span className="font-bold text-gray-900 text-lg">{fee.term}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Academic Year</span>
-                    <span className="font-bold text-gray-900 text-lg">{fee.academicYear}</span>
-                  </div>
-                  {student && (
-                    <>
-                      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                        <span className="text-base font-semibold text-gray-700">Form</span>
-                        <span className="font-bold text-gray-900 text-lg">{student.form || 'Not set'}</span>
-                      </div>
-                      {student.stream && (
-                        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                          <span className="text-base font-semibold text-gray-700">Stream</span>
-                          <span className="font-bold text-gray-900 text-lg">{student.stream}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
-                <h4 className="text-xl font-bold text-gray-900 mb-5 flex items-center gap-3">
-                  <div className="p-2.5 bg-gradient-to-r from-emerald-100 to-emerald-200 rounded-xl">
-                    <IoCalendarClear className="text-emerald-700 text-xl" />
-                  </div>
-                  Payment Information
-                </h4>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Payment Status</span>
-                    <span className={`px-4 py-2 rounded-lg text-sm font-bold ${
-                      fee.paymentStatus === 'paid' 
-                        ? 'bg-green-100 text-green-900' 
-                        : fee.paymentStatus === 'partial'
-                        ? 'bg-amber-100 text-amber-900'
-                        : 'bg-red-100 text-red-900'
-                    }`}>
-                      {fee.paymentStatus.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Due Date</span>
-                    <span className="font-bold text-gray-900 text-base">
-                      {fee.dueDate ? formatDate(fee.dueDate) : 'Not set'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Last Updated</span>
-                    <span className="font-bold text-gray-900 text-base">{formatDate(fee.updatedAt)}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Created</span>
-                    <span className="font-bold text-gray-900 text-base">{formatDate(fee.createdAt)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {student && (
-                <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl lg:col-span-2">
-                  <h4 className="text-xl font-bold text-gray-900 mb-5 flex items-center gap-3">
-                    <div className="p-2.5 bg-gradient-to-r from-purple-100 to-purple-200 rounded-xl">
-                      <FiUser className="text-purple-700 text-xl" />
-                    </div>
-                    Student Information
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
-                      <p className="text-sm font-semibold text-gray-600">Full Name</p>
-                      <p className="font-bold text-gray-900 text-base">
-                        {student.firstName || ''} {student.middleName || ''} {student.lastName || ''}
-                      </p>
-                    </div>
-                    <div className="p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
-                      <p className="text-sm font-semibold text-gray-600">Status</p>
-                      <p className={`font-bold text-sm ${student.status === 'active' ? 'text-green-700' : 'text-red-700'}`}>
-                        {student.status ? student.status.toUpperCase() : 'NOT SET'}
-                      </p>
-                    </div>
-                    {student.email && (
-                      <div className="p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
-                        <p className="text-sm font-semibold text-gray-600">Email</p>
-                        <p className="font-bold text-gray-900 text-base truncate">{student.email}</p>
-                      </div>
-                    )}
-                    {student.parentPhone && (
-                      <div className="p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
-                        <p className="text-sm font-semibold text-gray-600">Parent Phone</p>
-                        <p className="font-bold text-gray-900 text-base">{student.parentPhone}</p>
-                      </div>
-                    )}
-                    {student.address && (
-                      <div className="p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl md:col-span-2 lg:col-span-1">
-                        <p className="text-sm font-semibold text-gray-600">Address</p>
-                        <p className="font-medium text-gray-900 text-base">{student.address}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t-2 border-gray-200">
-              <button onClick={onEdit} className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-2xl font-bold text-base shadow-xl">
-                <FiEdit className="text-lg" /> Edit Fee
-              </button>
-              <button onClick={() => setShowDeleteModal(true)} className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-2xl font-bold text-base shadow-xl">
-                <FiTrash2 className="text-lg" /> Delete Fee
-              </button>
-            </div>
-          </div>
-        </Box>
-      </Modal>
 
       {showDeleteModal && (
         <ModernDeleteModal
@@ -2005,75 +1975,119 @@ export default function ModernFeeManagement() {
                               </th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y-2 divide-gray-200">
-                            {feeBalances.map(fee => (
-                              <tr key={fee.id}>
-                                <td className="px-8 py-5">
-                                  <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center flex-shrink-0">
-                                      <FiUser className="text-white text-base" />
-                                    </div>
-                                    <div>
-                                      <div className="font-bold text-gray-900 text-base">#{fee.admissionNumber}</div>
-                                      {fee.student && <div className="text-gray-600 text-sm">{fee.student.firstName} {fee.student.lastName}</div>}
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="px-8 py-5">
-                                  <div>
-                                    <div className="font-bold text-gray-900">{fee.term}</div>
-                                    <div className="text-gray-600 text-sm">{fee.academicYear}</div>
-                                  </div>
-                                </td>
-                                <td className="px-8 py-5">
-                                  <div className="space-y-1">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-gray-600 text-sm">Total:</span>
-                                      <span className="font-bold text-gray-900">{formatCurrency(fee.amount)}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-gray-600 text-sm">Paid:</span>
-                                      <span className="font-bold text-emerald-700">{formatCurrency(fee.amountPaid)}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-gray-600 text-sm">Balance:</span>
-                                      <span className={`font-bold ${fee.balance > 0 ? 'text-red-700' : 'text-green-700'}`}>{formatCurrency(fee.balance)}</span>
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="px-8 py-5">
-                                  <span className={`px-4 py-2 rounded-xl text-sm font-bold ${fee.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : fee.paymentStatus === 'partial' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>{fee.paymentStatus.toUpperCase()}</span>
-                                  {fee.dueDate && (
-                                    <div className="text-gray-600 text-xs mt-2">
-                                      Due: {new Date(fee.dueDate).toLocaleDateString()}
-                                    </div>
-                                  )}
-                                </td>
-                                <td className="px-8 py-5">
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      onClick={() => viewFeeDetails(fee)}
-                                      className="px-3 py-2 bg-blue-50 text-blue-700 rounded-xl font-bold text-sm"
-                                    >
-                                      View
-                                    </button>
-                                    <button
-                                      onClick={() => editFee(fee)}
-                                      className="px-3 py-2 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm"
-                                    >
-                                      Edit
-                                    </button>
-                                    <button
-                                      onClick={() => handleDelete('fee', fee.id, `Fee for ${fee.admissionNumber}`)}
-                                      className="px-3 py-2 bg-red-50 text-red-700 rounded-xl font-bold text-sm"
-                                    >
-                                      Delete
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
+                     <tbody className="divide-y divide-gray-100">
+  {feeBalances.map(fee => (
+    <tr
+      key={fee.id}
+      className="hover:bg-gray-50 transition"
+    >
+      {/* Student */}
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white flex-shrink-0">
+            <FiUser className="text-sm" />
+          </div>
+          <div>
+            <div className="text-sm font-medium text-gray-900">
+              #{fee.admissionNumber}
+            </div>
+            {fee.student && (
+              <div className="text-xs text-gray-500">
+                {fee.student.firstName} {fee.student.lastName}
+              </div>
+            )}
+          </div>
+        </div>
+      </td>
+
+      {/* Term */}
+      <td className="px-6 py-4">
+        <div className="text-sm font-medium text-gray-900">
+          {fee.term}
+        </div>
+        <div className="text-xs text-gray-500">
+          {fee.academicYear}
+        </div>
+      </td>
+
+      {/* Amounts */}
+      <td className="px-6 py-4">
+        <div className="space-y-0.5 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-500">Total</span>
+            <span className="font-medium text-gray-900">
+              {formatCurrency(fee.amount)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Paid</span>
+            <span className="font-medium text-emerald-600">
+              {formatCurrency(fee.amountPaid)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Balance</span>
+            <span
+              className={`font-medium ${
+                fee.balance > 0 ? 'text-red-600' : 'text-green-600'
+              }`}
+            >
+              {formatCurrency(fee.balance)}
+            </span>
+          </div>
+        </div>
+      </td>
+
+      {/* Status */}
+      <td className="px-6 py-4">
+        <span
+          className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${
+            fee.paymentStatus === 'paid'
+              ? 'bg-green-50 text-green-700'
+              : fee.paymentStatus === 'partial'
+              ? 'bg-amber-50 text-amber-700'
+              : 'bg-red-50 text-red-700'
+          }`}
+        >
+          {fee.paymentStatus.toUpperCase()}
+        </span>
+
+        {fee.dueDate && (
+          <div className="text-xs text-gray-500 mt-1">
+            Due {new Date(fee.dueDate).toLocaleDateString()}
+          </div>
+        )}
+      </td>
+
+      {/* Actions */}
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => viewFeeDetails(fee)}
+            className="px-2.5 py-1.5 text-xs rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition"
+          >
+            View
+          </button>
+          <button
+            onClick={() => editFee(fee)}
+            className="px-2.5 py-1.5 text-xs rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() =>
+              handleDelete('fee', fee.id, `Fee for ${fee.admissionNumber}`)
+            }
+            className="px-2.5 py-1.5 text-xs rounded-md bg-red-50 text-red-700 hover:bg-red-100 transition"
+          >
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
                         </table>
                       </div>
                     </div>

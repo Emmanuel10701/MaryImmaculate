@@ -71,6 +71,27 @@ const decodeToken = () => {
   }
 };
 
+// Helper function to calculate month-over-month growth
+const calculateMonthOverMonthGrowth = (currentCount, previousCount) => {
+  if (!previousCount || previousCount === 0) {
+    return currentCount > 0 ? 100 : 0;
+  }
+  return ((currentCount - previousCount) / previousCount) * 100;
+};
+
+// Helper function to count records by month
+const countRecordsByMonth = (dataArray, monthOffset = 0) => {
+  const now = new Date();
+  const targetMonth = new Date(now.getFullYear(), now.getMonth() - monthOffset, 1);
+  const nextMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 1);
+  
+  return dataArray.filter(item => {
+    if (!item.createdAt) return false;
+    const itemDate = new Date(item.createdAt);
+    return itemDate >= targetMonth && itemDate < nextMonth;
+  }).length;
+};
+
 function ModernLoadingSpinner({ message = "Loading sessions from the database…", size = "medium" }) {
   const sizes = {
     small: { outer: 48, inner: 24 },
@@ -339,15 +360,13 @@ export default function DashboardOverview() {
         // Calculate admission statistics
         const applications = admissions.applications || [];
         const today = new Date();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
 
         // Admission calculations
         const monthlyApplications = applications.filter(app => {
           const appDate = new Date(app.createdAt);
-          return appDate.getMonth() === currentMonth && appDate.getFullYear() === currentYear;
+          return appDate.getMonth() === today.getMonth() && appDate.getFullYear() === today.getFullYear();
         }).length;
 
         const dailyApplications = applications.filter(app => {
@@ -383,6 +402,38 @@ export default function DashboardOverview() {
         
         const avgProcessingTime = processedApps.length > 0 ? 
           Math.round(totalProcessingTime / processedApps.length) : 0;
+
+        // Calculate month-over-month growth for all metrics
+        const calculateGrowth = (dataArray) => {
+          const currentMonthCount = countRecordsByMonth(dataArray, 0);
+          const previousMonthCount = countRecordsByMonth(dataArray, 1);
+          return calculateMonthOverMonthGrowth(currentMonthCount, previousMonthCount);
+        };
+
+        // Calculate growth metrics using actual API data
+        const studentGrowth = calculateGrowth(students.students || []);
+        const staffGrowth = calculateGrowth(staff.staff || []);
+        const subscriberGrowth = calculateGrowth(subscribers.subscribers || []);
+        const assignmentGrowth = calculateGrowth(assignments.assignments || []);
+        const councilGrowth = calculateGrowth(council.councilMembers || []);
+        const eventGrowth = calculateGrowth(events.events || []);
+        const galleryGrowth = calculateGrowth(gallery.galleries || []);
+        const guidanceGrowth = calculateGrowth(guidance.events || []);
+        const newsGrowth = calculateGrowth(news.news || []);
+        const admissionMonthlyGrowth = calculateGrowth(applications);
+
+        // Update growth metrics with actual calculations
+        setGrowthMetrics({
+          studentGrowth: parseFloat(studentGrowth.toFixed(1)),
+          staffGrowth: parseFloat(staffGrowth.toFixed(1)),
+          subscriberGrowth: parseFloat(subscriberGrowth.toFixed(1)),
+          assignmentGrowth: parseFloat(assignmentGrowth.toFixed(1)),
+          councilGrowth: parseFloat(councilGrowth.toFixed(1)),
+          eventGrowth: parseFloat(eventGrowth.toFixed(1)),
+          galleryGrowth: parseFloat(galleryGrowth.toFixed(1)),
+          guidanceGrowth: parseFloat(guidanceGrowth.toFixed(1)),
+          newsGrowth: parseFloat(newsGrowth.toFixed(1))
+        });
 
         // Admission analytics
         const scienceApps = applications.filter(app => app.preferredStream === 'SCIENCE').length;
@@ -465,62 +516,64 @@ export default function DashboardOverview() {
           averageAge: avgAge
         });
 
-        // Form distribution for students
-        const formDistribution = {};
-        students.students?.forEach(student => {
-          const form = student.form || 'Unknown';
-          formDistribution[form] = (formDistribution[form] || 0) + 1;
-        });
-
-        // Growth metrics
-        setGrowthMetrics({
-          studentGrowth: 8.5,
-          staffGrowth: 3.2,
-          subscriberGrowth: 12.7,
-          assignmentGrowth: 15.3,
-          councilGrowth: 6.4,
-          eventGrowth: -2.1,
-          galleryGrowth: 25.8,
-          guidanceGrowth: 18.9,
-          newsGrowth: 9.7
-        });
-
-        // Admission growth metrics
+        // Update admission growth with actual calculations
         setAdmissionGrowth({
-          monthlyGrowth: monthlyApplications,
+          monthlyGrowth: parseFloat(admissionMonthlyGrowth.toFixed(1)),
           dailyGrowth: dailyApplications,
-          acceptanceGrowth: conversionRate > 0 ? conversionRate : 0,
+          acceptanceGrowth: conversionRate,
           scienceGrowth: scienceApps > 0 ? Math.round((scienceApps / applications.length) * 100) : 0,
           businessGrowth: businessApps > 0 ? Math.round((businessApps / applications.length) * 100) : 0,
           processingEfficiency: avgProcessingTime > 0 ? 
-            Math.round((30 / avgProcessingTime) * 100) : 100 // Efficiency percentage
+            Math.round((30 / avgProcessingTime) * 100) : 100
         });
 
-        // Generate recent activity including all dynamic sources
+        // Generate unified recent activity from all APIs
         const generateRecentActivity = () => {
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
           const activities = [];
           
-          // Recent students
-          const recentStudents = students.students?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 2);
-          recentStudents?.forEach(student => {
-            activities.push({
-              id: `student-${student.id}`,
-              action: 'New student registered',
-              target: `${student.name} - ${student.form} ${student.stream}`,
-              time: new Date(student.createdAt).toLocaleDateString(),
-              type: 'student',
-              icon: FiUserPlus,
-              color: 'emerald',
-              timestamp: new Date(student.createdAt)
+          // Helper function to add recent activities
+          const addRecentActivities = (dataArray, type, actionPrefix, getTarget, icon, color, limit = 2) => {
+            if (!dataArray || dataArray.length === 0) return;
+            
+            const recent = dataArray
+              .filter(item => item.createdAt && new Date(item.createdAt) >= thirtyDaysAgo)
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .slice(0, limit);
+            
+            recent.forEach(item => {
+              activities.push({
+                id: `${type}-${item.id || item._id || Math.random()}`,
+                action: `${actionPrefix}`,
+                target: getTarget(item),
+                time: new Date(item.createdAt).toLocaleDateString(),
+                type,
+                icon,
+                color,
+                timestamp: new Date(item.createdAt)
+              });
             });
-          });
+          };
 
-          // Recent admission applications (latest 3)
+          // Students - 2 most recent
+          addRecentActivities(
+            students.students,
+            'student',
+            'New student registered',
+            (s) => `${s.name || 'New Student'} - ${s.form || 'Unknown Form'} ${s.stream || ''}`,
+            FiUserPlus,
+            'emerald',
+            2
+          );
+
+          // Admission applications - 2 most recent
           const recentAdmissions = applications
+            .filter(app => app.createdAt && new Date(app.createdAt) >= thirtyDaysAgo)
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            .slice(0, 3);
+            .slice(0, 2);
           
-          recentAdmissions?.forEach(application => {
+          recentAdmissions.forEach(application => {
             const statusIcon = {
               'PENDING': FiClock,
               'ACCEPTED': FiCheckCircle,
@@ -540,7 +593,7 @@ export default function DashboardOverview() {
             activities.push({
               id: `admission-${application._id}`,
               action: 'Admission application submitted',
-              target: `${application.firstName} ${application.lastName} - ${application.preferredStream}`,
+              target: `${application.firstName} ${application.lastName} - ${application.preferredStream || 'Unknown Stream'}`,
               status: application.status,
               time: new Date(application.createdAt).toLocaleDateString(),
               type: 'admission',
@@ -550,52 +603,87 @@ export default function DashboardOverview() {
             });
           });
 
-          // Recent assignments
-          const recentAssignments = assignments.assignments?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 2);
-          recentAssignments?.forEach(assignment => {
-            activities.push({
-              id: `assignment-${assignment.id}`,
-              action: 'Assignment created',
-              target: `${assignment.title} - ${assignment.className}`,
-              time: new Date(assignment.createdAt).toLocaleDateString(),
-              type: 'assignment',
-              icon: FiBook,
-              color: 'blue',
-              timestamp: new Date(assignment.createdAt)
-            });
-          });
+          // Staff - 1 most recent
+          addRecentActivities(
+            staff.staff,
+            'staff',
+            'New staff added',
+            (s) => `${s.name || 'New Staff'} - ${s.department || 'Unknown Department'}`,
+            FiUsers,
+            'blue',
+            1
+          );
 
-          // Recent resources
-          const recentResources = resources.resources?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 2);
-          recentResources?.forEach(resource => {
-            activities.push({
-              id: `resource-${resource.id}`,
-              action: 'Resource uploaded',
-              target: `${resource.title} - ${resource.category}`,
-              time: new Date(resource.createdAt).toLocaleDateString(),
-              type: 'resource',
-              icon: FiFileText,
-              color: 'purple',
-              timestamp: new Date(resource.createdAt)
-            });
-          });
+          // Assignments - 1 most recent
+          addRecentActivities(
+            assignments.assignments,
+            'assignment',
+            'Assignment created',
+            (a) => `${a.title || 'New Assignment'} - ${a.className || 'Unknown Class'}`,
+            FiBook,
+            'indigo',
+            1
+          );
 
-          // Recent careers
-          const recentCareers = careersData.jobs?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 2);
-          recentCareers?.forEach(job => {
-            activities.push({
-              id: `career-${job.id}`,
-              action: 'Career opportunity posted',
-              target: `${job.jobTitle} - ${job.department}`,
-              time: new Date(job.createdAt).toLocaleDateString(),
-              type: 'career',
-              icon: IoDocumentText,
-              color: 'orange',
-              timestamp: new Date(job.createdAt)
-            });
-          });
+          // Events - 1 most recent
+          addRecentActivities(
+            events.events,
+            'event',
+            'Event scheduled',
+            (e) => `${e.title || 'New Event'} - ${e.date ? new Date(e.date).toLocaleDateString() : 'Unknown Date'}`,
+            FiCalendar,
+            'red',
+            1
+          );
 
-          return activities.sort((a, b) => b.timestamp - a.timestamp).slice(0, 8);
+          // News - 1 most recent
+          addRecentActivities(
+            news.news,
+            'news',
+            'News published',
+            (n) => n.title || 'New News Article',
+            IoNewspaper,
+            'amber',
+            1
+          );
+
+          // Resources - 1 most recent
+          addRecentActivities(
+            resources.resources,
+            'resource',
+            'Resource uploaded',
+            (r) => `${r.title || 'New Resource'} - ${r.category || 'Unknown Category'}`,
+            FiFileText,
+            'purple',
+            1
+          );
+
+          // Careers - 1 most recent
+          addRecentActivities(
+            careersData.jobs,
+            'career',
+            'Career posted',
+            (j) => `${j.jobTitle || 'New Job'} - ${j.department || 'Unknown Department'}`,
+            IoDocumentText,
+            'orange',
+            1
+          );
+
+          // Email campaigns - 1 most recent
+          addRecentActivities(
+            emailCampaignsData.campaigns,
+            'email',
+            'Email campaign sent',
+            (c) => c.title || 'New Email Campaign',
+            FiMail,
+            'red',
+            1
+          );
+
+          // Sort by timestamp and limit to 8 most recent
+          return activities
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+            .slice(0, 8);
         };
 
         setRecentActivity(generateRecentActivity());
@@ -620,35 +708,35 @@ export default function DashboardOverview() {
             { 
               label: 'Student Activity Rate', 
               value: Math.round((activeStudents / totalStudents) * 100),
-              change: 2.5,
-              color: 'green',
+              change: studentGrowth >= 0 ? studentGrowth : -studentGrowth,
+              color: studentGrowth >= 0 ? 'green' : 'red',
               description: 'Percentage of active students'
             },
             { 
               label: 'Admission Conversion Rate', 
               value: conversionRate,
-              change: conversionRate > 0 ? 3.2 : 0,
-              color: 'purple',
+              change: admissionMonthlyGrowth,
+              color: admissionMonthlyGrowth >= 0 ? 'purple' : 'red',
               description: 'Applications to acceptances'
             },
             { 
               label: 'Assignment Completion', 
               value: assignmentCompletionRate,
-              change: 5.1,
-              color: 'blue',
+              change: assignmentGrowth,
+              color: assignmentGrowth >= 0 ? 'blue' : 'red',
               description: 'Completed vs total assignments'
             },
             { 
               label: 'Council Engagement', 
               value: councilEngagement,
-              change: 8.2,
-              color: 'indigo',
+              change: councilGrowth,
+              color: councilGrowth >= 0 ? 'indigo' : 'red',
               description: 'Student participation in council'
             },
             { 
               label: 'Resource Utilization', 
               value: resourceUtilization,
-              change: 6.3,
+              change: 0, // No growth data for resource downloads
               color: 'orange',
               description: 'Resource downloads rate'
             }
@@ -657,49 +745,51 @@ export default function DashboardOverview() {
 
         setPerformanceData(calculatePerformanceMetrics());
 
-        // Quick stats - dynamically calculated
+        // Quick stats - dynamically calculated with actual growth
         const quickStatsData = [
           { 
             label: 'Academic Excellence', 
-            value: `${Math.round((stats.completedAssignments / stats.totalAssignments) * 100) || 0}%`, 
-            change: 2.3, 
-            icon: FiTrendingUp, 
-            color: 'green',
+            value: `${Math.round((completedAssignments / totalAssignments) * 100) || 0}%`, 
+            change: parseFloat(assignmentGrowth.toFixed(1)), 
+            icon: assignmentGrowth >= 0 ? FiTrendingUp : FiTrendingDown, 
+            color: assignmentGrowth >= 0 ? 'green' : 'red',
             calculation: 'Based on assignment completion'
           },
           { 
             label: 'Admission Growth', 
-            value: `${stats.monthlyApplications}`, 
-            change: stats.monthlyApplications > 10 ? 15.7 : 5.2, 
-            icon: stats.monthlyApplications > 10 ? FiTrendingUp : FiTrendingDown, 
-            color: stats.monthlyApplications > 10 ? 'purple' : 'red',
+            value: `${monthlyApplications}`, 
+            change: parseFloat(admissionMonthlyGrowth.toFixed(1)), 
+            icon: admissionMonthlyGrowth >= 0 ? FiTrendingUp : FiTrendingDown, 
+            color: admissionMonthlyGrowth >= 0 ? 'purple' : 'red',
             calculation: 'Monthly applications'
           },
           { 
             label: 'Student Engagement', 
-            value: `${Math.round((stats.studentCouncil / stats.totalStudents) * 100) || 0}%`, 
-            change: 4.7, 
-            icon: FiActivity, 
-            color: 'blue',
+            value: `${Math.round((activeCouncil / (students.students?.length || 1)) * 100) || 0}%`, 
+            change: parseFloat(councilGrowth.toFixed(1)), 
+            icon: councilGrowth >= 0 ? FiActivity : FiTrendingDown, 
+            color: councilGrowth >= 0 ? 'blue' : 'red',
             calculation: 'Council participation rate'
           }
         ];
 
         setQuickStats(quickStatsData);
 
-        // Admission specific stats
+        // Admission specific stats with actual growth
         const admissionStatsData = [
           { 
             label: 'Total Applications', 
             value: applications.length, 
+            change: parseFloat(admissionMonthlyGrowth.toFixed(1)),
             icon: IoDocumentText, 
             color: 'purple',
-            trend: stats.monthlyApplications > 0 ? 'up' : 'down',
-            subtitle: `${stats.dailyApplications} today`
+            trend: admissionMonthlyGrowth >= 0 ? 'up' : 'down',
+            subtitle: `${dailyApplications} today`
           },
           { 
             label: 'Pending Review', 
             value: pendingApps, 
+            change: 0, // No month-over-month data for pending status
             icon: FiClock, 
             color: 'yellow',
             trend: pendingApps > 5 ? 'warning' : 'stable',
@@ -708,6 +798,7 @@ export default function DashboardOverview() {
           { 
             label: 'Acceptance Rate', 
             value: `${conversionRate}%`, 
+            change: 0, // No month-over-month data for conversion rate
             icon: FiPercent, 
             color: 'green',
             trend: conversionRate > 20 ? 'up' : 'down',
@@ -716,6 +807,7 @@ export default function DashboardOverview() {
           { 
             label: 'Avg Processing Time', 
             value: `${avgProcessingTime}d`, 
+            change: 0, // No month-over-month data for processing time
             icon: FiZap, 
             color: 'blue',
             trend: avgProcessingTime < 7 ? 'good' : 'slow',
@@ -1003,15 +1095,15 @@ export default function DashboardOverview() {
           <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
           <p className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</p>
           {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
-          {change && (
+          {change !== undefined && (
             <div className="flex items-center gap-1 mt-2">
-              {trend === 'up' ? (
+              {trend === 'up' || change > 0 ? (
                 <FiTrendingUp className="text-green-500 text-sm" />
               ) : (
                 <FiTrendingDown className="text-red-500 text-sm" /> 
               )}
-              <span className={`text-sm font-semibold ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                {change}%
+              <span className={`text-sm font-semibold ${trend === 'up' || change > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {change > 0 ? '+' : ''}{change}%
               </span>
             </div>
           )}
@@ -1047,14 +1139,15 @@ export default function DashboardOverview() {
       </div>
     </div>
   );
-if (loading) {
-  return (
-    <ModernLoadingSpinner 
-      message="Loading dashboard data..." 
-      size="medium" 
-    />
-  );
-}
+  
+  if (loading) {
+    return (
+      <ModernLoadingSpinner 
+        message="Loading dashboard data..." 
+        size="medium" 
+      />
+    );
+  }
 
   return (
     <>
@@ -1075,40 +1168,39 @@ if (loading) {
               Managing <strong>{stats.totalStudents} students</strong>, <strong>{stats.totalStaff} staff members</strong>, and <strong>{stats.totalSubscribers} subscribers</strong>. You have <span className="text-yellow-300 font-semibold">{stats.activeAssignments} active assignments</span> and <span className="text-green-300 font-semibold">{stats.upcomingEvents} upcoming events</span>.
             </p>
             
-          <div className="flex items-center gap-3 sm:gap-4 mt-6">
-  <button
-    onClick={() => setShowAnalyticsModal(true)}
-    className="
-      bg-white text-blue-600
-      px-4 py-2 text-sm
-      sm:px-6 sm:py-3 sm:text-base
-      rounded-xl font-semibold
-      flex items-center gap-2
-      shadow-lg cursor-pointer
-    "
-  >
-    <FiBarChart2 className="text-base sm:text-lg" />
-    View Analytics
-    <FiArrowUpRight className="text-base sm:text-lg" />
-  </button>
+            <div className="flex items-center gap-3 sm:gap-4 mt-6">
+              <button
+                onClick={() => setShowAnalyticsModal(true)}
+                className="
+                  bg-white text-blue-600
+                  px-4 py-2 text-sm
+                  sm:px-6 sm:py-3 sm:text-base
+                  rounded-xl font-semibold
+                  flex items-center gap-2
+                  shadow-lg cursor-pointer
+                "
+              >
+                <FiBarChart2 className="text-base sm:text-lg" />
+                View Analytics
+                <FiArrowUpRight className="text-base sm:text-lg" />
+              </button>
 
-  <button
-    onClick={() => setShowQuickTour(true)}
-    className="
-      text-white/80 hover:text-white
-      px-4 py-2 text-sm
-      sm:px-6 sm:py-3 sm:text-base
-      rounded-xl font-semibold
-      border border-white/20
-      flex items-center gap-2
-      cursor-pointer
-    "
-  >
-    <FiPlay className="text-base sm:text-lg" />
-    Quick Tour
-  </button>
-</div>
-
+              <button
+                onClick={() => setShowQuickTour(true)}
+                className="
+                  text-white/80 hover:text-white
+                  px-4 py-2 text-sm
+                  sm:px-6 sm:py-3 sm:text-base
+                  rounded-xl font-semibold
+                  border border-white/20
+                  flex items-center gap-2
+                  cursor-pointer
+                "
+              >
+                <FiPlay className="text-base sm:text-lg" />
+                Quick Tour
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1155,7 +1247,9 @@ if (loading) {
               <div className="mt-4">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-gray-600">Monthly Growth</span>
-                  <span className="text-sm font-semibold text-green-600">{stats.monthlyApplications}</span>
+                  <span className={`text-sm font-semibold ${admissionGrowth.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {admissionGrowth.monthlyGrowth >= 0 ? '+' : ''}{admissionGrowth.monthlyGrowth}%
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Daily Applications</span>
@@ -1165,20 +1259,85 @@ if (loading) {
             </div>
           </div>
 
-          {/* Staff Distribution Card */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Staff Distribution</h3>
-              <FiUsers className="text-2xl text-blue-600" />
+{/* Staff Distribution Card - Updated with ResultsChart */}
+<div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+  <div className="flex items-center justify-between mb-4">
+    <h3 className="text-lg font-semibold text-gray-800">Staff Distribution</h3>
+    <FiUsers className="text-2xl text-blue-600" />
+  </div>
+  {staffDistribution.length > 0 ? (
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={staffDistribution}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            // Bolder, more prominent labels
+            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+            outerRadius={90}
+            innerRadius={50}
+            paddingAngle={4}
+            fill="#8884d8"
+            dataKey="value"
+          >
+            {staffDistribution.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill={['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#6366F1'][index % 6]}
+                stroke="#fff"
+                strokeWidth={3}
+              />
+            ))}
+          </Pie>
+          <Tooltip 
+            formatter={(value, name, props) => {
+              const total = staffDistribution.reduce((sum, item) => sum + item.value, 0);
+              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+              return [`${value} staff (${percentage}%)`, 'Department'];
+            }}
+            contentStyle={{
+              borderRadius: '12px',
+              padding: '12px',
+              backgroundColor: 'rgba(255, 255, 255, 0.97)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+              border: '2px solid #e5e7eb',
+              fontSize: '8px',
+              fontWeight: 'bold'
+            }}
+          
+          />
+         
+        </PieChart>
+      </ResponsiveContainer>
+      
+      {/* Enhanced department breakdown */}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        {staffDistribution.map((dept, index) => (
+          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-3 h-3 rounded-full"
+                style={{ 
+                  backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#6366F1'][index % 6]
+                }}
+              />
+              <span className="text-xs font-semibold text-gray-700 truncate">{dept.name}</span>
             </div>
-            {staffDistribution.length > 0 ? (
-              <PercentageChart data={staffDistribution} />
-            ) : (
-              <div className="h-48 flex items-center justify-center">
-                <p className="text-gray-500">No staff data available</p>
-              </div>
-            )}
+            <span className="text-xs font-bold text-gray-900">{dept.value}</span>
           </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <div className="h-64 flex flex-col items-center justify-center">
+      <FiUsers className="text-4xl text-gray-300 mb-3" />
+      <p className="text-gray-500 font-medium">No staff data available</p>
+      <p className="text-gray-400 text-sm mt-1">Staff information will appear here</p>
+    </div>
+  )}
+</div>
 
           {/* Assignments & Resources Card */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
@@ -1301,7 +1460,7 @@ if (loading) {
           </div>
         </div>
 
-        {/* Additional Stat Cards */}
+        {/* Additional Stat Cards with corrected growth metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard 
             icon={FiCalendar} 
@@ -1342,7 +1501,7 @@ if (loading) {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Recent Activity */}
+          {/* Recent Activity - Now unified from all APIs */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -1421,5 +1580,5 @@ if (loading) {
         </div>
       </div>
     </>
-  );
+  );  
 }

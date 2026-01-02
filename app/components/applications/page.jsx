@@ -127,6 +127,21 @@ const ModernModal = ({ children, open, onClose, maxWidth = '800px' }) => {
   )
 }
 
+// Date Group Header Component
+const DateGroupHeader = ({ dateLabel }) => {
+  return (
+    <tr className="bg-gray-50/80 sticky top-0 z-10">
+      <td colSpan={9} className="px-4 py-3 border-b border-gray-200">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-gray-500" />
+          <span className="text-sm font-semibold text-gray-700">{dateLabel}</span>
+          <div className="flex-1 h-px bg-gradient-to-r from-gray-300/50 via-gray-300 to-gray-300/50 ml-3"></div>
+        </div>
+      </td>
+    </tr>
+  )
+}
+
 export default function ModernApplicationsDashboard() {
   // Main State
   const [applications, setApplications] = useState([])
@@ -265,6 +280,64 @@ export default function ModernApplicationsDashboard() {
     { key: 'actions', label: 'Actions', width: 'w-24' }
   ]
   
+  // Helper function to group applications by date
+  const groupApplicationsByDate = (apps) => {
+    if (!apps || !apps.length) return [];
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const groups = [];
+    let currentGroup = null;
+    
+    apps.forEach((app, index) => {
+      if (!app.createdAt) return;
+      
+      const appDate = new Date(app.createdAt);
+      appDate.setHours(0, 0, 0, 0);
+      
+      let groupLabel = '';
+      
+      // Determine group label
+      if (appDate.getTime() === today.getTime()) {
+        groupLabel = 'Today';
+      } else if (appDate.getTime() === yesterday.getTime()) {
+        groupLabel = 'Yesterday';
+      } else {
+        // Format date as "23 Jan 2025"
+        groupLabel = appDate.toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+      }
+      
+      // Create new group or add to existing
+      if (!currentGroup || currentGroup.label !== groupLabel) {
+        if (currentGroup) {
+          groups.push(currentGroup);
+        }
+        currentGroup = {
+          label: groupLabel,
+          date: appDate,
+          applications: [app]
+        };
+      } else {
+        currentGroup.applications.push(app);
+      }
+      
+      // Add last group
+      if (index === apps.length - 1 && currentGroup) {
+        groups.push(currentGroup);
+      }
+    });
+    
+    return groups;
+  };
+  
   // Fetch applications
   useEffect(() => {
     fetchApplications()
@@ -387,6 +460,11 @@ export default function ModernApplicationsDashboard() {
         }
       })
   }, [applications, searchTerm, filterStatus, filterStream, startDate, endDate, activeView, sortBy])
+  
+  // Group filtered applications by date
+  const groupedApplications = useMemo(() => {
+    return groupApplicationsByDate(filteredApplications);
+  }, [filteredApplications]);
   
   // Toggle selection
   const toggleSelectAll = () => {
@@ -973,7 +1051,7 @@ export default function ModernApplicationsDashboard() {
       <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden">
         {loading ? (
           <LoadingSkeleton />
-        ) : filteredApplications.length === 0 ? (
+        ) : groupedApplications.length === 0 ? (
           <div className="text-center py-16">
             <Users className="text-gray-400 w-16 h-16 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No Applications Found</h3>
@@ -1018,126 +1096,134 @@ export default function ModernApplicationsDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {filteredApplications.map((application) => {
-                    const score = getApplicationScore(application)
-                    const isSelected = selectedApplications.has(application.id)
-                    
-                    return (
-                      <tr 
-                        key={application.id} 
-                        className={`transition-colors duration-150 ${isSelected ? 'bg-blue-50/50' : ''}`}
-                        onClick={() => toggleSelectApplication(application.id)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {/* Select checkbox */}
-                        <td className="p-4" onClick={(e) => e.stopPropagation()}>
-                          <button
+                  {groupedApplications.map((group) => (
+                    <>
+                      {/* Date Group Header */}
+                      <DateGroupHeader key={`group-${group.label}`} dateLabel={group.label} />
+                      
+                      {/* Group Applications */}
+                      {group.applications.map((application) => {
+                        const score = getApplicationScore(application)
+                        const isSelected = selectedApplications.has(application.id)
+                        
+                        return (
+                          <tr 
+                            key={application.id} 
+                            className={`transition-colors duration-150 ${isSelected ? 'bg-blue-50/50' : ''}`}
                             onClick={() => toggleSelectApplication(application.id)}
-                            className="p-1.5 rounded-full"
+                            style={{ cursor: 'pointer' }}
                           >
-                            {isSelected ? (
-                              <CheckSquare className="w-4 h-4 text-blue-600" />
-                            ) : (
-                              <Square className="w-4 h-4 text-gray-400" />
-                            )}
-                          </button>
-                        </td>
-                        
-                        {/* Applicant */}
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                              <User className="text-white w-4 h-4" />
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="font-medium text-gray-900 truncate text-sm">
-                                {application.firstName} {application.lastName}
-                              </h4>
-                              <div className="flex items-center gap-2 text-xs text-gray-500">
-                                <Mail className="w-3 h-3" />
-                                <span className="truncate">{application.email}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        
-                        {/* Application Number */}
-                        <td className="p-4">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">
-                            <Hash className="w-3 h-3" />
-                            {application.applicationNumber.substring(0, 8)}...
-                          </span>
-                        </td>
-                        
-                        {/* KCPE Score */}
-                        <td className="p-4">
-                          <div className="text-center">
-                            <span className="text-base font-bold text-gray-900">{application.kcpeMarks || 0}</span>
-                            <span className="text-xs text-gray-500 ml-1">/500</span>
-                          </div>
-                        </td>
-                        
-                        {/* Stream */}
-                        <td className="p-4">
-                          {getStreamBadge(application.preferredStream)}
-                        </td>
-                        
-                        {/* Status */}
-                        <td className="p-4">
-                          {getStatusBadge(application.status)}
-                        </td>
-                        
-                        {/* Submitted */}
-                        <td className="p-4">
-                          <div className="text-xs text-gray-600 flex items-center gap-2">
-                            <Calendar className="w-3 h-3" />
-                            {formatDate(application.createdAt)}
-                          </div>
-                        </td>
-                        
-                        {/* Score */}
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-12">
-                              <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full ${score >= 80 ? 'bg-gradient-to-r from-emerald-500 to-green-500' : score >= 60 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : 'bg-gradient-to-r from-amber-500 to-orange-500'}`}
-                                  style={{ width: `${score}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                            <span className={`text-xs font-bold ${score >= 80 ? 'text-emerald-700' : score >= 60 ? 'text-blue-700' : 'text-amber-700'}`}>
-                              {score}
-                            </span>
-                          </div>
-                        </td>
-                        
-                        {/* Actions */}
-                        <td className="p-4" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => openDecisionModal(application)}
-                              className="p-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full transition-colors"
-                              title="Make Decision"
-                            >
-                              <Edit className="w-3 h-3" />
-                            </button>
+                            {/* Select checkbox */}
+                            <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={() => toggleSelectApplication(application.id)}
+                                className="p-1.5 rounded-full"
+                              >
+                                {isSelected ? (
+                                  <CheckSquare className="w-4 h-4 text-blue-600" />
+                                ) : (
+                                  <Square className="w-4 h-4 text-gray-400" />
+                                )}
+                              </button>
+                            </td>
                             
-                            <button
-                              onClick={() => {
-                                setSelectedApplication(application)
-                                setShowDetailSidebar(true)
-                              }}
-                              className="p-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full transition-colors"
-                              title="View Details"
-                            >
-                              <Eye className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
+                            {/* Applicant */}
+                            <td className="p-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                                  <User className="text-white w-4 h-4" />
+                                </div>
+                                <div className="min-w-0">
+                                  <h4 className="font-medium text-gray-900 truncate text-sm">
+                                    {application.firstName} {application.lastName}
+                                  </h4>
+                                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                                    <Mail className="w-3 h-3" />
+                                    <span className="truncate">{application.email}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            
+                            {/* Application Number */}
+                            <td className="p-4">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">
+                                <Hash className="w-3 h-3" />
+                                {application.applicationNumber.substring(0, 8)}...
+                              </span>
+                            </td>
+                            
+                            {/* KCPE Score */}
+                            <td className="p-4">
+                              <div className="text-center">
+                                <span className="text-base font-bold text-gray-900">{application.kcpeMarks || 0}</span>
+                                <span className="text-xs text-gray-500 ml-1">/500</span>
+                              </div>
+                            </td>
+                            
+                            {/* Stream */}
+                            <td className="p-4">
+                              {getStreamBadge(application.preferredStream)}
+                            </td>
+                            
+                            {/* Status */}
+                            <td className="p-4">
+                              {getStatusBadge(application.status)}
+                            </td>
+                            
+                            {/* Submitted */}
+                            <td className="p-4">
+                              <div className="text-xs text-gray-600 flex items-center gap-2">
+                                <Calendar className="w-3 h-3" />
+                                {formatDate(application.createdAt)}
+                              </div>
+                            </td>
+                            
+                            {/* Score */}
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                <div className="w-12">
+                                  <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                    <div 
+                                      className={`h-full ${score >= 80 ? 'bg-gradient-to-r from-emerald-500 to-green-500' : score >= 60 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : 'bg-gradient-to-r from-amber-500 to-orange-500'}`}
+                                      style={{ width: `${score}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                                <span className={`text-xs font-bold ${score >= 80 ? 'text-emerald-700' : score >= 60 ? 'text-blue-700' : 'text-amber-700'}`}>
+                                  {score}
+                                </span>
+                              </div>
+                            </td>
+                            
+                            {/* Actions */}
+                            <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => openDecisionModal(application)}
+                                  className="p-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full transition-colors"
+                                  title="Make Decision"
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </button>
+                                
+                                <button
+                                  onClick={() => {
+                                    setSelectedApplication(application)
+                                    setShowDetailSidebar(true)
+                                  }}
+                                  className="p-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full transition-colors"
+                                  title="View Details"
+                                >
+                                  <Eye className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -1148,6 +1234,9 @@ export default function ModernApplicationsDashboard() {
                 <div className="text-sm text-gray-600">
                   Showing <span className="font-semibold">{filteredApplications.length}</span> of{' '}
                   <span className="font-semibold">{applications.length}</span> applications
+                  <span className="ml-3 text-gray-500">
+                    • Organized by {groupedApplications.length} date groups
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button

@@ -339,212 +339,168 @@ function ModernStudentDetailModal({ student, onClose, onEdit, onDelete }) {
 
   return (
     <>
-      <Modal open={true} onClose={onClose}>
-        <Box sx={{
-          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: '95vw',
-          maxWidth: '1000px',
-          maxHeight: '95vh',
-          bgcolor: 'background.paper',
-          borderRadius: 3,
-          boxShadow: 24,
-          overflow: 'hidden',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
-        }}>
-          <div className="bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white bg-opacity-20 rounded-2xl">
-                  <IoSchool className="text-2xl" />
+  <Modal open={true} onClose={onClose}>
+  <Box
+    sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '95vw',
+      maxWidth: '960px',
+      maxHeight: '92vh',
+      bgcolor: 'background.paper',
+      borderRadius: 3,
+      boxShadow: 20,
+      overflow: 'hidden',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+    }}
+  >
+    {/* Header */}
+    <div className="bg-gradient-to-r from-blue-700 to-indigo-800 px-6 py-4 text-white">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-xl">
+            <IoSchool className="text-lg" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Student Details</h2>
+            <p className="text-xs text-blue-100 opacity-90">
+              Complete student information
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-2 rounded-lg hover:bg-white/20 transition"
+        >
+          <FiX className="text-lg" />
+        </button>
+      </div>
+    </div>
+
+    {/* Content */}
+    <div className="max-h-[calc(92vh-64px)] overflow-y-auto p-6">
+      {/* Profile */}
+      <div className="flex flex-col md:flex-row items-center gap-5 mb-6">
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center ring-2 ring-blue-100">
+          <FiUser className="text-white text-2xl" />
+        </div>
+
+        <div className="text-center md:text-left">
+          <h3 className="text-xl font-semibold text-gray-900">
+            {student.firstName}{' '}
+            {student.middleName ? student.middleName + ' ' : ''}
+            {student.lastName}
+          </h3>
+          <p className="text-sm text-gray-600">
+            Admission #{student.admissionNumber}
+          </p>
+
+          <div className="flex flex-wrap gap-1.5 mt-3 justify-center md:justify-start">
+            <span
+              className={`px-3 py-1 rounded-md text-xs font-medium text-white bg-gradient-to-r ${getFormColor(
+                student.form
+              )}`}
+            >
+              {student.form}
+            </span>
+
+            {student.stream && (
+              <span className="px-3 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-700">
+                {student.stream}
+              </span>
+            )}
+
+            <span
+              className={`px-3 py-1 rounded-md text-xs font-semibold ${
+                student.status === 'active'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-red-100 text-red-700'
+              }`}
+            >
+              {student.status}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Sections */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {[
+          {
+            title: 'Academic Information',
+            icon: <FiBook />,
+            color: 'blue',
+            items: [
+              ['Form Level', student.form],
+              ['Stream', student.stream || 'Not Assigned'],
+              ['Status', student.status.toUpperCase()],
+              ['Admission Date', formatDate(student.createdAt)],
+            ],
+          },
+          {
+            title: 'Personal Information',
+            icon: <FiUser />,
+            color: 'emerald',
+            items: [
+              ['Gender', student.gender || 'Not Specified'],
+              ['Date of Birth', formatDate(student.dateOfBirth)],
+              [
+                'Age',
+                `${calculateAge(student.dateOfBirth)} years`,
+              ],
+            ],
+          },
+        ].map(section => (
+          <div
+            key={section.title}
+            className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm"
+          >
+            <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <span className={`text-${section.color}-600`}>
+                {section.icon}
+              </span>
+              {section.title}
+            </h4>
+
+            <div className="space-y-2 text-sm">
+              {section.items.map(([label, value]) => (
+                <div
+                  key={label}
+                  className="flex justify-between text-gray-700"
+                >
+                  <span className="text-gray-500">{label}</span>
+                  <span className="font-medium">{value}</span>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Student Details</h2>
-                  <p className="text-blue-100 opacity-90 text-sm mt-1">
-                    Complete student information and analytics
-                  </p>
-                </div>
-              </div>
-              <button onClick={onClose} className="p-2 bg-white bg-opacity-20 rounded-2xl">
-                <FiX className="text-xl" />
-              </button>
+              ))}
             </div>
           </div>
+        ))}
+      </div>
 
-          <div className="max-h-[calc(95vh-80px)] overflow-y-auto p-6">
-            <div className="mb-8">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-6">
-                <div className="w-28 h-28 rounded-3xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center shadow-2xl ring-4 ring-blue-100 mx-auto md:mx-0">
-                  <FiUser className="text-white text-4xl" />
-                </div>
-                <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-3xl font-bold text-gray-900 tracking-tight">
-                    {student.firstName} {student.middleName ? student.middleName + ' ' : ''}{student.lastName}
-                  </h3>
-                  <p className="text-gray-700 text-base font-semibold mt-2">Admission #{student.admissionNumber}</p>
-                  <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
-                    <div className={`px-5 py-2.5 bg-gradient-to-r ${getFormColor(student.form)} text-white rounded-xl font-bold text-sm`}>
-                      {student.form}
-                    </div>
-                    {student.stream && (
-                      <div className="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-purple-700 text-white rounded-xl font-bold text-sm">
-                        Stream: {student.stream}
-                      </div>
-                    )}
-                    <div className={`px-5 py-2.5 rounded-xl font-bold text-sm ${
-                      student.status === 'active' 
-                        ? 'bg-gradient-to-r from-green-500 to-green-700 text-white'
-                        : 'bg-gradient-to-r from-red-500 to-red-700 text-white'
-                    }`}>
-                      {student.status.toUpperCase()}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Actions */}
+      <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-5 border-t border-gray-200">
+        <button
+          onClick={onEdit}
+          className="flex-1 py-3 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition"
+        >
+          <FiEdit className="inline mr-2" />
+          Edit Student
+        </button>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
-                <h4 className="text-xl font-bold text-gray-900 mb-5 flex items-center gap-3">
-                  <div className="p-2.5 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl">
-                    <FiBook className="text-blue-700 text-xl" />
-                  </div>
-                  Academic Information
-                </h4>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Form Level</span>
-                    <span className="font-bold text-gray-900 text-lg">{student.form}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Stream</span>
-                    <span className="font-bold text-gray-900 text-lg">{student.stream || 'Not Assigned'}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Status</span>
-                    <span className={`px-4 py-2 rounded-lg text-sm font-bold ${
-                      student.status === 'active' 
-                        ? 'bg-green-100 to-green-200 text-green-900' 
-                        : 'bg-red-100 to-red-200 text-red-900'
-                    }`}>
-                      {student.status.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Admission Date</span>
-                    <span className="font-bold text-gray-900 text-base">{formatDate(student.createdAt)}</span>
-                  </div>
-                </div>
-              </div>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="flex-1 py-3 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition"
+        >
+          <FiTrash2 className="inline mr-2" />
+          Delete Student
+        </button>
+      </div>
+    </div>
+  </Box>
+</Modal>
 
-              <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
-                <h4 className="text-xl font-bold text-gray-900 mb-5 flex items-center gap-3">
-                  <div className="p-2.5 bg-gradient-to-r from-emerald-100 to-emerald-200 rounded-xl">
-                    <FiUser className="text-emerald-700 text-xl" />
-                  </div>
-                  Personal Information
-                </h4>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Gender</span>
-                    <span className="font-bold text-gray-900 text-lg">{student.gender || 'Not Specified'}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Date of Birth</span>
-                    <span className="font-bold text-gray-900 text-base">{formatDate(student.dateOfBirth)}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Age</span>
-                    <span className="font-bold text-gray-900 text-lg">{calculateAge(student.dateOfBirth)} years</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
-                <h4 className="text-xl font-bold text-gray-900 mb-5 flex items-center gap-3">
-                  <div className="p-2.5 bg-gradient-to-r from-purple-100 to-purple-200 rounded-xl">
-                    <FiMail className="text-purple-700 text-xl" />
-                  </div>
-                  Contact Information
-                </h4>
-                <div className="space-y-4">
-                  {student.email && (
-                    <div className="flex items-center gap-4 p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
-                      <FiMail className="text-purple-600 text-lg flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-600">Email Address</p>
-                        <p className="font-bold text-gray-900 text-base truncate">{student.email}</p>
-                      </div>
-                    </div>
-                  )}
-                  {student.parentPhone && (
-                    <div className="flex items-center gap-4 p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
-                      <FiPhone className="text-purple-600 text-lg flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-600">Parent's Phone</p>
-                        <p className="font-bold text-gray-900 text-base">{student.parentPhone}</p>
-                      </div>
-                    </div>
-                  )}
-                  {student.address && (
-                    <div className="flex items-start gap-4 p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
-                      <FiMapPin className="text-purple-600 text-lg mt-1 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-600">Address</p>
-                        <p className="font-medium text-gray-900 text-base">{student.address}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
-                <h4 className="text-xl font-bold text-gray-900 mb-5 flex items-center gap-3">
-                  <div className="p-2.5 bg-gradient-to-r from-amber-100 to-amber-200 rounded-xl">
-                    <FiClock className="text-amber-700 text-xl" />
-                  </div>
-                  System Information
-                </h4>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Created At</span>
-                    <span className="font-bold text-gray-900 text-base">{formatDate(student.createdAt)}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl">
-                    <span className="text-base font-semibold text-gray-700">Last Updated</span>
-                    <span className="font-bold text-gray-900 text-base">{formatDate(student.updatedAt)}</span>
-                  </div>
-                  {student.uploadBatch && (
-                    <div className="p-3 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl">
-                      <p className="text-sm font-semibold text-gray-600 mb-1">Upload Batch</p>
-                      <p className="font-bold text-gray-900 text-base">{student.uploadBatch.fileName}</p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Uploaded: {formatDate(student.uploadBatch.uploadDate)}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t-2 border-gray-200">
-              <button
-                onClick={onEdit}
-                className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-2xl font-bold text-base shadow-xl"
-              >
-                <FiEdit className="text-lg" /> Edit Student
-              </button>
-              <button
-                onClick={() => {
-                  setShowDeleteModal(true);
-                }}
-                className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-2xl font-bold text-base shadow-xl"
-              >
-                <FiTrash2 className="text-lg" /> Delete Student
-              </button>
-            </div>
-          </div>
-        </Box>
-      </Modal>
 
       {showDeleteModal && (
         <ModernDeleteModal
@@ -589,249 +545,305 @@ function ModernStudentEditModal({ student, onClose, onSave, loading }) {
   };
 
   return (
-    <Modal open={true} onClose={onClose}>
-      <Box sx={{
-        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '95vw',
-        maxWidth: '900px',
-        maxHeight: '95vh',
-        bgcolor: 'background.paper',
-        borderRadius: 3,
-        boxShadow: 24,
-        overflow: 'hidden',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
-      }}>
-        <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white bg-opacity-20 rounded-2xl">
-                <FiEdit className="text-2xl" />
+<Modal open={true} onClose={onClose}>
+  <Box
+    sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '95vw',
+      maxWidth: '880px',
+      maxHeight: '92vh',
+      bgcolor: 'background.paper',
+      borderRadius: 3,
+      boxShadow: 20,
+      overflow: 'hidden',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+    }}
+  >
+    {/* Header */}
+    <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-xl">
+            <FiEdit className="text-lg" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Edit Student Information</h2>
+            <p className="text-xs text-blue-100 opacity-90">
+              Update student details
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-2 rounded-lg hover:bg-white/20 transition"
+        >
+          <FiX className="text-lg" />
+        </button>
+      </div>
+    </div>
+
+    {/* Form */}
+    <div className="max-h-[calc(92vh-64px)] overflow-y-auto p-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Personal Info */}
+        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+          <h4 className="text-sm font-semibold text-gray-900 mb-4">
+            Personal Information
+          </h4>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              ['First Name *', 'firstName', 'text', true],
+              ['Middle Name', 'middleName', 'text'],
+              ['Last Name *', 'lastName', 'text', true],
+            ].map(([label, key, type, required]) => (
+              <div key={key}>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                  {label}
+                </label>
+                <input
+                  type={type}
+                  required={required}
+                  value={formData[key]}
+                  onChange={e =>
+                    setFormData({ ...formData, [key]: e.target.value })
+                  }
+                  className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
-              <div>
-                <h2 className="text-2xl font-bold">Edit Student Information</h2>
-                <p className="text-blue-100 opacity-90 text-sm mt-1">
-                  Update all student details below
-                </p>
-              </div>
+            ))}
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Gender
+              </label>
+              <select
+                value={formData.gender}
+                onChange={e =>
+                  setFormData({ ...formData, gender: e.target.value })
+                }
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Gender</option>
+                {GENDERS.map(g => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
             </div>
-            <button onClick={onClose} className="p-2 bg-white bg-opacity-20 rounded-2xl">
-              <FiX className="text-xl" />
-            </button>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                value={formData.dateOfBirth}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    dateOfBirth: e.target.value,
+                  })
+                }
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div className="md:col-span-2 lg:col-span-1">
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Address
+              </label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={e =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Full address"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="max-h-[calc(95vh-80px)] overflow-y-auto p-6">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
-              <h4 className="text-xl font-bold text-gray-900 mb-6">Personal Information</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    First Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Middle Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.middleName}
-                    onChange={(e) => setFormData({...formData, middleName: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Last Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Gender
-                  </label>
-                  <select
-                    value={formData.gender}
-                    onChange={(e) => setFormData({...formData, gender: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                  >
-                    <option value="">Select Gender</option>
-                    {GENDERS.map(gender => (
-                      <option key={gender} value={gender}>{gender}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Date of Birth
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.dateOfBirth}
-                    onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                  />
-                </div>
-                <div className="md:col-span-2 lg:col-span-1">
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                    placeholder="Enter full address"
-                  />
-                </div>
-              </div>
+        {/* Academic Info */}
+        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+          <h4 className="text-sm font-semibold text-gray-900 mb-4">
+            Academic Information
+          </h4>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Admission Number *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.admissionNumber}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    admissionNumber: e.target.value,
+                  })
+                }
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                pattern="\d{4,10}"
+              />
             </div>
 
-            <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
-              <h4 className="text-xl font-bold text-gray-900 mb-6">Academic Information</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Admission Number *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.admissionNumber}
-                    onChange={(e) => setFormData({...formData, admissionNumber: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                    pattern="\d{4,10}"
-                    title="Admission number must be 4-10 digits"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Form *
-                  </label>
-                  <select
-                    required
-                    value={formData.form}
-                    onChange={(e) => setFormData({...formData, form: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                  >
-                    {FORMS.map(form => (
-                      <option key={form} value={form}>{form}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Stream
-                  </label>
-                  <select
-                    value={formData.stream}
-                    onChange={(e) => setFormData({...formData, stream: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                  >
-                    <option value="">Select Stream</option>
-                    {STREAMS.map(stream => (
-                      <option key={stream} value={stream}>{stream}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="lg:col-span-3">
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Status *
-                  </label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {['active', 'inactive', 'graduated', 'transferred'].map(status => (
-                      <label key={status} className="flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          value={status}
-                          checked={formData.status === status}
-                          onChange={(e) => setFormData({...formData, status: e.target.value})}
-                          className="text-blue-600 focus:ring-blue-500"
-                        />
-                        <div className="flex-1">
-                          <div className="font-bold text-gray-900 text-base capitalize">{status}</div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
-              <h4 className="text-xl font-bold text-gray-900 mb-6">Contact Information</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                    placeholder="student@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    Parent/Guardian Phone
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.parentPhone}
-                    onChange={(e) => setFormData({...formData, parentPhone: e.target.value})}
-                    className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white text-base"
-                    placeholder="+254 700 000 000"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t-2 border-gray-200">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-6 py-4 border-2 border-gray-400 text-gray-700 rounded-2xl font-bold text-base"
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Form *
+              </label>
+              <select
+                required
+                value={formData.form}
+                onChange={e =>
+                  setFormData({ ...formData, form: e.target.value })
+                }
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-2xl font-bold text-base shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                {FORMS.map(f => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Stream
+              </label>
+              <select
+                value={formData.stream}
+                onChange={e =>
+                  setFormData({ ...formData, stream: e.target.value })
+                }
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                {loading ? (
-                  <>
-                    <CircularProgress size={18} className="text-white" />
-                    <span>Saving Changes...</span>
-                  </>
-                ) : (
-                  <>
-                    <FiSave className="text-lg" />
-                    <span>Save All Changes</span>
-                  </>
+                <option value="">Select Stream</option>
+                {STREAMS.map(s => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="lg:col-span-3">
+              <label className="block text-xs font-medium text-gray-600 mb-2">
+                Status *
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {['active', 'inactive', 'graduated', 'transferred'].map(
+                  status => (
+                    <label
+                      key={status}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 cursor-pointer hover:border-blue-400 transition"
+                    >
+                      <input
+                        type="radio"
+                        value={status}
+                        checked={formData.status === status}
+                        onChange={e =>
+                          setFormData({
+                            ...formData,
+                            status: e.target.value,
+                          })
+                        }
+                      />
+                      <span className="text-sm capitalize">
+                        {status}
+                      </span>
+                    </label>
+                  )
                 )}
-              </button>
+              </div>
             </div>
-          </form>
+          </div>
         </div>
-      </Box>
-    </Modal>
+
+        {/* Contact Info */}
+        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+          <h4 className="text-sm font-semibold text-gray-900 mb-4">
+            Contact Information
+          </h4>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={e =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="student@example.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Parent / Guardian Phone
+              </label>
+              <input
+                type="tel"
+                value={formData.parentPhone}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    parentPhone: e.target.value,
+                  })
+                }
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="+254 700 000 000"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-3 pt-5 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-3 text-sm font-semibold rounded-xl border border-gray-300 text-gray-700"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 py-3 text-sm font-semibold rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={16} className="text-white" />
+                Saving…
+              </>
+            ) : (
+              <>
+                <FiSave />
+                Save Changes
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  </Box>
+</Modal>
+
   );
 }
 
@@ -1433,6 +1445,21 @@ function getFormColor(form) {
     default: return 'from-gray-400 to-gray-600';
   }
 }
+
+
+
+// Add this helper function after the imports
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+// Main Component
+
 
 // Main Component
 export default function ModernStudentBulkUpload() {
@@ -2486,88 +2513,119 @@ export default function ModernStudentBulkUpload() {
                         Page {pagination.page} of {pagination.pages}
                       </div>
                     </div>
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+  {students.map(student => (
+    <div
+      key={student.id}
+      className="group bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-lg transition-all duration-300"
+    >
+      {/* Top Section */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center ring-1 ring-blue-100">
+            <FiUser className="text-white text-base" />
+          </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                      {students.map(student => (
-                        <div key={student.id} className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-xl hover:shadow-2xl transition-all duration-300">
-                          <div className="flex items-start justify-between mb-6">
-                            <div className="flex items-center gap-4">
-                              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center shadow-2xl ring-4 ring-blue-100">
-                                <FiUser className="text-white text-2xl" />
-                              </div>
-                              <div>
-                                <h4 className="font-bold text-gray-900 text-base">
-                                  {student.firstName} {student.lastName}
-                                </h4>
-                                <p className="text-gray-600 font-semibold text-base mt-1">#{student.admissionNumber}</p>
-                                <div className="flex flex-wrap gap-2 mt-2 justify-center md:justify-start">
-                                  <div className={`px-5 py-2.5 bg-gradient-to-r ${getFormColor(student.form)} text-white rounded-xl font-bold text-sm`}>
-                                    {student.form}
-                                  </div>
-                                  {student.stream && (
-                                    <div className="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-purple-700 text-white rounded-xl font-bold text-sm">
-                                      Stream: {student.stream}
-                                    </div>
-                                  )}
-                                  <div className={`px-5 py-2.5 rounded-xl font-bold text-sm ${
-                                    student.status === 'active' 
-                                      ? 'bg-gradient-to-r from-green-500 to-green-700 text-white'
-                                      : 'bg-gradient-to-r from-red-500 to-red-700 text-white'
-                                  }`}>
-                                    {student.status.toUpperCase()}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="relative">
-                              <button className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
-                                <FiSettings className="text-base" />
-                              </button>
-                            </div>
-                          </div>
+          <div className="space-y-0.5">
+            <h4 className="text-sm font-semibold text-gray-900 leading-tight">
+              {student.firstName} {student.lastName}
+            </h4>
+            <p className="text-xs text-gray-500">
+              #{student.admissionNumber}
+            </p>
+          </div>
+        </div>
 
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                              <span className="text-gray-600 font-semibold text-base">Form Level</span>
-                              <span className="font-bold text-gray-900 text-lg">{student.form}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-gray-600 font-semibold text-base">Stream</span>
-                              <span className="font-bold text-gray-900 text-lg">{student.stream || 'Not Assigned'}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-gray-600 font-semibold text-base">Status</span>
-                              <span className={`px-4 py-2 rounded-lg text-sm font-bold ${
-                                student.status === 'active' 
-                                  ? 'bg-green-100 to-green-200 text-green-900' 
-                                  : 'bg-red-100 to-red-200 text-red-900'
-                              }`}>
-                                {student.status.toUpperCase()}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-gray-600 font-semibold text-base">Admission Date</span>
-                              <span className="font-bold text-gray-900 text-base">{formatDate(student.createdAt)}</span>
-                            </div>
-                          </div>
+        <button className="opacity-60 group-hover:opacity-100 transition p-1.5 rounded-md hover:bg-gray-100">
+          <FiSettings className="text-sm text-gray-500" />
+        </button>
+      </div>
 
-                          <div className="flex gap-3 mt-8 pt-6 border-t border-gray-200">
-                            <button
-                              onClick={() => setSelectedStudent(student)}
-                              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl text-base font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
-                            >
-                              <FiEye className="text-sm" /> View
-                            </button>
-                            <button
-                              onClick={() => setEditingStudent(student)}
-                              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl text-base font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
-                            >
-                              <FiEdit className="text-sm" /> Edit
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+      {/* Tags */}
+      <div className="flex flex-wrap gap-1.5 mt-3">
+        <span
+          className={`px-2.5 py-1 rounded-md text-[11px] font-medium text-white bg-gradient-to-r ${getFormColor(student.form)}`}
+        >
+          {student.form}
+        </span>
+
+        {student.stream && (
+          <span className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-purple-50 text-purple-700">
+            Stream {student.stream}
+          </span>
+        )}
+
+        <span
+          className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${
+            student.status === 'active'
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-red-50 text-red-700'
+          }`}
+        >
+          {student.status}
+        </span>
+      </div>
+
+      {/* Divider */}
+      <div className="my-4 h-px bg-gray-100" />
+
+      {/* Details */}
+      <div className="space-y-2 text-xs">
+        <div className="flex justify-between">
+          <span className="text-gray-500">Form Level</span>
+          <span className="font-medium text-gray-800">{student.form}</span>
+        </div>
+
+        <div className="flex justify-between">
+          <span className="text-gray-500">Stream</span>
+          <span className="font-medium text-gray-800">
+            {student.stream || '—'}
+          </span>
+        </div>
+
+        <div className="flex justify-between">
+          <span className="text-gray-500">Status</span>
+          <span
+            className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
+              student.status === 'active'
+                ? 'bg-emerald-100 text-emerald-800'
+                : 'bg-red-100 text-red-800'
+            }`}
+          >
+            {student.status}
+          </span>
+        </div>
+
+        <div className="flex justify-between">
+          <span className="text-gray-500">Admitted</span>
+          <span className="font-medium text-gray-700 text-[11px]">
+            {formatDate(student.createdAt)}
+          </span>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2 mt-4">
+        <button
+          onClick={() => setSelectedStudent(student)}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+        >
+          <FiEye className="text-xs" />
+          View
+        </button>
+
+        <button
+          onClick={() => setEditingStudent(student)}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition"
+        >
+          <FiEdit className="text-xs" />
+          Edit
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
                   </>
                 )}
 
@@ -2596,113 +2654,165 @@ export default function ModernStudentBulkUpload() {
                       </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-[768px]">
-                        <thead className="bg-gray-100">
-                          <tr>
-                            <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors"
-                                onClick={() => handleSort('firstName')}>
-                              <div className="flex items-center gap-2">
-                                Student
-                                {filters.sortBy === 'firstName' && (
-                                  filters.sortOrder === 'asc' ? <FiChevronUp /> : <FiChevronDown />
-                                )}
-                              </div>
-                            </th>
-                            <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors"
-                                onClick={() => handleSort('form')}>
-                              <div className="flex items-center gap-2">
-                                Form
-                                {filters.sortBy === 'form' && (
-                                  filters.sortOrder === 'asc' ? <FiChevronUp /> : <FiChevronDown />
-                                )}
-                              </div>
-                            </th>
-                            <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors"
-                                onClick={() => handleSort('stream')}>
-                              <div className="flex items-center gap-2">
-                                Stream
-                                {filters.sortBy === 'stream' && (
-                                  filters.sortOrder === 'asc' ? <FiChevronUp /> : <FiChevronDown />
-                                )}
-                              </div>
-                            </th>
-                            <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:text-blue-600 transition-colors"
-                                onClick={() => handleSort('status')}>
-                              <div className="flex items-center gap-2">
-                                Status
-                                {filters.sortBy === 'status' && (
-                                  filters.sortOrder === 'asc' ? <FiChevronUp /> : <FiChevronDown />
-                                )}
-                              </div>
-                            </th>
-                            <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y-2 divide-gray-200">
-                          {students.map(student => (
-                            <tr key={student.id} className="bg-white hover:bg-gray-50 transition-colors">
-                              <td className="px-8 py-5">
-                                <div className="flex items-center gap-4">
-                                  <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center flex-shrink-0">
-                                    <FiUser className="text-white text-base" />
-                                  </div>
-                                  <div>
-                                    <div className="font-bold text-gray-900 text-base">
-                                      {student.firstName} {student.middleName ? `${student.middleName} ` : ''}{student.lastName}
-                                    </div>
-                                    <div className="text-gray-600 font-semibold text-sm">#{student.admissionNumber}</div>
-                                    {student.email && (
-                                      <div className="text-gray-600 text-sm truncate max-w-[200px]">{student.email}</div>
-                                    )}
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-8 py-5">
-                                <span className={`px-4 py-2 rounded-xl text-sm font-bold ${
-                                  student.form === 'Form 1' ? 'bg-blue-100 text-blue-800' :
-                                  student.form === 'Form 2' ? 'bg-emerald-100 text-emerald-800' :
-                                  student.form === 'Form 3' ? 'bg-amber-100 text-amber-800' :
-                                  'bg-purple-100 text-purple-800'
-                                }`}>
-                                  {student.form}
-                                </span>
-                              </td>
-                              <td className="px-8 py-5">
-                                <span className="text-gray-900 font-bold text-base">{student.stream || 'Unassigned'}</span>
-                              </td>
-                              <td className="px-8 py-5">
-                                <span className={`px-4 py-2 rounded-xl text-sm font-bold ${
-                                  student.status === 'active'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-red-100 text-red-800'
-                                }`}>
-                                  {student.status.toUpperCase()}
-                                </span>
-                              </td>
-                              <td className="px-8 py-5">
-                                <div className="flex items-center gap-3">
-                                  <button
-                                    onClick={() => setSelectedStudent(student)}
-                                    className="px-4 py-2 bg-blue-50 text-blue-700 rounded-xl font-bold text-sm hover:bg-blue-100 transition-colors"
-                                  >
-                                    View
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingStudent(student)}
-                                    className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm hover:bg-emerald-100 transition-colors"
-                                  >
-                                    Edit
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                  <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
+  <table className="w-full min-w-[760px] text-sm">
+    <thead className="bg-gray-50 border-b border-gray-100">
+      <tr>
+        <th
+          className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide cursor-pointer hover:text-blue-600"
+          onClick={() => handleSort('firstName')}
+        >
+          <div className="flex items-center gap-1.5">
+            Student
+            {filters.sortBy === 'firstName' &&
+              (filters.sortOrder === 'asc' ? (
+                <FiChevronUp className="text-xs" />
+              ) : (
+                <FiChevronDown className="text-xs" />
+              ))}
+          </div>
+        </th>
+
+        <th
+          className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide cursor-pointer hover:text-blue-600"
+          onClick={() => handleSort('form')}
+        >
+          <div className="flex items-center gap-1.5">
+            Form
+            {filters.sortBy === 'form' &&
+              (filters.sortOrder === 'asc' ? (
+                <FiChevronUp className="text-xs" />
+              ) : (
+                <FiChevronDown className="text-xs" />
+              ))}
+          </div>
+        </th>
+
+        <th
+          className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide cursor-pointer hover:text-blue-600"
+          onClick={() => handleSort('stream')}
+        >
+          <div className="flex items-center gap-1.5">
+            Stream
+            {filters.sortBy === 'stream' &&
+              (filters.sortOrder === 'asc' ? (
+                <FiChevronUp className="text-xs" />
+              ) : (
+                <FiChevronDown className="text-xs" />
+              ))}
+          </div>
+        </th>
+
+        <th
+          className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide cursor-pointer hover:text-blue-600"
+          onClick={() => handleSort('status')}
+        >
+          <div className="flex items-center gap-1.5">
+            Status
+            {filters.sortBy === 'status' &&
+              (filters.sortOrder === 'asc' ? (
+                <FiChevronUp className="text-xs" />
+              ) : (
+                <FiChevronDown className="text-xs" />
+              ))}
+          </div>
+        </th>
+
+        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+          Actions
+        </th>
+      </tr>
+    </thead>
+
+    <tbody className="divide-y divide-gray-100">
+      {students.map(student => (
+        <tr
+          key={student.id}
+          className="hover:bg-gray-50 transition-colors"
+        >
+          {/* Student */}
+          <td className="px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0">
+                <FiUser className="text-white text-sm" />
+              </div>
+
+              <div className="leading-tight">
+                <div className="font-semibold text-gray-900">
+                  {student.firstName}{' '}
+                  {student.middleName ? `${student.middleName} ` : ''}
+                  {student.lastName}
+                </div>
+                <div className="text-xs text-gray-500">
+                  #{student.admissionNumber}
+                </div>
+                {student.email && (
+                  <div className="text-xs text-gray-400 max-w-[220px] truncate">
+                    {student.email}
+                  </div>
+                )}
+              </div>
+            </div>
+          </td>
+
+          {/* Form */}
+          <td className="px-6 py-4">
+            <span
+              className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${
+                student.form === 'Form 1'
+                  ? 'bg-blue-50 text-blue-700'
+                  : student.form === 'Form 2'
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : student.form === 'Form 3'
+                  ? 'bg-amber-50 text-amber-700'
+                  : 'bg-purple-50 text-purple-700'
+              }`}
+            >
+              {student.form}
+            </span>
+          </td>
+
+          {/* Stream */}
+          <td className="px-6 py-4 text-gray-800 font-medium">
+            {student.stream || '—'}
+          </td>
+
+          {/* Status */}
+          <td className="px-6 py-4">
+            <span
+              className={`inline-flex px-2.5 py-1 rounded-md text-xs font-semibold ${
+                student.status === 'active'
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : 'bg-red-50 text-red-700'
+              }`}
+            >
+              {student.status}
+            </span>
+          </td>
+
+          {/* Actions */}
+          <td className="px-6 py-4">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSelectedStudent(student)}
+                className="px-3 py-1.5 rounded-md text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 transition"
+              >
+                View
+              </button>
+              <button
+                onClick={() => setEditingStudent(student)}
+                className="px-3 py-1.5 rounded-md text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition"
+              >
+                Edit
+              </button>
+            </div>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
                   </div>
                 )}
 

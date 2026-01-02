@@ -108,8 +108,8 @@ model CounselingEvent {
   id          Int      @id @default(autoincrement())
   counselor   String
   category    String
-  description String
-  notes       String?
+  description String   @db.Text
+  notes       String?  @db.Text
   date        DateTime
   time        String
   type        String
@@ -122,7 +122,7 @@ model CounselingEvent {
 model Event {
   id           Int      @id @default(autoincrement())
   title        String
-  description  String
+  description  String?  @db.Text
   date         DateTime
   time         String
   location     String
@@ -140,8 +140,8 @@ model Event {
 model News {
   id          Int      @id @default(autoincrement())
   title       String
-  excerpt     String
-  fullContent String
+  excerpt     String?  @db.Text
+  fullContent String?  @db.Text
   date        DateTime
   category    String
   author      String

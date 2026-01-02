@@ -29,6 +29,9 @@ import {
   FiCheck
 } from 'react-icons/fi';
 
+import { useRef } from 'react'; // Add this import
+
+
 // Material-UI Components
 import CircularProgress from '@mui/material/CircularProgress';
 import { Modal, Box, TextField, TextareaAutosize, Chip, Tooltip } from '@mui/material';
@@ -151,22 +154,41 @@ export default function AssignmentsManager() {
     return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
   };
   
-  // File Upload Handlers
-  const handleAssignmentFilesChange = (e) => {
-    const files = Array.from(e.target.files);
-    setNewAssignmentFiles(files);
-    toast.info(`${files.length} assignment file(s) selected`, {
-      icon: '📁'
-    });
-  };
 
-  const handleAttachmentsChange = (e) => {
-    const files = Array.from(e.target.files);
-    setNewAttachments(files);
-    toast.info(`${files.length} attachment(s) selected`, {
-      icon: '📎'
-    });
-  };
+
+
+  // Then inside component:
+const assignmentFileInputRef = useRef(null);
+const attachmentInputRef = useRef(null);
+
+
+// File Upload Handlers - UPDATED TO APPEND FILES
+const handleAssignmentFilesChange = (e) => {
+  const files = Array.from(e.target.files);
+  // Append new files to existing ones instead of replacing
+  setNewAssignmentFiles(prev => [...prev, ...files]);
+  toast.info(`${files.length} assignment file(s) added`, {
+    icon: '📁'
+  });
+  // Reset input to allow selecting same files again
+  if (assignmentFileInputRef.current) {
+    assignmentFileInputRef.current.value = '';
+  }
+};
+
+const handleAttachmentsChange = (e) => {
+  const files = Array.from(e.target.files);
+  // Append new files to existing ones instead of replacing
+  setNewAttachments(prev => [...prev, ...files]);
+  toast.info(`${files.length} attachment(s) added`, {
+    icon: '📎'
+  });
+  // Reset input to allow selecting same files again
+  if (attachmentInputRef.current) {
+    attachmentInputRef.current.value = '';
+  }
+};
+
 
   const removeAssignmentFile = (index) => {
     setNewAssignmentFiles(prev => prev.filter((_, i) => i !== index));
@@ -392,6 +414,23 @@ export default function AssignmentsManager() {
       learningObjectives: updatedObjectives
     });
   };
+
+
+  // Clear all files functions
+const clearAllAssignmentFiles = () => {
+  setNewAssignmentFiles([]);
+  toast.info('All assignment files cleared', {
+    icon: '🗑️'
+  });
+};
+
+const clearAllAttachments = () => {
+  setNewAttachments([]);
+  toast.info('All attachments cleared', {
+    icon: '🗑️'
+  });
+};
+
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -791,6 +830,8 @@ export default function AssignmentsManager() {
                   multiple
                   onChange={handleAssignmentFilesChange}
                   className="hidden"
+                  ref={assignmentFileInputRef} // Add this ref
+
                   id="assignmentFiles"
                 />
                 <label htmlFor="assignmentFiles" className="cursor-pointer block text-center">
@@ -803,25 +844,34 @@ export default function AssignmentsManager() {
                   </p>
                 </label>
               </div>
-              {newAssignmentFiles.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {newAssignmentFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
-                      <div className="flex items-center gap-2">
-                        <FiFileText className="text-blue-500" />
-                        <span className="text-sm font-medium text-gray-700">{file.name}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeAssignmentFile(index)}
-                        className="text-red-500"
-                      >
-                        <FiX className="text-lg" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+  {newAssignmentFiles.length > 0 && (
+  <div className="mt-3">
+    <div className="space-y-2">
+      {newAssignmentFiles.map((file, index) => (
+        <div key={index} className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
+          <div className="flex items-center gap-2">
+            <FiFileText className="text-blue-500" />
+            <span className="text-sm font-medium text-gray-700">{file.name}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => removeAssignmentFile(index)}
+            className="text-red-500"
+          >
+            <FiX className="text-lg" />
+          </button>
+        </div>
+      ))}
+    </div>
+    <button
+      type="button"
+      onClick={clearAllAssignmentFiles}
+      className="mt-2 text-sm text-red-600 font-medium hover:text-red-700"
+    >
+      Clear All Assignment Files
+    </button>
+  </div>
+)}
             </div>
 
             {/* Attachments */}
@@ -836,6 +886,8 @@ export default function AssignmentsManager() {
                   onChange={handleAttachmentsChange}
                   className="hidden"
                   id="attachments"
+                  ref={attachmentInputRef} // Add this ref
+
                 />
                 <label htmlFor="attachments" className="cursor-pointer block text-center">
                   <FiLink className="text-2xl text-green-500 mx-auto mb-3" />

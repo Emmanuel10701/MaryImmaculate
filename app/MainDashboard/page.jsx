@@ -576,7 +576,7 @@ export default function AdminDashboard() {
               <div className="hidden xl:flex items-center gap-3">
                 <HeaderStat 
                   icon={FiUsers} 
-                  value={realStats.totalStudents} 
+                  value={realStats.totalStudent} 
                   label="Students" 
                   color="blue"
                   trend="up"
@@ -588,13 +588,7 @@ export default function AdminDashboard() {
                   color="green"
                   trend="up"
                 />
-                <HeaderStat 
-                  icon={FiClipboard} 
-                  value={realStats.totalApplications} 
-                  label="Applications" 
-                  color="purple"
-                  trend="up"
-                />
+               
                 <HeaderStat 
                   icon={FiUserPlus} 
                   value={realStats.studentCouncil} 

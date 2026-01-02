@@ -16,7 +16,7 @@ const parseScore = (value) => {
 };
 
 const calculateGrade = (score) => {
-  if (score === null) return null;
+  if (score === null || score === undefined) return 'N/A';
   
   if (score >= 80) return 'A';
   if (score >= 70) return 'A-';
@@ -29,6 +29,29 @@ const calculateGrade = (score) => {
   if (score >= 30) return 'D+';
   if (score >= 25) return 'D';
   return 'E';
+};
+
+const calculateResultAverage = (result) => {
+  if (!result.subjects) return 0;
+  
+  let subjects = result.subjects;
+  
+  if (typeof subjects === 'string') {
+    try {
+      subjects = JSON.parse(subjects);
+    } catch (e) {
+      return 0;
+    }
+  }
+  
+  if (!Array.isArray(subjects) || subjects.length === 0) return 0;
+  
+  const totalScore = subjects.reduce((sum, s) => {
+    const score = parseFloat(s.score) || 0;
+    return sum + score;
+  }, 0);
+  
+  return subjects.length > 0 ? parseFloat((totalScore / subjects.length).toFixed(2)) : 0;
 };
 
 const calculatePoints = (score, subjectType = 'main') => {
@@ -90,7 +113,6 @@ const normalizeAcademicYear = (year) => {
   return yearStr;
 };
 
-// Subject name normalization mapping
 const normalizeSubjectName = (subjectName) => {
   if (!subjectName) return '';
   
@@ -116,44 +138,20 @@ const normalizeSubjectName = (subjectName) => {
     'comp': 'Computer Studies'
   };
   
-  // Check for exact matches
   if (subjectMap[lowerName]) {
     return subjectMap[lowerName];
   }
   
-  // Check for partial matches
   for (const [key, value] of Object.entries(subjectMap)) {
     if (lowerName.includes(key)) {
       return value;
     }
   }
   
-  // If no match, capitalize properly
   return subjectName
     .split(/\s+/)
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
-};
-
-// Debug function
-const debugFileStructure = async (file, fileExtension) => {
-  console.log('=== DEBUG FILE STRUCTURE ===');
-  console.log(`File: ${file.name}, Type: ${fileExtension}`);
-  
-  if (fileExtension === 'csv') {
-    const text = await file.text();
-    const lines = text.split('\n');
-    console.log(`Total lines: ${lines.length}`);
-    console.log('First 3 lines:', lines.slice(0, 3));
-    
-    if (lines.length > 0) {
-      const headers = lines[0].split(',');
-      console.log('Headers count:', headers.length);
-      console.log('First 10 headers:', headers.slice(0, 10));
-      console.log('Header format sample:', headers.filter(h => h.includes('_Score')).slice(0, 5));
-    }
-  }
-  console.log('=== END DEBUG ===');
 };
 
 // ========== UPDATED PARSING FUNCTIONS ==========
@@ -161,62 +159,42 @@ const debugFileStructure = async (file, fileExtension) => {
 const parseResultsCSV = async (file) => {
   const text = await file.text();
   
-  console.log('=== CSV PARSING START ===');
-  const lines = text.split('\n');
-  console.log(`File has ${lines.length} lines`);
-  console.log('First 3 lines:', lines.slice(0, 3));
-  
   return new Promise((resolve, reject) => {
     parse(text, {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        console.log('Parsed CSV headers:', results.meta.fields);
-        console.log('First row sample data:', JSON.stringify(results.data[0], null, 2));
-        
         const data = results.data
           .map((row, index) => {
             try {
-              // Get basic info with flexible column names
               const admissionNumber = row.admissionNumber || row.admissionnumber || 
                                     Object.values(row).find(val => /^3[0-5]\d{2}$/.test(String(val))) || '';
               const form = row.form || '';
               const term = row.term || '';
               const academicYear = row.academicYear || row.academicyear || '';
               
-              console.log(`\nRow ${index + 2}: Admission=${admissionNumber}, Form=${form}, Term=${term}, Year=${academicYear}`);
-              
               if (!admissionNumber || !form || !term || !academicYear) {
-                console.log(`Skipping row ${index + 2}: Missing required fields`);
                 return null;
               }
               
-              // Collect subject data from the specific format
               const subjects = [];
               const processedSubjects = new Set();
               
-              // Look for subject score columns (ending with _Score)
               for (const [columnName, value] of Object.entries(row)) {
                 const columnStr = String(columnName).trim();
                 
-                // Check if this is a subject score column
                 if (columnStr.endsWith('_Score') || columnStr.toLowerCase().endsWith(' score')) {
-                  // Extract subject name by removing _Score suffix
                   let subjectName = columnStr.replace(/_Score$/i, '').replace(/ score$/i, '').trim();
                   
-                  // Skip if already processed
                   if (processedSubjects.has(subjectName.toLowerCase())) {
                     continue;
                   }
                   
-                  // Get the score
                   const score = parseScore(value);
                   if (score === null || score < 0 || score > 100) {
-                    console.log(`Invalid score for ${subjectName}: ${value}`);
                     continue;
                   }
                   
-                  // Get grade, points, and comment from corresponding columns
                   const grade = row[`${subjectName}_Grade`] || 
                                row[`${subjectName} Grade`] || 
                                calculateGrade(score);
@@ -231,7 +209,6 @@ const parseResultsCSV = async (file) => {
                                  row[`${subjectName} Comment`] || 
                                  '';
                   
-                  // Normalize subject name
                   const normalizedSubject = normalizeSubjectName(subjectName);
                   
                   subjects.push({
@@ -243,16 +220,13 @@ const parseResultsCSV = async (file) => {
                   });
                   
                   processedSubjects.add(subjectName.toLowerCase());
-                  console.log(`  Found subject: ${normalizedSubject} (${score}%, ${grade}, ${points} points)`);
                 }
               }
               
-              // Also check for simple subject name columns (without suffix)
               for (const [columnName, value] of Object.entries(row)) {
                 const columnStr = String(columnName).trim();
                 const lowerCol = columnStr.toLowerCase();
                 
-                // Skip columns we know aren't subjects
                 if (lowerCol.includes('admission') || lowerCol.includes('form') || 
                     lowerCol.includes('term') || lowerCol.includes('year') ||
                     lowerCol.includes('total') || lowerCol.includes('average') ||
@@ -264,10 +238,8 @@ const parseResultsCSV = async (file) => {
                   continue;
                 }
                 
-                // Check if this might be a subject column (has a score value)
                 const score = parseScore(value);
                 if (score !== null && score >= 0 && score <= 100) {
-                  // Check if this subject was already processed in the _Score format
                   const normalizedCol = normalizeSubjectName(columnStr);
                   if (!processedSubjects.has(normalizedCol.toLowerCase())) {
                     subjects.push({
@@ -279,15 +251,11 @@ const parseResultsCSV = async (file) => {
                     });
                     
                     processedSubjects.add(normalizedCol.toLowerCase());
-                    console.log(`  Found simple subject: ${normalizedCol} (${score}%)`);
                   }
                 }
               }
               
-              console.log(`Row ${index + 2}: Total subjects found: ${subjects.length}`);
-              
               if (subjects.length === 0) {
-                console.log(`Skipping row ${index + 2}: No valid subjects found`);
                 return null;
               }
               
@@ -299,21 +267,14 @@ const parseResultsCSV = async (file) => {
                 subjects
               };
             } catch (error) {
-              console.error(`Error parsing CSV row ${index + 2}:`, error);
-              console.error('Row data:', row);
               return null;
             }
           })
           .filter(item => item !== null);
         
-        console.log(`\n=== CSV PARSING END: ${data.length} valid rows ===`);
-        if (data.length > 0) {
-          console.log('Sample parsed record:', JSON.stringify(data[0], null, 2));
-        }
         resolve(data);
       },
       error: (error) => {
-        console.error('CSV parsing error:', error);
         reject(error);
       }
     });
@@ -328,37 +289,25 @@ const parseResultsExcel = async (file) => {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
     
-    console.log('=== EXCEL PARSING START ===');
-    console.log('First row:', jsonData[0]);
-    
     const data = jsonData
       .map((row, index) => {
         try {
-          console.log(`\nProcessing Excel row ${index + 2}`);
-          
-          // Get basic info
           const admissionNumber = row.admissionNumber || row.admissionnumber || 
                                 Object.values(row).find(val => /^3[0-5]\d{2}$/.test(String(val))) || '';
           const form = row.form || '';
           const term = row.term || '';
           const academicYear = row.academicYear || row.academicyear || '';
           
-          console.log(`Row ${index + 2}: Admission=${admissionNumber}, Form=${form}, Term=${term}, Year=${academicYear}`);
-          
           if (!admissionNumber || !form || !term || !academicYear) {
-            console.log(`Skipping row ${index + 2}: Missing required fields`);
             return null;
           }
           
-          // Collect subject data
           const subjects = [];
           const processedSubjects = new Set();
           
-          // Look for subject score columns
           for (const [columnName, value] of Object.entries(row)) {
             const columnStr = String(columnName).trim();
             
-            // Check if this is a subject score column
             if (columnStr.endsWith('_Score') || columnStr.toLowerCase().endsWith(' score')) {
               let subjectName = columnStr.replace(/_Score$/i, '').replace(/ score$/i, '').trim();
               
@@ -371,7 +320,6 @@ const parseResultsExcel = async (file) => {
                 continue;
               }
               
-              // Get related data
               const grade = row[`${subjectName}_Grade`] || 
                            row[`${subjectName} Grade`] || 
                            calculateGrade(score);
@@ -400,12 +348,10 @@ const parseResultsExcel = async (file) => {
             }
           }
           
-          // Check for simple subject columns
           for (const [columnName, value] of Object.entries(row)) {
             const columnStr = String(columnName).trim();
             const lowerCol = columnStr.toLowerCase();
             
-            // Skip non-subject columns
             if (lowerCol.includes('admission') || lowerCol.includes('form') || 
                 lowerCol.includes('term') || lowerCol.includes('year') ||
                 lowerCol.includes('total') || lowerCol.includes('average') ||
@@ -434,8 +380,6 @@ const parseResultsExcel = async (file) => {
             }
           }
           
-          console.log(`Row ${index + 2}: Found ${subjects.length} subjects`);
-          
           if (subjects.length === 0) {
             return null;
           }
@@ -448,17 +392,14 @@ const parseResultsExcel = async (file) => {
             subjects
           };
         } catch (error) {
-          console.error(`Error parsing Excel row ${index + 2}:`, error);
           return null;
         }
       })
       .filter(item => item !== null);
     
-    console.log(`=== EXCEL PARSING END: ${data.length} valid rows ===`);
     return data;
     
   } catch (error) {
-    console.error('Excel parsing error:', error);
     throw new Error(`Excel parsing failed: ${error.message}`);
   }
 };
@@ -480,7 +421,6 @@ export async function POST(request) {
       );
     }
     
-    // Validate required fields
     if (!term || !academicYear) {
       return NextResponse.json(
         { success: false, error: 'Term and academic year are required' },
@@ -498,16 +438,9 @@ export async function POST(request) {
       );
     }
     
-    // Normalize inputs
     const normalizedTerm = normalizeTerm(term);
     const normalizedAcademicYear = normalizeAcademicYear(academicYear);
     
-    console.log(`Uploading: ${fileName}, Term: ${normalizedTerm}, Year: ${normalizedAcademicYear}`);
-    
-    // Debug file structure
-    await debugFileStructure(file, fileExtension);
-    
-    // Create batch record
     const batchId = `RESULT_BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     const uploadBatch = await prisma.resultUpload.create({
@@ -523,33 +456,18 @@ export async function POST(request) {
     });
     
     try {
-      // Parse file
       let rawData = [];
       
       if (fileExtension === 'csv') {
-        console.log('Parsing CSV file...');
         rawData = await parseResultsCSV(file);
       } else {
-        console.log('Parsing Excel file...');
         rawData = await parseResultsExcel(file);
       }
       
-      console.log(`Parsed ${rawData.length} records from file`);
-      
       if (rawData.length === 0) {
-        // Get more debug info
-        if (fileExtension === 'csv') {
-          const text = await file.text();
-          const lines = text.split('\n');
-          console.log(`File has ${lines.length} lines`);
-          console.log('First 3 lines:', lines.slice(0, 3));
-          console.log('First row columns:', lines[0]?.split(','));
-        }
-        
         throw new Error(`No valid result data found in file. Parsed ${rawData.length} records. Please check file format.`);
       }
       
-      // Process each record
       const stats = {
         totalRows: rawData.length,
         validRows: 0,
@@ -560,9 +478,6 @@ export async function POST(request) {
       
       for (const [index, record] of rawData.entries()) {
         try {
-          console.log(`Processing ${index + 1}/${rawData.length}: ${record.admissionNumber} - ${record.form}`);
-          
-          // Validate required fields
           if (!record.admissionNumber) {
             stats.skippedRows++;
             stats.errors.push(`Row ${index + 2}: Missing admission number`);
@@ -581,7 +496,6 @@ export async function POST(request) {
             continue;
           }
           
-          // Check if student exists
           const student = await prisma.databaseStudent.findUnique({
             where: { admissionNumber: record.admissionNumber }
           });
@@ -592,7 +506,6 @@ export async function POST(request) {
             continue;
           }
           
-          // Clean subjects - filter out non-subject entries
           const cleanSubjects = record.subjects
             .map(subject => ({
               subject: subject.subject,
@@ -616,7 +529,6 @@ export async function POST(request) {
             continue;
           }
           
-          // Check for existing result
           const existingResult = await prisma.studentResult.findFirst({
             where: {
               admissionNumber: record.admissionNumber,
@@ -626,7 +538,6 @@ export async function POST(request) {
           });
           
           if (existingResult) {
-            // Update existing result
             await prisma.studentResult.update({
               where: { id: existingResult.id },
               data: {
@@ -635,9 +546,7 @@ export async function POST(request) {
                 uploadBatchId: batchId
               }
             });
-            console.log(`✓ Updated: ${record.admissionNumber}`);
           } else {
-            // Create new result
             await prisma.studentResult.create({
               data: {
                 admissionNumber: record.admissionNumber,
@@ -648,7 +557,6 @@ export async function POST(request) {
                 uploadBatchId: batchId
               }
             });
-            console.log(`✓ Created: ${record.admissionNumber}`);
           }
           
           stats.validRows++;
@@ -657,11 +565,9 @@ export async function POST(request) {
           stats.errorRows++;
           const errorMsg = `Row ${index + 2}: ${error.message}`;
           stats.errors.push(errorMsg);
-          console.error(`✗ Error: ${errorMsg}`);
         }
       }
       
-      // Update batch status
       await prisma.resultUpload.update({
         where: { id: batchId },
         data: {
@@ -708,9 +614,6 @@ export async function POST(request) {
       return NextResponse.json(response);
       
     } catch (error) {
-      console.error('Processing error:', error);
-      
-      // Update batch as failed
       await prisma.resultUpload.update({
         where: { id: batchId },
         data: {
@@ -725,7 +628,6 @@ export async function POST(request) {
     }
     
   } catch (error) {
-    console.error('Upload error:', error);
     return NextResponse.json(
       { 
         success: false, 
@@ -737,7 +639,7 @@ export async function POST(request) {
   }
 }
 
-// ========== SIMPLIFIED GET ENDPOINT ==========
+// ========== GET ENDPOINT ==========
 export async function GET(request) {
   try {
     const url = new URL(request.url);
@@ -746,38 +648,115 @@ export async function GET(request) {
     const form = url.searchParams.get('form');
     const term = url.searchParams.get('term');
     const academicYear = url.searchParams.get('academicYear');
+    const subject = url.searchParams.get('subject');
+    const minScore = url.searchParams.get('minScore');
+    const maxScore = url.searchParams.get('maxScore');
+    const sortBy = url.searchParams.get('sortBy') || 'updatedAt';
+    const sortOrder = url.searchParams.get('sortOrder') || 'desc';
+    const includeStudent = url.searchParams.get('includeStudent') === 'true';
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '20');
 
-    // Get student results
-    if (action === 'student-results' && admissionNumber) {
-      const student = await prisma.databaseStudent.findUnique({
-        where: { admissionNumber },
+    if (action === 'uploads') {
+      const uploads = await prisma.resultUpload.findMany({
+        orderBy: { uploadDate: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
         select: {
-          firstName: true,
-          lastName: true,
-          admissionNumber: true,
+          id: true,
+          fileName: true,
+          fileType: true,
+          status: true,
+          uploadedBy: true,
+          uploadDate: true,
+          processedDate: true,
+          term: true,
+          academicYear: true,
+          totalRows: true,
+          validRows: true,
+          skippedRows: true,
+          errorRows: true,
+          errorLog: true
+        }
+      });
+
+      const total = await prisma.resultUpload.count();
+
+      return NextResponse.json({
+        success: true,
+        uploads,
+        pagination: { 
+          page, 
+          limit, 
+          total, 
+          pages: Math.ceil(total / limit) 
+        }
+      });
+    }
+
+    if (action === 'stats') {
+      // Get total results count
+      const totalResults = await prisma.studentResult.count();
+      
+      // Get all results for calculations
+      const allResults = await prisma.studentResult.findMany({
+        select: {
+          id: true,
           form: true,
-          stream: true,
-        },
+          term: true,
+          subjects: true,
+          admissionNumber: true
+        }
       });
 
-      if (!student) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Student not found',
-          },
-          { status: 404 }
-        );
-      }
-
-      const results = await prisma.studentResult.findMany({
-        where: { admissionNumber },
-        orderBy: [{ academicYear: 'desc' }, { term: 'desc' }],
-      });
-
-      const formattedResults = results.map((result) => {
+      let totalScore = 0;
+      let resultCount = 0;
+      let topScore = 0;
+      
+      // Initialize with all forms (even if zero)
+      const formDistribution = {
+        'Form 1': 0,
+        'Form 2': 0,
+        'Form 3': 0,
+        'Form 4': 0
+      };
+      
+      const termDistribution = {
+        'Term 1': 0,
+        'Term 2': 0,
+        'Term 3': 0
+      };
+      
+      const gradeDistribution = {
+        'A': 0, 'A-': 0, 'B+': 0, 'B': 0, 'B-': 0,
+        'C+': 0, 'C': 0, 'C-': 0, 'D+': 0, 'D': 0, 'E': 0
+      };
+      
+      const subjectPerformance = {};
+      const uniqueStudents = new Set();
+      
+      // Process each result
+      allResults.forEach(result => {
+        // Track unique students
+        uniqueStudents.add(result.admissionNumber);
+        
+        // Update form distribution
+        if (result.form) {
+          const formKey = result.form.includes('Form ') ? result.form : `Form ${result.form}`;
+          if (formDistribution[formKey] !== undefined) {
+            formDistribution[formKey] = (formDistribution[formKey] || 0) + 1;
+          }
+        }
+        
+        // Update term distribution
+        if (result.term) {
+          const termKey = result.term.includes('Term ') ? result.term : `Term ${result.term}`;
+          if (termDistribution[termKey] !== undefined) {
+            termDistribution[termKey] = (termDistribution[termKey] || 0) + 1;
+          }
+        }
+        
+        // Parse subjects
         let subjects = [];
         try {
           if (typeof result.subjects === 'string') {
@@ -785,50 +764,185 @@ export async function GET(request) {
           } else if (Array.isArray(result.subjects)) {
             subjects = result.subjects;
           }
-        } catch {
-          subjects = [];
+        } catch (e) {
+          console.error('Error parsing subjects:', e);
+          return; // Skip this result if subjects can't be parsed
         }
+        
+        // Calculate average score for this result
+        if (subjects.length > 0) {
+          const resultTotal = subjects.reduce((sum, s) => sum + (parseFloat(s.score) || 0), 0);
+          const avg = resultTotal / subjects.length;
+          
+          totalScore += avg;
+          resultCount++;
+          
+          if (avg > topScore) topScore = avg;
+          
+          // Process each subject
+          subjects.forEach(subject => {
+            const score = parseFloat(subject.score) || 0;
+            const subjectName = subject.subject || 'Unknown';
+            const grade = subject.grade || calculateGrade(score);
+            
+            // Update subject performance (average score per subject)
+            if (!subjectPerformance[subjectName]) {
+              subjectPerformance[subjectName] = {
+                totalScore: 0,
+                count: 0,
+                average: 0
+              };
+            }
+            subjectPerformance[subjectName].totalScore += score;
+            subjectPerformance[subjectName].count++;
+            subjectPerformance[subjectName].average = 
+              subjectPerformance[subjectName].totalScore / subjectPerformance[subjectName].count;
+            
+            // Update grade distribution
+            if (gradeDistribution[grade] !== undefined) {
+              gradeDistribution[grade]++;
+            } else {
+              // For any unexpected grades, add them
+              gradeDistribution[grade] = 1;
+            }
+          });
+        }
+      });
 
-        const totalScore = subjects.reduce((sum, s) => sum + (s.score || 0), 0);
-        const averageScore =
-          subjects.length > 0 ? totalScore / subjects.length : 0;
-        const totalPoints = subjects.reduce(
-          (sum, s) => sum + (s.points || 0),
-          0
-        );
-
-        return {
-          id: result.id,
-          admissionNumber: result.admissionNumber,
-          form: result.form,
-          term: result.term,
-          academicYear: result.academicYear,
-          subjects,
-          totalScore: Number(totalScore.toFixed(2)),
-          averageScore: Number(averageScore.toFixed(2)),
-          totalPoints,
-          overallGrade: calculateGrade(averageScore),
-          uploadBatchId: result.uploadBatchId,
-          createdAt: result.createdAt,
-          updatedAt: result.updatedAt,
+      // Calculate overall averages
+      const averageScore = resultCount > 0 ? totalScore / resultCount : 0;
+      
+      // Format subject performance for response
+      const formattedSubjectPerformance = {};
+      Object.keys(subjectPerformance).forEach(subject => {
+        formattedSubjectPerformance[subject] = {
+          averageScore: parseFloat(subjectPerformance[subject].average.toFixed(2)),
+          totalResults: subjectPerformance[subject].count
         };
       });
 
       return NextResponse.json({
         success: true,
-        student: {
-          firstName: student.firstName,
-          lastName: student.lastName,
-          fullName: `${student.firstName} ${student.lastName}`,
-          admissionNumber: student.admissionNumber,
-          form: student.form,
-          stream: student.stream,
-        },
-        results: formattedResults,
+        stats: {
+          totalResults,
+          totalStudents: uniqueStudents.size,
+          averageScore: parseFloat(averageScore.toFixed(2)),
+          topScore: parseFloat(topScore.toFixed(2)),
+          formDistribution,
+          termDistribution,
+          gradeDistribution,
+          subjectPerformance: formattedSubjectPerformance,
+          updatedAt: new Date().toISOString()
+        }
       });
     }
 
-    // Default: Get all results with filters
+    if (action === 'student-report' && admissionNumber) {
+      const results = await prisma.studentResult.findMany({
+        where: { admissionNumber },
+        orderBy: [{ academicYear: 'desc' }, { term: 'desc' }]
+      });
+
+      const parsedResults = results.map(result => {
+        let subjects = [];
+        try {
+          if (typeof result.subjects === 'string') {
+            subjects = JSON.parse(result.subjects);
+          } else if (Array.isArray(result.subjects)) {
+            subjects = result.subjects;
+          }
+        } catch (e) {
+          subjects = [];
+        }
+
+        const totalScore = subjects.reduce((sum, s) => sum + (s.score || 0), 0);
+        const averageScore = subjects.length > 0 ? totalScore / subjects.length : 0;
+
+        return {
+          ...result,
+          subjects,
+          totalScore,
+          averageScore: parseFloat(averageScore.toFixed(2)),
+          overallGrade: calculateGrade(averageScore)
+        };
+      });
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          admissionNumber,
+          results: parsedResults,
+          summary: {
+            totalResults: results.length,
+            latestResult: parsedResults[0] || null
+          }
+        }
+      });
+    }
+
+    if (action === 'student-results' && admissionNumber) {
+      const student = await prisma.databaseStudent.findUnique({
+        where: { admissionNumber },
+        select: {
+          id: true,
+          firstName: true,
+          middleName: true,
+          lastName: true,
+          admissionNumber: true,
+          form: true,
+          stream: true,
+          gender: true,
+          dateOfBirth: true,
+          email: true,
+          parentPhone: true,
+          address: true,
+          status: true
+        }
+      });
+
+      if (!student) {
+        return NextResponse.json({
+          success: false,
+          error: 'Student not found'
+        }, { status: 404 });
+      }
+
+      const results = await prisma.studentResult.findMany({
+        where: { admissionNumber },
+        orderBy: [{ academicYear: 'desc' }, { term: 'desc' }]
+      });
+
+      const parsedResults = results.map(result => {
+        let subjects = [];
+        try {
+          if (typeof result.subjects === 'string') {
+            subjects = JSON.parse(result.subjects);
+          } else if (Array.isArray(result.subjects)) {
+            subjects = result.subjects;
+          }
+        } catch (e) {
+          subjects = [];
+        }
+
+        const totalScore = subjects.reduce((sum, s) => sum + (s.score || 0), 0);
+        const averageScore = subjects.length > 0 ? totalScore / subjects.length : 0;
+
+        return {
+          ...result,
+          subjects,
+          totalScore,
+          averageScore: parseFloat(averageScore.toFixed(2)),
+          overallGrade: calculateGrade(averageScore)
+        };
+      });
+
+      return NextResponse.json({
+        success: true,
+        student,
+        results: parsedResults
+      });
+    }
+
     const where = {};
 
     if (admissionNumber) where.admissionNumber = admissionNumber;
@@ -836,27 +950,33 @@ export async function GET(request) {
     if (term) where.term = term;
     if (academicYear) where.academicYear = academicYear;
 
-    const [results, total] = await Promise.all([
-      prisma.studentResult.findMany({
-        where,
-        include: {
-          student: {
-            select: {
-              firstName: true,
-              lastName: true,
-              form: true,
-              stream: true,
-            },
-          },
-        },
-        orderBy: [{ academicYear: 'desc' }, { term: 'desc' }],
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.studentResult.count({ where }),
-    ]);
+    const orderBy = {};
+    if (sortBy === 'averageScore') {
+      orderBy.updatedAt = sortOrder;
+    } else {
+      orderBy[sortBy] = sortOrder;
+    }
 
-    const parsedResults = results.map((result) => {
+    const allMatchingResults = await prisma.studentResult.findMany({
+      where,
+      orderBy,
+      include: includeStudent ? {
+        student: {
+          select: {
+            id: true,
+            firstName: true,
+            middleName: true,
+            lastName: true,
+            admissionNumber: true,
+            form: true,
+            stream: true,
+            email: true
+          }
+        }
+      } : undefined
+    });
+
+    const allParsedResults = allMatchingResults.map(result => {
       let subjects = [];
       try {
         if (typeof result.subjects === 'string') {
@@ -864,47 +984,76 @@ export async function GET(request) {
         } else if (Array.isArray(result.subjects)) {
           subjects = result.subjects;
         }
-      } catch {
+      } catch (e) {
         subjects = [];
       }
 
       const totalScore = subjects.reduce((sum, s) => sum + (s.score || 0), 0);
-      const averageScore =
-        subjects.length > 0 ? totalScore / subjects.length : 0;
+      const averageScore = subjects.length > 0 ? totalScore / subjects.length : 0;
 
       return {
         ...result,
         subjects,
-        totalScore: Number(totalScore.toFixed(2)),
-        averageScore: Number(averageScore.toFixed(2)),
+        totalScore,
+        averageScore: parseFloat(averageScore.toFixed(2)),
         overallGrade: calculateGrade(averageScore),
+        student: result.student || null
       };
     });
+
+    let filteredResults = allParsedResults;
+    
+    if (subject) {
+      filteredResults = filteredResults.filter(result => {
+        return result.subjects.some(s => 
+          s.subject.toLowerCase().includes(subject.toLowerCase())
+        );
+      });
+    }
+
+    if (minScore) {
+      const min = parseFloat(minScore);
+      filteredResults = filteredResults.filter(result => 
+        result.averageScore >= min
+      );
+    }
+
+    if (maxScore) {
+      const max = parseFloat(maxScore);
+      filteredResults = filteredResults.filter(result => 
+        result.averageScore <= max
+      );
+    }
+
+    const totalFiltered = filteredResults.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedResults = filteredResults.slice(startIndex, endIndex);
 
     return NextResponse.json({
       success: true,
       data: {
-        results: parsedResults,
+        results: paginatedResults,
         pagination: {
           page,
           limit,
-          total,
-          pages: Math.ceil(total / limit),
-        },
-      },
+          total: totalFiltered,
+          pages: Math.ceil(totalFiltered / limit)
+        }
+      }
     });
+
   } catch (error) {
-    console.error('[API] GET error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to fetch results',
+        error: error.message || 'Failed to fetch results data',
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     );
   }
 }
-
 
 // ========== PUT ENDPOINT ==========
 
@@ -920,7 +1069,6 @@ export async function PUT(request) {
       );
     }
     
-    // Validate subjects if provided
     if (subjects) {
       if (!Array.isArray(subjects)) {
         return NextResponse.json(
@@ -939,7 +1087,6 @@ export async function PUT(request) {
       }
     }
     
-    // Update result
     const updatedResult = await prisma.studentResult.update({
       where: { id },
       data: {
@@ -965,7 +1112,6 @@ export async function PUT(request) {
     });
     
   } catch (error) {
-    console.error('PUT error:', error);
     if (error.code === 'P2025') {
       return NextResponse.json(
         { success: false, error: 'Result not found' },
@@ -983,7 +1129,6 @@ export async function PUT(request) {
 }
 
 // ========== DELETE ENDPOINT ==========
-
 export async function DELETE(request) {
   try {
     const url = new URL(request.url);
@@ -991,37 +1136,32 @@ export async function DELETE(request) {
     const resultId = url.searchParams.get('resultId');
     
     if (batchId) {
-      // Delete result upload batch and associated records
-      const result = await prisma.$transaction(async (tx) => {
-        const batch = await tx.resultUpload.findUnique({
-          where: { id: batchId }
-        });
-        
-        if (!batch) {
-          throw new Error('Batch not found');
+      const batch = await prisma.resultUpload.findUnique({
+        where: { id: batchId },
+        select: {
+          fileName: true,
+          validRows: true
         }
-        
-        // Delete results
-        const deleteCount = await tx.studentResult.deleteMany({
-          where: { uploadBatchId: batchId }
-        });
-        
-        // Delete batch
-        await tx.resultUpload.delete({
-          where: { id: batchId }
-        });
-        
-        return { batch, deletedCount: deleteCount.count };
+      });
+      
+      if (!batch) {
+        return NextResponse.json(
+          { success: false, error: 'Upload batch not found' },
+          { status: 404 }
+        );
+      }
+      
+      await prisma.resultUpload.delete({
+        where: { id: batchId }
       });
       
       return NextResponse.json({
         success: true,
-        message: `Deleted results batch ${result.batch.fileName} and ${result.deletedCount} result records`
+        message: `Deleted upload batch "${batch.fileName}" and ${batch.validRows || 0} result records`
       });
     }
     
     if (resultId) {
-      // Delete single result
       const result = await prisma.studentResult.findUnique({
         where: { id: resultId }
       });
@@ -1039,7 +1179,7 @@ export async function DELETE(request) {
       
       return NextResponse.json({
         success: true,
-        message: `Deleted result for ${result.admissionNumber}`
+        message: `Deleted result for admission ${result.admissionNumber}`
       });
     }
     
@@ -1048,10 +1188,31 @@ export async function DELETE(request) {
       { status: 400 }
     );
     
-  } catch (error) {  
-    console.error('DELETE error:', error);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { success: false, error: 'Record not found' },
+        { status: 404 }
+      );
+    }
+    
+    if (error.code === 'P2028' || error.code === 'P2034') {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Database operation timed out. Please try again or delete in smaller batches.',
+          suggestion: 'Try deleting individual results instead of the entire batch.'
+        },
+        { status: 408 }
+      );
+    }
+    
     return NextResponse.json(
-      { success: false, error: error.message || 'Delete failed' },
+      { 
+        success: false, 
+        error: error.message || 'Delete operation failed',
+        code: error.code
+      },
       { status: 500 }
     );
   }
