@@ -25,6 +25,7 @@ import {
   Modal,
   Box
 } from '@mui/material';
+import { result } from 'lodash';
 
 // Loading Spinner Component
 function ResultsLoadingSpinner({ message = "Loading academic results...", size = "medium" }) {
@@ -87,7 +88,7 @@ const calculateGrade = (score) => {
 // Grade Status Helper
 const getGradeStatus = (grade) => {
   const g = grade?.toUpperCase();
-  if (['A', 'A-'].includes(g)) return { 
+  if (['A'].includes(g)) return { 
     color: 'text-emerald-600',
     bgColor: 'from-emerald-500 to-emerald-700',
     lightBg: 'bg-emerald-50',
@@ -95,33 +96,57 @@ const getGradeStatus = (grade) => {
     badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     iconColor: 'text-emerald-500'
   };
-  if (['B+', 'B', 'B-'].includes(g)) return { 
+  if (['A-'].includes(g)) return { 
+    color: 'text-green-600',
+    bgColor: 'from-green-500 to-green-700',
+    lightBg: 'bg-green-50',
+    remark: 'Very Good. Excellent understanding.',
+    badgeColor: 'bg-green-100 text-green-800 border-green-200',
+    iconColor: 'text-green-500'
+  };
+  if (['B+'].includes(g)) return { 
     color: 'text-blue-600',
     bgColor: 'from-blue-500 to-blue-700',
     lightBg: 'bg-blue-50',
-    remark: 'Very Good. Keep pushing for the A.',
+    remark: 'Good work. Solid grasp of concepts.',
     badgeColor: 'bg-blue-100 text-blue-800 border-blue-200',
     iconColor: 'text-blue-500'
   };
-  if (['C+', 'C'].includes(g)) return { 
+  if (['B'].includes(g)) return { 
+    color: 'text-cyan-600',
+    bgColor: 'from-cyan-500 to-cyan-700',
+    lightBg: 'bg-cyan-50',
+    remark: 'Satisfactory. Good effort shown.',
+    badgeColor: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+    iconColor: 'text-cyan-500'
+  };
+  if (['B-'].includes(g)) return { 
     color: 'text-amber-600',
     bgColor: 'from-amber-500 to-amber-700',
     lightBg: 'bg-amber-50',
-    remark: 'Good effort. Room for improvement.',
+    remark: 'Fair. Basic understanding achieved.',
     badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
     iconColor: 'text-amber-500'
+  };
+  if (['C+'].includes(g)) return { 
+    color: 'text-orange-600',
+    bgColor: 'from-orange-500 to-orange-700',
+    lightBg: 'bg-orange-50',
+    remark: 'Below average. Needs more practice.',
+    badgeColor: 'bg-orange-100 text-orange-800 border-orange-200',
+    iconColor: 'text-orange-500'
   };
   return { 
     color: 'text-rose-600',
     bgColor: 'from-rose-500 to-rose-700',
     lightBg: 'bg-rose-50',
-    remark: 'Work harder. Focus on core concepts.',
+    remark: 'Weak. Requires additional support.',
     badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
     iconColor: 'text-rose-500'
   };
 };
 
-// Statistics Card Component
+// Statistics Card Component - UPDATED to match second code
 function ResultsStatisticsCard({ title, value, icon: Icon, color, trend = 0, prefix = '', suffix = '' }) {
   const formatValue = (val) => {
     if (typeof val === 'number') {
@@ -156,17 +181,16 @@ function ResultsStatisticsCard({ title, value, icon: Icon, color, trend = 0, pre
 function SubjectDetailsModal({ result, onClose }) {
   if (!result) return null;
 
-  const subjects = Array.isArray(result.subjects) 
-    ? result.subjects 
-    : (typeof result.subjects === 'string' ? JSON.parse(result.subjects) : []);
+  const subjects = result.subjects || [];
   
-  const overallStatus = getGradeStatus(result.meanGrade);
-  const totalScore = subjects.reduce((sum, s) => sum + (parseFloat(s.score) || 0), 0);
-  const averageScore = subjects.length > 0 ? totalScore / subjects.length : 0;
+  const overallStatus = getGradeStatus(result.overallGrade);
+  const totalScore = result.totalScore || subjects.reduce((sum, s) => sum + (parseFloat(s.score) || 0), 0);
+  const averageScore = result.averageScore || (subjects.length > 0 ? totalScore / subjects.length : 0);
+  const subjectCount = subjects.length;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden border-2 border-gray-300 shadow-2xl">
+      <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden border-2 border-gray-300 shadow-2xl">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 p-4 md:p-6 text-white">
           <div className="flex items-center justify-between">
@@ -177,7 +201,7 @@ function SubjectDetailsModal({ result, onClose }) {
               <div>
                 <h2 className="text-lg md:text-2xl font-bold">Subject Performance Details</h2>
                 <p className="text-blue-100 opacity-90 text-xs md:text-sm mt-1">
-                  {result.term} {result.academicYear} • {result.class}
+                  Admission No: {result.admissionNumber} • {result.term} {result.academicYear} • {result.form}
                 </p>
               </div>
             </div>
@@ -193,22 +217,28 @@ function SubjectDetailsModal({ result, onClose }) {
         <div className="max-h-[calc(90vh-80px)] overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
           {/* Overall Summary */}
           <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 md:p-6 border-2 border-blue-300">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4">
               <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
                 <div className="text-xs md:text-sm font-semibold text-blue-700">Average Score</div>
-                <div className="text-lg md:text-2xl font-bold text-gray-900 mt-1">{averageScore.toFixed(1)}%</div>
+                <div className="text-lg md:text-2xl font-bold text-gray-900 mt-1">{averageScore.toFixed(2)}%</div>
               </div>
               <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
-                <div className="text-xs md:text-sm font-semibold text-blue-700">Total Subjects</div>
-                <div className="text-lg md:text-2xl font-bold text-gray-900 mt-1">{subjects.length}</div>
+                <div className="text-xs md:text-sm font-semibold text-blue-700">Total Score</div>
+                <div className="text-lg md:text-2xl font-bold text-gray-900 mt-1">{totalScore}</div>
               </div>
               <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
-                <div className="text-xs md:text-sm font-semibold text-blue-700">Mean Grade</div>
-                <div className="text-lg md:text-2xl font-bold text-gray-900 mt-1">{result.meanGrade || 'N/A'}</div>
+                <div className="text-xs md:text-sm font-semibold text-blue-700">Overall Grade</div>
+                <div className={`text-lg md:text-2xl font-bold mt-1 ${overallStatus.color}`}>
+                  {result.overallGrade || 'N/A'}
+                </div>
               </div>
               <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
-                <div className="text-xs md:text-sm font-semibold text-blue-700">Class</div>
-                <div className="text-lg md:text-2xl font-bold text-gray-900 mt-1">{result.class}</div>
+                <div className="text-xs md:text-sm font-semibold text-blue-700">Subjects</div>
+                <div className="text-lg md:text-2xl font-bold text-gray-900 mt-1">{subjectCount}</div>
+              </div>
+              <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
+                <div className="text-xs md:text-sm font-semibold text-blue-700">Form</div>
+                <div className="text-lg md:text-2xl font-bold text-gray-900 mt-1">{result.form}</div>
               </div>
             </div>
           </div>
@@ -216,7 +246,8 @@ function SubjectDetailsModal({ result, onClose }) {
           {/* Subjects Table */}
           <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
             <div className="bg-gradient-to-r from-gray-50 to-white px-4 py-3 border-b border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900">Subject Scores</h3>
+              <h3 className="text-lg font-bold text-gray-900">Subject Performance Breakdown</h3>
+              <p className="text-gray-600 text-sm">Detailed scores, grades, and comments for each subject</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -226,14 +257,14 @@ function SubjectDetailsModal({ result, onClose }) {
                     <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Score</th>
                     <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Grade</th>
                     <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Points</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Comment</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Teacher's Comment</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {subjects.map((subject, index) => {
                     const score = parseFloat(subject.score) || 0;
                     const grade = subject.grade || calculateGrade(score);
-                    const points = parseFloat(subject.points) || 0;
+                    const points = subject.points || 0;
                     const status = getGradeStatus(grade);
 
                     return (
@@ -242,14 +273,14 @@ function SubjectDetailsModal({ result, onClose }) {
                           <div className="font-medium text-gray-900">{subject.subject}</div>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 bg-gray-200 rounded-full h-2">
+                          <div className="flex items-center gap-3">
+                            <div className="w-20 bg-gray-200 rounded-full h-2">
                               <div 
                                 className={`h-full rounded-full ${status.color.replace('text-', 'bg-')}`}
                                 style={{ width: `${Math.min(score, 100)}%` }}
                               />
                             </div>
-                            <span className={`font-bold ${status.color}`}>{score}%</span>
+                            <span className={`font-bold min-w-10 ${status.color}`}>{score}%</span>
                           </div>
                         </td>
                         <td className="px-4 py-3">
@@ -261,7 +292,7 @@ function SubjectDetailsModal({ result, onClose }) {
                           <span className="font-bold text-gray-900">{points}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-gray-600">{subject.comment || '-'}</span>
+                          <span className="text-sm text-gray-600 italic">{subject.comment || 'No comment'}</span>
                         </td>
                       </tr>
                     );
@@ -273,49 +304,67 @@ function SubjectDetailsModal({ result, onClose }) {
 
           {/* Performance Insights */}
           <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 md:p-6 border-2 border-gray-300">
-            <h3 className="text-lg font-bold text-gray-900 mb-3">Performance Insights</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">Highest Scoring Subject</span>
-                <span className="font-bold text-emerald-600">
-                  {subjects.length > 0 
-                    ? subjects.reduce((max, s) => parseFloat(s.score) > parseFloat(max.score) ? s : max, subjects[0]).subject
-                    : 'N/A'
-                  }
-                </span>
+            <h3 className="text-lg font-bold text-gray-900 mb-3">Performance Analysis</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <h4 className="font-semibold text-gray-700 mb-2">Highest Scoring Subject</h4>
+                {subjects.length > 0 ? (
+                  (() => {
+                    const highest = subjects.reduce((max, s) => 
+                      parseFloat(s.score) > parseFloat(max.score) ? s : max, subjects[0]);
+                    const status = getGradeStatus(highest.grade);
+                    return (
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{highest.subject}</span>
+                          <span className={`font-bold ${status.color}`}>{highest.score}%</span>
+                        </div>
+                        <div className="text-sm text-gray-600">{highest.comment}</div>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <span className="text-gray-500">No data</span>
+                )}
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">Lowest Scoring Subject</span>
-                <span className="font-bold text-rose-600">
-                  {subjects.length > 0 
-                    ? subjects.reduce((min, s) => parseFloat(s.score) < parseFloat(min.score) ? s : min, subjects[0]).subject
-                    : 'N/A'
-                  }
-                </span>
+              
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <h4 className="font-semibold text-gray-700 mb-2">Lowest Scoring Subject</h4>
+                {subjects.length > 0 ? (
+                  (() => {
+                    const lowest = subjects.reduce((min, s) => 
+                      parseFloat(s.score) < parseFloat(min.score) ? s : min, subjects[0]);
+                    const status = getGradeStatus(lowest.grade);
+                    return (
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{lowest.subject}</span>
+                          <span className={`font-bold ${status.color}`}>{lowest.score}%</span>
+                        </div>
+                        <div className="text-sm text-gray-600">{lowest.comment}</div>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <span className="text-gray-500">No data</span>
+                )}
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">Overall Performance</span>
-                <span className={`font-bold ${overallStatus.color}`}>{overallStatus.remark.split('.')[0]}</span>
+              
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <h4 className="font-semibold text-gray-700 mb-2">Overall Performance</h4>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Grade:</span>
+                    <span className={`font-bold ${overallStatus.color}`}>{result.overallGrade}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Average:</span>
+                    <span className="font-bold text-gray-900">{averageScore.toFixed(2)}%</span>
+                  </div>
+                  <div className="text-sm text-gray-600 mt-2">{overallStatus.remark}</div>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-2 md:gap-4">
-            <button
-              onClick={onClose}
-              className="flex-1 px-3 py-2 md:px-4 md:py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl font-bold text-xs md:text-sm hover:from-gray-200 hover:to-gray-300 transition-all flex items-center justify-center gap-2"
-            >
-              <FiChevronLeft />
-              Back to Results
-            </button>
-            <button
-              onClick={() => window.open(`/api/results/${result.id}/pdf`, '_blank')}
-              className="flex-1 px-3 py-2 md:px-4 md:py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl font-bold text-xs md:text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
-            >
-              <FiDownload />
-              Download Report
-            </button>
           </div>
         </div>
       </div>
@@ -323,24 +372,25 @@ function SubjectDetailsModal({ result, onClose }) {
   );
 }
 
-// Result Card Component for Grid View
-function ResultCard({ result, studentForm, onViewSubjects }) {
-  const overallStatus = getGradeStatus(result.meanGrade);
-  const isStudentClass = result.class?.includes(`Form ${studentForm}`);
+// Result Card Component for Grid View - FROM SECOND CODE
+function ResultCard({ result, studentAdmissionNumber, onViewSubjects }) {
+  const overallStatus = getGradeStatus(result.overallGrade);
+  const isStudentResult = result.admissionNumber === studentAdmissionNumber;
   const averageScore = result.averageScore || 0;
+  const totalScore = result.totalScore || 0;
 
   return (
     <div 
       className={`bg-white rounded-2xl border-2 ${
-        isStudentClass 
+        isStudentResult 
           ? 'border-blue-500 border-l-4 shadow-lg' 
           : 'border-gray-200'
       } hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group`}
     >
-      {isStudentClass && (
+      {isStudentResult && (
         <div className="absolute top-0 right-0">
           <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-xs px-3 py-1 rounded-bl-lg font-bold shadow-lg">
-            Your Class
+            Your Result
           </div>
         </div>
       )}
@@ -353,28 +403,37 @@ function ResultCard({ result, studentForm, onViewSubjects }) {
             <p className="text-xs md:text-sm text-gray-600">{result.academicYear}</p>
           </div>
           <div className={`px-3 py-1 md:px-4 md:py-2 rounded-xl font-bold text-sm bg-gradient-to-r ${overallStatus.bgColor} text-white shadow-lg`}>
-            {result.meanGrade || 'N/A'}
+            {result.overallGrade || 'N/A'}
           </div>
         </div>
         
-        {/* Class Info */}
+        {/* Student Info */}
         <div className="mb-3 md:mb-4 space-y-2">
           <div className="flex items-center gap-2 text-sm text-gray-700">
-            <IoSchool className="text-blue-500 text-sm md:text-base" />
-            <span className="font-semibold text-xs md:text-sm truncate">{result.class || 'Class N/A'}</span>
+            <FiUser className="text-blue-500 text-sm md:text-base" />
+            <span className="font-semibold text-xs md:text-sm">Adm: {result.admissionNumber}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <IoSchool className="text-gray-400 text-sm md:text-base" />
+            <span className="text-xs md:text-sm">{result.form}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <FiBarChart2 className="text-gray-400 text-sm md:text-base" />
             <span className="text-xs md:text-sm">Average:</span>
-            <span className="font-bold text-gray-900 text-sm md:text-base">{averageScore}%</span>
+            <span className="font-bold text-gray-900 text-sm md:text-base">{averageScore.toFixed(2)}%</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <FiActivity className="text-gray-400 text-sm md:text-base" />
+            <span className="text-xs md:text-sm">Total Score:</span>
+            <span className="font-bold text-gray-900 text-sm md:text-base">{totalScore}</span>
           </div>
         </div>
         
         {/* Performance Bar */}
         <div className="mb-4">
           <div className="flex justify-between text-xs md:text-sm font-semibold mb-1">
-            <span className="text-gray-700">Performance:</span>
-            <span className={overallStatus.color}>{averageScore}%</span>
+            <span className="text-gray-700">Overall Performance:</span>
+            <span className={overallStatus.color}>{averageScore.toFixed(1)}%</span>
           </div>
           <div className="w-full h-2 md:h-3 bg-gray-200 rounded-full overflow-hidden">
             <div 
@@ -390,15 +449,14 @@ function ResultCard({ result, studentForm, onViewSubjects }) {
           className="w-full px-3 py-2 md:px-4 md:py-2.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-xl text-xs md:text-sm font-semibold hover:from-blue-100 hover:to-blue-200 transition-all flex items-center justify-center gap-2 group-hover:shadow-md"
         >
           <FiEye size={12} className="md:size-14" />
-          View Subject Details
+          View Full Details
         </button>
       </div>
     </div>
   );
 }
 
-// Additional Document Card
-
+// Document Card Component
 function DocumentCard({ document, type = 'additional' }) {
   const getIcon = () => {
     const iconBase = "text-xl md:text-2xl";
@@ -416,12 +474,12 @@ function DocumentCard({ document, type = 'additional' }) {
   };
 
   return (
-    <div className="group relative bg-white rounded-2xl p-4 transition-all duration-300 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_4px_6px_-2px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] hover:-translate-y-1 border border-gray-100">
+    <div className="group relative bg-white rounded-2xl p-4 border border-gray-200 shadow-sm hover:shadow-sm transition-all duration-300">
       
       {/* Top Section: Icon & Info */}
       <div className="flex items-start gap-4">
         {/* Modern Icon Container */}
-        <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gray-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+        <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gray-50 flex items-center justify-center group-hover:scale-100 transition-transform duration-300">
           {getIcon()}
         </div>
 
@@ -485,12 +543,33 @@ export default function ModernResultsView({
   const [schoolData, setSchoolData] = useState(null);
   const [schoolLoading, setSchoolLoading] = useState(true);
   const [schoolError, setSchoolError] = useState(null);
+  
+  // CHANGED: Updated stats to match second code (4 cards, student-specific)
   const [stats, setStats] = useState({
     totalResults: 0,
     averageScore: 0,
-    topGrade: 'A',
+    yourGrade: 'N/A',
+    currentTerm: 'N/A',
     currentTermResults: 0
   });
+
+  // Transform studentResults to match expected format
+  const transformedResults = useMemo(() => {
+    if (!studentResults || !Array.isArray(studentResults)) return [];
+    
+    return studentResults.map(result => ({
+      ...result,
+      // Map form to class for compatibility
+      class: result.form,
+      // Map overallGrade to meanGrade for compatibility
+      meanGrade: result.overallGrade,
+      // Ensure subjects is an array
+      subjects: Array.isArray(result.subjects) ? result.subjects : [],
+      // Ensure scores are numbers
+      averageScore: parseFloat(result.averageScore) || 0,
+      totalScore: parseFloat(result.totalScore) || 0
+    }));
+  }, [studentResults]);
 
   // Fetch school data
   useEffect(() => {
@@ -516,29 +595,63 @@ export default function ModernResultsView({
     fetchSchoolData();
   }, []);
 
-  // Calculate statistics
+  // CHANGED: Calculate statistics from transformed results - STUDENT-SPECIFIC ONLY (from second code)
   useEffect(() => {
-    if (studentResults.length > 0) {
+    if (transformedResults.length > 0 && student?.admissionNumber) {
+      // Filter to only show current student's results
+      const studentResults = transformedResults.filter(result => 
+        result.admissionNumber === student.admissionNumber
+      );
+      
       const totalResults = studentResults.length;
       const averageScore = studentResults.reduce((sum, result) => 
         sum + (result.averageScore || 0), 0) / totalResults;
       
+      // Get current term from filtered term or latest result
+      const currentTerm = selectedTerm !== 'all' 
+        ? selectedTerm 
+        : studentResults.length > 0 ? studentResults[studentResults.length - 1].term : 'N/A';
+      
       const currentTermResults = studentResults.filter(result => 
-        result.term === 'Term 1' || result.term === 'Term 2'
+        result.term === currentTerm
       ).length;
+
+      // Get student's grade from current term
+      let yourGrade = 'N/A';
+      if (currentTerm !== 'N/A') {
+        const currentTermResult = studentResults.find(r => r.term === currentTerm);
+        yourGrade = currentTermResult?.overallGrade || 'N/A';
+      } else if (studentResults.length > 0) {
+        yourGrade = studentResults[studentResults.length - 1].overallGrade || 'N/A';
+      }
 
       setStats({
         totalResults,
-        averageScore: parseFloat(averageScore.toFixed(1)),
-        topGrade: 'A',
+        averageScore: parseFloat(averageScore.toFixed(2)),
+        yourGrade,
+        currentTerm,
         currentTermResults
       });
+    } else {
+      // Reset stats if no student results
+      setStats({
+        totalResults: 0,
+        averageScore: 0,
+        yourGrade: 'N/A',
+        currentTerm: 'N/A',
+        currentTermResults: 0
+      });
     }
-  }, [studentResults]);
+  }, [transformedResults, selectedTerm, student]);
 
-  // Filter and sort results
+  // Filter and sort results - ONLY STUDENT'S RESULTS (from second code)
   const filteredResults = useMemo(() => {
-    let results = [...studentResults];
+    let results = [...transformedResults];
+    
+    // Filter to show only student's results
+    if (student?.admissionNumber) {
+      results = results.filter(result => result.admissionNumber === student.admissionNumber);
+    }
     
     if (selectedTerm !== 'all') {
       results = results.filter(result => result.term === selectedTerm);
@@ -548,18 +661,8 @@ export default function ModernResultsView({
       results = results.filter(result => result.academicYear === selectedYear);
     }
     
-    const studentForm = student?.form || '1';
-    const formPriority = parseInt(studentForm);
-    
+    // Sort by academic year (newest first) and then by term order
     results.sort((a, b) => {
-      const aForm = parseInt(a.class?.match(/Form (\d+)/)?.[1] || '0');
-      const bForm = parseInt(b.class?.match(/Form (\d+)/)?.[1] || '0');
-      
-      if (aForm === formPriority && bForm !== formPriority) return -1;
-      if (aForm !== formPriority && bForm === formPriority) return 1;
-      
-      if (aForm !== bForm) return bForm - aForm;
-      
       if (a.academicYear !== b.academicYear) {
         return b.academicYear.localeCompare(a.academicYear);
       }
@@ -569,17 +672,17 @@ export default function ModernResultsView({
     });
     
     return results;
-  }, [studentResults, selectedTerm, selectedYear, student]);
+  }, [transformedResults, selectedTerm, selectedYear, student]);
 
   const uniqueTerms = useMemo(() => {
-    const terms = [...new Set(studentResults.map(r => r.term))];
-    return ['all', ...terms].filter(Boolean);
-  }, [studentResults]);
+    const terms = [...new Set(transformedResults.map(r => r.term))].filter(Boolean);
+    return ['all', ...terms];
+  }, [transformedResults]);
 
   const uniqueYears = useMemo(() => {
-    const years = [...new Set(studentResults.map(r => r.academicYear))];
-    return ['all', ...years].filter(Boolean);
-  }, [studentResults]);
+    const years = [...new Set(transformedResults.map(r => r.academicYear))].filter(Boolean);
+    return ['all', ...years];
+  }, [transformedResults]);
 
   // Process school exam results
   const prioritizedExamResults = useMemo(() => {
@@ -587,7 +690,7 @@ export default function ModernResultsView({
     
     const results = [];
     const examResults = schoolData.examResults;
-    const studentForm = student?.form || '1';
+    const studentForm = student?.form || '4';
     
     // Add student's own form first
     const studentFormKey = `form${studentForm}`;
@@ -644,12 +747,12 @@ export default function ModernResultsView({
                 <FiAward className="text-xl md:text-2xl text-yellow-300" />
               </div>
               <div>
-                <h1 className="text-xl md:text-3xl font-bold">Academic Results</h1>
+                <h1 className="text-xl md:text-3xl font-bold">Academic Results Portal</h1>
                 <p className="text-purple-100 text-sm md:text-lg mt-1">
-                  View your exam results and academic performance
-                  {student?.form && (
+                  Your personal academic performance and results history
+                  {student?.admissionNumber && (
                     <span className="ml-2 text-yellow-300 font-semibold">
-                      (Form {student.form} {student.stream || ''})
+                      (Admission: {student.admissionNumber})
                     </span>
                   )}
                 </p>
@@ -661,13 +764,13 @@ export default function ModernResultsView({
               className="mt-2 md:mt-0 px-4 py-2 md:px-6 md:py-3 bg-white/20 text-white rounded-xl font-bold text-sm md:text-base hover:bg-white/30 disabled:opacity-50 flex items-center gap-2 justify-center"
             >
               <FiRefreshCw className={resultsLoading ? 'animate-spin' : ''} />
-              {resultsLoading ? 'Refreshing...' : 'Refresh'}
+              {resultsLoading ? 'Refreshing...' : 'Refresh Results'}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Statistics Cards - CHANGED to 4 cards, student-specific */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <ResultsStatisticsCard
           title="Total Results"
@@ -685,14 +788,14 @@ export default function ModernResultsView({
           suffix="%"
         />
         <ResultsStatisticsCard
-          title="Top Grade"
-          value={stats.topGrade}
+          title="Your Grade"
+          value={stats.yourGrade}
           icon={FiAward}
           color="from-emerald-500 to-emerald-700"
           trend={1.7}
         />
         <ResultsStatisticsCard
-          title="Current Term"
+          title={stats.currentTerm}
           value={stats.currentTermResults}
           icon={FiCalendar}
           color="from-indigo-500 to-indigo-700"
@@ -706,7 +809,7 @@ export default function ModernResultsView({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <IoFilterIcon className="text-purple-600" />
-              <span className="text-base md:text-lg font-bold text-gray-900">Filters</span>
+              <span className="text-base md:text-lg font-bold text-gray-900">Filter Results</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex bg-gray-100 rounded-lg p-0.5">
@@ -743,61 +846,85 @@ export default function ModernResultsView({
           </div>
           
           <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
-            <select
-              value={selectedTerm}
-              onChange={(e) => setSelectedTerm(e.target.value)}
-              className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
-            >
-              {uniqueTerms.map(term => (
-                <option key={term} value={term}>
-                  {term === 'all' ? 'All Terms' : term}
-                </option>
-              ))}
-            </select>
-            
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
-            >
-              {uniqueYears.map(year => (
-                <option key={year} value={year}>
-                  {year === 'all' ? 'All Years' : year}
-                </option>
-              ))}
-            </select>
-            
-            {(selectedTerm !== 'all' || selectedYear !== 'all') && (
-              <button
-                onClick={() => {
-                  setSelectedTerm('all');
-                  setSelectedYear('all');
-                }}
-                className="col-span-2 px-3 py-2 text-red-600 font-bold text-sm hover:bg-red-50 rounded-lg"
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Select Term</label>
+              <select
+                value={selectedTerm}
+                onChange={(e) => setSelectedTerm(e.target.value)}
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
               >
-                Clear Filters
-              </button>
-            )}
+                {uniqueTerms.map(term => (
+                  <option key={term} value={term}>
+                    {term === 'all' ? 'All Terms' : term}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Academic Year</label>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+              >
+                {uniqueYears.map(year => (
+                  <option key={year} value={year}>
+                    {year === 'all' ? 'All Years' : year}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="col-span-2">
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Quick Actions</label>
+              <div className="flex gap-2">
+                {(selectedTerm !== 'all' || selectedYear !== 'all') && (
+                  <button
+                    onClick={() => {
+                      setSelectedTerm('all');
+                      setSelectedYear('all');
+                    }}
+                    className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 rounded-lg transition-colors"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className="flex-1 px-3 py-2 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 font-bold text-sm hover:from-purple-100 hover:to-purple-200 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <FiFilter size={12} />
+                  {showAdvancedFilters ? 'Hide Filters' : 'More Filters'}
+                </button>
+              </div>
+            </div>
           </div>
           
           {showAdvancedFilters && (
             <div className="pt-3 border-t border-gray-200">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Min Score</label>
-                  <input
-                    type="number"
-                    placeholder="0"
-                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm"
-                  />
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Minimum Grade</label>
+                  <select className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm">
+                    <option value="">Any Grade</option>
+                    <option value="A">A</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B">B</option>
+                    <option value="B-">B-</option>
+                    <option value="C+">C+</option>
+                  </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Max Score</label>
-                  <input
-                    type="number"
-                    placeholder="100"
-                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm"
-                  />
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Form/Class</label>
+                  <select className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm">
+                    <option value="">All Forms</option>
+                    <option value="Form 4">Form 4</option>
+                    <option value="Form 3">Form 3</option>
+                    <option value="Form 2">Form 2</option>
+                    <option value="Form 1">Form 1</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -831,60 +958,71 @@ export default function ModernResultsView({
         </div>
       ) : (
         <>
-          {/* Results Display */}
+          {/* Results Display - CHANGED header text to match second code */}
           <div>
             <div className="mb-3 md:mb-4">
-              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1">Your Academic Results</h3>
-              <p className="text-gray-600 text-sm">
-                {filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''} found • Tap to view subject details
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1">Your Academic Results</h3>
+                  <p className="text-gray-600 text-sm">
+                    Showing {filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''} for {student?.admissionNumber || 'you'} • Click to view detailed breakdown
+                  </p>
+                </div>
+                <div className="text-xs font-semibold text-gray-500">
+                  {selectedTerm !== 'all' && `${selectedTerm} • `}
+                  {selectedYear !== 'all' && `${selectedYear}`}
+                </div>
+              </div>
             </div>
 
             {viewMode === 'list' ? (
-              // List View with View Button (like original)
+              // List View
               <div className="bg-white rounded-xl md:rounded-2xl border-2 border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto">
                   <div className="min-w-full">
                     <div className="bg-gradient-to-r from-gray-50 to-white border-b-2 border-gray-200">
                       <div className="grid grid-cols-12 gap-2 px-3 md:px-6 py-3">
-                        <div className="col-span-4 md:col-span-3 text-xs font-bold text-gray-700 uppercase">Term & Year</div>
-                        <div className="col-span-4 md:col-span-3 text-xs font-bold text-gray-700 uppercase">Class</div>
-                        <div className="col-span-2 text-xs font-bold text-gray-700 uppercase text-center">Score</div>
-                        <div className="col-span-2 text-xs font-bold text-gray-700 uppercase text-center">Grade</div>
-                        <div className="col-span-2 md:col-span-1 text-xs font-bold text-gray-700 uppercase text-center">View</div>
+                        <div className="col-span-3 md:col-span-2 text-xs font-bold text-gray-700 uppercase">Admission</div>
+                        <div className="col-span-3 md:col-span-2 text-xs font-bold text-gray-700 uppercase">Term & Year</div>
+                        <div className="col-span-2 text-xs font-bold text-gray-700 uppercase">Form</div>
+                        <div className="col-span-2 text-xs font-bold text-gray-700 uppercase text-center">Average</div>
+                        <div className="col-span-1 text-xs font-bold text-gray-700 uppercase text-center">Grade</div>
+                        <div className="col-span-1 text-xs font-bold text-gray-700 uppercase text-center">View</div>
                       </div>
                     </div>
                     <div className="divide-y divide-gray-200">
                       {filteredResults.map((result, index) => {
-                        const overallStatus = getGradeStatus(result.meanGrade);
-                        const isStudentClass = result.class?.includes(`Form ${student?.form}`);
+                        const overallStatus = getGradeStatus(result.overallGrade);
+                        const isStudentResult = result.admissionNumber === student?.admissionNumber;
                         
                         return (
                           <div 
                             key={index} 
-                            className={`grid grid-cols-12 gap-2 px-3 md:px-6 py-3 hover:bg-gray-50 transition-colors ${isStudentClass ? 'bg-blue-50' : ''}`}
+                            className={`grid grid-cols-12 gap-2 px-3 md:px-6 py-3 hover:bg-gray-50 transition-colors ${isStudentResult ? 'bg-blue-50' : ''}`}
                           >
-                            <div className="col-span-4 md:col-span-3">
+                            <div className="col-span-3 md:col-span-2">
+                              <div className="font-bold text-gray-900 text-sm">{result.admissionNumber}</div>
+                              {isStudentResult && (
+                                <div className="text-blue-600 text-xs font-semibold">You</div>
+                              )}
+                            </div>
+                            <div className="col-span-3 md:col-span-2">
                               <div className="font-bold text-gray-900 text-sm">{result.term}</div>
                               <div className="text-gray-600 text-xs">{result.academicYear}</div>
                             </div>
-                            <div className="col-span-4 md:col-span-3">
-                              <div className="flex items-center gap-1">
-                                <span className="font-medium text-gray-900 text-sm truncate">{result.class}</span>
-                                {isStudentClass && (
-                                  <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">Your Class</span>
-                                )}
-                              </div>
+                            <div className="col-span-2">
+                              <div className="font-medium text-gray-900 text-sm">{result.form}</div>
                             </div>
                             <div className="col-span-2 text-center">
-                              <div className="text-base font-bold text-gray-900">{result.averageScore || 0}%</div>
+                              <div className="text-base font-bold text-gray-900">{result.averageScore.toFixed(1)}%</div>
+                              <div className="text-gray-500 text-xs">Total: {result.totalScore}</div>
                             </div>
-                            <div className="col-span-2 text-center">
+                            <div className="col-span-1 text-center">
                               <span className={`px-2 py-1 rounded-lg text-xs font-bold ${overallStatus.badgeColor}`}>
-                                {result.meanGrade || 'N/A'}
+                                {result.overallGrade || 'N/A'}
                               </span>
                             </div>
-                            <div className="col-span-2 md:col-span-1 text-center">
+                            <div className="col-span-1 text-center">
                               <button
                                 onClick={() => handleViewSubjects(result)}
                                 className="px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-lg text-xs font-bold hover:from-blue-100 hover:to-blue-200 transition-all flex items-center gap-1 justify-center mx-auto"
@@ -907,7 +1045,7 @@ export default function ModernResultsView({
                   <ResultCard
                     key={index}
                     result={result}
-                    studentForm={student?.form}
+                    studentAdmissionNumber={student?.admissionNumber}
                     onViewSubjects={handleViewSubjects}
                   />
                 ))}
@@ -918,8 +1056,12 @@ export default function ModernResultsView({
           {/* School Documents Section */}
           <div>
             <div className="mb-3 md:mb-4">
-              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1">School Documents & Resources</h3>
-              <p className="text-gray-600 text-sm">Additional academic resources and result PDFs</p>
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1">
+                School Documents & Resources
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Access and download all your class exam results, term reports, and additional academic resources. Track your individual performance as well as your class ranking for this term, and stay informed about all relevant assessments and documents that contribute to your academic progress.
+              </p>
             </div>
 
             {schoolLoading ? (
@@ -938,7 +1080,9 @@ export default function ModernResultsView({
                 {/* Exam Results */}
                 {prioritizedExamResults.length > 0 && (
                   <div>
-                    <h4 className="text-base md:text-lg font-semibold text-gray-800 mb-2 md:mb-3">Class Exam Results</h4>
+                    <h4 className="text-base md:text-lg font-semibold text-gray-800 mb-2 md:mb-3">
+                      Class Exam Results
+                    </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
                       {prioritizedExamResults.map((result, index) => (
                         <DocumentCard key={index} document={result} type="exam" />
@@ -947,10 +1091,15 @@ export default function ModernResultsView({
                   </div>
                 )}
 
-                {/* Additional Documents */}
+                {/* Additional Documents / Resources */}
                 {additionalResultsFiles.length > 0 && (
                   <div>
-                    <h4 className="text-base md:text-lg font-semibold text-gray-800 mb-2 md:mb-3">Additional Resources</h4>
+                    <h4 className="text-base md:text-lg font-semibold text-gray-800 mb-2 md:mb-3">
+                      Additional Resources & School Updates
+                    </h4>
+                    <p className="text-gray-600 text-sm md:text-base mb-3">
+                      Explore these documents for important information that complements your studies. They may include curriculum updates, school announcements, guidelines, extra learning materials, and other key resources to keep you informed and up-to-date on everything happening this term.
+                    </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
                       {additionalResultsFiles.map((file, index) => (
                         <DocumentCard key={index} document={file} type="additional" />

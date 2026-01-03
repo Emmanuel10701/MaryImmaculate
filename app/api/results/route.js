@@ -156,7 +156,7 @@ const normalizeSubjectName = (subjectName) => {
 
 // ========== UPDATED PARSING FUNCTIONS ==========
 
-const parseResultsCSV = async (file) => {
+const parseResultsCSV = async (file, term, academicYear) => {
   const text = await file.text();
   
   return new Promise((resolve, reject) => {
@@ -167,23 +167,45 @@ const parseResultsCSV = async (file) => {
         const data = results.data
           .map((row, index) => {
             try {
+              // Extract admission number (various possible column names)
               const admissionNumber = row.admissionNumber || row.admissionnumber || 
+                                    row.admno || row.AdmNo || row.admission || row.Admission ||
                                     Object.values(row).find(val => /^3[0-5]\d{2}$/.test(String(val))) || '';
-              const form = row.form || '';
-              const term = row.term || '';
-              const academicYear = row.academicYear || row.academicyear || '';
               
-              if (!admissionNumber || !form || !term || !academicYear) {
+              if (!admissionNumber) {
                 return null;
               }
               
               const subjects = [];
               const processedSubjects = new Set();
               
+              // Extract all subject scores from the row
               for (const [columnName, value] of Object.entries(row)) {
                 const columnStr = String(columnName).trim();
                 
-                if (columnStr.endsWith('_Score') || columnStr.toLowerCase().endsWith(' score')) {
+                // Skip non-subject columns
+                if (columnStr.toLowerCase().includes('admission') ||
+                    columnStr.toLowerCase().includes('form') ||
+                    columnStr.toLowerCase().includes('stream') ||
+                    columnStr.toLowerCase().includes('term') ||
+                    columnStr.toLowerCase().includes('year') ||
+                    columnStr.toLowerCase().includes('total') ||
+                    columnStr.toLowerCase().includes('average') ||
+                    columnStr.toLowerCase().includes('grade') && !columnStr.toLowerCase().includes('_grade') ||
+                    columnStr.toLowerCase().includes('points') && !columnStr.toLowerCase().includes('_points') ||
+                    columnStr.toLowerCase().includes('comment') && !columnStr.toLowerCase().includes('_comment') ||
+                    columnStr.toLowerCase().includes('position') ||
+                    columnStr.toLowerCase().includes('remark') ||
+                    columnStr.toLowerCase().includes('date') ||
+                    columnStr.toLowerCase().includes('status')) {
+                  continue;
+                }
+                
+                // Check if this is a score column
+                if (columnStr.endsWith('_Score') || 
+                    columnStr.toLowerCase().endsWith(' score') ||
+                    columnStr.toLowerCase().includes('score') && !columnStr.toLowerCase().includes('total')) {
+                  
                   let subjectName = columnStr.replace(/_Score$/i, '').replace(/ score$/i, '').trim();
                   
                   if (processedSubjects.has(subjectName.toLowerCase())) {
@@ -195,6 +217,7 @@ const parseResultsCSV = async (file) => {
                     continue;
                   }
                   
+                  // Try to find corresponding grade, points, comment
                   const grade = row[`${subjectName}_Grade`] || 
                                row[`${subjectName} Grade`] || 
                                calculateGrade(score);
@@ -223,18 +246,31 @@ const parseResultsCSV = async (file) => {
                 }
               }
               
+              // Also check for columns that might just be subject names with scores
               for (const [columnName, value] of Object.entries(row)) {
                 const columnStr = String(columnName).trim();
                 const lowerCol = columnStr.toLowerCase();
                 
-                if (lowerCol.includes('admission') || lowerCol.includes('form') || 
-                    lowerCol.includes('term') || lowerCol.includes('year') ||
-                    lowerCol.includes('total') || lowerCol.includes('average') ||
-                    lowerCol.includes('grade') || lowerCol.includes('points') ||
-                    lowerCol.includes('comment') || lowerCol.includes('position') ||
-                    lowerCol.includes('stream') || lowerCol.includes('exam') ||
-                    lowerCol.includes('status') || lowerCol.includes('date') ||
-                    lowerCol.includes('remark')) {
+                if (lowerCol.includes('admission') || 
+                    lowerCol.includes('form') || 
+                    lowerCol.includes('term') ||
+                    lowerCol.includes('year') ||
+                    lowerCol.includes('total') ||
+                    lowerCol.includes('average') ||
+                    lowerCol.includes('position') ||
+                    lowerCol.includes('remark') ||
+                    lowerCol.includes('status') ||
+                    lowerCol.includes('date')) {
+                  continue;
+                }
+                
+                // Skip if already processed as a subject with _Score suffix
+                const isProcessed = Array.from(processedSubjects).some(processed => 
+                  lowerCol.startsWith(processed) && 
+                  (lowerCol.endsWith('_grade') || lowerCol.endsWith('_points') || lowerCol.endsWith('_comment'))
+                );
+                
+                if (isProcessed) {
                   continue;
                 }
                 
@@ -261,12 +297,14 @@ const parseResultsCSV = async (file) => {
               
               return {
                 admissionNumber: String(admissionNumber).trim(),
-                form: form.startsWith('Form ') ? form : `Form ${form}`,
-                term: term.startsWith('Term ') ? term : `Term ${term}`,
-                academicYear: String(academicYear).trim(),
-                subjects
+                subjects,
+                csvTerm: row.term || term || '',
+                csvAcademicYear: row.academicYear || row.academicyear || academicYear || '',
+                csvForm: row.form || '', // Note: We'll ignore this and use database form
+                csvStream: row.stream || '' // Note: We'll ignore this and use database stream
               };
             } catch (error) {
+              console.error(`Error parsing row ${index}:`, error);
               return null;
             }
           })
@@ -281,7 +319,7 @@ const parseResultsCSV = async (file) => {
   });
 };
 
-const parseResultsExcel = async (file) => {
+const parseResultsExcel = async (file, term, academicYear) => {
   try {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: 'buffer' });
@@ -292,23 +330,65 @@ const parseResultsExcel = async (file) => {
     const data = jsonData
       .map((row, index) => {
         try {
-          const admissionNumber = row.admissionNumber || row.admissionnumber || 
-                                Object.values(row).find(val => /^3[0-5]\d{2}$/.test(String(val))) || '';
-          const form = row.form || '';
-          const term = row.term || '';
-          const academicYear = row.academicYear || row.academicyear || '';
+          // Extract admission number from various possible column names
+          const findValue = (possibleKeys) => {
+            for (const key of possibleKeys) {
+              if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                return String(row[key]).trim();
+              }
+              const lowerKey = key.toLowerCase();
+              for (const rowKey in row) {
+                if (rowKey.toLowerCase() === lowerKey) {
+                  const value = row[rowKey];
+                  if (value !== undefined && value !== null && value !== '') {
+                    return String(value).trim();
+                  }
+                }
+              }
+            }
+            return '';
+          };
           
-          if (!admissionNumber || !form || !term || !academicYear) {
+          const admissionNumber = findValue([
+            'admissionNumber', 'AdmissionNumber', 'Admission Number', 
+            'ADMISSION_NUMBER', 'admno', 'AdmNo', 'admission', 'Admission',
+            'Adm', 'adm', 'RegNo', 'regno', 'Registration', 'registration'
+          ]);
+          
+          if (!admissionNumber) {
             return null;
           }
           
           const subjects = [];
           const processedSubjects = new Set();
           
+          // Extract all subject scores
           for (const [columnName, value] of Object.entries(row)) {
             const columnStr = String(columnName).trim();
             
-            if (columnStr.endsWith('_Score') || columnStr.toLowerCase().endsWith(' score')) {
+            // Skip non-subject columns
+            if (columnStr.toLowerCase().includes('admission') ||
+                columnStr.toLowerCase().includes('form') ||
+                columnStr.toLowerCase().includes('stream') ||
+                columnStr.toLowerCase().includes('term') ||
+                columnStr.toLowerCase().includes('year') ||
+                columnStr.toLowerCase().includes('total') ||
+                columnStr.toLowerCase().includes('average') ||
+                columnStr.toLowerCase().includes('grade') && !columnStr.toLowerCase().includes('_grade') ||
+                columnStr.toLowerCase().includes('points') && !columnStr.toLowerCase().includes('_points') ||
+                columnStr.toLowerCase().includes('comment') && !columnStr.toLowerCase().includes('_comment') ||
+                columnStr.toLowerCase().includes('position') ||
+                columnStr.toLowerCase().includes('remark') ||
+                columnStr.toLowerCase().includes('date') ||
+                columnStr.toLowerCase().includes('status')) {
+              continue;
+            }
+            
+            // Check if this is a score column
+            if (columnStr.endsWith('_Score') || 
+                columnStr.toLowerCase().endsWith(' score') ||
+                columnStr.toLowerCase().includes('score') && !columnStr.toLowerCase().includes('total')) {
+              
               let subjectName = columnStr.replace(/_Score$/i, '').replace(/ score$/i, '').trim();
               
               if (processedSubjects.has(subjectName.toLowerCase())) {
@@ -320,6 +400,7 @@ const parseResultsExcel = async (file) => {
                 continue;
               }
               
+              // Try to find corresponding grade, points, comment
               const grade = row[`${subjectName}_Grade`] || 
                            row[`${subjectName} Grade`] || 
                            calculateGrade(score);
@@ -348,18 +429,31 @@ const parseResultsExcel = async (file) => {
             }
           }
           
+          // Also check for columns that might just be subject names with scores
           for (const [columnName, value] of Object.entries(row)) {
             const columnStr = String(columnName).trim();
             const lowerCol = columnStr.toLowerCase();
             
-            if (lowerCol.includes('admission') || lowerCol.includes('form') || 
-                lowerCol.includes('term') || lowerCol.includes('year') ||
-                lowerCol.includes('total') || lowerCol.includes('average') ||
-                lowerCol.includes('grade') || lowerCol.includes('points') ||
-                lowerCol.includes('comment') || lowerCol.includes('position') ||
-                lowerCol.includes('stream') || lowerCol.includes('exam') ||
-                lowerCol.includes('status') || lowerCol.includes('date') ||
-                lowerCol.includes('remark')) {
+            if (lowerCol.includes('admission') || 
+                lowerCol.includes('form') || 
+                lowerCol.includes('term') ||
+                lowerCol.includes('year') ||
+                lowerCol.includes('total') ||
+                lowerCol.includes('average') ||
+                lowerCol.includes('position') ||
+                lowerCol.includes('remark') ||
+                lowerCol.includes('status') ||
+                lowerCol.includes('date')) {
+              continue;
+            }
+            
+            // Skip if already processed as a subject with _Score suffix
+            const isProcessed = Array.from(processedSubjects).some(processed => 
+              lowerCol.startsWith(processed) && 
+              (lowerCol.endsWith('_grade') || lowerCol.endsWith('_points') || lowerCol.endsWith('_comment'))
+            );
+            
+            if (isProcessed) {
               continue;
             }
             
@@ -386,12 +480,14 @@ const parseResultsExcel = async (file) => {
           
           return {
             admissionNumber: String(admissionNumber).trim(),
-            form: form.startsWith('Form ') ? form : `Form ${form}`,
-            term: term.startsWith('Term ') ? term : `Term ${term}`,
-            academicYear: String(academicYear).trim(),
-            subjects
+            subjects,
+            csvTerm: row.term || row.Term || term || '',
+            csvAcademicYear: row.academicYear || row.academicyear || row.year || academicYear || '',
+            csvForm: row.form || row.Form || '', // Note: We'll ignore this and use database form
+            csvStream: row.stream || row.Stream || '' // Note: We'll ignore this and use database stream
           };
         } catch (error) {
+          console.error(`Error parsing Excel row ${index}:`, error);
           return null;
         }
       })
@@ -404,7 +500,7 @@ const parseResultsExcel = async (file) => {
   }
 };
 
-// ========== POST ENDPOINT - UPLOAD RESULTS ==========
+// ========== UPDATED POST ENDPOINT ==========
 
 export async function POST(request) {
   try {
@@ -458,10 +554,11 @@ export async function POST(request) {
     try {
       let rawData = [];
       
+      // Parse file with term and academic year for fallback
       if (fileExtension === 'csv') {
-        rawData = await parseResultsCSV(file);
+        rawData = await parseResultsCSV(file, term, academicYear);
       } else {
-        rawData = await parseResultsExcel(file);
+        rawData = await parseResultsExcel(file, term, academicYear);
       }
       
       if (rawData.length === 0) {
@@ -473,9 +570,40 @@ export async function POST(request) {
         validRows: 0,
         skippedRows: 0,
         errorRows: 0,
-        errors: []
+        studentNotFound: 0,
+        inactiveStudents: 0,
+        errors: [],
+        warnings: []
       };
       
+      // Get all admission numbers from CSV for batch lookup
+      const csvAdmissionNumbers = rawData.map(r => r.admissionNumber);
+      
+      // Batch fetch all students from database
+      const students = await prisma.databaseStudent.findMany({
+        where: {
+          admissionNumber: {
+            in: csvAdmissionNumbers
+          }
+        },
+        select: {
+          admissionNumber: true,
+          firstName: true,
+          middleName: true,
+          lastName: true,
+          form: true,
+          stream: true,
+          status: true
+        }
+      });
+      
+      // Create a map for quick lookup
+      const studentMap = new Map();
+      students.forEach(student => {
+        studentMap.set(student.admissionNumber, student);
+      });
+      
+      // Process each record
       for (const [index, record] of rawData.entries()) {
         try {
           if (!record.admissionNumber) {
@@ -484,9 +612,18 @@ export async function POST(request) {
             continue;
           }
           
-          if (!record.form) {
-            stats.skippedRows++;
-            stats.errors.push(`Row ${index + 2}: Missing form`);
+          // CRITICAL: Look up student from database map
+          const student = studentMap.get(record.admissionNumber);
+          
+          if (!student) {
+            stats.studentNotFound++;
+            stats.errors.push(`Row ${index + 2}: Student ${record.admissionNumber} not found in database`);
+            continue;
+          }
+          
+          if (student.status !== 'active') {
+            stats.inactiveStudents++;
+            stats.errors.push(`Row ${index + 2}: Student ${student.admissionNumber} (${student.firstName} ${student.lastName}) is not active (status: ${student.status})`);
             continue;
           }
           
@@ -496,14 +633,21 @@ export async function POST(request) {
             continue;
           }
           
-          const student = await prisma.databaseStudent.findUnique({
-            where: { admissionNumber: record.admissionNumber }
-          });
+          // Use student's CURRENT details from database
+          const studentForm = student.form; // Current form from database
+          const studentStream = student.stream; // Current stream from database
+          const studentName = `${student.firstName} ${student.lastName}`;
           
-          if (!student) {
-            stats.skippedRows++;
-            stats.errors.push(`Row ${index + 2}: Student ${record.admissionNumber} not found in database`);
-            continue;
+          // Use term from CSV if provided, otherwise from form
+          const resultTerm = record.csvTerm ? normalizeTerm(record.csvTerm) : normalizedTerm;
+          const resultAcademicYear = record.csvAcademicYear ? normalizeAcademicYear(record.csvAcademicYear) : normalizedAcademicYear;
+          
+          // Log warning if CSV form differs from database form
+          if (record.csvForm && record.csvForm.trim() !== '') {
+            const csvForm = record.csvForm.startsWith('Form ') ? record.csvForm : `Form ${record.csvForm}`;
+            if (csvForm !== studentForm) {
+              stats.warnings.push(`Row ${index + 2}: CSV form (${csvForm}) differs from database form (${studentForm}) for ${studentName} - Using database form`);
+            }
           }
           
           const cleanSubjects = record.subjects
@@ -529,30 +673,34 @@ export async function POST(request) {
             continue;
           }
           
+          // Check for existing result using admission number, term, and academic year
           const existingResult = await prisma.studentResult.findFirst({
             where: {
               admissionNumber: record.admissionNumber,
-              term: normalizedTerm,
-              academicYear: normalizedAcademicYear
+              term: resultTerm,
+              academicYear: resultAcademicYear
             }
           });
           
           if (existingResult) {
+            // Update existing result with current database form
             await prisma.studentResult.update({
               where: { id: existingResult.id },
               data: {
+                form: studentForm, // Update to current database form
                 subjects: cleanSubjects,
                 updatedAt: new Date(),
                 uploadBatchId: batchId
               }
             });
           } else {
+            // Create new result with database form
             await prisma.studentResult.create({
               data: {
                 admissionNumber: record.admissionNumber,
-                form: record.form,
-                term: normalizedTerm,
-                academicYear: normalizedAcademicYear,
+                form: studentForm, // Use database form, not CSV form
+                term: resultTerm,
+                academicYear: resultAcademicYear,
                 subjects: cleanSubjects,
                 uploadBatchId: batchId
               }
@@ -568,6 +716,7 @@ export async function POST(request) {
         }
       }
       
+      // Update batch with detailed statistics
       await prisma.resultUpload.update({
         where: { id: batchId },
         data: {
@@ -581,6 +730,7 @@ export async function POST(request) {
         }
       });
       
+      // Prepare response
       const response = {
         success: stats.validRows > 0,
         message: stats.validRows > 0 
@@ -597,17 +747,34 @@ export async function POST(request) {
           total: stats.totalRows,
           valid: stats.validRows,
           skipped: stats.skippedRows,
-          errors: stats.errorRows
+          errors: stats.errorRows,
+          studentNotFound: stats.studentNotFound,
+          inactiveStudents: stats.inactiveStudents
         },
+        warnings: stats.warnings.slice(0, 10),
         errors: stats.errors.slice(0, 10)
       };
       
+      // Add sample data with database vs CSV comparison
       if (rawData.length > 0) {
+        const sampleRecord = rawData[0];
+        const sampleStudent = studentMap.get(sampleRecord.admissionNumber);
+        
         response.sample = {
-          admissionNumber: rawData[0].admissionNumber,
-          form: rawData[0].form,
-          subjectsCount: rawData[0].subjects?.length || 0,
-          subjectsSample: rawData[0].subjects?.slice(0, 3) || []
+          admissionNumber: sampleRecord.admissionNumber,
+          studentInfo: sampleStudent ? {
+            name: `${sampleStudent.firstName} ${sampleStudent.lastName}`,
+            databaseForm: sampleStudent.form,
+            databaseStream: sampleStudent.stream,
+            status: sampleStudent.status
+          } : { error: 'Student not found in database' },
+          csvInfo: {
+            csvForm: sampleRecord.csvForm || '(not provided in CSV)',
+            csvStream: sampleRecord.csvStream || '(not provided in CSV)',
+            csvTerm: sampleRecord.csvTerm || '(not provided in CSV)'
+          },
+          subjectsCount: sampleRecord.subjects?.length || 0,
+          subjectsSample: sampleRecord.subjects?.slice(0, 3) || []
         };
       }
       
@@ -632,14 +799,17 @@ export async function POST(request) {
       { 
         success: false, 
         error: error.message || 'Results upload failed',
-        suggestion: 'Please ensure your file has columns for admission number (3000-3500), form, and subject scores. Sample format: admissionNumber, form, English_Score, English_Grade, etc.'
+        suggestion: 'Please ensure your file has columns for admission number (3000-3500), term, academic year, and subject scores. Sample format: admissionNumber, English_Score, English_Grade, etc.'
       },
       { status: 500 }
     );
   }
 }
 
-// ========== GET ENDPOINT ==========
+// ========== OTHER ENDPOINTS (GET, PUT, DELETE) ==========
+// [Keep the existing GET, PUT, DELETE endpoints unchanged]
+// They already use the student database for form information
+
 export async function GET(request) {
   try {
     const url = new URL(request.url);
@@ -1055,8 +1225,6 @@ export async function GET(request) {
   }
 }
 
-// ========== PUT ENDPOINT ==========
-
 export async function PUT(request) {
   try {
     const body = await request.json();
@@ -1128,7 +1296,6 @@ export async function PUT(request) {
   }
 }
 
-// ========== DELETE ENDPOINT ==========
 export async function DELETE(request) {
   try {
     const url = new URL(request.url);

@@ -204,41 +204,58 @@ function ModernHomeView({ student, feeBalance, feeLoading }) {
       gradient: 'from-emerald-500 to-green-600',
       bgGradient: 'from-emerald-50 to-green-100'
     },
-    { 
-      label: 'Academic Year', 
-      value: '2024', 
-      icon: <FaCalendar className="text-lg" />, 
-      gradient: 'from-amber-500 to-orange-600',
-      bgGradient: 'from-amber-50 to-orange-100'
-    },
+   { 
+  label: 'Academic Year', 
+  value: new Date().getFullYear().toString(),
+  icon: <FaCalendar className="text-lg" />, 
+  gradient: 'from-amber-500 to-orange-600',
+  bgGradient: 'from-amber-50 to-orange-100'
+},
+
   ];
 
-  const quickActions = [
-    {
-      title: 'Pending Assignments',
-      description: 'Check and submit your pending assignments',
-      icon: <FaClock className="text-xl" />,
-      gradient: 'from-blue-500 to-purple-600',
-      bgGradient: 'from-blue-50 to-purple-100',
-      action: 'View Assignments →'
-    },
-    {
-      title: 'Recent Results',
-      description: 'View your latest exam results and progress',
-      icon: <FaChartLine className="text-xl" />,
-      gradient: 'from-emerald-500 to-green-600',
-      bgGradient: 'from-emerald-50 to-green-100',
-      action: 'Check Results →'
-    },
-    {
-      title: 'Learning Resources',
-      description: 'Access study materials and resources',
-      icon: <FiBookOpen className="text-xl" />,
-      gradient: 'from-purple-500 to-pink-600',
-      bgGradient: 'from-purple-50 to-pink-100',
-      action: 'Browse Resources →'
-    },
-  ];
+const quickActions = [
+  {
+    tab: 'learning',
+    title: 'Learning Hub',
+    description:
+      'Access all your academic learning tools in one place, including assignments, revision materials, notes, and other essential learning resources provided by your teachers to support your daily studies and exam preparation.',
+    icon: <FiBookOpen className="text-xl" />,
+    gradient: 'from-blue-500 to-indigo-600',
+    bgGradient: 'from-blue-50 to-indigo-100',
+    actions: [
+      'View Assignments',
+      'Browse Learning Resources'
+    ]
+  },
+  {
+    tab: 'results',
+    title: 'Results',
+    description:
+      'Review your academic performance in detail by accessing both class-wide results and your personal examination results, allowing you to track progress, identify strengths, and understand areas that need improvement.',
+    icon: <FaChartLine className="text-xl" />,
+    gradient: 'from-emerald-500 to-green-600',
+    bgGradient: 'from-emerald-50 to-green-100',
+    actions: [
+      'Class Results',
+      'My Results'
+    ]
+  },
+  {
+    tab: 'support',
+    title: 'Student Support',
+    description:
+      'Stay informed and supported through access to guidance and counselling services, important school announcements, upcoming events, and news updates designed to support your academic, personal, and social wellbeing.',
+    icon: <FaUserFriends className="text-xl" />,
+    gradient: 'from-amber-500 to-orange-600',
+    bgGradient: 'from-amber-50 to-orange-100',
+    actions: [
+      'Guidance & Counselling',
+      'School News & Events'
+    ]
+  }
+];
+
 
   const getFeeStatusColor = (balance) => {
     if (balance <= 0) return 'from-emerald-500 to-green-600';
@@ -321,7 +338,7 @@ Katz    </span>
                 {stat.category || 'School Update'}
               </span>
               <div className="flex items-center text-emerald-500 font-bold text-xs mt-1">
-                <span>↑ {stat.trend || '12%'}</span>
+                <span>↑ {stat.trend || 'good progress'}</span>
               </div>
             </div>
           </div>
@@ -347,9 +364,9 @@ Katz    </span>
                 +
               </div>
             </div>
-            <span className="text-[11px] font-semibold text-gray-400 italic">
-              Updated: {stat.lastUpdate || 'Just Now'}
-            </span>
+<span className="text-[11px] font-semibold text-gray-400 italic">
+  Updated: {new Date().toLocaleString()}
+</span>
           </div>
         </div>
       </div>
@@ -357,171 +374,175 @@ Katz    </span>
   ))}
 </div>
 
+{/* Fee Balance Section */}
+<div className="w-full max-w-5xl mx-auto">
+  {/* Header & Description */}
+  <div className="px-1 mb-6">
+    <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+      Fee Statement
+    </h2>
+    <p className="text-slate-500 text-sm sm:text-base mt-1 leading-relaxed">
+  A real-time summary of your financial standing for the{' '}
+  <span className="text-slate-900 font-semibold">
+    {`${new Date().getFullYear()}/${new Date().getFullYear() + 1} Academic Year`}
+  </span>
+  , giving you a clear overview of your current term balances. The school administrator and bursar will provide updates on any payments due, and any adjustments for previous or upcoming terms will be communicated promptly to keep you fully informed.
+</p>
 
-{/* Fee Balance Card */}
-<div className="relative group">
-  {/* Glow */}
-  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl sm:rounded-3xl blur opacity-0 group-hover:opacity-20 transition-opacity" />
-
-  {/* Card */}
-  <div className="relative bg-white rounded-2xl sm:rounded-3xl border border-gray-200/50 shadow-lg sm:shadow-xl overflow-hidden">
-    <div className="p-4 sm:p-6 lg:p-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="p-2.5 sm:p-3 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl sm:rounded-2xl">
-            <FaDollarSign className="text-blue-600 text-xl sm:text-2xl" />
-          </div>
-
-          <div>
-            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
-              Fee Balance
-            </h3>
-            <p className="text-gray-500 text-xs sm:text-sm">
-              Current outstanding fees
-            </p>
-          </div>
-        </div>
-
-        <div
-          className={`text-xl sm:text-2xl font-bold bg-gradient-to-r ${getFeeStatusColor(
-            feeBalance?.summary?.totalBalance || 0
-          )} bg-clip-text text-transparent`}
-        >
-          KES {feeBalance?.summary?.totalBalance?.toLocaleString() || "0"}
-        </div>
-      </div>
-
-      {/* Loading */}
-      {feeLoading ? (
-        <div className="space-y-3">
-          <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full animate-pulse" />
-          <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-3/4 animate-pulse" />
-        </div>
-      ) : feeBalance ? (
-        <div className="space-y-5 sm:space-y-6">
-          {/* Progress */}
-          <div>
-            <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="flex items-center gap-2">
-                <FaChartPie className="text-gray-400 text-sm sm:text-base" />
-                <span className="text-xs sm:text-sm font-bold text-gray-600">
-                  Payment Progress
-                </span>
-              </div>
-
-              <span className="text-xs sm:text-sm font-bold bg-gradient-to-r from-emerald-500 to-green-600 bg-clip-text text-transparent">
-                {feeBalance.summary.totalAmount > 0
-                  ? `${Math.round(
-                      (feeBalance.summary.totalPaid /
-                        feeBalance.summary.totalAmount) *
-                        100
-                    )}%`
-                  : "0%"}
-              </span>
-            </div>
-
-            <div className="h-2.5 sm:h-3 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-green-600 rounded-full transition-all"
-                style={{
-                  width:
-                    feeBalance.summary.totalAmount > 0
-                      ? `${
-                          (feeBalance.summary.totalPaid /
-                            feeBalance.summary.totalAmount) *
-                          100
-                        }%`
-                      : "0%",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Fee Details */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-gray-200 text-center transition-transform sm:group-hover:scale-105">
-              <div className="text-gray-600 text-xs sm:text-sm mb-1 sm:mb-2">
-                Total Fees
-              </div>
-              <div className="text-lg sm:text-2xl font-bold text-gray-900">
-                KES {feeBalance.summary.totalAmount.toLocaleString()}
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-emerald-50 to-green-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-emerald-200 text-center transition-transform sm:group-hover:scale-105">
-              <div className="text-emerald-600 text-xs sm:text-sm mb-1 sm:mb-2">
-                Total Paid
-              </div>
-              <div className="text-lg sm:text-2xl font-bold text-emerald-700">
-                KES {feeBalance.summary.totalPaid.toLocaleString()}
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-red-50 to-pink-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-red-200 text-center transition-transform sm:group-hover:scale-105">
-              <div className="text-red-600 text-xs sm:text-sm mb-1 sm:mb-2">
-                Outstanding
-              </div>
-              <div className="text-lg sm:text-2xl font-bold text-red-700">
-                KES {feeBalance.summary.totalBalance.toLocaleString()}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Empty state */
-        <div className="text-center py-6 sm:py-8">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-            <FaExclamationCircle className="text-gray-400 text-xl sm:text-2xl" />
-          </div>
-          <p className="text-gray-500 text-sm">
-            No fee data available
-          </p>
-        </div>
-      )}
-    </div>
   </div>
-</div>
 
- {/* Quick Actions */}
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
-  {quickActions.map((action, index) => (
-    <div key={index} className="group relative">
-      {/* Glow */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-r ${action.gradient} rounded-2xl sm:rounded-3xl blur opacity-0 group-hover:opacity-20 transition-opacity`}
-      ></div>
-
-      {/* Card */}
-      <div
-        className={`relative bg-gradient-to-br ${action.bgGradient} rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 border border-gray-200/50 shadow-lg sm:shadow-xl hover:shadow-2xl transition-all duration-300`}
-      >
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
-          <div
-            className={`p-2.5 sm:p-3 bg-gradient-to-r ${action.gradient} rounded-xl sm:rounded-2xl text-white shadow-lg flex items-center justify-center`}
-          >
-            {action.icon}
-          </div>
-          <h4 className="text-lg sm:text-xl md:text-xl font-bold text-gray-900">
-            {action.title}
-          </h4>
+  {/* Main Layout Container */}
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    
+    {/* Primary Balance Card (Spans 2 columns on large screens) */}
+    <div className="lg:col-span-2 bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+      {/* Decorative background element */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 blur-3xl" />
+      
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">Total Balance Due</span>
         </div>
+        <h3 className="text-4xl sm:text-5xl font-bold text-white tracking-tighter">
+          <span className="text-slate-500 mr-2 text-2xl sm:text-3xl font-medium">KES</span>
+          {feeBalance?.summary?.totalBalance?.toLocaleString() || "0"}
+        </h3>
+      </div>
 
-        {/* Description */}
-        <p className="text-gray-600 text-xs sm:text-sm md:text-sm mb-4 sm:mb-5 leading-relaxed">
-          {action.description}
-        </p>
-
-        {/* Action Button */}
-        <button className="text-blue-600 text-xs sm:text-sm font-bold hover:text-blue-800 flex items-center gap-1.5 sm:gap-2 group-hover:gap-2.5 transition-all">
-          {action.action}
-          <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-        </button>
+      <div className="relative pt-6 mt-6 border-t border-slate-800 flex justify-between items-end">
+        <div>
+          <p className="text-slate-400 text-[10px] uppercase font-bold tracking-widest mb-1">Status</p>
+          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+            (feeBalance?.summary?.totalBalance || 0) > 0 
+            ? "bg-orange-500/10 text-orange-400 border border-orange-500/20" 
+            : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+          }`}>
+            {(feeBalance?.summary?.totalBalance || 0) > 0 ? "PAYMENT PENDING" : "FULLY CLEARED"}
+          </span>
+        </div>
+        <FaDollarSign className="text-slate-800 text-5xl absolute bottom-0 right-0 -mb-2 -mr-2" />
       </div>
     </div>
-  ))}
+
+    {/* Secondary Stats Column */}
+    <div className="flex flex-col gap-4">
+      {/* Total Billed Box */}
+      <div className="bg-white border border-slate-100 rounded-[1.5rem] p-6 flex flex-col justify-between shadow-sm">
+        <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-4">Total Billed</p>
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold text-slate-900">
+            KES {feeBalance?.summary?.totalAmount?.toLocaleString() || "0"}
+          </span>
+        </div>
+      </div>
+
+      {/* Total Paid Box */}
+      <div className="bg-emerald-50 border border-emerald-100 rounded-[1.5rem] p-6 flex flex-col justify-between shadow-sm">
+        <p className="text-emerald-700 text-xs font-bold uppercase tracking-wider mb-4">Total Paid</p>
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold text-emerald-800">
+            KES {feeBalance?.summary?.totalPaid?.toLocaleString() || "0"}
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  {/* Empty State / Loading Handling */}
+  {!feeLoading && !feeBalance && (
+    <div className="mt-4 p-8 bg-slate-50 rounded-[1.5rem] border border-dashed border-slate-200 text-center">
+      <p className="text-slate-500 text-sm font-medium">No financial records found for the current selection.</p>
+    </div>
+  )}
 </div>
+
+{/* Dashboard Overview */}
+<section className="mb-6 sm:mb-8 md:mb-10">
+  
+  {/* Section Header */}
+  <div className="mb-4 sm:mb-6">
+    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+      Student Dashboard
+    </h2>
+    <p className="mt-1 text-sm sm:text-base text-gray-600 max-w-3xl">
+      This dashboard gives you quick access to your learning resources, assignments,
+      academic results, and student support services. Use the sections below to stay
+      organized, track your academic progress, and keep up with important school
+      updates and events.
+    </p>
+  </div>
+
+  {/* Quick Actions Grid */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+    {quickActions.map((action, index) => (
+      <div key={index} className="relative group">
+
+        {/* Soft Glow (desktop only) */}
+        <div
+          className={`hidden sm:block absolute inset-0 bg-gradient-to-r ${action.gradient} rounded-3xl blur-2xl opacity-0 group-hover:opacity-20 transition-opacity`}
+        />
+
+        {/* Card */}
+        <div
+          className="
+            relative h-full
+            bg-white
+            rounded-2xl sm:rounded-3xl
+            border border-gray-200/60
+            p-4 sm:p-5 md:p-6
+            shadow-sm sm:shadow-md
+            hover:shadow-md
+            transition-all duration-300
+            flex flex-col
+          "
+        >
+          {/* Header */}
+          <div className="flex items-start gap-4 mb-4">
+            <div
+              className={`p-3 rounded-2xl bg-gradient-to-br ${action.gradient} text-white shadow-md`}
+            >
+              {action.icon}
+            </div>
+
+            <div>
+              <h4 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">
+                {action.title}
+              </h4>
+              <p className="mt-1 text-xs sm:text-sm text-gray-500">
+                {action.tab === 'learning' && 'Assignments & learning materials'}
+                {action.tab === 'results' && 'Class & personal results'}
+                {action.tab === 'support' && 'Guidance, news & school events'}
+              </p>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="text-sm text-gray-600 leading-relaxed flex-1 mb-5">
+            {action.description}
+          </p>
+
+          {/* Footer Action */}
+          <button
+            className="
+              mt-auto
+              inline-flex items-center gap-2
+              text-sm font-semibold
+              text-blue-600
+              hover:text-blue-800
+              transition-colors
+            "
+          >
+            <span>Explore</span>
+            <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
 
     </div>
   );

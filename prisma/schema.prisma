@@ -597,14 +597,14 @@ model StudentSession {
   studentId       String
   admissionNumber String
   name            String
-  token           String
+  token           String   @db.Text
   expiresAt       DateTime
   ipAddress       String?
   userAgent       String?
   createdAt       DateTime @default(now())
 
   @@index([studentId])
-  @@index([token])
+  @@index([token(length: 191)]) // ✅ Prefix index for MySQL TEXT
   @@index([expiresAt])
 }
 
