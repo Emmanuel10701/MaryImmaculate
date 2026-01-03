@@ -2,47 +2,67 @@
 import { useState, useEffect } from 'react';
 import { toast, Toaster } from 'sonner';
 import { 
-  FiBook, 
+  FiUser, 
   FiCalendar, 
   FiFileText, 
   FiCheckCircle,
+  FiArrowRight,
   FiClock,
   FiAward,
   FiUsers,
+  FiBook,
   FiHome,
   FiMail,
   FiPhone,
+  FiMapPin,
   FiDownload,
   FiStar,
   FiHelpCircle,
+  FiPlay,
+  FiShare2,
   FiChevronDown,
   FiBarChart2,
+  FiHeart,
   FiTarget,
+  FiGlobe,
   FiBookOpen,
   FiCpu,
+  FiMusic,
   FiActivity,
   FiZap,
   FiTrendingUp,
+  FiEye,
   FiLayers,
   FiPlus,
   FiX,
   FiFilter,
   FiSearch,
   FiRotateCw,
-  FiEye,
+  FiEdit3,
+  FiTrash2,
+  FiMessageCircle,
+  FiAlertTriangle,
+  FiSave,
+  FiImage,
+  FiUpload,
+  FiVideo,
+  FiDollarSign,
+  FiFile,
+  FiClipboard,
+  FiCreditCard,
+  FiInfo,
   FiGrid,
   FiFolder,
   FiList,
   FiSettings,
-  FiGlobe,
-  FiPlay,
   FiPieChart,
   FiTool,
   FiSmartphone,
   FiCode,
   FiShield,
-  FiHeart,
-  FiTarget as FiTargetIcon
+  FiTarget as FiTargetIcon,
+  FiBookmark,
+  FiCalendar as FiCalendarIcon
 } from 'react-icons/fi';
 import { 
   IoSchoolOutline,
@@ -52,14 +72,21 @@ import {
   IoLibraryOutline,
   IoStatsChartOutline,
   IoRocketOutline,
-  IoEarthOutline,
+  IoBookOutline,
   IoCalculatorOutline,
   IoSparkles,
   IoAccessibilityOutline,
   IoBuildOutline,
   IoAnalyticsOutline,
   IoBulbOutline,
-  IoCheckmarkCircleOutline
+  IoCheckmarkCircleOutline,
+  IoCalendarOutline,
+  IoDocumentTextOutline,
+  IoReceiptOutline,
+  IoShirtOutline,
+  IoVideocamOutline,
+  IoCloudDownloadOutline,
+  IoEyeOutline
 } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
 
@@ -84,62 +111,77 @@ const ModernModal = ({ children, open, onClose, maxWidth = '700px' }) => {
   );
 };
 
-// Program Card Component
-const ProgramCard = ({ program, onLearnMore, index }) => {
-  const ProgramIcon = program.icon;
-  
+// Modern Card Component for Admission Paths
+const AdmissionPathCard = ({ path, onApply, index }) => {
+  // Use local images based on path type
+  const getLocalImage = (type) => {
+    switch(type) {
+      case 'grade7':
+        return '/images/admissions/form1.jpg';
+      case 'transfer':
+        return '/images/admissions/transfer.jpg';
+      default:
+        return '/images/admissions/default.jpg';
+    }
+  };
+
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-md">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-lg hover:scale-[1.02]">
+      {/* Image Section */}
+      <div className="relative h-40 overflow-hidden">
+        <img
+          src={getLocalImage(path.type)}
+          alt={path.title}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+        />
+        <div className="absolute top-3 right-3">
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold text-white bg-gradient-to-r ${path.color} shadow-sm`}>
+            {path.deadline === 'Rolling Admission' ? 'Open' : 'Limited'}
+          </span>
+        </div>
+      </div>
+
       {/* Content */}
       <div className="p-5">
         {/* Title and Icon */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className={`p-3 rounded-xl bg-gradient-to-r ${program.color} bg-opacity-10`}>
-            <ProgramIcon className={`text-xl ${program.color.split('from-')[1].split('to-')[0].replace('-500', '-600')}`} />
+        <div className="flex items-center gap-3 mb-3">
+          <div className={`p-2.5 rounded-xl bg-gradient-to-r ${path.color} bg-opacity-10`}>
+            {path.icon({ className: `text-lg ${path.color.split('from-')[1].split('to-')[0].replace('-500', '-600')}` })}
           </div>
-          <div>
-            <h3 className="font-bold text-gray-900 text-lg">{program.title}</h3>
-            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-              <FiClock className="text-gray-400" />
-              <span>{program.duration}</span>
-            </div>
-          </div>
+          <h3 className="font-bold text-gray-900 text-lg">{path.title}</h3>
         </div>
 
         {/* Description */}
         <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-          {program.description}
+          {path.description}
         </p>
 
         {/* Features */}
-        <div className="space-y-2 mb-5">
-          {program.features.slice(0, 3).map((feature, idx) => (
+        <div className="space-y-2 mb-4">
+          {path.features.slice(0, 2).map((feature, idx) => (
             <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
-              <FiCheckCircle className="text-green-500 flex-shrink-0" />
+              <IoCheckmarkCircleOutline className="text-green-500 flex-shrink-0" />
               <span className="truncate">{feature}</span>
             </div>
           ))}
+          {path.features.length > 2 && (
+            <div className="text-xs text-blue-600 font-medium">
+              +{path.features.length - 2} more features
+            </div>
+          )}
         </div>
 
-        {/* Info and Button */}
+        {/* Deadline and Apply Button */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div className="flex items-center gap-2">
-            <div className={`px-2 py-1 rounded text-xs font-medium ${
-              program.type === 'CBC' ? 'bg-blue-100 text-blue-800' :
-              program.type === '8-4-4' ? 'bg-green-100 text-green-800' :
-              'bg-purple-100 text-purple-800'
-            }`}>
-              {program.type}
-            </div>
-            <div className="text-xs text-gray-500">
-              {program.students} students
-            </div>
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <IoCalendarOutline className="text-gray-400" />
+            <span>{path.deadline}</span>
           </div>
           <button
-            onClick={onLearnMore}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+            onClick={onApply}
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:shadow-md"
           >
-            Learn More
+            Apply Now
           </button>
         </div>
       </div>
@@ -152,14 +194,14 @@ const FeatureCard = ({ feature, onLearnMore }) => {
   const FeatureIcon = feature.icon;
   
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden transition-all duration-300 hover:shadow-md">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
       {/* Icon Header */}
       <div className={`p-5 bg-gradient-to-r ${feature.color} bg-opacity-10`}>
         <div className="flex items-center justify-between">
-          <div className="p-3 bg-white rounded-xl shadow-xs">
-            <FeatureIcon className={`text-2xl ${feature.color.split('from-')[1].split('to-')[0].replace('-500', '-600')}`} />
+          <div className="p-2.5 bg-white rounded-xl shadow-xs">
+            <FeatureIcon className={`text-xl ${feature.color.split('from-')[1].split('to-')[0].replace('-500', '-600')}`} />
           </div>
-          <span className="text-xs font-medium px-3 py-1 bg-white/80 rounded-full text-gray-700">
+          <span className="text-xs font-semibold px-3 py-1 bg-white/90 rounded-full text-gray-700">
             {feature.badge}
           </span>
         </div>
@@ -174,20 +216,30 @@ const FeatureCard = ({ feature, onLearnMore }) => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-gray-50 rounded-lg p-3 text-center">
+          <div className="bg-gray-50/70 rounded-lg p-3 text-center">
             <div className="font-bold text-gray-900">{feature.stats.students}</div>
             <div className="text-xs text-gray-500">Students</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3 text-center">
+          <div className="bg-gray-50/70 rounded-lg p-3 text-center">
             <div className="font-bold text-gray-900">{feature.stats.success}</div>
             <div className="text-xs text-gray-500">Success Rate</div>
           </div>
         </div>
 
+        {/* Features */}
+        <div className="space-y-2 mb-4">
+          {feature.features.map((feat, idx) => (
+            <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
+              <IoCheckmarkCircleOutline className="text-green-500 flex-shrink-0" />
+              <span>{feat}</span>
+            </div>
+          ))}
+        </div>
+
         {/* Action Button */}
         <button
           onClick={onLearnMore}
-          className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+          className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:shadow-md"
         >
           Explore Feature
         </button>
@@ -201,13 +253,13 @@ const StatCard = ({ stat }) => {
   const StatIcon = stat.icon;
   
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-5 transition-all duration-300 hover:shadow-md">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-5 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
       <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-xs font-medium text-gray-600 mb-1">{stat.label}</p>
           <p className="text-lg font-bold text-gray-900">{stat.number}</p>
         </div>
-        <div className={`p-2 rounded-lg bg-gradient-to-r ${stat.color} bg-opacity-10`}>
+        <div className={`p-2.5 rounded-xl bg-gradient-to-r ${stat.color} bg-opacity-10`}>
           <StatIcon className={`text-lg ${stat.color.split('from-')[1].split('to-')[0].replace('-500', '-600')}`} />
         </div>
       </div>
@@ -218,71 +270,278 @@ const StatCard = ({ stat }) => {
 
 // Subject Card Component
 const SubjectCard = ({ subject, index }) => {
-  const SubjectIcon = subject.icon;
+  // Map subjects to icons
+  const getSubjectIcon = (subjectName) => {
+    const subjectMap = {
+      'Biology': FiActivity,
+      'Chemistry': FiZap,
+      'Physics': FiZap,
+      'Mathematics': FiCpu,
+      'English': FiBook,
+      'Kiswahili': FiGlobe,
+      'geography': FiGlobe,
+      'history': FiBook,
+      'Agriculture': FiActivity,
+      'Business studies': FiBarChart2,
+      'Home science': FiHome,
+      'Computer studies': FiCpu,
+      'CRE': FiHeart,
+      'IRe': FiHeart,
+      'HRE': FiHeart,
+      'CBC': FiBookOpen
+    };
+    
+    return subjectMap[subjectName] || FiBook;
+  };
   
+  const SubjectIcon = getSubjectIcon(subject);
+
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4 transition-all duration-300 hover:shadow-md">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
       <div className="flex items-center gap-3 mb-3">
-        <div className={`p-2 bg-gradient-to-r ${subject.color} rounded-lg`}>
+        <div className="p-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-sm">
           <SubjectIcon className="text-white text-lg" />
         </div>
         <div>
-          <h4 className="font-bold text-gray-900">{subject.name}</h4>
-          <p className="text-gray-500 text-xs">{subject.category}</p>
+          <h4 className="font-bold text-gray-900">{subject}</h4>
         </div>
-      </div>
-      <p className="text-gray-600 text-sm">{subject.description}</p>
-      <div className="flex items-center gap-2 mt-3">
-        <span className={`text-xs px-2 py-1 rounded ${
-          subject.type === 'Core' ? 'bg-blue-100 text-blue-800' :
-          subject.type === 'Elective' ? 'bg-purple-100 text-purple-800' :
-          'bg-green-100 text-green-800'
-        }`}>
-          {subject.type}
-        </span>
-        <span className="text-xs text-gray-500">{subject.grades}</span>
       </div>
     </div>
   );
 };
 
-// Curriculum Card Component
-const CurriculumCard = ({ curriculum, icon: Icon, color }) => {
+// Department Card Component
+const DepartmentCard = ({ department, index }) => {
+  // Map departments to icons
+  const getDepartmentIcon = (deptName) => {
+    const deptMap = {
+      'CBC': FiBookOpen,
+      'humanities': FiBook,
+      'Mathematics': FiCpu,
+      'Physical sciences': FiZap,
+      'Languages': FiGlobe,
+      'Technical skills': FiActivity,
+      'Computer': FiCpu
+    };
+    
+    return deptMap[deptName] || FiBook;
+  };
+  
+  const DepartmentIcon = getDepartmentIcon(department);
+
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-6 transition-all duration-300 hover:shadow-md">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="p-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-sm">
+          <DepartmentIcon className="text-white text-lg" />
+        </div>
+        <div>
+          <h4 className="font-bold text-gray-900">{department}</h4>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Fee Structure Card
+const FeeCard = ({ feeType, total, distribution, pdfPath, pdfName, icon: Icon, color, term = "Annual" }) => {
+  return (
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-6 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
       <div className="flex items-center gap-4 mb-6">
         <div className={`p-3 rounded-xl ${color} bg-opacity-10`}>
           <Icon className="text-2xl text-blue-600" />
         </div>
         <div>
-          <h3 className="font-bold text-gray-900 text-lg">{curriculum.name}</h3>
-          <p className="text-gray-500 text-sm">{curriculum.description}</p>
+          <h3 className="font-bold text-gray-900 text-lg">{feeType}</h3>
+          <p className="text-gray-500 text-sm">{term} Fee Structure</p>
         </div>
       </div>
       
       <div className="space-y-4 mb-6">
-        {curriculum.features.map((feature, idx) => (
-          <div key={idx} className="flex items-start gap-3">
-            <IoCheckmarkCircleOutline className="text-green-500 mt-0.5 flex-shrink-0" />
+        {distribution && Object.entries(distribution).map(([category, amount], idx) => (
+          <div key={idx} className="flex justify-between items-center border-b border-gray-100 pb-3">
             <div>
-              <p className="font-medium text-gray-700 text-sm">{feature.title}</p>
-              <p className="text-gray-500 text-xs">{feature.details}</p>
+              <p className="font-medium text-gray-700 capitalize">{category.replace(/([A-Z])/g, ' $1').trim()}</p>
+            </div>
+            <div className="text-right">
+              <p className="font-bold text-gray-900">KSh {parseInt(amount).toLocaleString()}</p>
             </div>
           </div>
         ))}
       </div>
       
-      <div className="pt-4 border-t border-gray-100">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-gray-500">Grades</p>
-            <p className="font-bold text-gray-900">{curriculum.grades}</p>
+      <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+        <div>
+          <p className="text-sm text-gray-500">Total {term} Fees</p>
+          <p className="font-bold text-gray-900 text-xl">KSh {total.toLocaleString()}</p>
+        </div>
+        {pdfPath && (
+          <a 
+            href={pdfPath} 
+            download={pdfName}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:shadow-md"
+          >
+            <IoCloudDownloadOutline className="w-4 h-4" />
+            Download PDF
+          </a>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Video Tour Component
+const VideoTourSection = ({ videoTour, videoType, videoThumbnail }) => {
+  if (!videoTour) return null;
+
+  if (videoType === 'youtube') {
+    // Extract YouTube video ID
+    const getYouTubeId = (url) => {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    };
+
+    const videoId = getYouTubeId(videoTour);
+    
+    return (
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+            <IoVideocamOutline className="text-white text-xl" />
           </div>
-          <button className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-            View Details
-          </button>
+          <h3 className="text-xl font-bold text-gray-900">Virtual School Tour</h3>
+        </div>
+        <div className="aspect-video rounded-xl overflow-hidden shadow-sm">
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}`}
+            className="w-full h-full"
+            title="School Virtual Tour"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
         </div>
       </div>
+    );
+  }
+
+  if (videoType === 'file' && videoTour) {
+    return (
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+            <IoVideocamOutline className="text-white text-xl" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">Virtual School Tour</h3>
+        </div>
+        <div className="aspect-video rounded-xl overflow-hidden shadow-sm">
+          <video
+            controls
+            className="w-full h-full"
+            poster={videoThumbnail || ''}
+          >
+            <source src={videoTour} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+// Vision & Mission Section
+const VisionMissionSection = ({ vision, mission, motto }) => {
+  return (
+    <div className="grid md:grid-cols-2 gap-6">
+      {/* Vision Card */}
+      <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl shadow-sm border border-blue-200/60 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2.5 bg-blue-500 rounded-xl shadow-sm">
+            <IoEyeOutline className="text-white text-xl" />
+          </div>
+          <h3 className="font-bold text-gray-900 text-lg">Our Vision</h3>
+        </div>
+        <p className="text-gray-700 leading-relaxed">
+          {vision || "To be a leading center of academic excellence and character development, nurturing future leaders who demonstrate high academic achievement, strong ethical values, and leadership skills."}
+        </p>
+      </div>
+
+      {/* Mission Card */}
+      <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl shadow-sm border border-purple-200/60 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2.5 bg-purple-500 rounded-xl shadow-sm">
+            <FiTarget className="text-white text-xl" />
+          </div>
+          <h3 className="font-bold text-gray-900 text-lg">Our Mission</h3>
+        </div>
+        <p className="text-gray-700 leading-relaxed">
+          {mission || "To provide quality and relevant education through effective teaching, continuous assessment, and strong mentorship. We foster discipline, teamwork, innovation, and self-reliance while promoting integrity and respect for others."}
+        </p>
+      </div>
+
+      {/* Motto Card */}
+      {motto && (
+        <div className="md:col-span-2 bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-xl shadow-sm border border-emerald-200/60 p-6">
+          <div className="flex flex-col items-center text-center">
+            <div className="p-3 bg-emerald-500 rounded-xl mb-4 shadow-sm">
+              <FiAward className="text-white text-2xl" />
+            </div>
+            <h3 className="font-bold text-gray-900 text-lg mb-2">School Motto</h3>
+            <p className="text-gray-700 text-xl font-semibold italic">"{motto}"</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Uniform Requirements Card
+const UniformRequirementsSection = ({ admissionFeeDistribution, admissionFeePdf, admissionFeePdfName }) => {
+  const uniformItems = admissionFeeDistribution || {};
+
+  return (
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h3 className="text-xl font-bold text-gray-900">Admission Uniform Requirements</h3>
+          <p className="text-gray-600 text-sm mt-1">All items required for admission</p>
+        </div>
+        {admissionFeePdf && (
+          <a 
+            href={admissionFeePdf}
+            download={admissionFeePdfName}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:shadow-md"
+          >
+            <IoCloudDownloadOutline className="w-4 h-4" />
+            Download Uniform List
+          </a>
+        )}
+      </div>
+
+      {Object.keys(uniformItems).length > 0 ? (
+        <div className="grid md:grid-cols-2 gap-4">
+          {Object.entries(uniformItems).map(([item, cost], index) => (
+            <div key={index} className="flex items-center justify-between p-3 bg-gray-50/70 rounded-lg hover:bg-gray-100/70 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white rounded-lg shadow-xs">
+                  <IoCheckmarkCircleOutline className="text-green-500" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800 capitalize">{item.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim()}</p>
+                </div>
+              </div>
+              <span className="font-bold text-gray-900">KSh {parseInt(cost).toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          <FiAlertTriangle className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+          <p>Uniform requirements will be provided upon admission</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -292,7 +551,7 @@ const FAQItem = ({ faq, index, openFaq, setOpenFaq }) => {
   const isOpen = openFaq === index;
   
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 overflow-hidden transition-all duration-300 hover:shadow-sm">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/70 overflow-hidden transition-all duration-300 hover:shadow-md">
       <button
         onClick={() => setOpenFaq(isOpen ? null : index)}
         className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50/50 transition-colors"
@@ -311,261 +570,384 @@ const FAQItem = ({ faq, index, openFaq, setOpenFaq }) => {
   );
 };
 
-export default function AcademicPage() {
-  const router = useRouter();
+// Application Form Modal
+const ApplicationFormModal = ({ open, onClose, onSuccess }) => {
+  const [formData, setFormData] = useState({
+    studentName: '',
+    parentName: '',
+    email: '',
+    phone: '',
+    currentGrade: '',
+    admissionPath: '',
+    preferredStartDate: new Date().toISOString().split('T')[0],
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast.success('Application submitted successfully!');
+      onSuccess();
+      onClose();
+    } catch (error) {
+      toast.error('Failed to submit application. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const updateField = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  if (!open) return null;
+
+  return (
+    <ModernModal open={true} onClose={onClose}>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-5 text-white">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm">
+              <IoRocketOutline className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Start Your Application</h2>
+              <p className="text-blue-100 opacity-90 text-sm">
+                Join our school community
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1 rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+            <FiX className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-h-[calc(85vh-150px)] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-5 space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-bold text-gray-800 mb-2">
+                Student Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.studentName}
+                onChange={(e) => updateField('studentName', e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/70 text-sm"
+                placeholder="Enter student full name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-800 mb-2">
+                Parent/Guardian Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.parentName}
+                onChange={(e) => updateField('parentName', e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/70 text-sm"
+                placeholder="Enter parent/guardian name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-800 mb-2">
+                Email Address *
+              </label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => updateField('email', e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/70 text-sm"
+                placeholder="Enter email address"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-800 mb-2">
+                Phone Number *
+              </label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => updateField('phone', e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/70 text-sm"
+                placeholder="Enter phone number"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-800 mb-2">
+                Current Grade *
+              </label>
+              <select
+                required
+                value={formData.currentGrade}
+                onChange={(e) => updateField('currentGrade', e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/70 text-sm cursor-pointer"
+              >
+                <option value="">Select current grade</option>
+                <option value="Form 1">Form 1</option>
+                <option value="Form 2">Form 2</option>
+                <option value="Form 3">Form 3</option>
+                <option value="Form 4">Form 4</option>
+                <option value="Transfer">Transfer Student</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-800 mb-2">
+                Admission Path *
+              </label>
+              <select
+                required
+                value={formData.admissionPath}
+                onChange={(e) => updateField('admissionPath', e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/70 text-sm cursor-pointer"
+              >
+                <option value="">Select admission path</option>
+                <option value="Form 1 Entry">Form 1 Entry</option>
+                <option value="Transfer Students">Transfer Students</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-800 mb-2">
+                Preferred Start Date *
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.preferredStartDate}
+                onChange={(e) => updateField('preferredStartDate', e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/70 text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-800 mb-2">
+              Additional Message (Optional)
+            </label>
+            <textarea
+              value={formData.message}
+              onChange={(e) => updateField('message', e.target.value)}
+              rows="3"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/70 text-sm resize-none"
+              placeholder="Any additional information or questions..."
+            />
+          </div>
+        </form>
+      </div>
+
+      {/* Footer */}
+      <div className="p-5 border-t border-gray-100">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 hover:bg-gray-50"
+          >
+            <span className="text-sm">Cancel</span>
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="flex-1 bg-gradient-to-r from-emerald-500 to-green-500 text-white py-2.5 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:shadow-md"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span className="text-sm">Processing...</span>
+              </>
+            ) : (
+              <>
+                <FiSave className="w-4 h-4" />
+                <span className="text-sm">Submit Application</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </ModernModal>
+  );
+};
+
+export default function ComprehensiveAdmissions() {
   const [activeTab, setActiveTab] = useState('overview');
   const [openFaq, setOpenFaq] = useState(null);
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [loading, setLoading] = useState(false);
+  const [schoolData, setSchoolData] = useState(null);
 
-  // Data for the page
-  const academicStats = [
+  const router = useRouter();
+
+  // Fetch school data from API
+  useEffect(() => {
+    const fetchSchoolData = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/school');
+        const data = await response.json();
+        if (data.success) {
+          setSchoolData(data.school);
+        }
+      } catch (error) {
+        console.error('Error fetching school data:', error);
+        toast.error('Failed to load school information');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSchoolData();
+  }, []);
+
+  // Dynamic stats from API data
+  const dynamicStats = [
     { 
       icon: IoPeopleOutline, 
-      number: '98%', 
-      label: 'Pass Rate', 
-      sublabel: 'KCSE 2023',
+      number: schoolData?.studentCount ? schoolData.studentCount.toString() : '1,200+', 
+      label: 'Total Students', 
+      sublabel: 'Currently Enrolled',
       color: 'from-green-500 to-emerald-500'
     },
     { 
       icon: FiTrendingUp, 
-      number: 'A-', 
-      label: 'Mean Grade', 
-      sublabel: '2023 Performance',
+      number: schoolData?.admissionCapacity ? schoolData.admissionCapacity.toString() : '300', 
+      label: 'Admission Capacity', 
+      sublabel: 'Annual Intake',
       color: 'from-blue-500 to-cyan-500'
     },
     { 
       icon: IoSparkles, 
-      number: '500+', 
-      label: 'University', 
-      sublabel: 'Placements',
+      number: schoolData?.staffCount ? `${schoolData.staffCount}:1` : '20:1', 
+      label: 'Student-Teacher', 
+      sublabel: 'Personalized Ratio',
       color: 'from-purple-500 to-pink-500'
     },
     { 
       icon: FiAward, 
-      number: '150+', 
-      label: 'Awards', 
-      sublabel: 'National Level',
+      number: '98%', 
+      label: 'Success Rate', 
+      sublabel: 'Academic Excellence',
       color: 'from-orange-500 to-red-500'
     },
   ];
 
-  const academicPrograms = [
+  // Admission paths - Updated based on your school's focus
+  const admissionPaths = [
     {
-      title: 'CBC Junior Secondary',
+      title: 'Form 1 Entry',
       icon: FiBookOpen,
-      description: 'Grades 7-9 focusing on competency-based education and practical skills',
-      features: ['Digital Literacy', 'Practical Skills', 'Project-Based Learning', 'Talent Development'],
-      duration: '3 Years',
-      type: 'CBC',
-      students: '350+',
-      color: 'from-blue-500 to-cyan-500'
+      description: 'Join our Form 1 program with comprehensive academic curriculum and extracurricular activities',
+      features: ['Academic Excellence', 'Extra-curricular Activities', 'Digital Literacy', 'Talent Development'],
+      deadline: schoolData?.admissionCloseDate ? new Date(schoolData.admissionCloseDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'May 30, 2024',
+      color: 'from-blue-500 to-cyan-500',
+      type: 'grade7'
     },
     {
-      title: 'Senior Secondary (8-4-4)',
-      icon: IoSchoolOutline,
-      description: 'Forms 1-4 with comprehensive curriculum for KCSE excellence',
-      features: ['Science & Arts Streams', 'KCSE Preparation', 'Career Guidance', 'Exam Excellence'],
-      duration: '4 Years',
-      type: '8-4-4',
-      students: '500+',
-      color: 'from-purple-500 to-pink-500'
-    },
-    {
-      title: 'STEM Program',
-      icon: FiCpu,
-      description: 'Advanced Science, Technology, Engineering and Mathematics focus',
-      features: ['Robotics Club', 'Coding Classes', 'Science Labs', 'Math Olympiad'],
-      duration: '4 Years',
-      type: 'Special',
-      students: '200+',
-      color: 'from-green-500 to-emerald-500'
+      title: 'Transfer Students',
+      icon: FiArrowRight,
+      description: 'Seamless transfer from other schools with credit recognition and orientation support',
+      features: ['Credit Transfer', 'Placement Assessment', 'Records Review', 'Orientation Program'],
+      deadline: 'Rolling Admission',
+      color: 'from-purple-500 to-pink-500',
+      type: 'transfer'
     }
   ];
 
-  const academicFeatures = [
+  // Academic Features
+  const innovativeFeatures = [
     {
       icon: IoRocketOutline,
-      title: 'Modern Laboratories',
-      description: 'State-of-the-art science and computer labs for practical learning',
-      features: ['Physics Lab', 'Chemistry Lab', 'Biology Lab', 'Computer Lab'],
+      title: 'Academic Excellence',
+      description: 'Comprehensive curriculum with focus on core subjects and practical skills development',
+      features: ['Quality Teaching', 'Regular Assessments', 'Exam Preparation', 'Academic Support'],
       badge: 'Advanced',
       color: 'from-blue-500 to-cyan-500',
-      stats: { students: '100%', success: '95%' }
+      stats: { students: '500+', success: '95%' }
     },
     {
-      icon: IoLibraryOutline,
-      title: 'Digital Library',
-      description: 'Comprehensive library with digital resources and study spaces',
-      features: ['E-Books', 'Research Databases', 'Study Rooms', 'Online Journals'],
-      badge: 'Digital',
+      icon: IoAccessibilityOutline,
+      title: 'Holistic Development',
+      description: 'Focus on academic, social, emotional, and physical growth through various programs',
+      features: ['Sports Programs', 'Clubs & Societies', 'Leadership Training', 'Character Building'],
+      badge: 'Comprehensive',
       color: 'from-purple-500 to-pink-500',
-      stats: { students: '500+', success: '98%' }
+      stats: { students: '100%', success: '98%' }
     },
     {
       icon: IoBuildOutline,
-      title: 'Skill Development',
-      description: 'Practical skills and vocational training programs',
-      features: ['Entrepreneurship', 'Technical Skills', 'Leadership', 'Community Service'],
+      title: 'Practical Skills',
+      description: 'Emphasis on practical competencies and real-world application of knowledge',
+      features: ['Laboratory Work', 'Field Trips', 'Project Work', 'Skill Development'],
       badge: 'Practical',
       color: 'from-green-500 to-emerald-500',
       stats: { students: '300+', success: '90%' }
     }
   ];
 
+  // Updated tabs based on your academic page design
   const tabs = [
     { id: 'overview', label: 'Overview', icon: FiBook },
-    { id: 'curriculum', label: 'Curriculum', icon: FiLayers },
-    { id: 'programs', label: 'Programs', icon: FiFolder },
-    { id: 'subjects', label: 'Subjects', icon: FiList },
+    { id: 'academics', label: 'Academics', icon: FiBookOpen },
+    { id: 'requirements', label: 'Requirements', icon: FiFileText },
+    { id: 'fees', label: 'Fee Structure', icon: IoReceiptOutline },
     { id: 'facilities', label: 'Facilities', icon: FiSettings },
     { id: 'faq', label: 'FAQ', icon: FiHelpCircle },
   ];
 
-  // Subjects Data
-  const subjectsData = {
-    core: [
-      { 
-        name: 'Mathematics', 
-        icon: IoCalculatorOutline, 
-        category: 'Science & Technology',
-        description: 'Advanced mathematics including calculus, algebra, and statistics',
-        type: 'Core',
-        grades: 'All Grades',
-        color: 'from-blue-500 to-cyan-500'
-      },
-      { 
-        name: 'English', 
-        icon: FiBook, 
-        category: 'Languages',
-        description: 'Language skills, literature, and communication studies',
-        type: 'Core',
-        grades: 'All Grades',
-        color: 'from-purple-500 to-pink-500'
-      },
-      { 
-        name: 'Kiswahili', 
-        icon: FiGlobe, 
-        category: 'Languages',
-        description: 'National language, literature, and cultural studies',
-        type: 'Core',
-        grades: 'All Grades',
-        color: 'from-green-500 to-emerald-500'
-      },
-      { 
-        name: 'Physics', 
-        icon: FiZap, 
-        category: 'Sciences',
-        description: 'Physical sciences, experiments, and practical applications',
-        type: 'Core',
-        grades: 'Forms 3-4',
-        color: 'from-orange-500 to-red-500'
-      },
-      { 
-        name: 'Chemistry', 
-        icon: FiActivity, 
-        category: 'Sciences',
-        description: 'Chemical sciences, laboratory work, and applications',
-        type: 'Core',
-        grades: 'Forms 3-4',
-        color: 'from-yellow-500 to-amber-500'
-      },
-      { 
-        name: 'Biology', 
-        icon: FiHeart, 
-        category: 'Sciences',
-        description: 'Biological sciences, anatomy, and environmental studies',
-        type: 'Core',
-        grades: 'Forms 3-4',
-        color: 'from-teal-500 to-emerald-500'
-      }
-    ],
-    elective: [
-      { 
-        name: 'Computer Studies', 
-        icon: FiCpu, 
-        category: 'Technology',
-        description: 'Programming, hardware, and digital literacy',
-        type: 'Elective',
-        grades: 'Forms 1-4',
-        color: 'from-blue-500 to-indigo-500'
-      },
-      { 
-        name: 'Business Studies', 
-        icon: FiBarChart2, 
-        category: 'Commerce',
-        description: 'Entrepreneurship, accounting, and business management',
-        type: 'Elective',
-        grades: 'Forms 1-4',
-        color: 'from-green-500 to-teal-500'
-      },
-      { 
-        name: 'Geography', 
-        icon: FiGlobe, 
-        category: 'Humanities',
-        description: 'Physical and human geography with fieldwork',
-        type: 'Elective',
-        grades: 'Forms 1-4',
-        color: 'from-purple-500 to-pink-500'
-      },
-      { 
-        name: 'History & Government', 
-        icon: FiBook, 
-        category: 'Humanities',
-        description: 'Historical studies and government systems',
-        type: 'Elective',
-        grades: 'Forms 1-4',
-        color: 'from-orange-500 to-red-500'
-      },
-      { 
-        name: 'CRE/IRE', 
-        icon: FiHeart, 
-        category: 'Religion',
-        description: 'Religious education and moral studies',
-        type: 'Elective',
-        grades: 'Forms 1-4',
-        color: 'from-yellow-500 to-amber-500'
-      },
-      { 
-        name: 'Home Science', 
-        icon: FiHome, 
-        category: 'Practical',
-        description: 'Life skills, nutrition, and home management',
-        type: 'Elective',
-        grades: 'Forms 1-4',
-        color: 'from-pink-500 to-rose-500'
-      }
-    ]
-  };
-
-  // Curriculum Structure Data
-  const curriculumStructure = [
+  // Process steps for transfer
+  const transferProcess = [
     {
-      name: 'CBC System',
-      description: 'Competency Based Curriculum for Junior Secondary',
-      features: [
-        { title: 'Competency Focus', details: '7 Core Competencies Development' },
-        { title: 'Practical Learning', details: 'Project-Based and Hands-on' },
-        { title: 'Digital Integration', details: 'Technology in Learning' },
-        { title: 'Continuous Assessment', details: 'Regular Progress Evaluation' }
-      ],
-      grades: 'Grades 7-9'
+      step: 1,
+      title: 'Application Submission',
+      description: 'Submit transfer documents and academic records for evaluation',
+      duration: '2-3 days',
+      requirements: ['Current school report', 'Birth certificate', 'Transfer letter']
     },
     {
-      name: '8-4-4 System',
-      description: 'Traditional curriculum for Senior Secondary',
-      features: [
-        { title: 'Subject Specialization', details: 'Science & Arts Streams' },
-        { title: 'Exam Preparation', details: 'KCSE Focus' },
-        { title: 'Career Guidance', details: 'University Pathways' },
-        { title: 'Comprehensive Subjects', details: 'Core & Elective Options' }
-      ],
-      grades: 'Forms 1-4'
+      step: 2,
+      title: 'Assessment & Placement',
+      description: 'Academic assessment for proper grade placement and subject allocation',
+      duration: '1 week',
+      requirements: ['Placement tests', 'Subject evaluation', 'Skill assessment']
+    },
+    {
+      step: 3,
+      title: 'Credit Evaluation',
+      description: 'Review and transfer of completed coursework and competencies',
+      duration: '3-5 days',
+      requirements: ['Transcript analysis', 'Credit approval', 'CBC competency mapping']
+    },
+    {
+      step: 4,
+      title: 'Admission & Orientation',
+      description: 'Final admission and comprehensive student orientation program',
+      duration: '1 week',
+      requirements: ['Parent meeting', 'Student orientation', 'Resource distribution']
     }
   ];
 
-  // Facilities Data
+  // Facilities Data from your academic page
   const facilitiesData = [
     {
       icon: FiCpu,
@@ -593,36 +975,64 @@ export default function AcademicPage() {
     }
   ];
 
-  // FAQ Data
+  // FAQ Data updated with admission-specific questions
   const faqs = [
     {
-      question: 'What are the academic performance standards?',
-      answer: 'We maintain high academic standards with 98% KCSE pass rate and A- mean grade. Students are supported through regular assessments, remedial classes, and personalized academic guidance.'
+      question: 'What are the admission requirements?',
+      answer: 'Admission requires completion of primary education, KCPE results, birth certificate, and medical records. Transfer students need additional documents including previous school reports and transfer letter.'
     },
     {
-      question: 'How are CBC and 8-4-4 systems integrated?',
-      answer: 'We offer both systems with smooth transition pathways. Junior Secondary follows CBC (Grades 7-9), while Senior Secondary follows 8-4-4 (Forms 1-4). Students can transition between systems with proper guidance.'
+      question: 'What is the fee structure and payment options?',
+      answer: 'We offer both day and boarding options with transparent fee structures. Fees can be paid annually, per term, or in installments. We accept bank transfers, MPesa, and cash payments at the finance office.'
     },
     {
-      question: 'What support is available for weak students?',
-      answer: 'We provide comprehensive support including remedial classes, peer tutoring, personalized learning plans, counseling, and regular parent-teacher consultations to ensure every student succeeds.'
+      question: 'Are there scholarships or financial aid available?',
+      answer: 'Yes, we offer merit-based scholarships for academic excellence, talent scholarships in sports and arts, and need-based financial aid. Contact our admissions office for eligibility criteria and application details.'
     },
     {
-      question: 'How are digital skills integrated into the curriculum?',
-      answer: 'Digital literacy is embedded across all subjects. We have computer labs, coding classes, online learning platforms, and technology integration in teaching methods to prepare students for the digital age.'
+      question: 'What curriculum do you follow?',
+      answer: 'We follow the national curriculum with both CBC and 8-4-4 systems. We also integrate digital literacy and practical skills development across all subjects.'
     }
   ];
 
-  const handleLearnMore = (program) => {
-    toast.success(`Learning more about ${program.title}`);
+  const handleApply = (path) => {
+    setShowApplicationForm(true);
+  };
+
+  const handleLearnMore = (feature) => {
+    toast.success(`Learn more about ${feature.title}`);
   };
 
   const refreshData = () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      toast.success('Academic data refreshed successfully!');
-    }, 1000);
+    const fetchSchoolData = async () => {
+      try {
+        const response = await fetch('/api/school');
+        const data = await response.json();
+        if (data.success) {
+          setSchoolData(data.school);
+          toast.success('Data refreshed successfully!');
+        }
+      } catch (error) {
+        toast.error('Failed to refresh data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSchoolData();
+  };
+
+  // Format dates for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -634,14 +1044,16 @@ export default function AcademicPage() {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
           <div className="mb-4 lg:mb-0">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg">
+              <div className="p-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg">
                 <IoSchoolOutline className="text-white text-lg w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent">
-                  Academic Excellence
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 via-purple-900 to-pink-900 bg-clip-text text-transparent">
+                  Admissions Portal
                 </h1>
-                <p className="text-gray-600 mt-1">Nyaribu Secondary School - Quality Education & Innovation</p>
+                <p className="text-gray-600 mt-1">
+                  {schoolData?.name || 'Katwanyaa High School'} - Join Our Academic Community
+                </p>
               </div>
             </div>
           </div>
@@ -649,70 +1061,65 @@ export default function AcademicPage() {
             <button
               onClick={refreshData}
               disabled={loading}
-              className="inline-flex items-center gap-2 bg-white text-gray-700 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-xs border border-gray-200 font-medium disabled:opacity-50 text-sm md:text-base"
+              className="inline-flex items-center gap-2 bg-white text-gray-700 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-sm border border-gray-200 font-medium disabled:opacity-50 text-sm md:text-base hover:shadow-md"
             >
               <FiRotateCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               {loading ? 'Refreshing...' : 'Refresh'}
             </button>
             <button
-              onClick={() => router.push('/academic-calendar')}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-lg font-medium text-sm md:text-base"
+              onClick={() => router.push('/pages/applyadmission')}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-lg font-medium text-sm md:text-base hover:shadow-xl hover:scale-[1.02]"
             >
-              <FiCalendar className="w-4 h-4" />
-              Academic Calendar
+              <FiPlus className="w-4 h-4" />
+              Apply Online
             </button>
           </div>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
-          {academicStats.map((stat, index) => (
+          {dynamicStats.map((stat, index) => (
             <StatCard key={index} stat={stat} />
           ))}
         </div>
 
-        {/* Filters */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4 mb-6">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-3 md:gap-4">
-            <div className="flex-1 relative">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search programs, subjects, or facilities..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-              />
-            </div>
-            
-            <div className="flex flex-wrap gap-2">
-              <select 
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-pointer"
-              >
-                <option value="all">All Programs</option>
-                <option value="cbc">CBC Program</option>
-                <option value="844">8-4-4 Program</option>
-                <option value="stem">STEM Program</option>
-              </select>
-              
+        {/* Admission Dates Banner - Prominently Displayed */}
+        {schoolData && (
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-5 md:p-6 text-white shadow-lg">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <IoCalendarOutline className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg md:text-xl">Admission Period Now Open</h3>
+                  <p className="text-blue-100 opacity-90 text-sm">
+                    Secure your place for the upcoming academic year
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="text-center">
+                  <p className="text-sm text-blue-100">Application Opens</p>
+                  <p className="font-bold text-lg">{formatDate(schoolData.admissionOpenDate)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-blue-100">Application Closes</p>
+                  <p className="font-bold text-lg">{formatDate(schoolData.admissionCloseDate)}</p>
+                </div>
+              </div>
               <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setFilterType('all');
-                }}
-                className="inline-flex items-center gap-2 px-3 py-2.5 bg-gray-100 border border-gray-200 rounded-lg transition-all duration-200 text-sm font-medium text-gray-700"
+                onClick={() => router.push('/pages/applyadmission')}
+                className="px-6 py-3 bg-white text-blue-600 rounded-lg font-bold hover:bg-blue-50 transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                <FiFilter className="w-4 h-4" />
-                Reset
+                Apply Now
               </button>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Navigation Tabs */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden mb-6">
+        {/* Navigation Tabs - Modernized */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 overflow-hidden mb-6">
           <div className="flex overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => {
               const TabIcon = tab.icon;
@@ -722,8 +1129,8 @@ export default function AcademicPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-3 px-6 py-4 font-semibold transition-all whitespace-nowrap border-b-2 ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600 bg-blue-50'
-                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'border-blue-500 text-blue-600 bg-blue-50/50'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50/50'
                   }`}
                 >
                   <TabIcon className="text-lg" />
@@ -735,77 +1142,78 @@ export default function AcademicPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4">
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-5">
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div className="space-y-8">
               <div className="text-center mb-8">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                  Academic Excellence at Nyaribu
+                  Welcome to {schoolData?.name || 'Our School'} Admissions
                 </h2>
                 <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-                  Committed to providing quality education through innovative teaching methods, 
-                  comprehensive curriculum, and state-of-the-art facilities for holistic student development.
+                  {schoolData?.description || 'We are committed to nurturing well-rounded individuals through comprehensive education, state-of-the-art facilities, and dedicated faculty.'}
                 </p>
               </div>
 
-              {/* Academic Programs */}
+              {/* Vision & Mission Section */}
+              <VisionMissionSection 
+                vision={schoolData?.vision}
+                mission={schoolData?.mission}
+                motto={schoolData?.motto}
+              />
+
+              {/* Admission Paths */}
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Our Academic Programs</h3>
-                <div className="grid md:grid-cols-3 gap-6">
-                  {academicPrograms.map((program, index) => (
-                    <ProgramCard
-                      key={program.title}
-                      program={program}
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Choose Your Admission Path</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {admissionPaths.map((path, index) => (
+                    <AdmissionPathCard
+                      key={path.title}
+                      path={path}
                       index={index}
-                      onLearnMore={() => handleLearnMore(program)}
+                      onApply={() => handleApply(path)}
                     />
                   ))}
                 </div>
               </div>
 
-              {/* Academic Features */}
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Academic Features</h3>
-                <div className="grid md:grid-cols-3 gap-6">
-                  {academicFeatures.map((feature, index) => (
-                    <FeatureCard
-                      key={feature.title}
-                      feature={feature}
-                      onLearnMore={() => handleLearnMore(feature)}
-                    />
-                  ))}
-                </div>
-              </div>
+              {/* Video Tour Section */}
+              {schoolData?.videoTour && (
+                <VideoTourSection 
+                  videoTour={schoolData.videoTour}
+                  videoType={schoolData.videoType}
+                  videoThumbnail={schoolData.videoThumbnail}
+                />
+              )}
 
               {/* Key Features Section */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100">
-                <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Why Choose Our Academic Program?</h3>
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100 shadow-sm">
+                <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Why Choose Our School?</h3>
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
                     {
                       icon: IoBulbOutline,
-                      title: 'Innovative Teaching',
-                      description: 'Modern methods and technology integration'
-                    },
-                    {
-                      icon: FiAward,
-                      title: 'Proven Excellence',
-                      description: 'Consistent high academic performance'
+                      title: 'Academic Excellence',
+                      description: 'Proven track record of outstanding academic performance'
                     },
                     {
                       icon: FiUsers,
                       title: 'Expert Faculty',
-                      description: 'Qualified and experienced teachers'
+                      description: 'Qualified and experienced teaching staff'
                     },
                     {
-                      icon: FiTargetIcon,
-                      title: 'Career Focus',
-                      description: 'University and career preparation'
+                      icon: FiCpu,
+                      title: 'Modern Facilities',
+                      description: 'Well-equipped classrooms and laboratories'
+                    },
+                    {
+                      icon: FiHeart,
+                      title: 'Holistic Care',
+                      description: 'Academic and emotional support for all students'
                     }
                   ].map((feature, index) => (
                     <div key={index} className="text-center">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
                         <feature.icon className="text-2xl text-white" />
                       </div>
                       <h4 className="font-bold text-gray-900 mb-2">{feature.title}</h4>
@@ -817,217 +1225,261 @@ export default function AcademicPage() {
             </div>
           )}
 
-          {/* Curriculum Tab */}
-          {activeTab === 'curriculum' && (
-            <div className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                  Curriculum Systems
-                </h2>
-                <p className="text-gray-600 max-w-3xl mx-auto">
-                  We offer comprehensive curriculum systems designed to meet diverse learning needs 
-                  and prepare students for future success.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                {curriculumStructure.map((curriculum, index) => (
-                  <CurriculumCard
-                    key={curriculum.name}
-                    curriculum={curriculum}
-                    icon={index === 0 ? FiBookOpen : IoSchoolOutline}
-                    color={index === 0 ? 'bg-blue-50' : 'bg-green-50'}
-                  />
-                ))}
-              </div>
-
-              {/* Curriculum Highlights */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 border border-green-100">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Curriculum Highlights</h3>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {[
-                    {
-                      icon: FiCode,
-                      title: 'Digital Literacy',
-                      description: 'Technology integration across subjects'
-                    },
-                    {
-                      icon: FiTool,
-                      title: 'Practical Skills',
-                      description: 'Hands-on learning experiences'
-                    },
-                    {
-                      icon: FiShield,
-                      title: 'Quality Assurance',
-                      description: 'Regular curriculum reviews'
-                    },
-                    {
-                      icon: FiPieChart,
-                      title: 'Assessment',
-                      description: 'Continuous evaluation system'
-                    }
-                  ].map((highlight, index) => (
-                    <div key={index} className="text-center">
-                      <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <highlight.icon className="text-xl text-white" />
-                      </div>
-                      <h4 className="font-bold text-gray-900 mb-2 text-sm">{highlight.title}</h4>
-                      <p className="text-gray-600 text-xs">{highlight.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Programs Tab */}
-          {activeTab === 'programs' && (
+          {/* Academics Tab */}
+          {activeTab === 'academics' && (
             <div className="space-y-8">
               <div className="text-center mb-8">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
                   Academic Programs
                 </h2>
                 <p className="text-gray-600 max-w-3xl mx-auto">
-                  Diverse academic programs designed to cater to different learning needs and career aspirations.
+                  Comprehensive curriculum designed for academic excellence and holistic development.
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6">
-                {academicPrograms.map((program, index) => (
-                  <ProgramCard
-                    key={program.title}
-                    program={program}
-                    index={index}
-                    onLearnMore={() => handleLearnMore(program)}
-                  />
-                ))}
+              {/* Subjects Offered */}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">Subjects Offered</h3>
+                  {schoolData?.curriculumPDF && (
+                    <a 
+                      href={schoolData.curriculumPDF}
+                      download={schoolData.curriculumPdfName}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:shadow-md"
+                    >
+                      <IoCloudDownloadOutline className="w-4 h-4" />
+                      Download Curriculum
+                    </a>
+                  )}
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {schoolData?.subjects?.map((subject, index) => (
+                    <SubjectCard key={index} subject={subject} index={index} />
+                  ))}
+                </div>
               </div>
 
-              {/* Program Benefits */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-100">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Program Benefits</h3>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-4">Learning Outcomes</h4>
-                    <ul className="space-y-3 text-sm text-gray-600">
-                      <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-purple-500" />
-                        Critical thinking and problem solving
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-purple-500" />
-                        Effective communication skills
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-purple-500" />
-                        Digital literacy and technology skills
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-purple-500" />
-                        Leadership and teamwork abilities
-                      </li>
-                    </ul>
+              {/* Departments */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Academic Departments</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {schoolData?.departments?.map((department, index) => (
+                    <DepartmentCard key={index} department={department} index={index} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Academic Features */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Academic Features</h3>
+                <div className="grid md:grid-cols-3 gap-6">
+                  {innovativeFeatures.map((feature, index) => (
+                    <FeatureCard
+                      key={feature.title}
+                      feature={feature}
+                      onLearnMore={() => handleLearnMore(feature)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Academic Calendar */}
+              {schoolData?.openDate && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100 shadow-sm">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Academic Calendar</h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-xl p-5 border border-gray-200/70">
+                      <div className="flex items-center gap-3 mb-2">
+                        <FiCalendarIcon className="text-green-500" />
+                        <h4 className="font-semibold text-gray-900">Academic Year Opens</h4>
+                      </div>
+                      <p className="text-gray-700">{formatDate(schoolData.openDate)}</p>
+                    </div>
+                    <div className="bg-white/90 backdrop-blur-sm rounded-xl p-5 border border-gray-200/70">
+                      <div className="flex items-center gap-3 mb-2">
+                        <FiCalendarIcon className="text-red-500" />
+                        <h4 className="font-semibold text-gray-900">Academic Year Closes</h4>
+                      </div>
+                      <p className="text-gray-700">{formatDate(schoolData.closeDate)}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-4">Support Systems</h4>
-                    <ul className="space-y-3 text-sm text-gray-600">
-                      <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-purple-500" />
-                        Academic counseling and guidance
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-purple-500" />
-                        Remedial and enrichment classes
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-purple-500" />
-                        Career guidance and university placement
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-purple-500" />
-                        Parent-teacher collaboration
-                      </li>
-                    </ul>
-                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Requirements Tab */}
+          {activeTab === 'requirements' && (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                  Admission Requirements
+                </h2>
+                <p className="text-gray-600 max-w-3xl mx-auto">
+                  Complete information about what you need for successful admission.
+                </p>
+              </div>
+
+              {/* Uniform Requirements */}
+              <UniformRequirementsSection 
+                admissionFeeDistribution={schoolData?.admissionFeeDistribution}
+                admissionFeePdf={schoolData?.admissionFeePdf}
+                admissionFeePdfName={schoolData?.admissionFeePdfName}
+              />
+
+              {/* Required Documents */}
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Required Documents</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {schoolData?.admissionDocumentsRequired?.map((doc, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-gray-50/70 rounded-lg hover:bg-gray-100/70 transition-colors">
+                      <div className="p-2 bg-white rounded-lg shadow-xs">
+                        <IoDocumentTextOutline className="text-blue-500" />
+                      </div>
+                      <span className="font-medium text-gray-800">{doc}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Transfer Process */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Transfer Student Process</h3>
+                <div className="space-y-6">
+                  {transferProcess.map((step, index) => (
+                    <div key={index} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-6 transition-all duration-300 hover:shadow-lg">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-3">
+                            <h3 className="font-bold text-gray-900 text-lg">{step.title}</h3>
+                            <div className="flex items-center gap-2 text-blue-600">
+                              <FiClock className="text-lg" />
+                              <span className="font-medium text-sm">{step.duration}</span>
+                            </div>
+                          </div>
+                          <p className="text-gray-600 mb-4">{step.description}</p>
+                          
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-gray-700">Requirements:</p>
+                            {step.requirements.map((req, idx) => (
+                              <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                                <IoCheckmarkCircleOutline className="text-green-500 flex-shrink-0" />
+                                <span>{req}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Subjects Tab */}
-          {activeTab === 'subjects' && (
+          {/* Fee Structure Tab */}
+          {activeTab === 'fees' && (
             <div className="space-y-8">
               <div className="text-center mb-8">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                  Subject Offerings
+                  Transparent Fee Structure
                 </h2>
                 <p className="text-gray-600 max-w-3xl mx-auto">
-                  Comprehensive subject options across sciences, humanities, languages, and practical skills.
+                  We believe in providing quality education at an affordable cost with flexible payment options.
                 </p>
               </div>
 
-              {/* Core Subjects */}
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Core Subjects</h3>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {subjectsData.core.map((subject, index) => (
-                    <SubjectCard key={index} subject={subject} index={index} />
-                  ))}
-                </div>
+              <div className="grid md:grid-cols-2 gap-8">
+                <FeeCard
+                  feeType="Boarding School"
+                  total={schoolData?.feesBoarding || 58700}
+                  distribution={schoolData?.feesBoardingDistribution}
+                  pdfPath={schoolData?.feesBoardingDistributionPdf}
+                  pdfName={schoolData?.feesBoardingPdfName}
+                  icon={IoBookOutline}
+                  color="bg-blue-50"
+                />
+                <FeeCard
+                  feeType="Day School"
+                  total={schoolData?.feesDay || 30200}
+                  distribution={schoolData?.feesDayDistribution}
+                  pdfPath={schoolData?.feesDayDistributionPdf}
+                  pdfName={schoolData?.feesDayPdfName}
+                  icon={FiHome}
+                  color="bg-green-50"
+                />
               </div>
 
-              {/* Elective Subjects */}
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Elective Subjects</h3>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {subjectsData.elective.map((subject, index) => (
-                    <SubjectCard key={index} subject={subject} index={index} />
-                  ))}
-                </div>
-              </div>
-
-              {/* Subject Information */}
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100">
-                <div className="flex items-start gap-4">
-                  <FiInfo className="text-2xl text-blue-600 mt-1" />
-                  <div>
-                    <h3 className="font-bold text-gray-900 text-lg mb-3">Subject Selection Guidelines</h3>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">For Science Stream:</h4>
-                        <ul className="space-y-2 text-sm text-gray-600">
-                          <li className="flex items-center gap-2">
-                            <FiCheckCircle className="text-blue-500" />
-                            Physics, Chemistry, Biology
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <FiCheckCircle className="text-blue-500" />
-                            Mathematics (Compulsory)
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <FiCheckCircle className="text-blue-500" />
-                            Choose 1-2 electives
-                          </li>
-                        </ul>
+              {/* Admission Fee */}
+              {schoolData?.admissionFee && (
+                <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl p-6 border border-amber-100 shadow-sm">
+                  <div className="flex items-start gap-4">
+                    <IoReceiptOutline className="text-2xl text-amber-600 mt-1" />
+                    <div className="flex-1">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                        <div>
+                          <h3 className="font-bold text-gray-900 text-lg">Admission Fee</h3>
+                          <p className="text-gray-600">One-time payment upon admission</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-gray-900">KSh {schoolData.admissionFee.toLocaleString()}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">For Arts Stream:</h4>
-                        <ul className="space-y-2 text-sm text-gray-600">
-                          <li className="flex items-center gap-2">
-                            <FiCheckCircle className="text-blue-500" />
-                            History, Geography, CRE
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <FiCheckCircle className="text-blue-500" />
-                            Business Studies
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <FiCheckCircle className="text-blue-500" />
-                            Choose 1-2 electives
-                          </li>
-                        </ul>
-                      </div>
+                      {schoolData.admissionFeePdf && (
+                        <a 
+                          href={schoolData.admissionFeePdf}
+                          download={schoolData.admissionFeePdfName}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 transition-all duration-200 hover:shadow-md"
+                        >
+                          <IoCloudDownloadOutline className="w-4 h-4" />
+                          Download Admission Fee Details
+                        </a>
+                      )}
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Payment Information */}
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 shadow-sm">
+                <h3 className="font-bold text-gray-900 text-lg mb-4">Payment Information</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold text-gray-700 mb-3">Payment Options:</h4>
+                    <ul className="space-y-2">
+                      <li className="flex items-center gap-2">
+                        <IoCheckmarkCircleOutline className="text-green-500" />
+                        <span>Bank Transfer</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <IoCheckmarkCircleOutline className="text-green-500" />
+                        <span>MPesa Paybill</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <IoCheckmarkCircleOutline className="text-green-500" />
+                        <span>Cash at School Finance Office</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-700 mb-3">Payment Terms:</h4>
+                    <ul className="space-y-2">
+                      <li className="flex items-center gap-2">
+                        <IoCheckmarkCircleOutline className="text-green-500" />
+                        <span>Annual fees payable in 3 installments</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <IoCheckmarkCircleOutline className="text-green-500" />
+                        <span>Discount for full annual payment</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <IoCheckmarkCircleOutline className="text-green-500" />
+                        <span>Sibling discount available</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -1048,9 +1500,9 @@ export default function AcademicPage() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 {facilitiesData.map((facility, index) => (
-                  <div key={index} className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-6 transition-all duration-300 hover:shadow-md">
+                  <div key={index} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-6 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+                      <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-sm">
                         <facility.icon className="text-white text-xl" />
                       </div>
                       <div>
@@ -1063,7 +1515,7 @@ export default function AcademicPage() {
                       <p className="font-medium text-gray-700 text-sm">Features:</p>
                       {facility.features.map((feat, idx) => (
                         <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
-                          <FiCheckCircle className="text-green-500 flex-shrink-0" />
+                          <IoCheckmarkCircleOutline className="text-green-500 flex-shrink-0" />
                           <span>{feat}</span>
                         </div>
                       ))}
@@ -1073,27 +1525,27 @@ export default function AcademicPage() {
               </div>
 
               {/* Additional Facilities */}
-              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl p-6 border border-amber-100">
+              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl p-6 border border-amber-100 shadow-sm">
                 <h3 className="font-bold text-gray-900 text-lg mb-4">Additional Learning Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <h4 className="font-semibold text-gray-700 mb-2">Study Resources:</h4>
                     <ul className="space-y-2 text-sm text-gray-600">
                       <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-amber-500" />
-                        Online learning platform
+                        <IoCheckmarkCircleOutline className="text-amber-500" />
+                        <span>Online learning platform</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-amber-500" />
-                        Digital textbooks
+                        <IoCheckmarkCircleOutline className="text-amber-500" />
+                        <span>Digital textbooks</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-amber-500" />
-                        Research databases
+                        <IoCheckmarkCircleOutline className="text-amber-500" />
+                        <span>Research databases</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-amber-500" />
-                        Past papers library
+                        <IoCheckmarkCircleOutline className="text-amber-500" />
+                        <span>Past papers library</span>
                       </li>
                     </ul>
                   </div>
@@ -1101,20 +1553,20 @@ export default function AcademicPage() {
                     <h4 className="font-semibold text-gray-700 mb-2">Support Facilities:</h4>
                     <ul className="space-y-2 text-sm text-gray-600">
                       <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-amber-500" />
-                        Counseling rooms
+                        <IoCheckmarkCircleOutline className="text-amber-500" />
+                        <span>Counseling rooms</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-amber-500" />
-                        Career guidance center
+                        <IoCheckmarkCircleOutline className="text-amber-500" />
+                        <span>Career guidance center</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-amber-500" />
-                        Group study rooms
+                        <IoCheckmarkCircleOutline className="text-amber-500" />
+                        <span>Group study rooms</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <FiCheckCircle className="text-amber-500" />
-                        Audio-visual rooms
+                        <IoCheckmarkCircleOutline className="text-amber-500" />
+                        <span>Audio-visual rooms</span>
                       </li>
                     </ul>
                   </div>
@@ -1128,10 +1580,10 @@ export default function AcademicPage() {
             <div className="space-y-8">
               <div className="text-center mb-8">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                  Academic FAQ
+                  Frequently Asked Questions
                 </h2>
                 <p className="text-gray-600 max-w-3xl mx-auto">
-                  Find answers to common questions about our academic programs, curriculum, and facilities.
+                  Find answers to common questions about admissions, curriculum, fees, and more.
                 </p>
               </div>
 
@@ -1147,25 +1599,27 @@ export default function AcademicPage() {
                 ))}
               </div>
 
-              {/* Contact Support */}
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100">
+              {/* Contact Support - No Email Displayed */}
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div>
-                    <h3 className="font-bold text-gray-900 text-lg mb-2">Need Academic Support?</h3>
-                    <p className="text-gray-600">Our academic department is ready to assist you.</p>
+                    <h3 className="font-bold text-gray-900 text-lg mb-2">Still have questions?</h3>
+                    <p className="text-gray-600">Our admissions team is here to help you.</p>
                   </div>
                   <div className="flex gap-4">
-                    <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition-opacity">
-                      <a href="tel:+254712345678" className="flex items-center gap-2">
-                        <FiPhone />
-                        Call Academic Office
-                      </a>
-                    </button>
-                    <button className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
-                      <a href="mailto:academics@nyaribu.ac.ke" className="flex items-center gap-2">
-                        <FiMail />
-                        Email Academics
-                      </a>
+                    <a 
+                      href={`tel:${schoolData?.admissionContactPhone || '+254793472960'}`}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition-all duration-200 hover:shadow-md flex items-center gap-2"
+                    >
+                      <FiPhone />
+                      Call Admissions
+                    </a>
+                    <button 
+                      onClick={() => router.push('/pages/applyadmission')}
+                      className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 flex items-center gap-2"
+                    >
+                      <FiMessageCircle />
+                      Apply Online
                     </button>
                   </div>
                 </div>
@@ -1175,35 +1629,34 @@ export default function AcademicPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-8 text-center text-white">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Excel Academically with Us</h2>
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-8 text-center text-white shadow-lg">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Begin Your Journey?</h2>
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto text-lg">
-            Join our community dedicated to academic excellence, innovative learning, 
-            and holistic development for future success.
+            Join our community dedicated to nurturing future leaders through quality education, 
+            personalized attention, and a commitment to holistic development.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => router.push('/admissions')}
-              className="px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-colors"
+              onClick={() => router.push('/pages/applyadmission')}
+              className="px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              Apply Now
+              Apply Online Now
             </button>
-            <button
-              onClick={() => router.push('/contact')}
-              className="px-8 py-4 border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition-colors"
-            >
-              Contact Academics
+            <button className="px-8 py-4 border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition-all duration-200">
+              Download Prospectus
             </button>
           </div>
         </div>
       </div>
+
+      {/* Application Form Modal */}
+      <ApplicationFormModal
+        open={showApplicationForm}
+        onClose={() => setShowApplicationForm(false)}
+        onSuccess={() => {
+          router.push('/pages/applyadmission');
+        }}
+      />
     </div>
   );
 }
-
-// Add missing FiInfo icon import
-const FiInfo = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-  </svg>
-);

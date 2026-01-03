@@ -170,18 +170,6 @@ export default function ModernNavbar() {
       <h3 className="font-semibold text-gray-800 text-xs uppercase tracking-wider">Academics</h3>
     </div>
     
-    <a
-      href="/pages/academics"
-      className={`flex items-center gap-2 px-3 py-2 text-xs font-medium ${
-        isActiveLink('/pages/academics')
-          ? 'text-blue-600 bg-blue-50'
-          : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-      }`}
-      onClick={() => setIsAcademicDropdownOpen(false)}
-    >
-      <FiBook className="text-[12px]" />
-      <span>Academics Overview</span>
-    </a>
     
     <a
       href="/pages/StudentPortal"
@@ -221,6 +209,22 @@ export default function ModernNavbar() {
       <FiCalendar className="text-[12px]" />
       <span>Events & News</span>
     </a>
+
+
+
+
+        <a
+      href="/pages/applyadmission"
+      className={`flex items-center gap-2 px-3 py-2 text-xs font-medium ${
+        isActiveLink('/pages/applyadmission')
+          ? 'text-blue-600 bg-blue-50'
+          : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+      }`}
+      onClick={() => setIsAcademicDropdownOpen(false)}
+    >
+      <FiBook className="text-[12px]" />
+      <span>Apply Now</span>
+    </a>
   </div>
 )}
                     </div>
@@ -247,11 +251,11 @@ export default function ModernNavbar() {
             {/* Desktop Actions - Keep original font sizes */}
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
               <a
-                href="/pages/eventsandnews"
+                href="/pages/career"
                 className="flex items-center gap-1.5 font-medium text-[13px] whitespace-nowrap px-3 py-3 rounded-lg text-white/90 hover:text-white hover:bg-white/15"
               >
                 <FiCalendar className="text-[14px]" />
-                <span>Events</span>
+                <span>Careers</span>
               </a>
               <a
                 href="/pages/adminLogin"
