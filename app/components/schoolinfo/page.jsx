@@ -4289,6 +4289,120 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       </div>
                     </div>
 
+
+                    // Add this in the academic step or create a new contact info section
+<div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+    <FaPhone className="text-blue-600" />
+    Admission Contact Information
+  </h3>
+  
+  <div className="space-y-3">
+    <div>
+      <label className="block text-xs font-bold text-gray-600 mb-1.5">
+        Admission Contact Email
+      </label>
+      <TextField 
+        fullWidth 
+        size="small"
+        type="email"
+        value={formData.admissionContactEmail} 
+        onChange={(e) => handleChange('admissionContactEmail', e.target.value)}
+        placeholder="admissions@school.edu"
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px',
+            backgroundColor: 'white',
+            fontSize: '0.875rem'
+          }
+        }}
+      />
+    </div>
+    
+    <div>
+      <label className="block text-xs font-bold text-gray-600 mb-1.5">
+        Admission Contact Phone
+      </label>
+      <TextField 
+        fullWidth 
+        size="small"
+        type="tel"
+        value={formData.admissionContactPhone} 
+        onChange={(e) => handleChange('admissionContactPhone', e.target.value)}
+        placeholder="+254 123 456 789"
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px',
+            backgroundColor: 'white',
+            fontSize: '0.875rem'
+          }
+        }}
+      />
+    </div>
+    
+    <div>
+      <label className="block text-xs font-bold text-gray-600 mb-1.5">
+        Admission Website
+      </label>
+      <TextField 
+        fullWidth 
+        size="small"
+        type="url"
+        value={formData.admissionWebsite} 
+        onChange={(e) => handleChange('admissionWebsite', e.target.value)}
+        placeholder="https://school.edu/admissions"
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px',
+            backgroundColor: 'white',
+            fontSize: '0.875rem'
+          }
+        }}
+      />
+    </div>
+    
+    <div>
+      <label className="block text-xs font-bold text-gray-600 mb-1.5">
+        Admission Location
+      </label>
+      <TextField 
+        fullWidth 
+        size="small"
+        value={formData.admissionLocation} 
+        onChange={(e) => handleChange('admissionLocation', e.target.value)}
+        placeholder="School Campus, Room 101"
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px',
+            backgroundColor: 'white',
+            fontSize: '0.875rem'
+          }
+        }}
+      />
+    </div>
+    
+    <div>
+      <label className="block text-xs font-bold text-gray-600 mb-1.5">
+        Admission Office Hours
+      </label>
+      <TextField 
+        fullWidth 
+        size="small"
+        value={formData.admissionOfficeHours} 
+        onChange={(e) => handleChange('admissionOfficeHours', e.target.value)}
+        placeholder="Mon-Fri: 8:00 AM - 4:00 PM"
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px',
+            backgroundColor: 'white',
+            fontSize: '0.875rem'
+          }
+        }}
+      />
+    </div>
+  </div>
+</div>
+
                     <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 md:p-6 border border-indigo-200">
                       <h3 className="text-base md:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <FaGraduationCap className="text-indigo-600" />

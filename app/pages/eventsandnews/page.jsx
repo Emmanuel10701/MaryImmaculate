@@ -12,163 +12,322 @@ import {
   FiHeart,
   FiX,
   FiLink,
-  FiMessageCircle,
   FiPlus,
   FiFilter,
   FiRotateCw,
   FiEye,
-  FiTrash2,
-  FiEdit3
+  FiBookmark,
+  FiChevronRight,
+  FiChevronLeft,
+  FiGrid,
+  FiList,
+  FiDownload,
+  FiExternalLink,
+  FiVideo,
+  FiMusic,
+  FiAward,
+  FiTrendingUp,
+  FiZap,
+  FiGlobe,
+  FiMessageCircle,
+  FiCopy,
+  FiBell
 } from 'react-icons/fi';
 import { 
   IoNewspaperOutline,
-  IoCalendarClearOutline
+  IoCalendarClearOutline,
+  IoSparkles,
+  IoRibbonOutline,
+  IoPeopleCircle,
+  IoStatsChart,
+  IoShareSocialOutline,
+  IoClose,
+  IoLocationOutline,
+  IoTimeOutline,
+  IoPersonOutline,
+  IoShareOutline
 } from 'react-icons/io5';
 
-// Modern Modal Component
-const ModernModal = ({ children, open, onClose, maxWidth = '700px' }) => {
+import { CircularProgress, Box, Typography, Stack } from '@mui/material';
+import { FaFacebookF, FaTwitter, FaWhatsapp, FaTelegram, FaEnvelope } from 'react-icons/fa';
+
+// Modern Modal Component with Glass Morphism
+const ModernModal = ({ children, open, onClose, maxWidth = '800px', blur = true }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${blur ? 'backdrop-blur-md' : 'bg-black/50'}`}>
       <div 
-        className="bg-white rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden"
+        className="relative bg-white/95 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-white/40"
         style={{ 
-          width: '85%',
+          width: '90%',
           maxWidth: maxWidth,
-          maxHeight: '85vh',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
+          maxHeight: '90vh',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)'
         }}
       >
+        <div className="absolute top-4 right-4 z-10">
+          <button 
+            onClick={onClose}
+            className="p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white cursor-pointer border border-gray-200 shadow-sm"
+          >
+            <FiX className="text-gray-600 w-5 h-5" />
+          </button>
+        </div>
         {children}
       </div>
     </div>
   );
 };
 
-// Modern Card Component for Events
-const EventCard = ({ event, onView, onShare, onCalendar, index }) => {
-  const [imageError, setImageError] = useState(false);
+// Glass Card Component
+const GlassCard = ({ children, className = '' }) => (
+  <div className={`bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 shadow-lg shadow-black/5 ${className}`}>
+    {children}
+  </div>
+);
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      academic: 'from-blue-500 to-cyan-500',
-      cultural: 'from-purple-500 to-pink-500',
-      sports: 'from-green-500 to-emerald-500',
-      default: 'from-gray-500 to-gray-600'
-    };
-    return colors[category] || colors.default;
+// Modern Event Card with Enhanced Design
+const ModernEventCard = ({ event, onView, onShare, onCalendar, onBookmark, viewMode = 'grid' }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+const getCategoryStyle = (category) => {
+  const styles = {
+    academic: { 
+      gradient: 'from-blue-500 to-cyan-500', 
+      bg: 'bg-blue-50', 
+      text: 'text-blue-700',
+      border: 'border-blue-200', // Add this
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-600'
+    },
+    cultural: { 
+      gradient: 'from-purple-500 to-pink-500', 
+      bg: 'bg-purple-50', 
+      text: 'text-purple-700',
+      border: 'border-purple-200', // Add this
+      iconBg: 'bg-purple-100',
+      iconColor: 'text-purple-600'
+    },
+    sports: { 
+      gradient: 'from-emerald-500 to-green-500', 
+      bg: 'bg-emerald-50', 
+      text: 'text-emerald-700',
+      border: 'border-emerald-200', // Add this
+      iconBg: 'bg-emerald-100',
+      iconColor: 'text-emerald-600'
+    },
+    workshop: { 
+      gradient: 'from-orange-500 to-amber-500', 
+      bg: 'bg-orange-50', 
+      text: 'text-orange-700',
+      border: 'border-orange-200', // Add this
+      iconBg: 'bg-orange-100',
+      iconColor: 'text-orange-600'
+    }
   };
+  return styles[category] || styles.academic;
+};
 
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('en-US', {
+        weekday: 'short',
         month: 'short',
-        day: 'numeric',
-        year: 'numeric'
+        day: 'numeric'
       });
-    } catch (error) {
-      return dateString || 'Date not set';
+    } catch {
+      return 'TBD';
     }
   };
 
   const formatTime = (timeString) => {
-    if (!timeString) return 'Time not set';
+    if (!timeString) return 'All Day';
     return timeString;
   };
 
+  const categoryStyle = getCategoryStyle(event.category);
+
+// Modern Event Card - Grid View (Modernized & Static)
+if (viewMode === 'grid') {
+  const theme = getCategoryStyle(event.category);
+  
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-md">
-      {/* Image Section */}
-      <div className="relative h-40 overflow-hidden">
+    <div 
+      onClick={() => onView(event)}
+      className="relative bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden cursor-pointer"
+    >
+      {/* 1. Static Image Header */}
+      <div className="relative h-52 w-full shrink-0">
         <img
-          src={event.image || 'https://images.unsplash.com/photo-1541336032412-2048a678540d?w=800&q=80'}
+          src={event.image || '/default-event.jpg'}
           alt={event.title}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-          onError={() => setImageError(true)}
+          className="w-full h-full object-cover"
         />
-        <div className="absolute top-3 right-3">
+        
+        {/* Permanent Badges (Top Left) */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${theme.bg} ${theme.text} ${theme.border}`}>
+            {event.category || 'Event'}
+          </span>
           {event.featured && (
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r from-yellow-500 to-orange-500">
-              Featured
+            <span className="px-3 py-1 bg-slate-900/90 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+              <IoSparkles className="text-amber-400" /> Featured
             </span>
           )}
         </div>
-        <div className="absolute top-3 left-3">
-          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r ${getCategoryColor(event.category)}`}>
-            {event.category || 'Event'}
-          </span>
+
+        {/* Permanent Bookmark Button (Top Right) */}
+        <div className="absolute top-4 right-4">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onBookmark(event);
+            }}
+            className={`p-2.5 rounded-xl backdrop-blur-md border shadow-sm ${
+              isBookmarked 
+                ? 'bg-amber-500 border-amber-500 text-white' 
+                : 'bg-white/90 border-white/10 text-slate-700'
+            }`}
+          >
+            <FiBookmark className={isBookmarked ? 'fill-current' : ''} size={16} />
+          </button>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-4">
-        {/* Title */}
-        <h3 className="font-bold text-gray-900 text-base mb-2 hover:text-blue-600 transition-colors line-clamp-2">
+      {/* 2. Content Area */}
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-slate-900 mb-2 line-clamp-2 leading-tight">
           {event.title}
         </h3>
-
-        {/* Description */}
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
-          {event.description}
+        
+        <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+          {event.description || 'Join us for this upcoming school event and explore new opportunities.'}
         </p>
 
-        {/* Details */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            <FiCalendar className="text-gray-400 flex-shrink-0" />
-            <span className="truncate">{formatDate(event.date)}</span>
+        {/* 3. Bento-Style Info Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+            <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
+              <FiCalendar className={`${theme.iconColor}`} size={14} />
+            </div>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">
+              {formatDate(event.date)}
+            </span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            <FiClock className="text-gray-400 flex-shrink-0" />
-            <span>{formatTime(event.time)}</span>
+
+          <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+            <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
+              <FiClock className={`${theme.iconColor}`} size={14} />
+            </div>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+              {event.time || 'TBD'}
+            </span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            <FiMapPin className="text-gray-400 flex-shrink-0" />
-            <span className="truncate">{event.location || 'Location not set'}</span>
+
+          <div className="col-span-2 flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+            <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
+              <FiMapPin className={`${theme.iconColor}`} size={14} />
+            </div>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+              {event.location || 'Main Campus Hall'}
+            </span>
           </div>
-          {event.attendees && (
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-              <FiUsers className="text-gray-400 flex-shrink-0" />
-              <span>{event.attendees} attendees</span>
+        </div>
+
+        {/* 4. Final Action Button */}
+        <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+          View Event Details
+          <FiArrowRight size={18} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+  // List View
+  return (
+    <div 
+      className="group relative bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/60 p-5 transition-all duration-300 cursor-pointer hover:shadow-xl hover:border-blue-200"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onView(event)}
+    >
+      <div className="flex items-start gap-4">
+        {/* Image */}
+        <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+          <img
+            src={event.image || '/default-event.jpg'}
+            alt={event.title}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+          {event.featured && (
+            <div className="absolute top-1 right-1">
+              <IoSparkles className="text-amber-500 w-3 h-3" />
             </div>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onCalendar();
-            }}
-            className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-xs font-medium hover:opacity-90 transition-opacity"
-            title="Add to Calendar"
-          >
-            Add to Calendar
-          </button>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onShare();
-              }}
-              className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-              title="Share"
-            >
-              <FiShare2 className="w-3 h-3 text-gray-600" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onView();
-              }}
-              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-xs font-medium"
-            >
-              Details
-              <FiArrowRight className="w-3 h-3" />
-            </button>
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${categoryStyle.gradient}`}>
+                  {event.category || 'Event'}
+                </span>
+                {event.featured && (
+                  <span className="px-2 py-1 bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 text-xs font-bold rounded-full">
+                    Featured
+                  </span>
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                {event.title}
+              </h3>
+            </div>
+            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsBookmarked(!isBookmarked);
+                  onBookmark(event);
+                }}
+                className={`p-1.5 rounded-lg ${isBookmarked ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+              >
+                <FiBookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShare(event);
+                }}
+                className="p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200"
+              >
+                <FiShare2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+            {event.description || 'Join us for an exciting event!'}
+          </p>
+
+          <div className="flex items-center gap-4 text-sm text-gray-700">
+            <div className="flex items-center gap-1">
+              <FiCalendar className="text-blue-500 w-4 h-4" />
+              <span className="font-medium">{formatDate(event.date)}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <FiClock className="text-emerald-500 w-4 h-4" />
+              <span className="font-medium">{formatTime(event.time)}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <FiMapPin className="text-rose-500 w-4 h-4" />
+              <span className="font-medium truncate max-w-[120px]">{event.location || 'TBD'}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -176,416 +335,636 @@ const EventCard = ({ event, onView, onShare, onCalendar, index }) => {
   );
 };
 
-// Modern Card Component for News
-const NewsCard = ({ news, onView, onShare, index }) => {
-  const [imageError, setImageError] = useState(false);
+// Modern News Card
+const ModernNewsCard = ({ news, onView, onShare, onBookmark, viewMode = 'grid' }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      achievement: 'from-green-500 to-emerald-500',
-      development: 'from-blue-500 to-cyan-500',
-      announcement: 'from-purple-500 to-pink-500',
-      default: 'from-gray-500 to-gray-600'
-    };
-    return colors[category] || colors.default;
+const getCategoryStyle = (category) => {
+  const styles = {
+    achievement: { 
+      gradient: 'from-emerald-500 to-green-500', 
+      bg: 'bg-emerald-50', 
+      text: 'text-emerald-700',
+      border: 'border-emerald-200', // Add this
+      icon: <FiAward className="w-4 h-4" />
+    },
+    announcement: { 
+      gradient: 'from-blue-500 to-cyan-500', 
+      bg: 'bg-blue-50', 
+      text: 'text-blue-700',
+      border: 'border-blue-200', // Add this
+      icon: <FiBell className="w-4 h-4" />
+    },
+    development: { 
+      gradient: 'from-purple-500 to-pink-500', 
+      bg: 'bg-purple-50', 
+      text: 'text-purple-700',
+      border: 'border-purple-200', // Add this
+      icon: <FiTrendingUp className="w-4 h-4" />
+    },
+    sports: { 
+      gradient: 'from-orange-500 to-amber-500', 
+      bg: 'bg-orange-50', 
+      text: 'text-orange-700',
+      border: 'border-orange-200', // Add this
+      icon: <FiZap className="w-4 h-4" />
+    }
   };
+  return styles[category] || styles.announcement;
+};
 
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
+      const now = new Date();
+      const diff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+      
+      if (diff === 0) return 'Today';
+      if (diff === 1) return 'Yesterday';
+      if (diff < 7) return `${diff} days ago`;
+      
       return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric'
       });
-    } catch (error) {
-      return dateString || 'Date not set';
+    } catch {
+      return 'Recently';
     }
   };
 
+  const categoryStyle = getCategoryStyle(news.category);
+
+if (viewMode === 'grid') {
+  const theme = getCategoryStyle(news.category);
+  
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-md">
-      {/* Image Section */}
-      <div className="relative h-40 overflow-hidden">
+    <div 
+      onClick={() => onView(news)}
+      className="flex flex-col bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden cursor-pointer"
+    >
+      {/* 1. Full-Bleed Image Section */}
+      <div className="relative h-48 w-full shrink-0">
         <img
-          src={news.image || 'https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?w=800&q=80'}
+          src={news.image || '/default-news.jpg'}
           alt={news.title}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-          onError={() => setImageError(true)}
+          className="w-full h-full object-cover"
         />
-        <div className="absolute top-3 left-3">
-          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r ${getCategoryColor(news.category)}`}>
-            {news.category || 'News'}
+        
+        {/* Static Category Tag (Top Left) */}
+        <div className="absolute top-4 left-4">
+          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${theme.bg} ${theme.text} ${theme.border}`}>
+            {news.category || 'Announcement'}
+          </span>
+        </div>
+
+        {/* Static Bookmark (Top Right) */}
+        <div className="absolute top-4 right-4">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onBookmark(news);
+            }}
+            className="p-2.5 rounded-xl backdrop-blur-md bg-white/90 border border-white/20 text-slate-700 shadow-sm"
+          >
+            <FiBookmark size={16} />
+          </button>
+        </div>
+
+        {/* Gradient Scrim for Date (Bottom) */}
+        <div className="absolute bottom-0 inset-x-0 h-12 bg-gradient-to-t from-black/40 to-transparent flex items-end p-4">
+          <span className="text-[10px] font-bold text-white uppercase tracking-widest">
+            Published {formatDate(news.date)}
           </span>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-4">
-        {/* Title */}
-        <h3 className="font-bold text-gray-900 text-base mb-2 hover:text-blue-600 transition-colors line-clamp-2">
+      {/* 2. Content Area */}
+      <div className="p-6 flex flex-col flex-1">
+        <h3 className="text-xl font-bold text-slate-900 mb-3 line-clamp-2 leading-tight tracking-tight">
           {news.title}
         </h3>
-
-        {/* Excerpt */}
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
-          {news.excerpt || news.description}
+        
+        <p className="text-slate-500 text-sm mb-6 line-clamp-3 leading-relaxed">
+          {news.excerpt || news.description || 'Explore the latest updates and stories from our school community.'}
         </p>
 
-        {/* Details */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            <FiCalendar className="text-gray-400 flex-shrink-0" />
-            <span className="truncate">{formatDate(news.date)}</span>
-          </div>
-          {news.author && (
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-              <FiUsers className="text-gray-400 flex-shrink-0" />
-              <span className="truncate">By {news.author}</span>
-            </div>
-          )}
-          {news.likes && (
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-              <FiHeart className="text-red-400 flex-shrink-0" />
-              <span>{news.likes} likes</span>
-            </div>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-          <div className="text-xs text-gray-500">
-            {formatDate(news.date)}
-          </div>
+        {/* 3. Author & Social Bar */}
+        <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
           <div className="flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onShare();
-              }}
-              className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-              title="Share"
-            >
-              <FiShare2 className="w-3 h-3 text-gray-600" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onView();
-              }}
-              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-xs font-medium"
-            >
-              Read
-              <FiArrowRight className="w-3 h-3" />
-            </button>
+            <div className="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center text-white border border-slate-100 shadow-sm">
+              <span className="text-[10px] font-black">{news.author?.charAt(0) || 'A'}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold text-slate-900 leading-none mb-0.5">
+                {news.author || 'School Admin'}
+              </span>
+              <span className="text-[9px] text-slate-400 font-medium">Contributor</span>
+            </div>
+          </div>
+
+          {/* Static Engagement Icon */}
+          <div className="flex items-center gap-1 px-3 py-1 bg-slate-50 rounded-lg border border-slate-100">
+            <FiHeart className="text-rose-500" size={12} />
+            <span className="text-[11px] font-bold text-slate-600">{news.likes || 0}</span>
+          </div>
+        </div>
+
+        {/* 4. Action Button */}
+        <button className="mt-5 w-full py-3.5 bg-slate-50 text-slate-900 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border border-slate-100 active:bg-slate-100 transition-colors">
+          Read Full Story
+          <FiArrowRight size={16} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+  // List View
+// Modernized News Card (Static & Responsive)
+return (
+  <div 
+    onClick={() => onView(news)}
+    className="relative bg-white rounded-[24px] border border-slate-100 p-4 shadow-sm cursor-pointer transition-colors active:bg-slate-50"
+  >
+    <div className="flex gap-5">
+      
+      {/* 1. Image Container - Static & Sharp */}
+      <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-sm">
+        <img
+          src={news.image || '/default-news.jpg'}
+          alt={news.title}
+          className="w-full h-full object-cover"
+        />
+        {/* Subtle overlay to make image feel premium */}
+        <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl"></div>
+      </div>
+
+      {/* 2. Content Area */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between">
+        <div>
+          {/* Metadata Row */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.border}`}>
+                {news.category || 'Insights'}
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                {formatDate(news.date)}
+              </span>
+            </div>
+            
+            {/* Action Buttons - Always visible but subtle */}
+            <div className="flex items-center gap-1">
+               <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onBookmark(news);
+                }}
+                className={`p-1.5 rounded-lg transition-colors ${isBookmarked ? 'text-amber-500 bg-amber-50' : 'text-slate-300 hover:text-slate-500'}`}
+              >
+                <FiBookmark className={isBookmarked ? 'fill-current' : ''} size={14} />
+              </button>
+            </div>
+          </div>
+
+          <h3 className="text-base font-bold text-slate-900 leading-snug line-clamp-2 mb-2">
+            {news.title}
+          </h3>
+        </div>
+
+        {/* 3. Footer: Author & Interaction */}
+        <div className="flex items-center justify-between mt-auto">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-slate-900 flex items-center justify-center border border-white shadow-sm shrink-0">
+              <span className="text-[10px] text-white font-black leading-none">
+                {news.author?.charAt(0) || 'S'}
+              </span>
+            </div>
+            <span className="text-[11px] font-bold text-slate-600 truncate max-w-[100px]">
+              {news.author || 'School Admin'}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-1 text-blue-600 font-bold text-[11px] uppercase tracking-wider">
+            Read More
+            <FiArrowRight size={12} />
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
-// Stats Card Component
-const StatCard = ({ stat }) => {
-  const Icon = stat.icon;
-  
-  return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4 transition-all duration-300 hover:shadow-md">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <p className="text-xs font-medium text-gray-600 mb-1">{stat.label}</p>
-          <p className="text-lg font-bold text-gray-900">{stat.number}</p>
-        </div>
-        <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 bg-opacity-10 rounded-lg">
-          <Icon className="text-lg text-blue-600" />
-        </div>
-      </div>
-      <p className="text-xs text-gray-500">{stat.sublabel}</p>
-    </div>
-  );
-};
-
-// Share Modal Component
-const ShareModal = ({ item, type = 'event', onClose }) => {
+// Modern Share Modal
+const ModernShareModal = ({ item, type = 'event', onClose }) => {
   const [copied, setCopied] = useState(false);
 
   const socialPlatforms = [
     {
       name: 'WhatsApp',
-      icon: '📱',
-      color: 'bg-green-100 hover:bg-green-200 text-green-800 border-green-200',
+      icon: FaWhatsapp,
+      color: 'bg-green-500',
+      hoverColor: 'hover:bg-green-600',
       action: () => {
-        const text = `${item.title}\n\n${type === 'event' ? '🎉 Event Details:' : '📰 News:'}\n${item.description}\n\n${type === 'event' ? `📅 Date: ${item.date}\n⏰ Time: ${item.time}\n📍 Location: ${item.location}` : `📅 Published: ${item.date}`}\n\n🔗 Share this ${type}`;
+        const text = `${item.title}\n\n${type === 'event' ? '🎉 Event Details:' : '📰 News:'}\n${item.description}\n\n${window.location.href}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
       }
     },
     {
       name: 'Facebook',
-      icon: '📘',
-      color: 'bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-200',
+      icon: FaFacebookF,
+      color: 'bg-blue-600',
+      hoverColor: 'hover:bg-blue-700',
       action: () => {
-        const url = window.location.href;
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
       }
     },
     {
       name: 'Twitter',
-      icon: '🐦',
-      color: 'bg-sky-100 hover:bg-sky-200 text-sky-800 border-sky-200',
+      icon: FaTwitter,
+      color: 'bg-sky-500',
+      hoverColor: 'hover:bg-sky-600',
       action: () => {
         const text = `${item.title} - Check out this ${type === 'event' ? 'event' : 'news'}!`;
-        const url = window.location.href;
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+      }
+    },
+    {
+      name: 'Telegram',
+      icon: FaTelegram,
+      color: 'bg-blue-500',
+      hoverColor: 'hover:bg-blue-600',
+      action: () => {
+        const text = `${item.title}\n\n${item.description}`;
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank');
       }
     },
     {
       name: 'Email',
-      icon: '📧',
-      color: 'bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-200',
+      icon: FaEnvelope,
+      color: 'bg-gray-600',
+      hoverColor: 'hover:bg-gray-700',
       action: () => {
         const subject = `${item.title} - ${type === 'event' ? 'Event' : 'News'}`;
-        const body = `${item.description}\n\n${type === 'event' ? `Date: ${item.date}\nTime: ${item.time}\nLocation: ${item.location}` : `Published: ${item.date}`}\n\n`;
+        const body = `${item.description}\n\n${window.location.href}`;
         window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       }
     }
   ];
 
   const copyToClipboard = () => {
-    const text = `${item.title}\n\n${item.description}\n\n${type === 'event' ? `Date: ${item.date} | Time: ${item.time} | Location: ${item.location}` : `Published: ${item.date}`}\n\n${window.location.href}`;
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
       setCopied(true);
-      toast.success('Copied to clipboard!');
+      toast.success('Link copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
     });
   };
 
+  const getShareTitle = () => {
+    return type === 'event' ? 'Share Event' : 'Share News';
+  };
+
   return (
-    <ModernModal open={true} onClose={onClose}>
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-4 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm">
-              <FiShare2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">Share {type === 'event' ? 'Event' : 'News'}</h2>
-              <p className="text-blue-100 opacity-90 text-sm">
-                {item.title}
-              </p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-1 rounded-lg cursor-pointer">
-            <FiX className="w-5 h-5" />
-          </button>
-        </div>
+<ModernModal open={true} onClose={onClose} maxWidth="480px">
+  {/* 1. Refined Header */}
+  <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
+    {/* Background Detail */}
+    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full -mr-16 -mt-16" />
+    
+    <div className="relative z-10 flex flex-col items-center text-center">
+      <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-4 border border-white/10">
+        <IoShareSocialOutline className="text-2xl text-white" />
       </div>
+      <h2 className="text-2xl font-black tracking-tight">{getShareTitle()}</h2>
+      <p className="text-slate-400 text-sm mt-1">
+        Invite others to join the conversation
+      </p>
+    </div>
+  </div>
 
-      {/* Content */}
-      <div className="p-6">
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          {socialPlatforms.map((platform, index) => (
-            <button
-              key={index}
-              onClick={platform.action}
-              className={`p-4 rounded-xl border ${platform.color} transition-all duration-200 flex flex-col items-center justify-center gap-2`}
-            >
-              <span className="text-2xl">{platform.icon}</span>
-              <span className="font-medium text-sm">{platform.name}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="space-y-4">
+  {/* 2. Content Area */}
+  <div className="p-8 bg-white">
+    {/* Social Platforms - Clean Grid */}
+    <div className="grid grid-cols-4 gap-4 mb-8">
+      {socialPlatforms.map((platform, index) => {
+        const Icon = platform.icon;
+        return (
           <button
-            onClick={copyToClipboard}
-            className="w-full p-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center gap-3"
+            key={index}
+            onClick={platform.action}
+            className="flex flex-col items-center gap-2 group"
           >
-            <FiLink className="text-blue-600" />
-            <span className="font-medium text-blue-700">
-              {copied ? 'Copied!' : 'Copy Link to Clipboard'}
+            {/* Minimalist Icon Circle */}
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors bg-slate-50 text-slate-600 border border-slate-100 active:bg-slate-200`}>
+              <Icon className="text-xl" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+              {platform.name}
             </span>
           </button>
-        </div>
+        );
+      })}
+    </div>
+
+    {/* 3. Modern Copy Section */}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+          Direct Access Link
+        </label>
       </div>
-    </ModernModal>
+      
+      <div className="relative group">
+        <div className="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 pr-32">
+          <p className="text-xs font-mono text-slate-500 truncate">
+            {window.location.href}
+          </p>
+        </div>
+        
+        <button
+          onClick={copyToClipboard}
+          className={`absolute right-1.5 top-1.5 bottom-1.5 px-5 rounded-xl font-bold text-xs transition-all shadow-sm flex items-center gap-2 ${
+            copied 
+            ? 'bg-emerald-500 text-white' 
+            : 'bg-slate-900 text-white active:scale-95'
+          }`}
+        >
+          {copied ? (
+            <>Done!</>
+          ) : (
+            <>
+              <FiCopy /> Copy
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  </div>
+</ModernModal>
   );
 };
 
-// Detail Modal Component
-const DetailModal = ({ item, type = 'event', onClose, onAddToCalendar, onShare }) => {
+
+
+const ModernDetailModal = ({ item, type = 'event', onClose, onAddToCalendar, onShare }) => {
+  if (!item) return null;
+
   const formatFullDate = (dateString) => {
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
-    } catch (error) {
-      return dateString || 'Date not set';
-    }
+    } catch { return dateString || 'Date not set'; }
   };
 
   return (
-    <ModernModal open={true} onClose={onClose}>
-      {/* Header with Image */}
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={item.image || (type === 'event' 
-            ? 'https://images.unsplash.com/photo-1541336032412-2048a678540d?w=800&q=80'
-            : 'https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?w=800&q=80')}
-          alt={item.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-        <div className="absolute bottom-4 left-4 text-white">
-          <h2 className="text-xl font-bold">{item.title}</h2>
-          <p className="text-sm opacity-90">
-            {type === 'event' ? `📍 ${item.location}` : `📅 ${formatFullDate(item.date)}`}
-          </p>
-        </div>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-sm">
+      {/* Modal Container */}
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col">
+        
+        {/* Close Button - Floating & Premium */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30 transition-colors"
+          className="absolute top-5 right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90"
         >
-          <FiX className="text-white" />
+          <IoClose size={24} />
         </button>
-      </div>
 
-      {/* Content */}
-      <div className="p-6">
-        {/* Description */}
-        <div className="mb-6">
-          <h3 className="font-bold text-gray-800 mb-3">Description</h3>
-          <p className="text-gray-600 leading-relaxed">
-            {item.description || item.excerpt}
-          </p>
-        </div>
-
-        {/* Details Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {type === 'event' ? (
-            <>
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <FiCalendar className="text-blue-500" />
-                <div>
-                  <p className="text-xs text-blue-600 font-medium">Date</p>
-                  <p className="text-sm font-bold text-gray-800">{formatFullDate(item.date)}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                <FiClock className="text-green-500" />
-                <div>
-                  <p className="text-xs text-green-600 font-medium">Time</p>
-                  <p className="text-sm font-bold text-gray-800">{item.time || 'Time not set'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
-                <FiMapPin className="text-red-500" />
-                <div>
-                  <p className="text-xs text-red-600 font-medium">Location</p>
-                  <p className="text-sm font-bold text-gray-800">{item.location || 'Location not set'}</p>
-                </div>
-              </div>
-              {item.attendees && (
-                <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-                  <FiUsers className="text-purple-500" />
-                  <div>
-                    <p className="text-xs text-purple-600 font-medium">Expected Attendance</p>
-                    <p className="text-sm font-bold text-gray-800">{item.attendees} attendees</p>
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <FiCalendar className="text-blue-500" />
-                <div>
-                  <p className="text-xs text-blue-600 font-medium">Published Date</p>
-                  <p className="text-sm font-bold text-gray-800">{formatFullDate(item.date)}</p>
-                </div>
-              </div>
-              {item.author && (
-                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                  <FiUsers className="text-green-500" />
-                  <div>
-                    <p className="text-xs text-green-600 font-medium">Author</p>
-                    <p className="text-sm font-bold text-gray-800">{item.author}</p>
-                  </div>
-                </div>
-              )}
-              <div className="col-span-2 flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  item.category === 'achievement' ? 'bg-green-100 text-green-800' :
-                  item.category === 'development' ? 'bg-blue-100 text-blue-800' :
-                  'bg-purple-100 text-purple-800'
-                }`}>
-                  {item.category || 'News'}
-                </span>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Content for news */}
-        {type === 'news' && item.fullContent && (
-          <div className="mb-6">
-            <h3 className="font-bold text-gray-800 mb-3">Full Story</h3>
-            <div className="prose prose-sm max-w-none">
-              {item.fullContent.split('\n\n').map((paragraph, index) => (
-                <p key={index} className="text-gray-600 mb-3 leading-relaxed">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
+        {/* 1. Full-Bleed Hero Image */}
+        <div className="relative h-[40vh] sm:h-[350px] w-full shrink-0">
+          <img
+            src={item.image || (type === 'event' ? '/default-event.jpg' : '/default-news.jpg')}
+            alt={item.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20" />
+          
+          {/* Badge Overlays */}
+          <div className="absolute bottom-6 left-6 flex gap-2">
+            <span className="px-4 py-1.5 bg-white shadow-xl rounded-full text-xs font-bold uppercase tracking-widest text-blue-600">
+              {item.category || type}
+            </span>
+            {item.featured && (
+              <span className="px-4 py-1.5 bg-slate-900 text-white rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-1">
+                <IoSparkles className="text-amber-400" /> Featured
+              </span>
+            )}
           </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex gap-3">
-          {type === 'event' ? (
-            <button
-              onClick={onAddToCalendar}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
-            >
-              Add to Calendar
-            </button>
-          ) : null}
-          <button
-            onClick={onShare}
-            className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-          >
-            <FiShare2 className="w-4 h-4" />
-            Share
-          </button>
         </div>
+
+        {/* 2. Content Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar bg-white">
+          <div className="max-w-2xl mx-auto space-y-8">
+            
+            {/* Title & Metadata */}
+            <section className="space-y-4">
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tight">
+                {item.title}
+              </h2>
+              
+              {/* Quick Info Bar */}
+              <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm font-semibold text-slate-500">
+                <div className="flex items-center gap-2">
+                  <IoCalendarClearOutline className="text-blue-500 text-lg" />
+                  {formatFullDate(item.date)}
+                </div>
+                {type === 'event' && item.location && (
+                  <div className="flex items-center gap-2">
+                    <IoLocationOutline className="text-rose-500 text-lg" />
+                    {item.location}
+                  </div>
+                )}
+                {type === 'news' && (
+                  <div className="flex items-center gap-2">
+                    <IoPersonOutline className="text-purple-500 text-lg" />
+                    By {item.author || 'School Admin'}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Description Block */}
+            <section className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">About this {type}</h3>
+              <div className="text-slate-700 leading-relaxed text-lg">
+                {item.description || item.excerpt || 'No description available.'}
+              </div>
+              
+              {/* If news has full content, show it here without tabs */}
+              {type === 'news' && item.fullContent && (
+                <div className="pt-4 mt-4 border-t border-slate-100 text-slate-600 whitespace-pre-line italic">
+                  {item.fullContent}
+                </div>
+              )}
+            </section>
+
+            {/* Event Specific Specs (Stats grid style) */}
+            {type === 'event' && (
+              <section className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4">
+                <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                  <IoTimeOutline className="text-blue-600 mb-2" />
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Time</p>
+                  <p className="font-bold text-slate-900">{item.time || 'All Day'}</p>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                  <IoPersonOutline className="text-purple-600 mb-2" />
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Attendees</p>
+                  <p className="font-bold text-slate-900 truncate">{item.attendees || 'Open'}</p>
+                </div>
+                {item.speaker && (
+                  <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100 col-span-2 md:col-span-1">
+                    <IoSparkles className="text-amber-500 mb-2" />
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Special Guest</p>
+                    <p className="font-bold text-slate-900">{item.speaker}</p>
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
+        </div>
+
+        {/* 3. Action Footer - Sticky at bottom */}
+        <div className="shrink-0 p-6 bg-slate-50/80 backdrop-blur-md border-t border-slate-100">
+          <div className="max-w-2xl mx-auto flex gap-3">
+            {type === 'event' ? (
+              <button
+                onClick={onAddToCalendar}
+                className="flex-[2] h-14 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+              >
+                <IoCalendarClearOutline size={20} />
+                Add to Calendar
+              </button>
+            ) : (
+              <button
+                 className="flex-[2] h-14 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2"
+                onClick={onClose}
+
+              >
+                <IoNewspaperOutline size={20} />
+
+                See other articles 
+                
+              </button>
+            )}
+            
+            <button
+              onClick={onShare}
+              className="flex-1 h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+            >
+              <IoShareOutline size={20} />
+              Share
+            </button>
+          </div>
+        </div>
+
       </div>
-    </ModernModal>
+    </div>
   );
 };
 
-export default function EventsNewsPage() {
+// Modern Pagination Component
+const ModernPagination = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      
+      let start = Math.max(2, currentPage - 1);
+      let end = Math.min(totalPages - 1, currentPage + 1);
+      
+      if (currentPage <= 3) {
+        start = 2;
+        end = 4;
+      } else if (currentPage >= totalPages - 2) {
+        start = totalPages - 3;
+        end = totalPages - 1;
+      }
+      
+      if (start > 2) pages.push('...');
+      
+      for (let i = start; i <= end; i++) pages.push(i);
+      
+      if (end < totalPages - 1) pages.push('...');
+      
+      pages.push(totalPages);
+    }
+    
+    return pages;
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-2 mt-8 pt-8 border-t border-gray-200">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="p-2 rounded-xl bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+      >
+        <FiChevronLeft className="w-5 h-5" />
+      </button>
+
+      <div className="flex items-center gap-1">
+        {getPageNumbers().map((page, index) => (
+          <button
+            key={index}
+            onClick={() => typeof page === 'number' && onPageChange(page)}
+            className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+              page === '...'
+                ? 'text-gray-500'
+                : currentPage === page
+                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+            disabled={page === '...'}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="p-2 rounded-xl bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+      >
+        <FiChevronRight className="w-5 h-5" />
+      </button>
+    </div>
+  );
+};
+
+// Main Component
+export default function ModernEventsNewsPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedNews, setSelectedNews] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showNewsShareModal, setShowNewsShareModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [eventsData, setEventsData] = useState([]);
   const [newsData, setNewsData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [viewMode, setViewMode] = useState('grid');
+  const [bookmarkedEvents, setBookmarkedEvents] = useState(new Set());
+  const [bookmarkedNews, setBookmarkedNews] = useState(new Set());
+  const itemsPerPage = 9;
 
   // Categories
   const categories = [
-    { id: 'all', name: 'All Events', icon: IoCalendarClearOutline },
-    { id: 'academic', name: 'Academic', icon: IoNewspaperOutline },
-    { id: 'cultural', name: 'Cultural', icon: FiHeart },
-    { id: 'sports', name: 'Sports', icon: FiUsers }
+    { id: 'all', name: 'All Events', icon: IoCalendarClearOutline, color: 'bg-gradient-to-r from-blue-500 to-cyan-500' },
+    { id: 'academic', name: 'Academic', icon: IoNewspaperOutline, color: 'bg-gradient-to-r from-blue-500 to-purple-500' },
+    { id: 'cultural', name: 'Cultural', icon: FiMusic, color: 'bg-gradient-to-r from-purple-500 to-pink-500' },
+    { id: 'sports', name: 'Sports', icon: FiTrendingUp, color: 'bg-gradient-to-r from-emerald-500 to-green-500' },
+    { id: 'workshop', name: 'Workshops', icon: FiZap, color: 'bg-gradient-to-r from-orange-500 to-amber-500' }
   ];
 
   // Stats data
@@ -594,53 +973,51 @@ export default function EventsNewsPage() {
       icon: IoCalendarClearOutline, 
       number: '15+', 
       label: 'Upcoming Events', 
-      sublabel: 'This month'
+      sublabel: 'This month',
+      gradient: 'from-blue-500 to-cyan-500'
     },
     { 
       icon: IoNewspaperOutline, 
       number: '8+', 
       label: 'News Articles', 
-      sublabel: 'Latest updates'
+      sublabel: 'Latest updates',
+      gradient: 'from-purple-500 to-pink-500'
     },
     { 
-      icon: FiHeart, 
+      icon: IoRibbonOutline, 
       number: '5', 
       label: 'Featured', 
-      sublabel: 'Highlights'
+      sublabel: 'Highlights',
+      gradient: 'from-amber-500 to-orange-500'
     },
     { 
-      icon: FiUsers, 
+      icon: IoPeopleCircle, 
       number: '100%', 
-      label: 'Community', 
-      sublabel: 'Engagement'
+      label: 'Engagement', 
+      sublabel: 'Community',
+      gradient: 'from-emerald-500 to-green-500'
     }
   ];
 
   // Fetch data from APIs
   const fetchEvents = async (showRefresh = false) => {
-    if (showRefresh) {
-      setRefreshing(true);
-    }
+    if (showRefresh) setRefreshing(true);
     
     try {
       const response = await fetch('/api/events');
       const data = await response.json();
       if (data.success) {
         setEventsData(data.events || getSampleEvents());
-        if (showRefresh) {
-          toast.success('Events refreshed successfully!');
-        }
+        if (showRefresh) toast.success('Events refreshed!');
       } else {
-        throw new Error(data.error || 'Failed to fetch events');
+        throw new Error(data.error);
       }
     } catch (error) {
       console.error('Error fetching events:', error);
       toast.error('Failed to load events');
       setEventsData(getSampleEvents());
     } finally {
-      if (showRefresh) {
-        setRefreshing(false);
-      }
+      if (showRefresh) setRefreshing(false);
     }
   };
 
@@ -650,11 +1027,9 @@ export default function EventsNewsPage() {
       const data = await response.json();
       if (data.success) {
         setNewsData(data.news || getSampleNews());
-        if (showRefresh) {
-          toast.success('News refreshed successfully!');
-        }
+        if (showRefresh) toast.success('News refreshed!');
       } else {
-        throw new Error(data.error || 'Failed to fetch news');
+        throw new Error(data.error);
       }
     } catch (error) {
       console.error('Error fetching news:', error);
@@ -664,112 +1039,28 @@ export default function EventsNewsPage() {
   };
 
   const fetchData = async (showRefresh = false) => {
-    if (!showRefresh) {
-      setLoading(true);
-    }
-    
+    if (!showRefresh) setLoading(true);
     try {
-      await Promise.all([
-        fetchEvents(showRefresh),
-        fetchNews(showRefresh)
-      ]);
+      await Promise.all([fetchEvents(showRefresh), fetchNews(showRefresh)]);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      if (!showRefresh) {
-        setLoading(false);
-      }
+      if (!showRefresh) setLoading(false);
     }
   };
 
-  // Sample data for fallback
-  const getSampleEvents = () => [
-    {
-      id: 1,
-      title: 'Annual Sports Day',
-      description: 'Join us for our annual sports competition featuring various track and field events',
-      date: new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0],
-      time: '9:00 AM - 4:00 PM',
-      location: 'School Playground',
-      category: 'sports',
-      featured: true,
-      attendees: 150,
-      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80'
-    },
-    {
-      id: 2,
-      title: 'Science Fair Exhibition',
-      description: 'Showcase of innovative science projects by students',
-      date: new Date(Date.now() + 86400000 * 14).toISOString().split('T')[0],
-      time: '10:00 AM - 2:00 PM',
-      location: 'Science Laboratory',
-      category: 'academic',
-      featured: true,
-      attendees: 80,
-      image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&q=80'
-    },
-    {
-      id: 3,
-      title: 'Cultural Festival',
-      description: 'Celebration of diverse cultures with music, dance, and food',
-      date: new Date(Date.now() + 86400000 * 21).toISOString().split('T')[0],
-      time: '2:00 PM - 6:00 PM',
-      location: 'Main Hall',
-      category: 'cultural',
-      attendees: 200,
-      image: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80'
-    }
-  ];
 
-  const getSampleNews = () => [
-    {
-      id: 1,
-      title: 'School Wins Regional Science Competition',
-      excerpt: 'Our students secured first place in the regional science competition',
-      description: 'Nyaribu Secondary School students achieved outstanding results in the regional science competition, showcasing innovative projects and research.',
-      date: new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0],
-      author: 'Science Department',
-      category: 'achievement',
-      likes: 45,
-      image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&q=80',
-      fullContent: 'Our students demonstrated exceptional scientific skills and innovation at the regional science competition held last week. The winning project focused on sustainable energy solutions using locally available materials. The achievement marks a significant milestone for our school\'s science department.'
-    },
-    {
-      id: 2,
-      title: 'New Library Resources Available',
-      excerpt: 'Enhanced library facilities with digital resources now accessible',
-      description: 'The school library has been upgraded with new books, computers, and digital learning resources for students.',
-      date: new Date(Date.now() - 86400000 * 7).toISOString().split('T')[0],
-      author: 'Library Committee',
-      category: 'development',
-      likes: 32,
-      image: 'https://images.unsplash.com/photo-1589998059171-988d887df646?w=800&q=80',
-      fullContent: 'We are excited to announce the completion of our library enhancement project. The new facilities include:\n\n• 500+ new books across all subjects\n• 20 new computers with internet access\n• Digital learning platforms\n• Quiet study zones\n• Group collaboration spaces\n\nThe library is now open for extended hours to accommodate student needs.'
-    }
-  ];
+
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Handle add to calendar
-  const handleAddToCalendar = (event) => {
-    try {
-      const startDate = new Date(event.date);
-      const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
-      window.open(googleCalendarUrl, '_blank');
-      toast.success('Added to Google Calendar');
-    } catch (error) {
-      toast.error('Failed to add to calendar');
-    }
-  };
-
-  // Filter events based on search and category
+  // Filter events
   const filteredEvents = eventsData.filter(event => {
     const matchesSearch = searchTerm === '' || 
       event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.location?.toLowerCase().includes(searchTerm.toLowerCase());
+      event.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = activeTab === 'all' || event.category === activeTab;
     return matchesSearch && matchesCategory;
   });
@@ -777,8 +1068,7 @@ export default function EventsNewsPage() {
   const filteredNews = newsData.filter(news => {
     return searchTerm === '' || 
       news.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      news.excerpt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      news.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      news.excerpt?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   // Pagination
@@ -793,358 +1083,543 @@ export default function EventsNewsPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const refreshData = () => {
-    fetchData(true);
+  const handleAddToCalendar = (event) => {
+    try {
+      const startDate = new Date(event.date);
+      const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
+      window.open(googleCalendarUrl, '_blank');
+      toast.success('Added to Google Calendar');
+    } catch (error) {
+      toast.error('Failed to add to calendar');
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="text-gray-600 text-sm mt-3 font-medium">Loading Events & News...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleBookmarkEvent = (event) => {
+    const newBookmarked = new Set(bookmarkedEvents);
+    if (newBookmarked.has(event.id)) {
+      newBookmarked.delete(event.id);
+      toast.success('Removed from bookmarks');
+    } else {
+      newBookmarked.add(event.id);
+      toast.success('Bookmarked event');
+    }
+    setBookmarkedEvents(newBookmarked);
+  };
+
+  const handleBookmarkNews = (news) => {
+    const newBookmarked = new Set(bookmarkedNews);
+    if (newBookmarked.has(news.id)) {
+      newBookmarked.delete(news.id);
+      toast.success('Removed from bookmarks');
+    } else {
+      newBookmarked.add(news.id);
+      toast.success('Bookmarked news');
+    }
+    setBookmarkedNews(newBookmarked);
+  };
+
+  const refreshData = () => {
+    fetchData(true)
+  };
+
+
+
+if (loading) {
+  return (
+    <Box 
+      className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6"
+    >
+      <Stack 
+        spacing={3} 
+        alignItems="center"
+        className="bg-white p-10 rounded-[32px] shadow-sm border border-gray-100"
+      >
+        {/* Modern Layered Loader */}
+        <Box className="relative flex items-center justify-center">
+          {/* Background Ring */}
+          <CircularProgress
+            variant="determinate"
+            value={100}
+            size={64}
+            thickness={4}
+            sx={{ color: '#f1f5f9' }} // Very light gray track
+          />
+          {/* Actual Animated Loader */}
+          <CircularProgress
+            variant="indeterminate"
+            disableShrink
+            size={64}
+            thickness={4}
+            sx={{
+              color: '#2563eb', // Modern Blue
+              animationDuration: '800ms',
+              position: 'absolute',
+              left: 0,
+              [`& .MuiCircularProgress-circle`]: {
+                strokeLinecap: 'round',
+              },
+            }}
+          />
+          {/* Center Icon */}
+          <Box className="absolute">
+            <IoSparkles className="text-blue-500 text-xl animate-pulse" />
+          </Box>
+        </Box>
+
+        {/* Clean Typography */}
+        <Stack spacing={0.5} alignItems="center">
+          <Typography 
+            variant="body1" 
+            fontWeight="600" 
+            color="text.primary"
+            sx={{ letterSpacing: '-0.01em' }}
+          >
+Loading for our school latest news and events to stay updated
+          </Typography>
+          <Typography 
+            variant="caption" 
+            color="text.secondary"
+            className="flex items-center gap-1"
+          >
+            Fetching latest events & news
+          </Typography>
+        </Stack>
+      </Stack>
+    </Box>
+  );
+}
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 p-4 md:p-6">
       <Toaster position="top-right" richColors />
       
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-          <div className="mb-4 lg:mb-0">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg">
-                <IoCalendarClearOutline className="text-white text-lg w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 via-purple-900 to-pink-900 bg-clip-text text-transparent">
-                  Events & News
-                </h1>
-                <p className="text-gray-600 mt-1">Stay updated with the latest happenings and achievements</p>
-              </div>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+          <div>
+            <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full border border-blue-200 mb-3">
+              <IoSparkles className="text-blue-500" />
+              <span className="text-blue-700 font-bold text-sm uppercase tracking-wider">
+                Latest Updates
+              </span>
             </div>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-2">
+              School <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Events & News</span>
+            </h1>
+            <p className="text-slate-600 text-lg max-w-2xl">
+              Stay updated with our latest happenings, achievements, and announcements
+            </p>
           </div>
-          <div className="flex gap-2 md:gap-3 flex-wrap">
-            <button
-              onClick={refreshData}
-              disabled={refreshing}
-              className="inline-flex items-center gap-2 bg-white text-gray-700 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-xs border border-gray-200 font-medium disabled:opacity-50 text-sm md:text-base"
-            >
-              <FiRotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'Refreshing...' : 'Refresh'}
-            </button>
-            <button
-              onClick={() => toast.info('Event submission feature coming soon!')}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-lg font-medium text-sm md:text-base"
-            >
-              <FiPlus className="w-4 h-4" />
-              Submit Event
-            </button>
-          </div>
-        </div>
+          
+          <div className="flex items-center gap-3">
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
-          {stats.map((stat, index) => (
-            <StatCard key={index} stat={stat} />
-          ))}
-        </div>
+<button
+  onClick={refreshData}
+  disabled={refreshing}
+  className="
+    inline-flex items-center gap-2
+    px-4 sm:px-5
+    py-2.5 sm:py-3
+    rounded-xl
+    bg-white text-slate-700
+    border border-slate-200
+    font-medium text-sm sm:text-base
+    shadow-sm
+    transition-all duration-300
+    hover:shadow-md
+    disabled:opacity-50 disabled:cursor-not-allowed
+  "
+>
+  {refreshing && (
+    <CircularProgress
+      size={18}
+      thickness={4}
+      sx={{
+        color: "#0284c7", // tailwind cyan-600
+      }}
+    />
+  )}
 
-        {/* Filters and Search */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4 mb-6">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-3 md:gap-4">
-            <div className="flex-1 relative">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search events and news..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-              />
-            </div>
-            
-            <div className="flex flex-wrap gap-2">
-              <select 
-                value={activeTab}
-                onChange={(e) => {
-                  setActiveTab(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-pointer"
-              >
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-              
+  <span className="whitespace-nowrap">
+    {refreshing ? "Refreshing..." : "Refresh"}
+  </span>
+</button>
+
+            <div className="flex bg-white rounded-xl border border-slate-200 overflow-hidden">
               <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setActiveTab('all');
-                  setCurrentPage(1);
-                }}
-                className="inline-flex items-center gap-2 px-3 py-2.5 bg-gray-100 border border-gray-200 rounded-lg transition-all duration-200 text-sm font-medium text-gray-700"
+                onClick={() => setViewMode('grid')}
+                className={`p-3 ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:text-slate-900'}`}
               >
-                <FiFilter className="w-4 h-4" />
-                Reset
+                <FiGrid />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-3 ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                <FiList />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Events Section */}
-          <div className="lg:col-span-2">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Upcoming Events</h2>
-                <div className="text-sm text-gray-500">
-                  {filteredEvents.length} events found
-                </div>
-              </div>
+       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 mb-10">
+  {stats.map((stat, index) => {
+    const Icon = stat.icon;
+    
+    return (
+      <div 
+        key={index} 
+        className="relative flex flex-col justify-between overflow-hidden bg-white border border-slate-100 p-4 md:p-6 rounded-[24px] md:rounded-[32px] shadow-sm"
+      >
+        {/* Top Section: Icon & Badge */}
+        <div className="flex items-start justify-between mb-4 md:mb-8">
+          <div className={`p-2 md:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br ${stat.gradient} bg-opacity-[0.08] text-slate-700`}>
+            {/* Responsive Icon size: Smaller on mobile, larger on desktop */}
+            <Icon className="text-lg md:text-2xl" />
+          </div>
+          
+          {/* Status Dot (Hidden on very small screens to save space) */}
+          <div className="hidden xs:block h-2 w-2 rounded-full bg-slate-200" />
+        </div>
 
-              {/* Category Tabs */}
-              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                {categories.map((category) => {
-                  const Icon = category.icon;
-                  return (
-                    <button
-                      key={category.id}
-                      onClick={() => {
-                        setActiveTab(category.id);
-                        setCurrentPage(1);
-                      }}
-                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap text-sm font-medium ${
-                        activeTab === category.id
-                          ? 'bg-blue-500 text-white shadow-xs'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {category.name}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Events Grid */}
-              {paginatedEvents.length === 0 ? (
-                <div className="text-center py-12">
-                  <IoCalendarClearOutline className="text-gray-400 w-16 h-16 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Events Found</h3>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                    {searchTerm || activeTab !== 'all' 
-                      ? 'No events match your current filters. Try adjusting your search criteria.' 
-                      : 'No upcoming events scheduled at the moment.'
-                    }
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {paginatedEvents.map((event, index) => (
-                      <EventCard 
-                        key={event.id || index}
-                        event={event}
-                        index={index}
-                        onView={() => setSelectedEvent(event)}
-                        onShare={() => {
-                          setSelectedEvent(event);
-                          setShowShareModal(true);
-                        }}
-                        onCalendar={() => handleAddToCalendar(event)}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-2 mt-6 pt-6 border-t border-gray-100">
-                      <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                      >
-                        Previous
-                      </button>
-                      
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                        <button
-                          key={page}
-                          onClick={() => handlePageChange(page)}
-                          className={`px-4 py-2 rounded-lg text-sm ${
-                            currentPage === page
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-white border border-gray-300 hover:bg-gray-50'
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
-                      
-                      <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+        {/* Content Section */}
+        <div className="space-y-1">
+          {/* Label: Smaller text on mobile */}
+          <p className="text-[9px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
+            {stat.label}
+          </p>
+          
+          <div className="flex items-baseline gap-1">
+            {/* Number: Responsive font sizes */}
+            <h3 className="text-xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+              {stat.number}
+            </h3>
           </div>
 
-          {/* News Sidebar */}
-          <div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4 sticky top-24">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Latest News</h2>
-                <div className="text-sm text-gray-500">
-                  {filteredNews.length} articles
-                </div>
-              </div>
+          {/* Sublabel: Truncate on mobile to prevent layout breaking */}
+          <p className="text-[10px] md:text-sm font-medium text-slate-500 leading-tight line-clamp-1 md:line-clamp-none">
+            {stat.sublabel}
+          </p>
+        </div>
 
-              {/* News List */}
-              <div className="space-y-4">
-                {filteredNews.slice(0, 3).map((news, index) => (
-                  <NewsCard 
-                    key={news.id || index}
-                    news={news}
-                    index={index}
-                    onView={() => setSelectedNews(news)}
-                    onShare={() => {
-                      setSelectedNews(news);
-                      setShowNewsShareModal(true);
-                    }}
-                  />
-                ))}
-              </div>
+        {/* Decorative Background Element (Desktop only for cleanliness) */}
+        <div className={`absolute -bottom-2 -right-2 w-12 h-12 md:w-20 md:h-20 opacity-[0.03] rounded-full bg-gradient-to-br ${stat.gradient} hidden md:block`} />
+      </div>
+    );
+  })}
+</div>
 
-              {filteredNews.length === 0 && (
-                <div className="text-center py-8">
-                  <IoNewspaperOutline className="text-gray-400 w-12 h-12 mx-auto mb-3" />
-                  <p className="text-gray-600 text-sm">No news articles available</p>
-                </div>
-              )}
+     <div className="relative mb-8">
+  {/* The Main Container: Switched from GlassCard to a cleaner, floating bar aesthetic */}
+  <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 p-2 md:p-3 rounded-[28px] md:rounded-full shadow-lg shadow-slate-200/40">
+    <div className="flex flex-col md:flex-row items-center gap-2">
+      
+   {/* Modernized Search Section */}
+<div className="relative w-full flex-1 group">
+  {/* The Search Container */}
+  <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl shadow-sm transition-all focus-within:border-slate-900 focus-within:ring-4 focus-within:ring-slate-900/5">
+    
+    {/* Search Icon - Always Static */}
+    <div className="pl-5 pr-3 flex items-center justify-center pointer-events-none">
+      <FiSearch className="text-slate-400 group-focus-within:text-slate-900 transition-colors" size={18} />
+    </div>
 
-              {/* View All Button */}
-              {filteredNews.length > 3 && (
-                <button
-                  onClick={() => toast.info('More news feature coming soon!')}
-                  className="w-full mt-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm"
-                >
-                  View All News
-                </button>
-              )}
+    <input
+      type="text"
+      placeholder="Search events, news, or resources..."
+      value={searchTerm}
+      onChange={(e) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1);
+      }}
+      className="w-full py-4 bg-transparent text-slate-900 placeholder:text-slate-400 font-semibold text-sm focus:outline-none"
+    />
 
-              {/* Quick Stats */}
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-lg font-bold text-gray-900">{eventsData.length}</div>
-                    <div className="text-xs text-gray-600">Events</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-gray-900">{newsData.length}</div>
-                    <div className="text-xs text-gray-600">News</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+    {/* Dynamic Action Area */}
+    <div className="pr-2 flex items-center gap-2">
+      {searchTerm ? (
+        <button
+          onClick={() => setSearchTerm('')}
+          className="p-2 bg-slate-100 text-slate-900 rounded-xl active:scale-90 transition-transform"
+        >
+          <FiX className="w-4 h-4" />
+        </button>
+      ) : (
+        /* Subtle "Command K" style hint for Desktop */
+        <div className="hidden md:flex items-center gap-1 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Search</span>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+      {/* Action Buttons: Stacked on mobile, Inline on desktop */}
+      <div className="flex items-center w-full md:w-auto gap-2 border-t md:border-t-0 md:border-l border-slate-100 pt-2 md:pt-0 md:pl-3">
+        
+        {/* Category Selector: Styled as a modern button-menu */}
+        <div className="relative flex-1 md:flex-none">
+          <select 
+            value={activeTab}
+            onChange={(e) => {
+              setActiveTab(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full md:w-40 appearance-none px-5 py-3.5 md:py-3 bg-slate-50 md:bg-transparent border-none rounded-2xl md:rounded-full font-semibold text-slate-600 text-sm cursor-pointer focus:ring-2 focus:ring-blue-500/20 transition-all"
+          >
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          {/* Custom Chevron for a cleaner look */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
           </div>
         </div>
 
-        {/* Information Banner */}
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl">
-              <FiMessageCircle className="text-white text-xl" />
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 text-lg mb-2">Stay Connected</h3>
-              <p className="text-gray-600 mb-3">
-                Never miss an update! Share events and news with friends, add events to your calendar, 
-                and stay informed about everything happening at Nyaribu Secondary School.
-              </p>
-              <div className="flex flex-wrap gap-3 text-sm">
-                <div className="flex items-center gap-2 text-gray-700">
-                  <FiShare2 className="text-blue-500" />
-                  <span>Easy Sharing</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-700">
-                  <FiCalendar className="text-green-500" />
-                  <span>Calendar Integration</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-700">
-                  <IoNewspaperOutline className="text-purple-500" />
-                  <span>Regular Updates</span>
-                </div>
-              </div>
-            </div>
+        {/* Reset Button: Minimalist Icon on mobile, Label on desktop */}
+        <button
+          onClick={() => {
+            setSearchTerm('');
+            setActiveTab('all');
+            setCurrentPage(1);
+          }}
+          className="p-3.5 md:px-6 md:py-3 bg-blue-600 text-white rounded-2xl md:rounded-full font-bold text-sm shadow-md shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+          title="Reset Filters"
+        >
+          <FiFilter className="w-4 h-4" />
+          <span className="hidden md:inline">Reset</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    {/* Main Content Layout */}
+<div className="flex flex-col lg:flex-row gap-8">
+  
+  {/* Left Column: Events (The main feed) */}
+  <div className="flex-1 min-w-0 space-y-8">
+    
+    {/* Header Section */}
+    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1">
+      <div className="flex items-center gap-4">
+        <div className="p-3 bg-slate-900 rounded-2xl shadow-lg">
+          <IoCalendarClearOutline className="text-white text-2xl" />
+        </div>
+        <div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Upcoming Events</h2>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            {filteredEvents?.length || 0} Discoveries Found
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Modern Category Pills - Responsive Scroll */}
+    <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
+      {categories.map((category) => {
+        const Icon = category.icon;
+        const isActive = activeTab === category.id;
+        return (
+          <button
+            key={category.id}
+            onClick={() => { setActiveTab(category.id); setCurrentPage(1); }}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all border ${
+              isActive 
+                ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100" 
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            {Icon && <Icon className={isActive ? "text-white" : "text-slate-400"} />}
+            {category.name}
+          </button>
+        );
+      })}
+    </div>
+
+    {/* Events Feed */}
+    <div className="relative">
+      {!paginatedEvents || paginatedEvents.length === 0 ? (
+        <div className="bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 py-16 text-center">
+          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <IoCalendarClearOutline className="text-slate-300 text-2xl" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900">No events found</h3>
+          <p className="text-slate-500 text-sm mt-1 mb-6">Try adjusting your filters or search.</p>
+          <button 
+            onClick={() => { setSearchTerm(''); setActiveTab('all'); }}
+            className="px-6 py-2.5 bg-white border border-slate-200 rounded-full font-bold text-slate-700 hover:bg-slate-50 transition-all text-sm"
+          >
+            Reset Filters
+          </button>
+        </div>
+      ) : (
+        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-4'}>
+          {paginatedEvents.map((event, index) => (
+            <ModernEventCard 
+              key={event.id || index} 
+              event={event} 
+              onView={setSelectedEvent}
+              onBookmark={handleBookmarkEvent}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+
+    {totalPages > 1 && (
+      <ModernPagination 
+        currentPage={currentPage} 
+        totalPages={totalPages} 
+        onPageChange={handlePageChange} 
+      />
+    )}
+  </div>
+
+  {/* Right Column: News & Insights (Fixed width on desktop) */}
+  <div className="lg:w-[380px] space-y-6">
+    <div className="lg:sticky lg:top-24 space-y-6">
+      
+      {/* News Sidebar Card */}
+      <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+            <IoNewspaperOutline className="text-purple-600 text-xl" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Latest News</h2>
+        </div>
+
+        <div className="space-y-5">
+          {filteredNews?.slice(0, 4).map((news, index) => (
+            <ModernNewsCard 
+              key={news.id || index} 
+              news={news} 
+              onView={setSelectedNews}
+             onBookmark={handleBookmarkNews}  // Add this line
+               onShare={() => {
+    setSelectedNews(news);
+    setShowShareModal(true);
+  }}
+
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Analytics "Bento" Stats */}
+      <div className="bg-slate-900 rounded-[32px] p-6 text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/20 blur-[50px]" />
+        <h4 className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em] mb-4">Stats At A Glance</h4>
+        <div className="grid grid-cols-2 gap-4 relative z-10">
+          <div>
+            <p className="text-2xl font-bold">{eventsData?.length || 0}</p>
+            <p className="text-[10px] text-slate-400 uppercase font-bold">Events</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold">{newsData?.length || 0}</p>
+            <p className="text-[10px] text-slate-400 uppercase font-bold">Articles</p>
+          </div>
+          <div className="col-span-2 pt-2 border-t border-slate-800">
+            <p className="text-sm font-bold text-blue-400">
+              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Last Updated</p>
           </div>
         </div>
       </div>
 
+
+    </div>
+  </div>
+</div>
+
+<div className="relative overflow-hidden bg-slate-900 rounded-3xl p-5 md:p-8 shadow-xl">
+  {/* Abstract Background Decoration - Reduced Opacity for better text legibility when zoomed */}
+  <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 blur-[80px] rounded-full -mr-24 -mt-24" />
+  <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/5 blur-[80px] rounded-full -ml-24 -mb-24" />
+
+  <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+    
+    {/* Left Side: Scaled down Icon */}
+    <div className="shrink-0">
+      <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white flex items-center justify-center shadow-lg">
+        <FiMessageCircle className="text-slate-900 text-2xl md:text-3xl" />
+      </div>
+    </div>
+
+    {/* Right Side: Main Content */}
+    <div className="flex-1 text-center md:text-left">
+      <h3 className="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">
+        Stay Connected.
+      </h3>
+      <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto md:mx-0">
+        The hub for school updates. Sync schedules, collaborate, and stay on track.
+      </p>
+
+      {/* Feature Grid - Compact & Responsive */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+        {[
+          { label: 'Sharing', icon: FiShare2, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+          { label: 'Sync', icon: FiCalendar, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+          { label: 'Save', icon: FiBookmark, color: 'text-amber-400', bg: 'bg-amber-400/10' },
+          { label: 'Alerts', icon: FiBell, color: 'text-purple-400', bg: 'bg-purple-400/10' }
+        ].map((feature, idx) => (
+          <div 
+            key={idx} 
+            className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10"
+          >
+            <div className={`p-1.5 rounded-md ${feature.bg} ${feature.color} shrink-0`}>
+              <feature.icon size={16} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 truncate">
+              {feature.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+
       {/* Event Detail Modal */}
       {selectedEvent && !showShareModal && (
-        <DetailModal
+        <ModernDetailModal
           item={selectedEvent}
           type="event"
           onClose={() => setSelectedEvent(null)}
           onAddToCalendar={() => handleAddToCalendar(selectedEvent)}
           onShare={() => {
-            setSelectedEvent(null);
             setShowShareModal(true);
           }}
         />
       )}
 
       {/* News Detail Modal */}
-      {selectedNews && !showNewsShareModal && (
-        <DetailModal
+      {selectedNews && !showShareModal && (
+        <ModernDetailModal
           item={selectedNews}
           type="news"
           onClose={() => setSelectedNews(null)}
           onAddToCalendar={() => {}}
           onShare={() => {
-            setSelectedNews(null);
-            setShowNewsShareModal(true);
+            setShowShareModal(true);
           }}
         />
       )}
 
-      {/* Event Share Modal */}
-      {showShareModal && selectedEvent && (
-        <ShareModal
-          item={selectedEvent}
-          type="event"
+      {/* Share Modal */}
+      {showShareModal && (selectedEvent || selectedNews) && (
+        <ModernShareModal
+          item={selectedEvent || selectedNews}
+          type={selectedEvent ? 'event' : 'news'}
           onClose={() => {
             setShowShareModal(false);
             setSelectedEvent(null);
-          }}
-        />
-      )}
-
-      {/* News Share Modal */}
-      {showNewsShareModal && selectedNews && (
-        <ShareModal
-          item={selectedNews}
-          type="news"
-          onClose={() => {
-            setShowNewsShareModal(false);
             setSelectedNews(null);
           }}
         />

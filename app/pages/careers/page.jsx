@@ -1,286 +1,814 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'sonner';
+import {
+  FiBriefcase,
+  FiFilter,
+  FiCalendar,
+  FiUsers,
+  FiGraduationCap,
+  FiClock,
+  FiArrowUpRight,
+  FiMail,
+  FiPhone,
+  FiArrowRight,
+  FiHeart,
+  FiDownload,
+  FiShare2,
+  FiEye,
+  FiChevronDown,
+  FiChevronUp,
+  FiSearch,
+  FiX,
+  FiBookmark,
+  FiExternalLink,
+  FiAward,
+  FiStar,
+  FiShield,
+  FiZap,
+  FiTrendingUp,
+  FiGlobe,
+  FiCopy,
+  FiBell,
+  FiList,
+  FiMapPin, 
+  FiFileText,
+  FiSend
+} from 'react-icons/fi';
+import { FaGraduationCap, FaBuilding as FiBuilding } from 'react-icons/fa';
 
-// Import icons from react-icons/fa
-import { 
-  FaBriefcase, FaFilter, FaCalendar, FaUsers,
-  FaGraduationCap, FaBuilding, FaClock, FaArrowUpRightFromSquare,
-  FaEnvelope, FaPhone, FaArrowRight,
-  FaHeart, FaRegHeart, FaDownload,
-  FaPrint, FaBookmark, FaBookmark as FaRegBookmark,
-  FaEye, FaEyeSlash, FaSortAmountDown, FaSortAmountUp,
-  FaChevronDown, FaChevronUp,
-  FaSchool, FaUserGraduate, FaUserTie, 
-  FaStethoscope, FaBookOpen, FaLaptopCode, FaCalculator, 
-  FaFlask, FaCircleArrowRight, FaPaperPlane, FaFileContract,
-  FaHandshake, FaRocket, FaAward, FaStar,
-  FaLeaf, FaHandsHolding,
-  FaUniversity, FaMonument,
-  FaWhatsapp,
-  FaMobile,
-  FaFacebook, FaTwitter, FaInstagram,
-  FaLinkedin, FaChalkboardUser, FaBell, FaBullhorn,
-  FaSeedling, FaTree,
-  FaDroplet, FaCloud, FaSun,
-  FaShareAlt, FaTools, FaFileAlt
-} from 'react-icons/fa';
 
-// Import icons from lucide-react to avoid conflicts
-import { 
-  X,                    // For times/close
-  MessageSquare,        // For message
-  Utensils,             // For utensils
-  Shield,               // For shield
-  Mountain,             // For mountain
-  Landmark,             // For landmark
-  Globe,                // For globe/earth
-  BookOpen as BookOpenIcon,  // Alternative book open
-  GraduationCap as GradCapIcon, // Alternative graduation cap
-  User,                 // Alternative user
-  Briefcase as BriefcaseIcon // Alternative briefcase
-} from 'lucide-react';
+import {
+  IoCalendarClearOutline,
+  IoSparkles,
+  IoRibbonOutline,
+  IoPeopleCircle,
+  IoStatsChart,
+  IoShareSocialOutline,
+  IoClose,
+  IoLocationOutline,
+  IoTimeOutline,
+  IoPersonOutline,
+  IoShareOutline,
+  IoNewspaperOutline,
+  IoSchoolOutline,
+  IoBusinessOutline
+} from 'react-icons/io5';
+import { CircularProgress, Box, Typography, Stack } from '@mui/material';
 
-// Helper components for missing icons using lucide-react
-const FaShieldAlt = () => <Shield className="w-4 h-4" />;
-const FaUtensils = () => <Utensils className="w-4 h-4" />;
-const FaMountainIcon = () => <Mountain className="w-6 h-6" />;
-const FaLandmarkIcon = () => <Landmark className="w-4 h-4" />;
-const FaEarthAfricaIcon = () => <Globe className="w-4 h-4" />;
-const FaEarthAmericasIcon = () => <Globe className="w-4 h-4" />;
-const FaMessageIcon = () => <MessageSquare className="w-4 h-4" />;
 
-// Helper function for safe data access
-const safeSubstring = (text, length = 150) => {
-  if (!text || typeof text !== 'string') return 'No description available.';
-  return text.length > length ? text.substring(0, length) + '...' : text;
-};
 
-// WhatsApp Integration Component
-function WhatsAppButton({ phoneNumber, jobTitle, size = 'medium' }) {
-  const message = `Hello, I am interested in applying for the ${jobTitle || 'this'} position at Nyaribu Secondary School. Could you please share more details about the application process?`;
-  const sizeClasses = {
-    small: 'px-3 py-2 text-sm',
-    medium: 'px-4 py-2',
-    large: 'px-6 py-3 text-lg'
-  };
-  
+
+// Modern Modal Component with Glass Morphism
+const ModernModal = ({ children, open, onClose, maxWidth = '800px', blur = true }) => {
+  if (!open) return null;
+
   return (
-    <a
-      href={`https://wa.me/${phoneNumber?.replace(/\D/g, '') || '254712345678'}?text=${encodeURIComponent(message)}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-bold shadow hover:from-green-600 hover:to-green-700 transition-all duration-200 ${sizeClasses[size]}`}
-      onClick={() => toast.success('Opening WhatsApp...')}
-    >
-      <FaWhatsapp className="text-xl" />
-      WhatsApp
-    </a>
-  );
-}
-
-// Phone Call Button Component
-function CallButton({ phoneNumber, size = 'medium' }) {
-  const sizeClasses = {
-    small: 'px-3 py-2 text-sm',
-    medium: 'px-4 py-2',
-    large: 'px-6 py-3 text-lg'
-  };
-  
-  return (
-    <a
-      href={`tel:${phoneNumber || '+254712345678'}`}
-      className={`inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-bold shadow hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ${sizeClasses[size]}`}
-      onClick={() => toast.success('Dialing number...')}
-    >
-      <FaPhone />
-      Call Now
-    </a>
-  );
-}
-
-// Email Button Component
-function EmailButton({ email, jobTitle, size = 'medium' }) {
-  const subject = `Job Application: ${jobTitle || 'Position'} - Nyaribu Secondary School`;
-  const body = `Dear Hiring Manager,\n\nI am writing to apply for the ${jobTitle || 'this'} position at Nyaribu Secondary School that I saw on your website.\n\nPlease find my application details below:\n\n[Your Name]\n[Your Contact Information]\n[Brief Introduction]\n\nThank you for considering my application.\n\nSincerely,\n[Your Name]`;
-  const sizeClasses = {
-    small: 'px-3 py-2 text-sm',
-    medium: 'px-4 py-2',
-    large: 'px-6 py-3 text-lg'
-  };
-  
-  return (
-    <a
-      href={`mailto:${email || 'nyaribucareers@gmail.com'}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}
-      className={`inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-bold shadow hover:from-purple-600 hover:to-purple-700 transition-all duration-200 ${sizeClasses[size]}`}
-      onClick={() => toast.success('Opening email client...')}
-    >
-      <FaEnvelope />
-      Email
-    </a>
-  );
-}
-
-// SMS Button Component
-function SMSButton({ phoneNumber, jobTitle, size = 'medium' }) {
-  const message = `Interested in ${jobTitle || 'position'} at Nyaribu Secondary School. Please share application details.`;
-  const sizeClasses = {
-    small: 'px-3 py-2 text-sm',
-    medium: 'px-4 py-2',
-    large: 'px-6 py-3 text-lg'
-  };
-  
-  return (
-    <a
-      href={`sms:${phoneNumber || '+254712345678'}?body=${encodeURIComponent(message)}`}
-      className={`inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg font-bold shadow hover:from-cyan-600 hover:to-cyan-700 transition-all duration-200 ${sizeClasses[size]}`}
-      onClick={() => toast.success('Opening SMS...')}
-    >
-      <MessageSquare className="w-4 h-4" />
-      SMS
-    </a>
-  );
-}
-
-// Submit Resume Button Component (Gmail Integration)
-function SubmitResumeButton({ email, jobTitle }) {
-  const subject = `General Application - CV Submission for Future Opportunities`;
-  const body = `Dear Nyaribu Secondary School Hiring Team,\n\nPlease find my CV attached for future job opportunities at your esteemed institution.\n\nI am interested in roles related to: [Your field of interest]\n\nMy key qualifications include:\n- [Qualification 1]\n- [Qualification 2]\n- [Qualification 3]\n\nI am available for interviews at your convenience.\n\nThank you for considering my application.\n\nSincerely,\n[Your Name]\n[Your Phone Number]\n[Your Email]`;
-  
-  return (
-    <a
-      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${email || 'nyaribucareers@gmail.com'}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold shadow-lg hover:from-red-600 hover:to-red-700 transition-all duration-200"
-      onClick={() => toast.success('Opening Gmail to submit CV...')}
-    >
-      <FaFileAlt /> Submit CV via Gmail
-    </a>
-  );
-}
-
-// Direct Gmail Compose Component
-function DirectGmailButton({ email, jobTitle, label = "Apply via Gmail" }) {
-  const subject = `Job Application: ${jobTitle || 'Position'} - Nyaribu Secondary School`;
-  const body = `Dear Hiring Manager,\n\nI am writing to apply for the ${jobTitle || 'this'} position at Nyaribu Secondary School.\n\nPlease find my application attached:\n• CV/Resume\n• Cover Letter\n• Certificates\n• References\n\nI look forward to discussing my qualifications further.\n\nSincerely,\n[Your Name]`;
-  
-  return (
-    <a
-      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${email || 'nyaribucareers@gmail.com'}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-bold shadow hover:from-red-600 hover:to-red-700 transition-all duration-200"
-    >
-      <FaEnvelope /> {label}
-    </a>
-  );
-}
-
-// Contact Methods Display Component
-function ContactMethods({ job, showLabels = true }) {
-  const hasPhone = job?.contactPhone;
-  const hasEmail = job?.contactEmail;
-  
-  return (
-    <div className="space-y-3">
-      {showLabels && (
-        <div className="text-center mb-2">
-          <span className="text-xs font-bold text-gray-700 bg-gradient-to-r from-green-50 to-green-100 px-3 py-1 rounded-full">
-            Apply Via:
-          </span>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${blur ? 'backdrop-blur-md' : 'bg-black/50'}`}>
+      <div 
+        className="relative bg-white/95 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-white/40"
+        style={{ 
+          width: '90%',
+          maxWidth: maxWidth,
+          maxHeight: '90vh',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)'
+        }}
+      >
+        <div className="absolute top-4 right-4 z-10">
+          <button 
+            onClick={onClose}
+            className="p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white cursor-pointer border border-gray-200 shadow-sm"
+          >
+            <FiX className="text-gray-600 w-5 h-5" />
+          </button>
         </div>
-      )}
-      
-      <div className="grid grid-cols-2 gap-2">
-        {hasPhone && (
-          <>
-            <WhatsAppButton phoneNumber={job.contactPhone} jobTitle={job.jobTitle} />
-            <CallButton phoneNumber={job.contactPhone} />
-          </>
-        )}
-        {hasEmail && (
-          <>
-            <DirectGmailButton email={job.contactEmail} jobTitle={job.jobTitle} label="Gmail" />
-            {hasPhone && <SMSButton phoneNumber={job.contactPhone} jobTitle={job.jobTitle} />}
-          </>
-        )}
-        
-        {/* Fallback if no contact info */}
-        {!hasPhone && !hasEmail && (
-          <>
-            <WhatsAppButton phoneNumber="+254712345678" jobTitle={job?.jobTitle} />
-            <CallButton phoneNumber="+254712345678" />
-          </>
-        )}
+        {children}
       </div>
     </div>
   );
-}
+};
 
-// Modern Job Card for Public View
-function PublicJobCard({ job }) {
-  const [isSaved, setIsSaved] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+// Modern Job Card Component
+const ModernJobCard = ({ job, onView, onBookmark, onShare, viewMode = 'grid' }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
-  // Safely extract job data with defaults
-  const jobData = {
-    id: job?.id || '',
-    jobTitle: job?.jobTitle || 'Untitled Position',
-    department: job?.department || 'Not Specified',
-    category: job?.category || 'General',
-    jobDescription: job?.jobDescription || '',
-    requirements: job?.requirements || '',
-    qualifications: job?.qualifications || '',
-    experience: job?.experience || 'Not specified',
-    positionsAvailable: job?.positionsAvailable || 1,
-    jobType: job?.jobType || 'full-time',
-    applicationDeadline: job?.applicationDeadline || new Date().toISOString(),
-    contactEmail: job?.contactEmail || 'nyaribucareers@gmail.com',
-    contactPhone: job?.contactPhone || '+254712345678',
-    createdAt: job?.createdAt || new Date().toISOString()
-  };
-
-  const getJobTypeColor = (type) => {
-    switch(type?.toLowerCase()) {
-      case 'full-time': return 'from-green-500 to-emerald-600';
-      case 'part-time': return 'from-blue-500 to-cyan-600';
-      case 'contract': return 'from-purple-500 to-pink-600';
-      case 'internship': return 'from-amber-500 to-orange-600';
-      default: return 'from-gray-500 to-gray-700';
-    }
+  const getJobTypeStyle = (type) => {
+    const styles = {
+      'full-time': { 
+        gradient: 'from-emerald-500 to-green-500', 
+        bg: 'bg-emerald-50', 
+        text: 'text-emerald-700',
+        border: 'border-emerald-200'
+      },
+      'part-time': { 
+        gradient: 'from-blue-500 to-cyan-500', 
+        bg: 'bg-blue-50', 
+        text: 'text-blue-700',
+        border: 'border-blue-200'
+      },
+      'contract': { 
+        gradient: 'from-purple-500 to-pink-500', 
+        bg: 'bg-purple-50', 
+        text: 'text-purple-700',
+        border: 'border-purple-200'
+      },
+      'internship': { 
+        gradient: 'from-amber-500 to-orange-500', 
+        bg: 'bg-amber-50', 
+        text: 'text-amber-700',
+        border: 'border-amber-200'
+      }
+    };
+    return styles[type] || styles['full-time'];
   };
 
   const getCategoryIcon = (category) => {
-    switch(category?.toLowerCase()) {
-      case 'teaching': return <FaUserGraduate />;
-      case 'administrative': return <FaUserTie />;
-      case 'support staff': return <FaTools />;
-      case 'security': return <Shield className="w-4 h-4" />;
-      case 'catering': return <Utensils className="w-4 h-4" />;
-      case 'medical': return <FaStethoscope />;
-      case 'academic': return <FaBookOpen />;
-      case 'technical': return <FaLaptopCode />;
-      case 'accounting': return <FaCalculator />;
-      case 'science': return <FaFlask />;
-      default: return <FaBriefcase />;
+    const icons = {
+      'teaching': FaGraduationCap,
+      'administrative': FiBriefcase,
+      'support': FiUsers,
+      'technical': FiZap,
+      'medical': FiShield,
+      'maintenance': FiTrendingUp
+    };
+    return icons[category] || FiBriefcase;
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      if (!dateString) return 'Open until filled';
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
+      
+      if (diff === 0) return 'Today';
+      if (diff === 1) return 'Tomorrow';
+      if (diff < 0) return 'Closed';
+      if (diff < 7) return `${diff} days`;
+      
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Open';
     }
   };
 
-  const isDeadlinePassed = new Date(jobData.applicationDeadline) < new Date();
-  const daysLeft = Math.max(0, Math.ceil((new Date(jobData.applicationDeadline) - new Date()) / (1000 * 60 * 60 * 24)));
+  const CategoryIcon = getCategoryIcon(job?.category);
 
-  const handleSaveJob = () => {
-    setIsSaved(!isSaved);
-    toast.success(isSaved ? 'Removed from saved jobs' : 'Job saved to your list!');
+  // Modern Grid View
+  if (viewMode === 'grid') {
+    const theme = getJobTypeStyle(job?.jobType);
+    const daysLeft = formatDate(job?.applicationDeadline);
+    const isUrgent = daysLeft === 'Today' || daysLeft === 'Tomorrow';
+
+    return (
+      <div 
+        onClick={() => onView(job)}
+        className="relative bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden cursor-pointer"
+      >
+        {/* Header with Gradient */}
+        <div className={`relative h-4 bg-gradient-to-r ${theme.gradient}`}>
+          {isUrgent && (
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 px-3 py-0.5 bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-widest animate-pulse">
+              Urgent
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {/* Category and Bookmark */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className={`p-2 rounded-xl ${theme.bg} ${theme.text} border ${theme.border}`}>
+                <CategoryIcon size={18} />
+              </div>
+              <span className={`text-[11px] font-bold uppercase tracking-wider ${theme.text}`}>
+                {job?.category || 'General'}
+              </span>
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onBookmark(job);
+              }}
+              className={`p-2 rounded-lg ${isBookmarked ? 'text-amber-500 bg-amber-50' : 'text-slate-300 hover:text-slate-500'}`}
+            >
+              <FiBookmark className={isBookmarked ? 'fill-current' : ''} size={16} />
+            </button>
+          </div>
+
+          {/* Job Title */}
+          <h3 className="text-xl font-bold text-slate-900 mb-2 line-clamp-2 leading-tight">
+            {job?.jobTitle || 'Position Available'}
+          </h3>
+
+          {/* Department */}
+          <div className="flex items-center gap-2 mb-4">
+            <FiBuilding className="text-slate-400" size={14} />
+            <span className="text-sm font-medium text-slate-600">
+              {job?.department || 'School Department'}
+            </span>
+          </div>
+
+          {/* Description */}
+          <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+            {job?.jobDescription || 'Join our dedicated team at Katwanyaa High School. We are looking for passionate individuals to contribute to our educational mission.'}
+          </p>
+
+          {/* Info Grid */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+              <div className={`p-1.5 rounded-lg ${theme.bg}`}>
+                <FiCalendar className={`${theme.text}`} size={14} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Deadline</p>
+                <p className="text-xs font-bold text-slate-900">{daysLeft}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+              <div className={`p-1.5 rounded-lg ${theme.bg}`}>
+                <FiUsers className={`${theme.text}`} size={14} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Positions</p>
+                <p className="text-xs font-bold text-slate-900">{job?.positionsAvailable || 1}</p>
+              </div>
+            </div>
+
+            <div className="col-span-2 flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+              <div className={`p-1.5 rounded-lg ${theme.bg}`}>
+                <FiClock className={`${theme.text}`} size={14} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Type</p>
+                <p className="text-xs font-bold text-slate-900 capitalize">
+                  {job?.jobType?.replace('-', ' ') || 'Full-time'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Experience */}
+          <div className="mb-6 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FiAward className="text-amber-500" size={14} />
+                <span className="text-xs font-medium text-slate-600">Experience</span>
+              </div>
+              <span className="text-sm font-bold text-slate-900">{job?.experience || 'Not specified'}</span>
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+            View Details
+            <FiArrowRight size={18} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // List View
+  return (
+    <div 
+      onClick={() => onView(job)}
+      className="relative bg-white rounded-[24px] border border-slate-100 p-4 shadow-sm cursor-pointer transition-colors active:bg-slate-50"
+    >
+      <div className="flex gap-5">
+        {/* Icon Container */}
+        <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 shadow-sm">
+          <div className={`w-full h-full bg-gradient-to-br ${getJobTypeStyle(job?.jobType).gradient} flex items-center justify-center`}>
+            <CategoryIcon className="text-white text-2xl" />
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
+          <div>
+            {/* Metadata Row */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border ${
+                  getJobTypeStyle(job?.jobType).bg
+                } ${getJobTypeStyle(job?.jobType).text} ${
+                  getJobTypeStyle(job?.jobType).border
+                }`}>
+                  {job?.jobType?.replace('-', ' ') || 'Full-time'}
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                  {formatDate(job?.applicationDeadline)}
+                </span>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBookmark(job);
+                  }}
+                  className={`p-1.5 rounded-lg transition-colors ${isBookmarked ? 'text-amber-500 bg-amber-50' : 'text-slate-300 hover:text-slate-500'}`}
+                >
+                  <FiBookmark className={isBookmarked ? 'fill-current' : ''} size={14} />
+                </button>
+              </div>
+            </div>
+
+            <h3 className="text-base font-bold text-slate-900 leading-snug line-clamp-2 mb-2">
+              {job?.jobTitle || 'Position Available'}
+            </h3>
+
+            <div className="flex items-center gap-3 text-sm text-slate-500 mb-3">
+              <div className="flex items-center gap-1">
+                <FiBuilding size={12} />
+                <span>{job?.department || 'Department'}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <FiUsers size={12} />
+                <span>{job?.positionsAvailable || 1} position(s)</span>
+              </div>
+            </div>
+
+            <p className="text-slate-500 text-xs line-clamp-2 mb-3">
+              {job?.jobDescription || 'Join our dedicated team at Katwanyaa High School.'}
+            </p>
+          </div>
+
+          {/* Footer: Details & Action */}
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
+                <FiAward className="text-amber-500" size={12} />
+                <span className="text-[11px] font-bold text-slate-600">{job?.experience || 'Flexible'}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-1 text-blue-600 font-bold text-[11px] uppercase tracking-wider">
+              Apply Now
+              <FiArrowRight size={12} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modern Stats Card Component
+const ModernStatCard = ({ stat }) => {
+  const Icon = stat.icon;
+  
+  return (
+    <div className="relative flex flex-col justify-between overflow-hidden bg-white border border-slate-100 p-4 md:p-6 rounded-[24px] md:rounded-[32px] shadow-sm">
+      {/* Top Section: Icon & Badge */}
+      <div className="flex items-start justify-between mb-4 md:mb-8">
+        <div className={`p-2 md:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br ${stat.gradient} bg-opacity-[0.08] text-slate-700`}>
+          <Icon className="text-lg md:text-2xl" />
+        </div>
+        
+        {/* Status Dot */}
+        <div className="hidden xs:block h-2 w-2 rounded-full bg-slate-200" />
+      </div>
+
+      {/* Content Section */}
+      <div className="space-y-1">
+        {/* Label */}
+        <p className="text-[9px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
+          {stat.label}
+        </p>
+        
+        <div className="flex items-baseline gap-1">
+          {/* Number */}
+          <h3 className="text-xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+            {stat.number}
+          </h3>
+        </div>
+
+        {/* Sublabel */}
+        <p className="text-[10px] md:text-sm font-medium text-slate-500 leading-tight line-clamp-1 md:line-clamp-none">
+          {stat.sublabel}
+        </p>
+      </div>
+
+      {/* Decorative Background Element */}
+      <div className={`absolute -bottom-2 -right-2 w-12 h-12 md:w-20 md:h-20 opacity-[0.03] rounded-full bg-gradient-to-br ${stat.gradient} hidden md:block`} />
+    </div>
+  );
+};
+
+// Modern Job Detail Modal
+const ModernJobDetailModal = ({ job, onClose, onApply }) => {
+  if (!job) return null;
+
+  const getJobTypeStyle = (type) => {
+    const styles = {
+      'full-time': { gradient: 'from-emerald-500 to-green-500' },
+      'part-time': { gradient: 'from-blue-500 to-cyan-500' },
+      'contract': { gradient: 'from-purple-500 to-pink-500' },
+      'internship': { gradient: 'from-amber-500 to-orange-500' }
+    };
+    return styles[type] || { gradient: 'from-slate-500 to-slate-600' };
   };
 
-  const handleShareJob = () => {
+  const formatFullDate = (dateString) => {
+    if (!dateString) return 'Open until filled';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  const daysLeft = (dateString) => {
+    if (!dateString) return 'Open';
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
+      
+      if (diff === 0) return 'Ends today';
+      if (diff === 1) return 'Ends tomorrow';
+      if (diff < 0) return 'Closed';
+      return `${diff} days left`;
+    } catch {
+      return 'Open';
+    }
+  };
+
+  const theme = getJobTypeStyle(job.jobType);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-sm">
+      {/* Modal Container */}
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col">
+        
+        {/* Close Button */}
+        <button 
+          onClick={onClose}
+          className="absolute top-5 right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90"
+        >
+          <IoClose size={24} />
+        </button>
+
+        {/* 1. Header with Gradient */}
+        <div className={`relative h-6 bg-gradient-to-r ${theme.gradient}`} />
+
+        {/* 2. Content Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-white">
+          <div className="max-w-2xl mx-auto space-y-8">
+            
+            {/* Title & Category */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className={`p-3 rounded-2xl bg-gradient-to-r ${theme.gradient}`}>
+                  <FiBriefcase className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tight">
+                    {job.jobTitle}
+                  </h2>
+                  <p className="text-slate-600 text-lg">{job.department || 'School Department'}</p>
+                </div>
+              </div>
+
+              {/* Quick Info Bar */}
+              <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm font-semibold text-slate-500">
+                <div className="flex items-center gap-2">
+                  <IoCalendarClearOutline className="text-blue-500 text-lg" />
+                  {formatFullDate(job.applicationDeadline)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <IoTimeOutline className="text-emerald-500 text-lg" />
+                  {daysLeft(job.applicationDeadline)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <IoBusinessOutline className="text-purple-500 text-lg" />
+                  {job.jobType?.replace('-', ' ') || 'Full-time'}
+                </div>
+              </div>
+            </section>
+
+            {/* Stats Grid */}
+            <section className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <FiUsers className="text-blue-600 mb-2" />
+                <p className="text-[10px] uppercase font-bold text-slate-400">Positions</p>
+                <p className="font-bold text-slate-900">{job.positionsAvailable || 1}</p>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <FiAward className="text-amber-500 mb-2" />
+                <p className="text-[10px] uppercase font-bold text-slate-400">Experience</p>
+                <p className="font-bold text-slate-900 truncate">{job.experience || 'Flexible'}</p>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <FiClock className="text-emerald-500 mb-2" />
+                <p className="text-[10px] uppercase font-bold text-slate-400">Type</p>
+                <p className="font-bold text-slate-900 capitalize">{job.jobType?.replace('-', ' ') || 'Full-time'}</p>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <FaGraduationCap className="text-purple-500 mb-2" />
+                <p className="text-[10px] uppercase font-bold text-slate-400">Category</p>
+                <p className="font-bold text-slate-900">{job.category || 'General'}</p>
+              </div>
+            </section>
+
+            {/* Description Block */}
+            <section className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Job Description</h3>
+              <div className="text-slate-700 leading-relaxed text-lg bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                {job.jobDescription || 'Join our dedicated team at Katwanyaa High School. We are looking for passionate individuals to contribute to our educational mission.'}
+              </div>
+            </section>
+
+            {/* Requirements */}
+            {job.requirements && (
+              <section className="space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Requirements</h3>
+                <div className="text-slate-700 leading-relaxed bg-emerald-50 p-4 rounded-3xl border border-emerald-100">
+                  {job.requirements}
+                </div>
+              </section>
+            )}
+
+            {/* Qualifications */}
+            {job.qualifications && (
+              <section className="space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Qualifications</h3>
+                <div className="text-slate-700 leading-relaxed bg-purple-50 p-4 rounded-3xl border border-purple-100">
+                  {job.qualifications}
+                </div>
+              </section>
+            )}
+
+            {/* Application Instructions */}
+            <section className="bg-gradient-to-r from-blue-50 to-cyan-100 rounded-3xl p-6 border border-blue-200">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-blue-500 rounded-2xl">
+                  <FiSend className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">How to Apply</h3>
+                  <p className="text-slate-600">Submit your application through any of the methods below</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-white rounded-2xl border border-slate-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FiMail className="text-red-500" />
+                      <h4 className="font-bold text-slate-900">Email Application</h4>
+                    </div>
+                    <p className="text-sm text-slate-600 mb-3">
+                      Send your CV, certificates, and cover letter to:
+                    </p>
+                    <a 
+                      href={`mailto:${job.contactEmail || 'careers@katwanyaa.sc.ke'}?subject=Job Application: ${job.jobTitle}`}
+                      className="text-blue-600 font-medium hover:text-blue-800"
+                    >
+                      {job.contactEmail || 'careers@katwanyaa.sc.ke'}
+                    </a>
+                  </div>
+                  
+                  <div className="p-4 bg-white rounded-2xl border border-slate-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FiPhone className="text-green-500" />
+                      <h4 className="font-bold text-slate-900">Phone Inquiry</h4>
+                    </div>
+                    <p className="text-sm text-slate-600 mb-3">
+                      Contact our HR department for inquiries:
+                    </p>
+                    <a 
+                      href={`tel:${job.contactPhone || '+254712345678'}`}
+                      className="text-green-600 font-medium hover:text-green-800"
+                    >
+                      {job.contactPhone || '+254 712 345 678'}
+                    </a>
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t border-blue-200">
+                  <p className="text-sm text-slate-600">
+                    <strong>Note:</strong> Please include all relevant documents and mention the position title in your application.
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        {/* 3. Action Footer - Sticky */}
+        <div className="shrink-0 p-6 bg-slate-50/80 backdrop-blur-md border-t border-slate-100">
+          <div className="max-w-2xl mx-auto flex gap-3">
+    
+            
+            <button
+              onClick={onClose}
+              className="flex-1 h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+            >
+              <IoClose size={20} />
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modern Empty State Component
+const ModernEmptyState = ({ onClearFilters }) => {
+  return (
+    <div className="bg-white rounded-[32px] border-2 border-dashed border-slate-200 py-16 px-8 text-center">
+      <div className="w-24 h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+        <FiBriefcase className="text-slate-300 text-4xl" />
+      </div>
+      <h3 className="text-2xl font-bold text-slate-900 mb-3">No Current Openings</h3>
+      <p className="text-slate-500 text-lg mb-8 max-w-md mx-auto">
+        There are currently no job opportunities available. Check back soon for new positions or submit your CV for future consideration.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <button 
+          onClick={onClearFilters}
+          className="px-8 py-3 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-bold hover:bg-slate-50 transition-all text-sm"
+        >
+          Check All Categories
+        </button>
+
+      </div>
+      
+      {/* Features Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-2xl mx-auto">
+        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+          <FiBell className="text-blue-500 text-xl mb-2" />
+          <h4 className="font-bold text-slate-900 mb-1">Get Notified</h4>
+          <p className="text-sm text-slate-600">We'll notify you when new positions open</p>
+        </div>
+        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+          <FiBookmark className="text-emerald-500 text-xl mb-2" />
+          <h4 className="font-bold text-slate-900 mb-1">Save Your Search</h4>
+          <p className="text-sm text-slate-600">Save this page and check back regularly</p>
+        </div>
+        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+          <FiMail className="text-purple-500 text-xl mb-2" />
+          <h4 className="font-bold text-slate-900 mb-1">Contact HR</h4>
+          <p className="text-sm text-slate-600">Inquire about upcoming opportunities</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main Component
+export default function ModernCareersPage() {
+  const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [viewMode, setViewMode] = useState('grid');
+  const [bookmarkedJobs, setBookmarkedJobs] = useState(new Set());
+  const [activeTab, setActiveTab] = useState('all');
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Stats data
+  const stats = [
+    { 
+      icon: FiBriefcase, 
+      number: '0', 
+      label: 'Open Positions', 
+      sublabel: 'Currently available',
+      gradient: 'from-blue-500 to-cyan-500'
+    },
+    { 
+      icon: FiUsers, 
+      number: '50+', 
+      label: 'Staff Members', 
+      sublabel: 'Our current team',
+      gradient: 'from-purple-500 to-pink-500'
+    },
+    { 
+      icon: FaGraduationCap, 
+      number: '8', 
+      label: 'Departments', 
+      sublabel: 'Academic & support',
+      gradient: 'from-emerald-500 to-green-500'
+    },
+    { 
+      icon: FiAward, 
+      number: '25+', 
+      label: 'Years Excellence', 
+      sublabel: 'Educational experience',
+      gradient: 'from-amber-500 to-orange-500'
+    }
+  ];
+
+  // Categories for filtering
+  const categories = [
+    { id: 'all', name: 'All Positions', icon: FiBriefcase, gradient: 'from-slate-500 to-slate-600' },
+    { id: 'teaching', name: 'Teaching', icon: FaGraduationCap, gradient: 'from-blue-500 to-cyan-500' },
+    { id: 'administrative', name: 'Administrative', icon: FiBriefcase, gradient: 'from-purple-500 to-pink-500' },
+    { id: 'support', name: 'Support Staff', icon: FiUsers, gradient: 'from-emerald-500 to-green-500' },
+    { id: 'technical', name: 'Technical', icon: FiZap, gradient: 'from-amber-500 to-orange-500' },
+    { id: 'medical', name: 'Medical', icon: FiShield, gradient: 'from-red-500 to-rose-500' }
+  ];
+
+  // Job types
+  const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Internship'];
+
+  // Fetch jobs from API
+  useEffect(() => {
+    const fetchJobs = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/career');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.jobs)) {
+          setJobs(data.jobs);
+          setFilteredJobs(data.jobs);
+          
+          // Update the open positions stat
+          if (stats[0]) {
+            stats[0].number = data.jobs.length.toString();
+          }
+        } else {
+          console.error('Invalid API response format:', data);
+          toast.error('Invalid data format received from server');
+          setJobs([]);
+          setFilteredJobs([]);
+        }
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+        toast.error('Failed to load job listings. Please try again.');
+        setJobs([]);
+        setFilteredJobs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []); // Empty dependency array to run only once on mount
+
+  // Filter jobs based on search and category
+  useEffect(() => {
+    let filtered = [...jobs];
+    
+    // Filter by category
+    if (activeTab !== 'all') {
+      filtered = filtered.filter(job => 
+        job?.category?.toLowerCase() === activeTab.toLowerCase()
+      );
+    }
+    
+    // Filter by search
+    if (search) {
+      filtered = filtered.filter(job => 
+        job?.jobTitle?.toLowerCase().includes(search.toLowerCase()) ||
+        job?.department?.toLowerCase().includes(search.toLowerCase()) ||
+        job?.jobDescription?.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    
+    setFilteredJobs(filtered);
+  }, [jobs, search, activeTab]);
+
+  const handleBookmark = (job) => {
+    const newBookmarked = new Set(bookmarkedJobs);
+    if (newBookmarked.has(job.id)) {
+      newBookmarked.delete(job.id);
+      toast.success('Removed from bookmarks');
+    } else {
+      newBookmarked.add(job.id);
+      toast.success('Job saved to bookmarks');
+    }
+    setBookmarkedJobs(newBookmarked);
+  };
+
+  const handleShare = (job) => {
     if (navigator.share) {
       navigator.share({
-        title: `${jobData.jobTitle} - Nyaribu Secondary School`,
-        text: `Check out this job opportunity at Nyaribu Secondary School: ${jobData.jobTitle}`,
+        title: `${job.jobTitle} - Katwanyaa High School`,
+        text: `Check out this job opportunity at Katwanyaa High School: ${job.jobTitle}`,
         url: window.location.href,
       });
     } else {
@@ -289,1011 +817,415 @@ function PublicJobCard({ job }) {
     }
   };
 
-  // Format date safely
-  const formatDate = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'No deadline';
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch {
-      return 'No deadline';
-    }
+  const handleApply = (job) => {
+    toast.success(`Application process for ${job.jobTitle} will open soon!`);
+    // In a real app, this would redirect to application form or open modal
   };
 
-  return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
-      {/* Job Header */}
-      <div className="p-6">
-        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-4">
-          <div className="flex-1">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-                <div className="text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {getCategoryIcon(jobData.category)}
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">{jobData.jobTitle}</h3>
-                <div className="flex flex-wrap items-center gap-2 text-gray-600 mb-2">
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium bg-gray-50 px-3 py-1 rounded-full border border-gray-200">
-                    <FaBuilding className="text-gray-400" /> {jobData.department}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium bg-gray-50 px-3 py-1 rounded-full border border-gray-200">
-                    {jobData.category}
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className={`px-4 py-1.5 bg-gradient-to-r ${getJobTypeColor(jobData.jobType)} text-white rounded-full text-xs font-bold shadow-sm`}>
-                {jobData.jobType.replace('-', ' ').toUpperCase()}
-              </span>
-              <span className="px-4 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full text-xs font-bold shadow-sm flex items-center gap-1.5">
-                <FaUsers /> {jobData.positionsAvailable} position{jobData.positionsAvailable > 1 ? 's' : ''}
-              </span>
-              <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-sm flex items-center gap-1.5 ${
-                isDeadlinePassed 
-                  ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white' 
-                  : 'bg-gradient-to-r from-emerald-500 to-green-600 text-white'
-              }`}>
-                <FaCalendar /> 
-                {isDeadlinePassed ? 'CLOSED' : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`}
-              </span>
-            </div>
-            
-            {/* Description Preview */}
-            <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
-              {safeSubstring(jobData.jobDescription)}
-            </p>
-            
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-3 border border-gray-200">
-                <div className="flex items-center gap-2 mb-1">
-                  <FaGraduationCap className="text-gray-400 text-sm" />
-                  <span className="text-xs font-medium text-gray-500">Experience</span>
-                </div>
-                <span className="text-sm font-bold text-gray-900">{jobData.experience}</span>
-              </div>
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-3 border border-gray-200">
-                <div className="flex items-center gap-2 mb-1">
-                  <FaClock className="text-gray-400 text-sm" />
-                  <span className="text-xs font-medium text-gray-500">Deadline</span>
-                </div>
-                <span className="text-sm font-bold text-gray-900">
-                  {formatDate(jobData.applicationDeadline)}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="flex flex-col gap-3 min-w-[200px]">
-            <ContactMethods job={jobData} />
-            
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={handleSaveJob}
-                className="flex-1 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 rounded-lg border border-gray-200 font-medium text-sm flex items-center justify-center gap-1.5 hover:from-gray-100 hover:to-gray-200"
-              >
-                {isSaved ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
-                {isSaved ? 'Saved' : 'Save'}
-              </button>
-              <button
-                onClick={handleShareJob}
-                className="flex-1 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 rounded-lg border border-gray-200 font-medium text-sm flex items-center justify-center gap-1.5 hover:from-gray-100 hover:to-gray-200"
-              >
-                <FaShareAlt /> Share
-              </button>
-            </div>
-            
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center gap-1 mt-2"
-            >
-              {isExpanded ? 'Show Less' : 'View Details'} 
-              {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
-          </div>
-        </div>
-        
-        {/* Expanded Details */}
-        {isExpanded && (
-          <div className="pt-5 border-t border-gray-200 space-y-4 animate-fadeIn">
-            {/* Job Description */}
-            {jobData.jobDescription && (
-              <div>
-                <h4 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                  <FaFileContract className="text-blue-600" />
-                  Job Description
-                </h4>
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                  <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">{jobData.jobDescription}</p>
-                </div>
-              </div>
-            )}
-            
-            {/* Requirements */}
-            {jobData.requirements && (
-              <div>
-                <h4 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                  <FaGraduationCap className="text-emerald-600" />
-                  Requirements
-                </h4>
-                <div className="bg-gradient-to-br from-emerald-50 to-green-100 rounded-xl p-4 border border-emerald-200">
-                  <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">{jobData.requirements}</p>
-                </div>
-              </div>
-            )}
-            
-            {/* Qualifications */}
-            {jobData.qualifications && (
-              <div>
-                <h4 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                  <FaAward className="text-purple-600" />
-                  Qualifications
-                </h4>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-                  <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">{jobData.qualifications}</p>
-                </div>
-              </div>
-            )}
-            
-            {/* How to Apply Section */}
-            <div className="bg-gradient-to-br from-yellow-50 to-amber-100 rounded-xl p-4 border border-amber-200">
-              <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                <FaPaperPlane className="text-amber-600" />
-                How to Apply
-              </h4>
-              <div className="space-y-3">
-                <p className="text-gray-700 text-sm">
-                  Choose your preferred method to apply for this position:
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <FaWhatsapp className="text-green-600" />
-                      <span className="text-sm font-bold text-gray-900">WhatsApp Application</span>
-                    </div>
-                    <p className="text-xs text-gray-600">
-                      Click the WhatsApp button to send a pre-filled message. Our HR team responds within 24 hours.
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <FaEnvelope className="text-red-600" />
-                      <span className="text-sm font-bold text-gray-900">Gmail Application</span>
-                    </div>
-                    <p className="text-xs text-gray-600">
-                      Opens Gmail with pre-filled subject and body. Attach your CV and certificates.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="pt-3 border-t border-amber-200">
-                  <p className="text-xs text-gray-600">
-                    <strong>Note:</strong> All applications should include: CV, Cover Letter, Certificates, and ID copy.
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Contact Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-gradient-to-br from-cyan-50 to-blue-100 rounded-xl p-4 border border-cyan-200">
-                <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                  <FaEnvelope className="text-cyan-600" />
-                  Email Contact
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <FaEnvelope className="text-gray-400" />
-                    <a 
-                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${jobData.contactEmail}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 font-medium text-sm"
-                    >
-                      {jobData.contactEmail}
-                    </a>
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    Send your application via Gmail for faster processing
-                  </p>
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4 border border-green-200">
-                <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                  <FaPhone className="text-green-600" />
-                  Phone Contact
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <FaPhone className="text-gray-400" />
-                    <a href={`tel:${jobData.contactPhone}`} className="text-green-600 hover:text-green-800 font-medium text-sm">
-                      {jobData.contactPhone}
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <FaWhatsapp className="text-gray-400" />
-                    <span className="text-xs text-gray-600">
-                      WhatsApp available for quick inquiries (Mon-Fri, 8AM-5PM)
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Filter Sidebar Component
-function FilterSidebar({ 
-  categories, 
-  departments, 
-  jobTypes, 
-  selectedFilters, 
-  onFilterChange,
-  onClearFilters 
-}) {
-  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-
-  return (
-    <>
-      {/* Mobile Filter Button */}
-      <div className="lg:hidden mb-4">
-        <button
-          onClick={() => setIsMobileFiltersOpen(true)}
-          className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg hover:from-blue-700 hover:to-blue-800"
-        >
-          <FaFilter /> Filter Jobs
-        </button>
-      </div>
-
-      {/* Mobile Filter Overlay */}
-      <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden ${isMobileFiltersOpen ? '' : 'hidden'}`}>
-        <div className="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-white overflow-y-auto">
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-gray-900">Filter Jobs</h3>
-              <button
-                onClick={() => setIsMobileFiltersOpen(false)}
-                className="p-2 text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <FilterContent 
-              categories={categories}
-              departments={departments}
-              jobTypes={jobTypes}
-              selectedFilters={selectedFilters}
-              onFilterChange={onFilterChange}
-              onClearFilters={onClearFilters}
-              onClose={() => setIsMobileFiltersOpen(false)}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Filter Sidebar */}
-      <div className="hidden lg:block">
-        <FilterContent 
-          categories={categories}
-          departments={departments}
-          jobTypes={jobTypes}
-          selectedFilters={selectedFilters}
-          onFilterChange={onFilterChange}
-          onClearFilters={onClearFilters}
-        />
-      </div>
-    </>
-  );
-}
-
-function FilterContent({ 
-  categories, 
-  departments, 
-  jobTypes, 
-  selectedFilters, 
-  onFilterChange,
-  onClearFilters,
-  onClose 
-}) {
-  return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-5">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-gray-900">Filter By</h3>
-        <button
-          onClick={onClearFilters}
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-        >
-          Clear All
-        </button>
-      </div>
-      
-      {/* Categories */}
-      <div className="mb-6">
-        <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-          <FaBriefcase className="text-blue-600" />
-          Job Category
-        </h4>
-        <div className="space-y-2">
-          {categories.map(category => (
-            <label key={category} className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={selectedFilters.categories?.includes(category) || false}
-                onChange={(e) => onFilterChange('categories', category, e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-700">{category}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-      
-      {/* Departments */}
-      <div className="mb-6">
-        <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-          <FaBuilding className="text-purple-600" />
-          Department
-        </h4>
-        <div className="space-y-2">
-          {departments.map(dept => (
-            <label key={dept} className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={selectedFilters.departments?.includes(dept) || false}
-                onChange={(e) => onFilterChange('departments', dept, e.target.checked)}
-                className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-              />
-              <span className="text-sm text-gray-700">{dept}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-      
-      {/* Job Types */}
-      <div className="mb-6">
-        <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-          <FaClock className="text-emerald-600" />
-          Job Type
-        </h4>
-        <div className="space-y-2">
-          {jobTypes.map(type => (
-            <label key={type} className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={selectedFilters.jobTypes?.includes(type) || false}
-                onChange={(e) => onFilterChange('jobTypes', type, e.target.checked)}
-                className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
-              />
-              <span className="text-sm text-gray-700 capitalize">{type.replace('-', ' ')}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-      
-      {/* Close button for mobile */}
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold shadow-lg hover:from-blue-700 hover:to-blue-800"
-        >
-          Apply Filters
-        </button>
-      )}
-    </div>
-  );
-}
-
-// Main Public Careers Page for Nyaribu Secondary School
-export default function NyaribuCareersPage() {
-  const [jobs, setJobs] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
-  const [selectedFilters, setSelectedFilters] = useState({
-    categories: [],
-    departments: [],
-    jobTypes: [],
-  });
-  const [showOnlyActive, setShowOnlyActive] = useState(true);
-
-  // Updated to match API data
-  const categories = ['Teaching', 'Support Staff', 'Security', 'Catering'];
-  const departments = ['Academics', 'Student Affairs', 'Support Staff'];
-  const jobTypes = ['Full-time', 'Part-time', 'Contract'];
-
-  // Updated school info with Gmail
-  const schoolInfo = {
-    name: 'Nyaribu Secondary School',
-    location: 'Kiganjo, Kenya',
-    phone: '+254 712 345 678',
-    email: 'nyaribucareers@gmail.com',
-    whatsapp: '+254 712 345 678',
-    motto: 'Excellence Through Discipline and Hard Work',
-    established: '1995',
-    workingHours: 'Mon-Fri: 8:00 AM - 5:00 PM'
-  };
-
-  useEffect(() => {
-    loadJobs();
-  }, []);
-
-  useEffect(() => {
-    filterAndSortJobs();
-  }, [jobs, search, selectedFilters, sortBy, showOnlyActive]);
-
-  const loadJobs = async () => {
+  const refreshData = async () => {
+    setRefreshing(true);
     try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/career?limit=50');
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch jobs: ${response.status}`);
-      }
-      
+      const response = await fetch('/api/career');
       const data = await response.json();
       
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to load job listings');
-      }
-      
-      const jobsArray = Array.isArray(data.jobs) ? data.jobs : [];
-      setJobs(jobsArray);
-      setFilteredJobs(jobsArray);
-      
-      // Extract unique categories and departments from API data
-      if (jobsArray.length > 0) {
-        const uniqueCategories = [...new Set(jobsArray.map(job => job.category).filter(Boolean))];
-        const uniqueDepartments = [...new Set(jobsArray.map(job => job.department).filter(Boolean))];
-        
-        // Update categories and departments based on actual data
-        if (uniqueCategories.length > 0) {
-          console.log('Available categories:', uniqueCategories);
-        }
-        if (uniqueDepartments.length > 0) {
-          console.log('Available departments:', uniqueDepartments);
-        }
+      if (data.success && Array.isArray(data.jobs)) {
+        setJobs(data.jobs);
+        setFilteredJobs(data.jobs);
+        toast.success(`Refreshed! ${data.jobs.length} positions loaded`);
       }
     } catch (error) {
-      console.error('Error loading jobs:', error);
-      setError(error.message);
-      toast.error(`Failed to load job listings: ${error.message}`);
-      setJobs([]);
-      setFilteredJobs([]);
+      console.error('Error refreshing jobs:', error);
+      toast.error('Failed to refresh job listings');
     } finally {
-      setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const filterAndSortJobs = () => {
-    try {
-      let filtered = [...jobs];
-
-      // Filter by search
-      if (search) {
-        filtered = filtered.filter(job => 
-          (job?.jobTitle?.toLowerCase() || '').includes(search.toLowerCase()) ||
-          (job?.department?.toLowerCase() || '').includes(search.toLowerCase()) ||
-          (job?.category?.toLowerCase() || '').includes(search.toLowerCase()) ||
-          (job?.jobDescription?.toLowerCase() || '').includes(search.toLowerCase())
-        );
-      }
-
-      // Filter by categories
-      if (selectedFilters.categories.length > 0) {
-        filtered = filtered.filter(job => selectedFilters.categories.includes(job?.category));
-      }
-
-      // Filter by departments
-      if (selectedFilters.departments.length > 0) {
-        filtered = filtered.filter(job => selectedFilters.departments.includes(job?.department));
-      }
-
-      // Filter by job types
-      if (selectedFilters.jobTypes.length > 0) {
-        filtered = filtered.filter(job => selectedFilters.jobTypes.includes(job?.jobType));
-      }
-
-      // Filter by active status
-      if (showOnlyActive) {
-        filtered = filtered.filter(job => {
-          try {
-            return new Date(job?.applicationDeadline) > new Date();
-          } catch {
-            return true;
-          }
-        });
-      }
-
-      // Sort jobs
-      filtered.sort((a, b) => {
-        try {
-          switch (sortBy) {
-            case 'newest':
-              return new Date(b?.createdAt || 0) - new Date(a?.createdAt || 0);
-            case 'oldest':
-              return new Date(a?.createdAt || 0) - new Date(b?.createdAt || 0);
-            case 'deadline':
-              return new Date(a?.applicationDeadline || 0) - new Date(b?.applicationDeadline || 0);
-            case 'positions':
-              return (b?.positionsAvailable || 0) - (a?.positionsAvailable || 0);
-            default:
-              return 0;
-        }
-        } catch {
-          return 0;
-        }
-      });
-
-      setFilteredJobs(filtered);
-    } catch (error) {
-      console.error('Error filtering jobs:', error);
-      toast.error('Error applying filters');
-    }
-  };
-
-  const handleFilterChange = (filterType, value, checked) => {
-    setSelectedFilters(prev => ({
-      ...prev,
-      [filterType]: checked
-        ? [...(prev[filterType] || []), value]
-        : (prev[filterType] || []).filter(item => item !== value)
-    }));
-  };
-
-  const handleClearFilters = () => {
-    setSelectedFilters({
-      categories: [],
-      departments: [],
-      jobTypes: [],
-    });
+  const clearFilters = () => {
     setSearch('');
+    setActiveTab('all');
   };
 
-  const handleSortChange = (value) => {
-    setSortBy(value);
-  };
-
-  const getActiveJobsCount = () => {
-    return jobs.filter(job => {
-      try {
-        return new Date(job?.applicationDeadline) > new Date();
-      } catch {
-        return false;
-      }
-    }).length;
-  };
-
-  const getTotalPositions = () => {
-    return filteredJobs.reduce((sum, job) => sum + (job?.positionsAvailable || 0), 0);
-  };
-
-  const getUniqueDepartmentsCount = () => {
-    const departments = filteredJobs
-      .map(job => job?.department)
-      .filter(dept => dept);
-    return [...new Set(departments)].length;
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
-          <p className="mt-4 text-gray-600">Loading career opportunities...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-center max-w-md p-8 bg-white rounded-2xl shadow-xl border border-gray-200">
-          <div className="w-16 h-16 bg-gradient-to-r from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-red-300">
-            <X className="w-8 h-8 text-red-600" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">Error Loading Jobs</h3>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button 
-            onClick={loadJobs}
-            className="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-bold shadow-lg hover:from-green-700 hover:to-blue-700"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+ if (loading) {
+   return (
+     <Box 
+       className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6"
+     >
+       <Stack 
+         spacing={3} 
+         alignItems="center"
+         className="bg-white p-10 rounded-[32px] shadow-sm border border-gray-100"
+       >
+         {/* Modern Layered Loader */}
+         <Box className="relative flex items-center justify-center">
+           {/* Background Ring */}
+           <CircularProgress
+             variant="determinate"
+             value={100}
+             size={64}
+             thickness={4}
+             sx={{ color: '#f1f5f9' }} // Very light gray track
+           />
+           {/* Actual Animated Loader */}
+           <CircularProgress
+             variant="indeterminate"
+             disableShrink
+             size={64}
+             thickness={4}
+             sx={{
+               color: '#2563eb', // Modern Blue
+               animationDuration: '800ms',
+               position: 'absolute',
+               left: 0,
+               [`& .MuiCircularProgress-circle`]: {
+                 strokeLinecap: 'round',
+               },
+             }}
+           />
+           {/* Center Icon */}
+           <Box className="absolute">
+             <IoSparkles className="text-blue-500 text-xl animate-pulse" />
+           </Box>
+         </Box>
+ 
+         {/* Clean Typography */}
+         <Stack spacing={0.5} alignItems="center">
+           <Typography 
+             variant="body1" 
+             fontWeight="600" 
+             color="text.primary"
+             sx={{ letterSpacing: '-0.01em' }}
+           >
+ Loading for our school latest Jobs Careers to stay updated
+           </Typography>
+           <Typography 
+             variant="caption" 
+             color="text.secondary"
+             className="flex items-center gap-1"
+           >
+             Fetching latest latest Careers in Our School
+           </Typography>
+         </Stack>
+       </Stack>
+     </Box>
+   );
+ }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 p-4 md:p-6">
       <Toaster position="top-right" richColors />
+      
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+          <div>
+            <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full border border-blue-200 mb-3">
+              <IoSparkles className="text-blue-500" />
+              <span className="text-blue-700 font-bold text-sm uppercase tracking-wider">
+                Career Opportunities
+              </span>
+            </div>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-2">
+              Join Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Academic Team</span>
+            </h1>
+            <p className="text-slate-600 text-lg max-w-2xl">
+              Shape the future of education at Katwanyaa High School
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+           <button
+  onClick={refreshData}
+  disabled={refreshing}
+  className="
+    inline-flex items-center gap-2
+    px-4 sm:px-5
+    py-2.5 sm:py-3
+    rounded-xl
+    bg-white text-slate-700
+    border border-slate-200
+    font-medium text-sm sm:text-base
+    shadow-sm
+    transition-all duration-300
+    hover:shadow-md
+    disabled:opacity-50 disabled:cursor-not-allowed
+  "
+>
+  {refreshing && (
+    <CircularProgress
+      size={18}
+      thickness={4}
+      sx={{
+        color: "#0284c7", // tailwind cyan-600
+      }}
+    />
+  )}
 
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 text-white">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-32 -translate-y-32"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-48 translate-y-48"></div>
+  <span className="whitespace-nowrap">
+    {refreshing ? "Refreshing..." : "Refresh"}
+  </span>
+</button>
+            
+            <div className="flex bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-3 ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                <FiTrendingUp />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-3 ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                <FiList />
+              </button>
+            </div>
+          </div>
         </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-white bg-opacity-20 rounded-full blur-xl"></div>
-                <div className="relative p-6 bg-white bg-opacity-10 rounded-3xl backdrop-blur-sm border border-white border-opacity-20">
-                  <div className="flex items-center gap-3">
-                    <Mountain className="w-10 h-10 text-yellow-300" />
-                    <div className="text-left">
-                      <h2 className="text-2xl font-bold">Nyaribu</h2>
-                      <p className="text-sm text-blue-100">Secondary School</p>
-                    </div>
+
+        {/* Stats - Updated with real job count */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 mb-10">
+          {stats.map((stat, index) => {
+            // Update the open positions stat with real count
+            const updatedStat = { ...stat };
+            if (index === 0) {
+              updatedStat.number = jobs.length.toString();
+            }
+            return <ModernStatCard key={index} stat={updatedStat} />;
+          })}
+        </div>
+
+        {/* Main Content Layout */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* Left Column: Filters & Info */}
+          <div className="lg:w-1/4 space-y-6">
+            {/* School Info Card */}
+            <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                  <IoSchoolOutline className="text-blue-600 text-xl" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">Katwanyaa High School</h2>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <FiMapPin className="text-rose-500" />
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">Location</p>
+                    <p className="text-xs text-slate-500">Nakuru County, Kenya</p>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <FiMail className="text-blue-500" />
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">HR Email</p>
+                    <p className="text-xs text-slate-500">careers@katwanyaa.sc.ke</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <FiPhone className="text-emerald-500" />
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">Contact</p>
+                    <p className="text-xs text-slate-500">+254 712 345 678</p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100">
+                  <p className="text-xs text-slate-500 italic">
+                    "Excellence Through Discipline and Hard Work"
+                  </p>
                 </div>
               </div>
             </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-              Join Our <span className="text-yellow-300">Academic</span> Family
-            </h1>
-            <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Shape young minds and build your career at Nyaribu Secondary School, Kiganjo
-            </p>
-            
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto">
-              <div className="relative">
-                <FaFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search teaching positions, departments, or keywords..."
-                  className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 text-lg focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg"
-                />
-                <button className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-bold shadow hover:from-green-600 hover:to-green-700">
-                  Search
+
+            {/* Quick Application Card - Removed CV submission button */}
+            <div className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-[32px] p-6 text-white overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 blur-[50px]" />
+              <div className="relative z-10">
+                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-4">
+                  <FiBriefcase className="text-white text-xl" />
+                </div>
+                <h4 className="text-lg font-bold mb-2">Career Information</h4>
+                <p className="text-sm text-blue-200 mb-4">
+                  {jobs.length} positions currently available
+                </p>
+                <button
+                  onClick={() => toast.info('Contact HR for general inquiries')}
+                  className="w-full py-3 bg-white text-blue-900 rounded-2xl font-bold text-sm hover:bg-blue-50 transition-colors"
+                >
+                  Contact HR
                 </button>
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Wave Decoration */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg className="w-full h-12 text-white" viewBox="0 0 1440 120" fill="currentColor">
-            <path d="M0,64L48,80C96,96,192,128,288,128C384,128,480,96,576,85.3C672,75,768,85,864,101.3C960,117,1056,139,1152,138.7C1248,139,1344,117,1392,106.7L1440,96L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
-          </svg>
-        </div>
-      </div>
 
-      {/* Stats Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-xl text-white">
-                <FaBriefcase className="text-2xl" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-gray-900">{getActiveJobsCount()}</p>
-                <p className="text-sm text-gray-600">Open Positions</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl text-white">
-                <FaUsers className="text-2xl" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-gray-900">{getTotalPositions()}</p>
-                <p className="text-sm text-gray-600">Total Vacancies</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl text-white">
-                <FaUserGraduate className="text-2xl" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-gray-900">{getUniqueDepartmentsCount()}</p>
-                <p className="text-sm text-gray-600">Departments</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
-          <div className="lg:w-1/4">
-            <FilterSidebar
-              categories={categories}
-              departments={departments}
-              jobTypes={jobTypes}
-              selectedFilters={selectedFilters}
-              onFilterChange={handleFilterChange}
-              onClearFilters={handleClearFilters}
-            />
+          {/* Right Column: Job Listings */}
+          <div className="lg:w-3/4 space-y-8">
             
-            {/* School Info Card */}
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-5 mt-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-xl text-white">
-                  <FaSchool className="text-xl" />
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-slate-900 rounded-2xl shadow-lg">
+                  <FiBriefcase className="text-white text-2xl" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">Nyaribu Secondary</h3>
-                  <p className="text-sm text-gray-600">Kiganjo, Kenya</p>
+                  <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Current Openings</h2>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    {filteredJobs.length} Positions Available
+                  </p>
                 </div>
-              </div>
-              
-              <div className="space-y-3 text-sm text-gray-600 mb-4">
-                <div className="flex items-center gap-2">
-                  <Landmark className="w-4 h-4 text-green-400" />
-                  <span>Kiganjo, Central Kenya</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaPhone className="text-blue-400" />
-                  <a href={`tel:${schoolInfo.phone}`} className="text-blue-600 hover:text-blue-800">
-                    {schoolInfo.phone}
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaWhatsapp className="text-green-500" />
-                  <a 
-                    href={`https://wa.me/${schoolInfo.whatsapp.replace(/\D/g, '')}?text=Hello, I have a question about Nyaribu Secondary School job opportunities.`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-green-600 hover:text-green-800"
-                  >
-                    WhatsApp Available
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaEnvelope className="text-red-400" />
-                  <a 
-                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${schoolInfo.email}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    {schoolInfo.email}
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaClock className="text-amber-400" />
-                  <span>{schoolInfo.workingHours}</span>
-                </div>
-              </div>
-              
-              <div className="pt-4 border-t border-gray-200">
-                <p className="text-xs text-gray-500 italic">
-                  "{schoolInfo.motto}"
-                </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  Established {schoolInfo.established} • Excellence in Education
-                </p>
               </div>
             </div>
 
-            {/* Quick Contact Card */}
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-100 rounded-2xl shadow-xl border border-blue-200 p-5 mt-6">
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <FaPaperPlane className="text-blue-600" />
-                Quick Inquiry
-              </h3>
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <a
-                    href={`https://wa.me/${schoolInfo.whatsapp.replace(/\D/g, '')}?text=Hello, I have a question about job opportunities at Nyaribu Secondary School.`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 px-3 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-bold text-sm text-center hover:from-green-600 hover:to-green-700"
-                  >
-                    <FaWhatsapp className="inline mr-1" /> WhatsApp
-                  </a>
-                  <a
-                    href={`tel:${schoolInfo.phone}`}
-                    className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-bold text-sm text-center hover:from-blue-600 hover:to-blue-700"
-                  >
-                    <FaPhone className="inline mr-1" /> Call
-                  </a>
-                </div>
-                <a
-                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=${schoolInfo.email}&su=Job%20Inquiry%20-%20Nyaribu%20Secondary%20School`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full px-3 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-bold text-sm text-center hover:from-red-600 hover:to-red-700"
-                >
-                  <FaEnvelope className="inline mr-1" /> Gmail Inquiry
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Job Listings */}
-          <div className="lg:w-3/4">
-            {/* Controls Bar */}
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4 mb-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-lg font-bold text-gray-900">
-                    {filteredJobs.length} Job{filteredJobs.length !== 1 ? 's' : ''} Available
-                  </h2>
-                  
-                  <label className="flex items-center gap-2 cursor-pointer">
+            {/* Modern Search & Filter Bar */}
+            <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 p-3 rounded-[28px] shadow-sm">
+              <div className="flex flex-col md:flex-row items-center gap-3">
+                {/* Search */}
+                <div className="relative w-full flex-1 group">
+                  <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl shadow-sm transition-all focus-within:border-slate-900 focus-within:ring-4 focus-within:ring-slate-900/5">
+                    <div className="pl-5 pr-3 flex items-center justify-center pointer-events-none">
+                      <FiSearch className="text-slate-400 group-focus-within:text-slate-900 transition-colors" size={18} />
+                    </div>
                     <input
-                      type="checkbox"
-                      checked={showOnlyActive}
-                      onChange={(e) => setShowOnlyActive(e.target.checked)}
-                      className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                      type="text"
+                      placeholder="Search positions, departments, or keywords..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="w-full py-4 bg-transparent text-slate-900 placeholder:text-slate-400 font-semibold text-sm focus:outline-none"
                     />
-                    <span className="text-sm text-gray-700">Show only active jobs</span>
-                  </label>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  {/* Sort Dropdown */}
-                  <div className="relative">
-                    <select
-                      value={sortBy}
-                      onChange={(e) => handleSortChange(e.target.value)}
-                      className="appearance-none bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 pl-4 pr-8 py-2"
-                    >
-                      <option value="newest">Newest First</option>
-                      <option value="oldest">Oldest First</option>
-                      <option value="deadline">Deadline Soonest</option>
-                      <option value="positions">Most Positions</option>
-                    </select>
-                    <FaChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    {search && (
+                      <button
+                        onClick={() => setSearch('')}
+                        className="pr-4 text-slate-400 hover:text-slate-600"
+                      >
+                        <FiX size={18} />
+                      </button>
+                    )}
                   </div>
                 </div>
+
+                {/* Category Selector */}
+                <div className="relative w-full md:w-auto">
+                  <select 
+                    value={activeTab}
+                    onChange={(e) => setActiveTab(e.target.value)}
+                    className="w-full md:w-48 appearance-none px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-semibold text-slate-600 text-sm cursor-pointer focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  >
+                    {categories.map((category) => {
+                      const Icon = category.icon;
+                      return (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                </div>
+
+                {/* Reset Button */}
+                <button
+                  onClick={clearFilters}
+                  className="px-6 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <FiFilter size={16} />
+                  Reset
+                </button>
               </div>
+            </div>
+
+            {/* Modern Category Pills */}
+            <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
+              {categories.map((category) => {
+                const Icon = category.icon;
+                const isActive = activeTab === category.id;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setActiveTab(category.id)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all border ${
+                      isActive 
+                        ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100" 
+                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {Icon && <Icon className={isActive ? "text-white" : "text-slate-400"} />}
+                    {category.name}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Job Listings */}
-            {filteredJobs.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-12 text-center">
-                <div className="w-20 h-20 bg-gradient-to-r from-green-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-green-200">
-                  <FaUserGraduate className="w-10 h-10 text-gradient-to-r from-green-600 to-blue-600" />
+            <div className="relative">
+              {filteredJobs.length === 0 ? (
+                <ModernEmptyState onClearFilters={clearFilters} />
+              ) : (
+                <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-4'}>
+                  {filteredJobs.map((job, index) => (
+                    <ModernJobCard 
+                      key={job.id || index} 
+                      job={job} 
+                      onView={setSelectedJob}
+                      onBookmark={handleBookmark}
+                      onShare={handleShare}
+                      viewMode={viewMode}
+                    />
+                  ))}
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">No Current Openings</h3>
-                <p className="text-gray-600 text-lg mb-8 max-w-md mx-auto">
-                  {search || selectedFilters.categories.length > 0 || selectedFilters.departments.length > 0 || selectedFilters.jobTypes.length > 0
-                    ? 'No jobs match your search criteria. Try different filters.'
-                    : 'There are currently no active job openings. Please check back later or send us your CV for future opportunities.'}
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button 
-                    onClick={handleClearFilters}
-                    className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50"
-                  >
-                    Clear All Filters
-                  </button>
-                  <SubmitResumeButton email={schoolInfo.email} />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {filteredJobs.map((job, index) => (
-                  <PublicJobCard key={job?.id || index} job={job} />
-                ))}
-              </div>
-            )}
-
-            {/* Application Guide */}
-            <div className="mt-12 bg-gradient-to-r from-green-50 to-emerald-100 rounded-2xl shadow-xl p-8 border border-green-200">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <FaPaperPlane className="text-green-600" />
-                How to Apply - Step by Step Guide
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white rounded-xl p-5 border border-gray-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-green-100 rounded-lg text-green-600">
-                      <span className="font-bold text-lg">1</span>
-                    </div>
-                    <h4 className="font-bold text-gray-900">Choose Contact Method</h4>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Select WhatsApp for instant chat, Gmail for formal application, or Call for direct conversation.
-                  </p>
-                </div>
-                
-                <div className="bg-white rounded-xl p-5 border border-gray-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                      <span className="font-bold text-lg">2</span>
-                    </div>
-                    <h4 className="font-bold text-gray-900">Prepare Documents</h4>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Have your CV, academic certificates, cover letter, and ID copy ready in PDF format.
-                  </p>
-                </div>
-                
-                <div className="bg-white rounded-xl p-5 border border-gray-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-red-100 rounded-lg text-red-600">
-                      <span className="font-bold text-lg">3</span>
-                    </div>
-                    <h4 className="font-bold text-gray-900">Submit via Gmail</h4>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Use Gmail integration for professional submission. Attach all documents before sending.
-                  </p>
-                </div>
-                
-                <div className="bg-white rounded-xl p-5 border border-gray-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
-                      <span className="font-bold text-lg">4</span>
-                    </div>
-                    <h4 className="font-bold text-gray-900">Follow Up</h4>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Wait for response (3-5 working days) or follow up via WhatsApp for quick updates.
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Call to Action */}
-            <div className="mt-12 bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl shadow-2xl p-8 text-white text-center relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full translate-x-32 -translate-y-32"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-32 translate-y-32"></div>
-              </div>
-              
-              <div className="relative max-w-2xl mx-auto">
-                <h3 className="text-2xl font-bold mb-4">Need Help with Your Application?</h3>
-                <p className="text-blue-100 mb-6">
-                  Our HR team is ready to assist you with any questions about the application process
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <a
-                    href={`https://wa.me/${schoolInfo.whatsapp.replace(/\D/g, '')}?text=Hello, I need help with my job application at Nyaribu Secondary School.`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-3 bg-white text-green-600 rounded-xl font-bold shadow-lg hover:bg-gray-100 flex items-center justify-center gap-2"
-                  >
-                    <FaWhatsapp className="text-xl" /> WhatsApp Support
-                  </a>
-                  <a
-                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${schoolInfo.email}&su=Application%20Assistance%20-%20Nyaribu%20Secondary%20School`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-3 bg-transparent border-2 border-white text-white rounded-xl font-bold hover:bg-white hover:text-red-600 flex items-center justify-center gap-2"
-                  >
-                    <FaEnvelope /> Email Assistance
-                  </a>
+            {/* Call to Action Banner */}
+            <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 to-blue-900 rounded-3xl p-5 md:p-8 shadow-xl">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 blur-[80px] rounded-full -mr-24 -mt-24" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 blur-[80px] rounded-full -ml-24 -mb-24" />
+
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                
+                {/* Icon */}
+                <div className="shrink-0">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white flex items-center justify-center shadow-lg">
+                    <FiBriefcase className="text-slate-900 text-2xl md:text-3xl" />
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">
+                    Build Your Career With Us.
+                  </h3>
+                  <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto md:mx-0">
+                    Join a team dedicated to educational excellence and student success.
+                  </p>
+
+                  {/* Feature Grid */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+                    {[
+                      { label: 'Professional Growth', icon: FiTrendingUp, color: 'text-blue-300', bg: 'bg-blue-400/10' },
+                      { label: 'Competitive Package', icon: FiAward, color: 'text-amber-300', bg: 'bg-amber-400/10' },
+                      { label: 'Supportive Environment', icon: FiUsers, color: 'text-emerald-300', bg: 'bg-emerald-400/10' },
+                      { label: 'Career Development', icon: FaGraduationCap, color: 'text-purple-300', bg: 'bg-purple-400/10' }
+                    ].map((feature, idx) => (
+                      <div 
+                        key={idx} 
+                        className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10"
+                      >
+                        <div className={`p-1.5 rounded-md ${feature.bg} ${feature.color} shrink-0`}>
+                          <feature.icon size={16} />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 truncate">
+                          {feature.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1301,24 +1233,14 @@ export default function NyaribuCareersPage() {
         </div>
       </div>
 
-      {/* Footer Note */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="text-center text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} Nyaribu Secondary School. All rights reserved.</p>
-          <p className="mt-1">Job applications are processed within 5-7 working days. Preferred communication: WhatsApp & Gmail.</p>
-        </div>
-      </div>
+      {/* Job Detail Modal */}
+      {selectedJob && (
+        <ModernJobDetailModal
+          job={selectedJob}
+          onClose={() => setSelectedJob(null)}
+          onApply={handleApply}
+        />
+      )}
     </div>
   );
 }
-
-// Add CSS animations
-const styles = `
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-`;

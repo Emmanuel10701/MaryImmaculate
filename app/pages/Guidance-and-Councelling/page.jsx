@@ -30,24 +30,61 @@ import {
   FiSave,
   FiImage,
   FiUpload,
-  FiEye
+  FiEye,
+  FiChevronRight,
+  FiChevronLeft,
+  FiGrid,
+  FiList,
+  FiBookmark,
+  FiShare2,
+  FiDownload,
+  FiExternalLink,
+  FiZap,
+  FiTrendingUp,
+  FiGlobe,
+  FiCopy,
+  FiBell
 } from 'react-icons/fi';
 
-// Modern Modal Component
-const ModernModal = ({ children, open, onClose, maxWidth = '700px' }) => {
+import {
+  IoCalendarClearOutline,
+  IoSparkles,
+  IoRibbonOutline,
+  IoPeopleCircle,
+  IoStatsChart,
+  IoShareSocialOutline,
+  IoClose,
+  IoLocationOutline,
+  IoTimeOutline,
+  IoPersonOutline,
+  IoShareOutline,
+  IoNewspaperOutline
+} from 'react-icons/io5';
+import { CircularProgress, Box, Typography, Stack } from '@mui/material';
+
+// Modern Modal Component with Glass Morphism (Same as events)
+const ModernModal = ({ children, open, onClose, maxWidth = '800px', blur = true }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${blur ? 'backdrop-blur-md' : 'bg-black/50'}`}>
       <div 
-        className="bg-white rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden"
+        className="relative bg-white/95 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-white/40"
         style={{ 
-          width: '85%',
+          width: '90%',
           maxWidth: maxWidth,
-          maxHeight: '85vh',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
+          maxHeight: '90vh',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)'
         }}
       >
+        <div className="absolute top-4 right-4 z-10">
+          <button 
+            onClick={onClose}
+            className="p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white cursor-pointer border border-gray-200 shadow-sm"
+          >
+            <FiX className="text-gray-600 w-5 h-5" />
+          </button>
+        </div>
         {children}
       </div>
     </div>
@@ -55,212 +92,395 @@ const ModernModal = ({ children, open, onClose, maxWidth = '700px' }) => {
 };
 
 // Modern Card Component
-const CounselingCard = ({ session, onView, index }) => {
-  const [imageError, setImageError] = useState(false);
+const GlassCard = ({ children, className = '' }) => (
+  <div className={`bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 shadow-lg shadow-black/5 ${className}`}>
+    {children}
+  </div>
+);
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      academic: 'from-blue-500 to-cyan-500',
-      emotional: 'from-purple-500 to-pink-500',
-      devotion: 'from-purple-500 to-pink-500',
-      worship: 'from-purple-500 to-pink-500',
-      support: 'from-green-500 to-emerald-500',
-      drugs: 'from-red-500 to-rose-500',
-      health: 'from-green-500 to-emerald-500',
-      relationship: 'from-pink-500 to-rose-500',
-      peer: 'from-indigo-500 to-blue-500'
+// Modern Counseling Card with Enhanced Design
+const ModernCounselingCard = ({ session, onView, onBookmark, viewMode = 'grid' }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  const getCategoryStyle = (category) => {
+    const styles = {
+      academic: { 
+        gradient: 'from-blue-500 to-cyan-500', 
+        bg: 'bg-blue-50', 
+        text: 'text-blue-700',
+        border: 'border-blue-200',
+        iconBg: 'bg-blue-100',
+        iconColor: 'text-blue-600'
+      },
+      emotional: { 
+        gradient: 'from-purple-500 to-pink-500', 
+        bg: 'bg-purple-50', 
+        text: 'text-purple-700',
+        border: 'border-purple-200',
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600'
+      },
+      devotion: { 
+        gradient: 'from-indigo-500 to-purple-500', 
+        bg: 'bg-indigo-50', 
+        text: 'text-indigo-700',
+        border: 'border-indigo-200',
+        iconBg: 'bg-indigo-100',
+        iconColor: 'text-indigo-600'
+      },
+      worship: { 
+        gradient: 'from-amber-500 to-orange-500', 
+        bg: 'bg-amber-50', 
+        text: 'text-amber-700',
+        border: 'border-amber-200',
+        iconBg: 'bg-amber-100',
+        iconColor: 'text-amber-600'
+      },
+      support: { 
+        gradient: 'from-emerald-500 to-green-500', 
+        bg: 'bg-emerald-50', 
+        text: 'text-emerald-700',
+        border: 'border-emerald-200',
+        iconBg: 'bg-emerald-100',
+        iconColor: 'text-emerald-600'
+      },
+      drugs: { 
+        gradient: 'from-red-500 to-rose-500', 
+        bg: 'bg-red-50', 
+        text: 'text-red-700',
+        border: 'border-red-200',
+        iconBg: 'bg-red-100',
+        iconColor: 'text-red-600'
+      }
     };
-    return colors[category] || 'from-gray-500 to-gray-600';
+    return styles[category] || styles.academic;
   };
 
-  const getCategoryIcon = (category) => {
-    const icons = {
-      academic: FiTarget,
-      emotional: FiHeart,
-      devotion: FiHeart,
-      worship: FiMusic,
-      support: FiPhoneCall,
-      drugs: FiAlertTriangle,
-      health: FiUsers,
-      relationship: FiUsers,
-      peer: FiUsers
-    };
-    return icons[category] || FiBookOpen;
+  const formatDate = (dateString) => {
+    try {
+      if (dateString === 'Always Available' || dateString === 'Monday - Friday') {
+        return dateString;
+      }
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Available';
+    }
   };
 
-  const CategoryIcon = getCategoryIcon(session?.category);
-
-  return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-md">
-      {/* Image Section */}
-      {session?.image ? (
-        <div className="relative h-40 overflow-hidden">
-          <img
-            src={session.image}
-            alt={session.title}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            onError={() => setImageError(true)}
-          />
-          <div className="absolute top-3 right-3">
-            {session?.featured && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r from-yellow-500 to-orange-500">
-                <FiStar className="w-3 h-3 mr-1" />
-                Featured
-              </span>
-            )}
-            {session?.isSupport && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r from-green-500 to-emerald-500">
-                <FiPhoneCall className="w-3 h-3 mr-1" />
-                24/7 Support
-              </span>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="relative h-24 bg-gradient-to-r from-blue-500 to-cyan-500">
-          <div className="absolute top-3 right-3">
-            {session?.featured && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r from-yellow-500 to-orange-500">
-                <FiStar className="w-3 h-3 mr-1" />
-                Featured
-              </span>
-            )}
-          </div>
-          <div className="absolute bottom-3 left-3 text-white">
-            <h3 className="font-bold text-sm">{session?.counselor}</h3>
-          </div>
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="p-4">
-        {/* Category Badge */}
-        <div className="flex items-center justify-between mb-3">
-          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r ${getCategoryColor(session?.category)}`}>
-            <CategoryIcon className="w-3 h-3" />
-            {session?.type || 'Counseling Session'}
-          </span>
-          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-            session?.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' :
-            session?.status === 'completed' ? 'bg-blue-100 text-blue-800 border-blue-200' :
-            'bg-yellow-100 text-yellow-800 border-yellow-200'
-          } border`}>
-            {session?.status?.charAt(0).toUpperCase() + session?.status?.slice(1) || 'Scheduled'}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h3 className="font-bold text-gray-900 text-base mb-2 hover:text-blue-600 transition-colors">
-          {session?.title}
-        </h3>
-
-        {/* Description */}
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
-          {session?.description}
-        </p>
-
-        {/* Details */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            <FiCalendar className="text-gray-400 flex-shrink-0" />
-            <span className="truncate">
-              {session?.date === 'Always Available' || session?.date === 'Monday - Friday' 
-                ? session.date 
-                : session?.date 
-                  ? new Date(session.date).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric',
-                      year: 'numeric'
-                    }) 
-                  : 'Not set'
-              }
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            <FiClock className="text-gray-400 flex-shrink-0" />
-            <span>{session?.time || 'Not set'}</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            <FiUser className="text-gray-400 flex-shrink-0" />
-            <span className="truncate">{session?.counselor || 'Not specified'}</span>
-          </div>
-          {session?.location && (
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-              <FiMapPin className="text-gray-400 flex-shrink-0" />
-              <span className="truncate">{session.location}</span>
-            </div>
+  // Modern Grid View (Modernized & Static)
+  if (viewMode === 'grid') {
+    const theme = getCategoryStyle(session.category);
+    
+    return (
+      <div 
+        onClick={() => onView(session)}
+        className="relative bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden cursor-pointer"
+      >
+        {/* 1. Static Image Header */}
+        <div className="relative h-52 w-full shrink-0">
+          {session.image ? (
+            <img
+              src={session.image}
+              alt={session.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className={`w-full h-full bg-gradient-to-br ${theme.gradient}`} />
           )}
-        </div>
+          
+          {/* Permanent Badges (Top Left) */}
+          <div className="absolute top-4 left-4 flex flex-col gap-2">
+            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${theme.bg} ${theme.text} ${theme.border}`}>
+              {session.category || 'Counseling'}
+            </span>
+            {session.featured && (
+              <span className="px-3 py-1 bg-slate-900/90 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                <IoSparkles className="text-amber-400" /> Featured
+              </span>
+            )}
+            {session.isSupport && (
+              <span className="px-3 py-1 bg-emerald-900/90 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                <FiPhoneCall className="text-emerald-300" /> 24/7 Support
+              </span>
+            )}
+          </div>
 
-        {/* Priority and Action */}
-        <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${
-              session?.priority === 'high' ? 'bg-red-500' :
-              session?.priority === 'medium' ? 'bg-yellow-500' :
-              'bg-green-500'
-            }`} />
-            <span className="text-xs text-gray-500 capitalize">
-              {session?.priority || 'medium'} priority
+          {/* Permanent Bookmark Button (Top Right) */}
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onBookmark(session);
+              }}
+              className={`p-2.5 rounded-xl backdrop-blur-md border shadow-sm ${
+                isBookmarked 
+                  ? 'bg-amber-500 border-amber-500 text-white' 
+                  : 'bg-white/90 border-white/10 text-slate-700'
+              }`}
+            >
+              <FiBookmark className={isBookmarked ? 'fill-current' : ''} size={16} />
+            </button>
+          </div>
+
+          {/* Counselor Info (Bottom) */}
+          <div className="absolute bottom-0 inset-x-0 h-12 bg-gradient-to-t from-black/40 to-transparent flex items-end p-4">
+            <span className="text-[10px] font-bold text-white uppercase tracking-widest">
+              {session.counselor || 'School Counselor'}
             </span>
           </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onView();
-            }}
-            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
-          >
+        </div>
+
+        {/* 2. Content Area */}
+        <div className="p-6">
+          <h3 className="text-xl font-bold text-slate-900 mb-2 line-clamp-2 leading-tight">
+            {session.title}
+          </h3>
+          
+          <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+            {session.description || 'Professional counseling and support session for students.'}
+          </p>
+
+          {/* 3. Bento-Style Info Grid */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+              <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
+                <FiCalendar className={`${theme.iconColor}`} size={14} />
+              </div>
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">
+                {formatDate(session.date)}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+              <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
+                <FiClock className={`${theme.iconColor}`} size={14} />
+              </div>
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+                {session.time || 'Flexible'}
+              </span>
+            </div>
+
+            <div className="col-span-2 flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+              <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
+                <FiUser className={`${theme.iconColor}`} size={14} />
+              </div>
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+                {session.type || 'Counseling Session'}
+              </span>
+            </div>
+          </div>
+
+          {/* 4. Priority Indicator */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${
+                session.priority === 'high' ? 'bg-red-500 animate-pulse' :
+                session.priority === 'medium' ? 'bg-yellow-500' :
+                'bg-green-500'
+              }`} />
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {session.priority || 'medium'} priority
+              </span>
+            </div>
+            
+            <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+              session.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' :
+              session.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+              'bg-yellow-50 text-yellow-700 border-yellow-200'
+            }`}>
+              {session.status || 'Upcoming'}
+            </div>
+          </div>
+
+          {/* 5. Final Action Button */}
+          <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
             View Details
-            <FiArrowRight className="w-3 h-3" />
+            <FiArrowRight size={18} />
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // List View
+  return (
+    <div 
+      onClick={() => onView(session)}
+      className="relative bg-white rounded-[24px] border border-slate-100 p-4 shadow-sm cursor-pointer transition-colors active:bg-slate-50"
+    >
+      <div className="flex gap-5">
+        {/* Image Container */}
+        <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-sm">
+          {session.image ? (
+            <img
+              src={session.image}
+              alt={session.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className={`w-full h-full bg-gradient-to-br ${getCategoryStyle(session.category).gradient}`} />
+          )}
+          <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl"></div>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
+          <div>
+            {/* Metadata Row */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                  getCategoryStyle(session.category).bg
+                } ${getCategoryStyle(session.category).text} ${
+                  getCategoryStyle(session.category).border
+                }`}>
+                  {session.category || 'Support'}
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                  {formatDate(session.date)}
+                </span>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBookmark(session);
+                  }}
+                  className={`p-1.5 rounded-lg transition-colors ${
+                    isBookmarked ? 'text-amber-500 bg-amber-50' : 'text-slate-300 hover:text-slate-500'
+                  }`}
+                >
+                  <FiBookmark className={isBookmarked ? 'fill-current' : ''} size={14} />
+                </button>
+              </div>
+            </div>
+
+            <h3 className="text-base font-bold text-slate-900 leading-snug line-clamp-2 mb-2">
+              {session.title}
+            </h3>
+
+            <p className="text-slate-500 text-xs line-clamp-2 mb-3">
+              {session.description}
+            </p>
+          </div>
+
+          {/* Footer: Details & Action */}
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex items-center gap-4 text-xs text-slate-500">
+              <div className="flex items-center gap-1">
+                <FiUser className="text-slate-400" size={12} />
+                <span className="font-semibold">{session.counselor}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <FiClock className="text-slate-400" size={12} />
+                <span>{session.time}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-1 text-blue-600 font-bold text-[11px] uppercase tracking-wider">
+              View
+              <FiArrowRight size={12} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-// Support Team Card
-const SupportTeamCard = ({ member, onContact }) => {
+// Modern Support Team Card
+const ModernSupportTeamCard = ({ member, onContact }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const getRoleStyle = (role) => {
+    const styles = {
+      '24/7 Student Support': { gradient: 'from-emerald-500 to-green-500', icon: FiPhoneCall },
+      'Guidance Counselor': { gradient: 'from-blue-500 to-cyan-500', icon: FiUser },
+      '24/7 Guidance': { gradient: 'from-purple-500 to-pink-500', icon: FiShield }
+    };
+    return styles[role] || { gradient: 'from-slate-500 to-slate-600', icon: FiUser };
+  };
+
+  const roleStyle = getRoleStyle(member.role);
+  const Icon = roleStyle.icon;
+
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 overflow-hidden transition-all duration-300 hover:shadow-md">
-      <div className="p-5">
-        {/* Profile */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-            <FiUser className="text-white text-xl" />
-          </div>
-          <div>
-            <h3 className="font-bold text-gray-900 text-lg">{member.name}</h3>
-            <p className="text-blue-600 text-sm font-medium">{member.role}</p>
-          </div>
+    <div 
+      className="relative bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* 1. Hero Header */}
+      <div className={`relative h-32 bg-gradient-to-r ${roleStyle.gradient}`}>
+        {/* Abstract Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/20"></div>
+          <div className="absolute bottom-4 left-4 w-8 h-8 rounded-full bg-white/20"></div>
         </div>
 
-        {/* Specialization */}
-        <p className="text-gray-600 text-sm mb-4">{member.specialization}</p>
+        {/* Role Badge */}
+        <div className="absolute top-4 left-4">
+          <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/30">
+            {member.role.includes('24/7') ? 'Emergency' : 'Professional'}
+          </span>
+        </div>
 
-        {/* Availability and Contact */}
-        <div className="space-y-3 mb-4">
-          <div className="flex items-center gap-2 text-sm text-gray-700">
-            <FiClock className="text-green-500 flex-shrink-0" />
-            <span>{member.availability}</span>
+        {/* Priority Dot */}
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${member.priority === 'high' ? 'bg-red-500 animate-pulse' : 'bg-yellow-500'}`} />
+          <span className="text-[10px] font-bold text-white/80">{member.priority} priority</span>
+        </div>
+
+        {/* Center Icon */}
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl border-4 border-white">
+            <div className={`p-3 rounded-xl bg-gradient-to-r ${roleStyle.gradient}`}>
+              <Icon className="text-white text-xl" />
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-700">
-            <FiPhone className="text-blue-500 flex-shrink-0" />
-            <span>{member.contact}</span>
-          </div>
+        </div>
+      </div>
+
+      {/* 2. Content Area */}
+      <div className="pt-10 p-6">
+        <h3 className="text-xl font-bold text-slate-900 text-center mb-1">{member.name}</h3>
+        <p className="text-slate-500 text-sm text-center mb-4">{member.specialization}</p>
+
+        {/* Availability Chip */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <FiClock className="text-emerald-500" size={14} />
+          <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+            {member.availability}
+          </span>
         </div>
 
         {/* Description */}
-        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 mb-4">
-          <p className="text-gray-600 text-sm leading-relaxed">{member.description}</p>
+        <p className="text-slate-600 text-sm text-center mb-6 leading-relaxed">
+          {member.description}
+        </p>
+
+        {/* Contact Info */}
+        <div className="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+          <div className="flex items-center justify-center gap-2">
+            <FiPhone className="text-blue-500" size={16} />
+            <span className="text-slate-900 font-bold">{member.contact}</span>
+          </div>
         </div>
 
-        {/* Action */}
+        {/* Action Button */}
         <button
           onClick={onContact}
-          className="w-full py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+          className="w-full py-3.5 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform hover:shadow-lg"
         >
+          <FiPhoneCall size={16} />
           Contact Now
         </button>
       </div>
@@ -268,242 +488,426 @@ const SupportTeamCard = ({ member, onContact }) => {
   );
 };
 
-// Stats Card Component
-const StatCard = ({ stat }) => {
-  const Icon = stat.icon;
-  
+// Modern Detail Modal
+const ModernDetailModal = ({ session, onClose, onContact }) => {
+  if (!session) return null;
+
+  const getCategoryStyle = (category) => {
+    const styles = {
+      academic: { gradient: 'from-blue-500 to-cyan-500', icon: FiTarget },
+      emotional: { gradient: 'from-purple-500 to-pink-500', icon: FiHeart },
+      devotion: { gradient: 'from-indigo-500 to-purple-500', icon: FiHeart },
+      worship: { gradient: 'from-amber-500 to-orange-500', icon: FiMusic },
+      support: { gradient: 'from-emerald-500 to-green-500', icon: FiPhoneCall },
+      drugs: { gradient: 'from-red-500 to-rose-500', icon: FiAlertTriangle }
+    };
+    return styles[category] || { gradient: 'from-slate-500 to-slate-600', icon: FiBookOpen };
+  };
+
+  const categoryStyle = getCategoryStyle(session.category);
+  const CategoryIcon = categoryStyle.icon;
+
+  const formatFullDate = (dateString) => {
+    if (dateString === 'Always Available' || dateString === 'Monday - Friday') {
+      return dateString;
+    }
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4 transition-all duration-300 hover:shadow-md">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <p className="text-xs font-medium text-gray-600 mb-1">{stat.label}</p>
-          <p className="text-lg font-bold text-gray-900">{stat.number}</p>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-sm">
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col">
+        
+        {/* Close Button */}
+        <button 
+          onClick={onClose}
+          className="absolute top-5 right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90"
+        >
+          <IoClose size={24} />
+        </button>
+
+        {/* 1. Hero Image */}
+        <div className="relative h-[40vh] sm:h-[350px] w-full shrink-0">
+          {session.image ? (
+            <img
+              src={session.image}
+              alt={session.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className={`w-full h-full bg-gradient-to-r ${categoryStyle.gradient}`} />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20" />
+          
+          {/* Badge Overlays */}
+          <div className="absolute bottom-6 left-6 flex gap-2">
+            <span className="px-4 py-1.5 bg-white shadow-xl rounded-full text-xs font-bold uppercase tracking-widest text-slate-900">
+              {session.category || 'Counseling'}
+            </span>
+            {session.featured && (
+              <span className="px-4 py-1.5 bg-slate-900 text-white rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-1">
+                <IoSparkles className="text-amber-400" /> Featured
+              </span>
+            )}
+            {session.isSupport && (
+              <span className="px-4 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-bold uppercase tracking-widest">
+                24/7 Support
+              </span>
+            )}
+          </div>
         </div>
-        <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 bg-opacity-10 rounded-lg">
-          <Icon className="text-lg text-blue-600" />
+
+        {/* 2. Content Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-white">
+          <div className="max-w-2xl mx-auto space-y-8">
+            
+            {/* Title & Category */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-2xl bg-gradient-to-r ${categoryStyle.gradient}`}>
+                  <CategoryIcon className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tight">
+                    {session.title}
+                  </h2>
+                  <p className="text-slate-600 text-lg">{session.type || 'Counseling Session'}</p>
+                </div>
+              </div>
+
+              {/* Quick Info Bar */}
+              <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm font-semibold text-slate-500">
+                <div className="flex items-center gap-2">
+                  <IoCalendarClearOutline className="text-blue-500 text-lg" />
+                  {formatFullDate(session.date)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <IoTimeOutline className="text-emerald-500 text-lg" />
+                  {session.time || 'Flexible'}
+                </div>
+                <div className="flex items-center gap-2">
+                  <IoPersonOutline className="text-purple-500 text-lg" />
+                  {session.counselor || 'School Counselor'}
+                </div>
+                {session.location && (
+                  <div className="flex items-center gap-2">
+                    <IoLocationOutline className="text-rose-500 text-lg" />
+                    {session.location}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Description Block */}
+            <section className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">About this session</h3>
+              <div className="text-slate-700 leading-relaxed text-lg">
+                {session.description || 'Professional counseling and support session.'}
+              </div>
+              
+              {/* Additional Notes */}
+              {session.notes && (
+                <div className="pt-4 mt-4 border-t border-slate-100 text-slate-600 whitespace-pre-line">
+                  {session.notes}
+                </div>
+              )}
+            </section>
+
+            {/* Session Stats Grid */}
+            <section className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    session.priority === 'high' ? 'bg-red-500' :
+                    session.priority === 'medium' ? 'bg-yellow-500' :
+                    'bg-green-500'
+                  }`} />
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Priority</p>
+                </div>
+                <p className="font-bold text-slate-900 capitalize">{session.priority || 'medium'}</p>
+              </div>
+              
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <div className={`w-8 h-8 rounded-xl ${
+                  session.status === 'active' ? 'bg-green-100 text-green-600' :
+                  session.status === 'completed' ? 'bg-blue-100 text-blue-600' :
+                  'bg-yellow-100 text-yellow-600'
+                } flex items-center justify-center mb-2`}>
+                  <FiCalendar size={16} />
+                </div>
+                <p className="text-[10px] uppercase font-bold text-slate-400">Status</p>
+                <p className="font-bold text-slate-900 capitalize">{session.status || 'scheduled'}</p>
+              </div>
+
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-2">
+                  <FiShield size={16} />
+                </div>
+                <p className="text-[10px] uppercase font-bold text-slate-400">Confidentiality</p>
+                <p className="font-bold text-slate-900">100% Secure</p>
+              </div>
+
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-2">
+                  <FiStar size={16} />
+                </div>
+                <p className="text-[10px] uppercase font-bold text-slate-400">Rating</p>
+                <p className="font-bold text-slate-900">4.8/5.0</p>
+              </div>
+            </section>
+
+            {/* Support Session Info */}
+            {session.isSupport && (
+              <section className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-3xl p-6 border border-emerald-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 bg-emerald-500 rounded-2xl">
+                    <FiPhoneCall className="text-white text-2xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900">24/7 Support Available</h3>
+                    <p className="text-slate-600">Immediate assistance whenever you need it</p>
+                  </div>
+                </div>
+                <div className="space-y-2 text-slate-700">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                    <span>Available round the clock for emergencies</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                    <span>Confidential and secure conversations</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                    <span>Trained professional counselors</span>
+                  </div>
+                </div>
+              </section>
+            )}
+          </div>
+        </div>
+
+        {/* 3. Action Footer - Sticky */}
+        <div className="shrink-0 p-6 bg-slate-50/80 backdrop-blur-md border-t border-slate-100">
+          <div className="max-w-2xl mx-auto flex gap-3">
+            <button
+              onClick={session.isSupport ? onContact : () => toast.info('Joining session...')}
+              className="flex-[2] h-14 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+            >
+              {session.isSupport ? (
+                <>
+                  <FiPhoneCall size={20} />
+                  Contact Support
+                </>
+              ) : (
+                <>
+                  <FiCalendar size={20} />
+                  Join Session
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={onClose}
+              className="flex-1 h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+            >
+              <IoClose size={20} />
+              Close
+            </button>
+          </div>
         </div>
       </div>
-      <p className="text-xs text-gray-500">{stat.sublabel}</p>
     </div>
   );
 };
 
-// Session Detail Modal
-const SessionDetailModal = ({ session, onClose, onContact }) => {
-  if (!session) return null;
-
-  const getCategoryColor = (category) => {
-    const colors = {
-      academic: 'from-blue-500 to-cyan-500',
-      emotional: 'from-purple-500 to-pink-500',
-      devotion: 'from-purple-500 to-pink-500',
-      worship: 'from-purple-500 to-pink-500',
-      support: 'from-green-500 to-emerald-500',
-      drugs: 'from-red-500 to-rose-500'
-    };
-    return colors[category] || 'from-gray-500 to-gray-600';
-  };
-
-  const getCategoryIcon = (category) => {
-    const icons = {
-      academic: FiTarget,
-      emotional: FiHeart,
-      devotion: FiHeart,
-      worship: FiMusic,
-      support: FiPhoneCall,
-      drugs: FiAlertTriangle,
-      health: FiUsers,
-      relationship: FiUsers,
-      peer: FiUsers
-    };
-    return icons[category] || FiBookOpen;
-  };
-
-  const CategoryIcon = getCategoryIcon(session.category);
-
+// Stats Card Component (Modernized)
+const ModernStatCard = ({ stat }) => {
+  const Icon = stat.icon;
+  
   return (
-    <ModernModal open={true} onClose={onClose}>
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-4 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm">
-              <CategoryIcon className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">{session.title}</h2>
-              <p className="text-blue-100 opacity-90 text-sm">
-                {session.type} • {session.counselor}
-              </p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-1 rounded-lg cursor-pointer">
-            <FiX className="w-5 h-5" />
-          </button>
+    <div className="relative flex flex-col justify-between overflow-hidden bg-white border border-slate-100 p-4 md:p-6 rounded-[24px] md:rounded-[32px] shadow-sm">
+      {/* Top Section: Icon & Badge */}
+      <div className="flex items-start justify-between mb-4 md:mb-8">
+        <div className={`p-2 md:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br ${stat.gradient} bg-opacity-[0.08] text-slate-700`}>
+          <Icon className="text-lg md:text-2xl" />
         </div>
+        
+        {/* Status Dot */}
+        <div className="hidden xs:block h-2 w-2 rounded-full bg-slate-200" />
       </div>
 
-      {/* Content */}
-      <div className="max-h-[calc(85vh-150px)] overflow-y-auto">
-        <div className="p-4 space-y-6">
-          {/* Image */}
-          {session.image && (
-            <div className="relative h-48 rounded-lg overflow-hidden">
-              <img
-                src={session.image}
-                alt={session.title}
-                className="w-full h-full object-cover"
-              />
-              {session.featured && (
-                <div className="absolute top-4 left-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r from-yellow-500 to-orange-500">
-                    <FiStar className="w-3 h-3 mr-1" />
-                    Featured Session
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Status and Priority */}
-          <div className="flex gap-3">
-            <div className="flex-1 p-3 bg-gray-50 rounded-lg">
-              <p className="text-xs text-gray-600 font-medium">Status</p>
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                session?.status === 'active' ? 'bg-green-100 text-green-800' :
-                session?.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                'bg-yellow-100 text-yellow-800'
-              }`}>
-                {session?.status?.charAt(0).toUpperCase() + session?.status?.slice(1) || 'Scheduled'}
-              </span>
-            </div>
-            <div className="flex-1 p-3 bg-gray-50 rounded-lg">
-              <p className="text-xs text-gray-600 font-medium">Priority</p>
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r ${
-                session.priority === 'high' ? 'from-red-500 to-rose-500' :
-                session.priority === 'medium' ? 'from-amber-500 to-orange-500' :
-                'from-emerald-500 to-green-500'
-              }`}>
-                {session.priority}
-              </span>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <h3 className="text-sm font-bold text-gray-800 mb-2">Description</h3>
-            <p className="text-gray-600 text-sm leading-relaxed bg-gray-50 p-3 rounded-lg">
-              {session.description}
-            </p>
-          </div>
-
-          {/* Session Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <FiCalendar className="text-blue-500" />
-                <div>
-                  <p className="text-xs text-blue-600 font-medium">Date</p>
-                  <p className="text-sm font-bold text-gray-800">
-                    {session.date === 'Always Available' || session.date === 'Monday - Friday' 
-                      ? session.date 
-                      : session.date 
-                        ? new Date(session.date).toLocaleDateString('en-US', { 
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          }) 
-                        : 'Not set'
-                    }
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                <FiClock className="text-green-500" />
-                <div>
-                  <p className="text-xs text-green-600 font-medium">Time</p>
-                  <p className="text-sm font-bold text-gray-800">{session.time || 'Not set'}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-                <FiUser className="text-purple-500" />
-                <div>
-                  <p className="text-xs text-purple-600 font-medium">Counselor</p>
-                  <p className="text-sm font-bold text-gray-800">{session.counselor}</p>
-                </div>
-              </div>
-
-              {session.location && (
-                <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
-                  <FiMapPin className="text-red-500" />
-                  <div>
-                    <p className="text-xs text-red-600 font-medium">Location</p>
-                    <p className="text-sm font-bold text-gray-800">{session.location}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Notes */}
-          {session.notes && (
-            <div>
-              <h3 className="text-sm font-bold text-gray-800 mb-2">Additional Notes</h3>
-              <p className="text-gray-600 text-sm leading-relaxed bg-gray-50 p-3 rounded-lg">
-                {session.notes}
-              </p>
-            </div>
-          )}
-
-          {/* Support Session Info */}
-          {session.isSupport && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
-              <div className="flex items-center gap-3 mb-3">
-                <FiPhoneCall className="text-green-600 text-lg" />
-                <h3 className="font-bold text-gray-900">24/7 Support Available</h3>
-              </div>
-              <p className="text-gray-600 text-sm">
-                This support service is available {session.date === 'Always Available' ? '24/7' : 'during specified hours'} to help you with any concerns or challenges you may be facing.
-              </p>
-            </div>
-          )}
+      {/* Content Section */}
+      <div className="space-y-1">
+        {/* Label */}
+        <p className="text-[9px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
+          {stat.label}
+        </p>
+        
+        <div className="flex items-baseline gap-1">
+          {/* Number */}
+          <h3 className="text-xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+            {stat.number}
+          </h3>
         </div>
+
+        {/* Sublabel */}
+        <p className="text-[10px] md:text-sm font-medium text-slate-500 leading-tight line-clamp-1 md:line-clamp-none">
+          {stat.sublabel}
+        </p>
       </div>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-100">
-        <div className="flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg transition-all duration-200 font-medium"
-          >
-            <span className="text-sm">Close</span>
-          </button>
-          {session.isSupport ? (
-            <button
-              onClick={onContact}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2.5 rounded-lg transition-all duration-200 font-medium"
-            >
-              <span className="text-sm">Contact Support</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => toast.info('Session booking feature coming soon!')}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2.5 rounded-lg transition-all duration-200 font-medium"
-            >
-              <span className="text-sm">Join Session</span>
-            </button>
-          )}
-        </div>
-      </div>
-    </ModernModal>
+      {/* Decorative Background Element */}
+      <div className={`absolute -bottom-2 -right-2 w-12 h-12 md:w-20 md:h-20 opacity-[0.03] rounded-full bg-gradient-to-br ${stat.gradient} hidden md:block`} />
+    </div>
   );
 };
 
+// Helper functions for default sessions
+function getNextThursday() {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const daysUntilThursday = (4 - dayOfWeek + 7) % 7 || 7;
+  const nextThursday = new Date(today);
+  nextThursday.setDate(today.getDate() + daysUntilThursday);
+  return nextThursday.toISOString().split('T')[0];
+}
+
+function getNextSunday() {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const daysUntilSunday = (0 - dayOfWeek + 7) % 7 || 7;
+  const nextSunday = new Date(today);
+  nextSunday.setDate(today.getDate() + daysUntilSunday);
+  return nextSunday.toISOString().split('T')[0];
+}
+
+// API utility functions
+const fetchGuidanceSessions = async () => {
+  try {
+    const response = await fetch('/api/guidance');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    if (data.success && data.events) {
+      return data.events;
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching guidance sessions:', error);
+    toast.error('Failed to load guidance sessions');
+    return [];
+  }
+};
+
+// Transform API data to match session format
+const transformApiDataToSessions = (apiEvents) => {
+  return apiEvents.map(event => ({
+    id: event.id,
+    title: `${event.counselor} - ${event.category} Session`,
+    counselor: event.counselor,
+    date: event.date.split('T')[0], // Extract date part
+    time: event.time || 'Flexible',
+    type: event.type || 'Guidance Session',
+    category: event.category?.toLowerCase() || 'academic',
+    status: 'scheduled',
+    description: event.description || 'Professional guidance and counseling session.',
+    notes: event.notes || '',
+    priority: event.priority?.toLowerCase() || 'medium',
+    image: event.image || null,
+    featured: false,
+    location: 'Guidance Office',
+    isSupport: false
+  }));
+};
+
+// Default Devotion sessions (static, not from API)
+const DEFAULT_SESSIONS = [
+  {
+    id: 'devotion-thursday',
+    title: 'Thursday Devotion Session',
+    counselor: 'School Chaplain',
+    date: getNextThursday(),
+    time: '10:00 AM - 11:00 AM',
+    type: 'Spiritual Session',
+    category: 'devotion',
+    status: 'scheduled',
+    description: 'Weekly devotion session to strengthen students in religious study and worship. Strengthen your faith and build spiritual resilience.',
+    notes: 'Focus on spiritual growth and moral development. Bring your Bible and notebook.',
+    priority: 'high',
+    image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80',
+    featured: true,
+    location: 'School Chapel'
+  },
+  {
+    id: 'devotion-sunday',
+    title: 'Sunday Youth Worship',
+    counselor: 'Youth Leaders & CU',
+    date: getNextSunday(),
+    time: '2:00 PM - 4:00 PM',
+    type: 'Youth Worship',
+    category: 'worship',
+    status: 'scheduled',
+    description: 'Youth worship session with CU and YCS active worship groups. Experience powerful praise and worship with fellow students.',
+    notes: 'Music, praise, and fellowship. All students welcome.',
+    priority: 'high',
+    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
+    featured: true,
+    location: 'Nyaribu Church'
+  }
+];
+
+// 24/7 Support sessions (static)
+const SUPPORT_SESSIONS = [
+  {
+    id: 'support-1',
+    title: '24/7 Matron Support',
+    counselor: 'School Matron',
+    date: 'Always Available',
+    time: '24/7',
+    type: 'Emergency Support',
+    category: 'support',
+    status: 'active',
+    description: 'Round-the-clock health and wellness support. Immediate assistance for any health concerns or emergencies.',
+    notes: 'Available anytime for medical emergencies, health consultations, and wellness support.',
+    priority: 'high',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&q=80',
+    featured: true,
+    isSupport: true,
+    location: 'Matron\'s Office'
+  },
+  {
+    id: 'support-2',
+    title: '24/7 Patron Guidance',
+    counselor: 'School Patron',
+    date: 'Always Available',
+    time: '24/7',
+    type: 'Guidance Support',
+    category: 'support',
+    status: 'active',
+    description: 'Always available for academic guidance, personal development, and emergency counseling.',
+    notes: 'On-call support for academic guidance and personal development issues.',
+    priority: 'high',
+    image: 'https://images.unsplash.com/photo-1551836026-d5c88ac5d691?w=800&q=80',
+    featured: true,
+    isSupport: true,
+    location: 'Patron\'s Office'
+  }
+];
+
+// Main Component
 export default function StudentCounseling() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedSession, setSelectedSession] = useState(null);
@@ -511,7 +915,10 @@ export default function StudentCounseling() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [counselingSessions, setCounselingSessions] = useState([]);
+  const [guidanceSessions, setGuidanceSessions] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [viewMode, setViewMode] = useState('grid');
+  const [bookmarkedSessions, setBookmarkedSessions] = useState(new Set());
 
   // Support team data
   const supportTeam = [
@@ -520,9 +927,9 @@ export default function StudentCounseling() {
       name: 'School Matron',
       role: '24/7 Student Support',
       specialization: 'Health & Wellness Support',
-      availability: '24/7 Emergency Support',
+      availability: '24/7 Emergency',
       contact: 'Emergency Hotline',
-      description: 'Available round the clock for all student health and wellness concerns',
+      description: 'Available round the clock for all student health and wellness concerns including medical emergencies.',
       priority: 'high'
     },
     {
@@ -532,7 +939,7 @@ export default function StudentCounseling() {
       specialization: 'Academic & Personal Guidance',
       availability: '24/7 On-call',
       contact: 'Guidance Hotline',
-      description: 'Always available for academic guidance and personal development support',
+      description: 'Always available for academic guidance, personal development, and crisis intervention.',
       priority: 'high'
     },
     {
@@ -540,9 +947,9 @@ export default function StudentCounseling() {
       name: 'Ms. Nzyko',
       role: 'Guidance Counselor',
       specialization: 'Personal Counseling & Career Guidance',
-      availability: 'Mon-Fri, 8:00 AM - 4:00 PM',
+      availability: 'Mon-Fri, 8AM-4PM',
       contact: 'Guidance Office',
-      description: 'Professional counseling services for personal growth and career development',
+      description: 'Professional counseling services for personal growth, career development, and emotional support.',
       priority: 'medium'
     }
   ];
@@ -553,261 +960,87 @@ export default function StudentCounseling() {
       icon: FiCalendar, 
       number: '15+', 
       label: 'Active Sessions', 
-      sublabel: 'This month'
+      sublabel: 'This month',
+      gradient: 'from-blue-500 to-cyan-500'
     },
     { 
       icon: FiPhoneCall, 
       number: '24/7', 
       label: 'Support', 
-      sublabel: 'Available'
+      sublabel: 'Always available',
+      gradient: 'from-emerald-500 to-green-500'
     },
     { 
       icon: FiShield, 
       number: '100%', 
       label: 'Confidential', 
-      sublabel: 'All sessions'
+      sublabel: 'All sessions',
+      gradient: 'from-purple-500 to-pink-500'
     },
     { 
       icon: FiUsers, 
       number: '8', 
       label: 'Categories', 
-      sublabel: 'Available'
+      sublabel: 'Available support',
+      gradient: 'from-amber-500 to-orange-500'
     }
   ];
 
-  // Fetch counseling sessions
-  const fetchCounselingSessions = async (showRefresh = false) => {
-    if (showRefresh) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-    }
-    
+  // Categories for filtering
+  const categoryOptions = [
+    { id: 'all', name: 'All Sessions', icon: FiBookOpen, gradient: 'from-slate-500 to-slate-600' },
+    { id: 'academic', name: 'Academic', icon: FiTarget, gradient: 'from-blue-500 to-cyan-500' },
+    { id: 'emotional', name: 'Emotional', icon: FiHeart, gradient: 'from-purple-500 to-pink-500' },
+    { id: 'devotion', name: 'Devotion', icon: FiHeart, gradient: 'from-indigo-500 to-purple-500' },
+    { id: 'worship', name: 'Worship', icon: FiMusic, gradient: 'from-amber-500 to-orange-500' },
+    { id: 'support', name: '24/7 Support', icon: FiPhoneCall, gradient: 'from-emerald-500 to-green-500' },
+    { id: 'drugs', name: 'Drug Awareness', icon: FiAlertTriangle, gradient: 'from-red-500 to-rose-500' }
+  ];
+
+  // Load guidance sessions from API
+  const loadGuidanceSessions = async () => {
     try {
-      const response = await fetch('/api/guidance');
-      const result = await response.json();
+      const apiSessions = await fetchGuidanceSessions();
+      const transformedSessions = transformApiDataToSessions(apiSessions);
+      setGuidanceSessions(transformedSessions);
       
-      if (result.success) {
-        const apiSessions = result.events || [];
-        const allSessions = [...getDefaultSessions(), ...apiSessions, ...getSupportSessions()];
-        setCounselingSessions(allSessions);
-        
-        // Generate categories dynamically
-        const uniqueCategories = generateCategories(allSessions);
-        setCategories(uniqueCategories);
-        
-        if (showRefresh) {
-          toast.success('Data refreshed successfully!');
-        }
-      } else {
-        throw new Error(result.error || 'Failed to fetch sessions');
-      }
-    } catch (error) {
-      console.error('Error fetching sessions:', error);
-      toast.error('Failed to load counseling sessions');
-      const allSessions = getAllSessions();
+      // Combine default sessions with API sessions and support sessions
+      const allSessions = [
+        ...DEFAULT_SESSIONS,
+        ...SUPPORT_SESSIONS,
+        ...transformedSessions
+      ];
       setCounselingSessions(allSessions);
-      setCategories(generateCategories(allSessions));
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+      
+      // Extract unique categories from combined sessions
+      const uniqueCategories = [...new Set(allSessions.map(s => s.category))];
+      setCategories(uniqueCategories);
+      
+    } catch (error) {
+      console.error('Error loading guidance sessions:', error);
+      // Fallback to default sessions only
+      const allSessions = [...DEFAULT_SESSIONS, ...SUPPORT_SESSIONS];
+      setCounselingSessions(allSessions);
+      setGuidanceSessions([]);
     }
   };
 
-  // Helper functions
-  const generateCategories = (sessions) => {
-    const categorySet = new Set();
-    
-    const categories = [{ id: 'all', name: 'All Sessions', icon: FiBookOpen }];
-    
-    sessions.forEach(session => {
-      if (session.category && !categorySet.has(session.category)) {
-        categorySet.add(session.category);
-        const IconComponent = getCategoryIcon(session.category);
-        categories.push({
-          id: session.category,
-          name: getCategoryDisplayName(session.category),
-          icon: IconComponent
-        });
-      }
-    });
-    
-    return categories;
-  };
-
-  const getCategoryIcon = (category) => {
-    const icons = {
-      academic: FiTarget,
-      emotional: FiHeart,
-      devotion: FiHeart,
-      worship: FiMusic,
-      support: FiPhoneCall,
-      drugs: FiAlertTriangle,
-      health: FiUsers,
-      relationship: FiUsers,
-      peer: FiUsers
-    };
-    return icons[category] || FiBookOpen;
-  };
-
-  const getCategoryDisplayName = (category) => {
-    const names = {
-      academic: 'Academic',
-      emotional: 'Emotional',
-      devotion: 'Devotion',
-      worship: 'Worship',
-      support: '24/7 Support',
-      drugs: 'Drugs Awareness',
-      health: 'Health',
-      relationship: 'Relationship',
-      peer: 'Peer Support'
-    };
-    return names[category] || category.charAt(0).toUpperCase() + category.slice(1);
-  };
-
-  const getDefaultSessions = () => [
-    {
-      id: 1,
-      title: 'Thursday Devotion Session',
-      counselor: 'School Chaplain',
-      date: getNextThursday(),
-      time: '10:00 AM - 11:00 AM',
-      type: 'Spiritual Session',
-      category: 'devotion',
-      status: 'scheduled',
-      description: 'Weekly devotion session to strengthen students in religious study and worship. Strengthen your faith and build spiritual resilience.',
-      notes: 'Focus on spiritual growth and moral development. Bring your Bible and notebook.',
-      priority: 'high',
-      image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80',
-      featured: true,
-      location: 'School Chapel'
-    },
-    {
-      id: 2,
-      title: 'Sunday Youth Worship',
-      counselor: 'Youth Leaders & CU',
-      date: getNextSunday(),
-      time: '2:00 PM - 4:00 PM',
-      type: 'Youth Worship',
-      category: 'worship',
-      status: 'scheduled',
-      description: 'Youth worship session with CU and YCS active worship groups. Experience powerful praise and worship with fellow students.',
-      notes: 'Music, praise, and fellowship. All students welcome.',
-      priority: 'high',
-      image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
-      featured: true,
-      location: 'Nyaribu Church'
-    },
-    {
-      id: 3,
-      title: 'University Guidance Session',
-      counselor: 'Mr. James Omondi',
-      date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-      time: '10:00 AM - 11:00 AM',
-      type: 'Career Counseling',
-      category: 'academic',
-      status: 'scheduled',
-      description: 'Comprehensive university applications and career pathways discussion. Get guidance on course selection and scholarship opportunities.',
-      priority: 'medium',
-      image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80',
-      featured: false,
-      location: 'Guidance Office'
-    },
-    {
-      id: 4,
-      title: 'Drug Awareness Program',
-      counselor: 'Health Department',
-      date: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
-      time: '2:00 PM - 3:30 PM',
-      type: 'Awareness Workshop',
-      category: 'drugs',
-      status: 'scheduled',
-      description: 'Drug abuse awareness and prevention program. Learn about the dangers of substance abuse and healthy alternatives.',
-      priority: 'high',
-      image: 'https://images.unsplash.com/photo-1551376347-075b0121a65b?w=800&q=80',
-      featured: true,
-      location: 'School Hall'
-    }
-  ];
-
-  const getSupportSessions = () => [
-    {
-      id: 'support-1',
-      title: '24/7 Matron Support',
-      counselor: 'School Matron',
-      date: 'Always Available',
-      time: '24/7',
-      type: 'Emergency Support',
-      category: 'support',
-      status: 'active',
-      description: 'Round-the-clock health and wellness support. Immediate assistance for any health concerns or emergencies.',
-      notes: 'Available anytime for medical emergencies, health consultations, and wellness support.',
-      priority: 'high',
-      image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&q=80',
-      featured: true,
-      isSupport: true,
-      location: 'Matron\'s Office'
-    },
-    {
-      id: 'support-2',
-      title: '24/7 Patron Guidance',
-      counselor: 'School Patron',
-      date: 'Always Available',
-      time: '24/7',
-      type: 'Guidance Support',
-      category: 'support',
-      status: 'active',
-      description: 'Always available for academic guidance, personal development, and emergency counseling.',
-      notes: 'On-call support for academic guidance and personal development issues.',
-      priority: 'high',
-      image: 'https://images.unsplash.com/photo-1551836026-d5c88ac5d691?w=800&q=80',
-      featured: true,
-      isSupport: true,
-      location: 'Patron\'s Office'
-    },
-    {
-      id: 'support-3',
-      title: 'Personal Guidance - Ms. Nzyko',
-      counselor: 'Ms. Nzyko',
-      date: 'Monday - Friday',
-      time: '8:00 AM - 4:00 PM',
-      type: 'Professional Counseling',
-      category: 'support',
-      status: 'active',
-      description: 'Professional counseling services for personal growth, career guidance, and emotional support.',
-      notes: 'Schedule appointments for personalized counseling sessions.',
-      priority: 'medium',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80',
-      featured: true,
-      isSupport: true,
-      location: 'Guidance Office'
-    }
-  ];
-
-  const getAllSessions = () => {
-    return [...getDefaultSessions(), ...getSupportSessions()];
-  };
-
-  function getNextThursday() {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const daysUntilThursday = (4 - dayOfWeek + 7) % 7 || 7;
-    const nextThursday = new Date(today);
-    nextThursday.setDate(today.getDate() + daysUntilThursday);
-    return nextThursday.toISOString().split('T')[0];
-  }
-
-  function getNextSunday() {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const daysUntilSunday = (0 - dayOfWeek + 7) % 7 || 7;
-    const nextSunday = new Date(today);
-    nextSunday.setDate(today.getDate() + daysUntilSunday);
-    return nextSunday.toISOString().split('T')[0];
-  }
-
+  // Simulate data loading
   useEffect(() => {
-    fetchCounselingSessions();
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        // Load guidance sessions from API
+        await loadGuidanceSessions();
+      } catch (error) {
+        console.error('Error loading data:', error);
+        toast.error('Failed to load some data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
   // Filter sessions
@@ -820,85 +1053,239 @@ export default function StudentCounseling() {
     return matchesTab && matchesSearch;
   });
 
-  const handleContactSupport = (member) => {
-    toast.success(`Contacting ${member.name}...`);
-    // Implement contact logic here
+  const handleBookmark = (session) => {
+    const newBookmarked = new Set(bookmarkedSessions);
+    if (newBookmarked.has(session.id)) {
+      newBookmarked.delete(session.id);
+      toast.success('Removed from bookmarks');
+    } else {
+      newBookmarked.add(session.id);
+      toast.success('Bookmarked session');
+    }
+    setBookmarkedSessions(newBookmarked);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="text-gray-600 text-sm mt-3 font-medium">Loading Counseling Sessions...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleContactSupport = (member) => {
+    toast.success(`Contacting ${member.name}...`);
+    // Implement actual contact logic here
+  };
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    try {
+      // Refresh only the guidance sessions from API
+      await loadGuidanceSessions();
+      toast.success('Data refreshed!');
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      toast.error('Failed to refresh data');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Function to add new session from modal
+  const addSessionToCalendar = (newSessionData) => {
+    // Transform the new session data to match our format
+    const newSession = {
+      id: `guidance-${Date.now()}`, // Generate unique ID
+      title: `${newSessionData.counselor} - ${newSessionData.category} Session`,
+      counselor: newSessionData.counselor,
+      date: newSessionData.date || new Date().toISOString().split('T')[0],
+      time: newSessionData.time || 'Flexible',
+      type: newSessionData.type || 'Guidance Session',
+      category: newSessionData.category?.toLowerCase() || 'academic',
+      status: 'scheduled',
+      description: newSessionData.description || 'Professional guidance and counseling session.',
+      notes: newSessionData.notes || '',
+      priority: newSessionData.priority?.toLowerCase() || 'medium',
+      image: newSessionData.image || null,
+      featured: false,
+      location: newSessionData.location || 'Guidance Office',
+      isSupport: false,
+      createdAt: new Date().toISOString()
+    };
+    
+    // Add to guidance sessions
+    setGuidanceSessions(prev => [newSession, ...prev]);
+    
+    // Add to combined counseling sessions
+    setCounselingSessions(prev => [newSession, ...prev]);
+    
+    toast.success('Session added to calendar!');
+    
+    // In a real implementation, you would POST this to your API
+    // Example:
+    // fetch('/api/guidance', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(newSessionData)
+    // }).then(() => refreshData());
+  };
+
+if (loading) {
+  return (
+    <Box 
+      className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6"
+    >
+      <Stack 
+        spacing={3} 
+        alignItems="center"
+        className="bg-white p-10 rounded-[32px] shadow-sm border border-gray-100"
+      >
+        {/* Modern Layered Loader */}
+        <Box className="relative flex items-center justify-center">
+          {/* Background Ring */}
+          <CircularProgress
+            variant="determinate"
+            value={100}
+            size={64}
+            thickness={4}
+            sx={{ color: '#f1f5f9' }} // Very light gray track
+          />
+          {/* Actual Animated Loader */}
+          <CircularProgress
+            variant="indeterminate"
+            disableShrink
+            size={64}
+            thickness={4}
+            sx={{
+              color: '#2563eb', // Modern Blue
+              animationDuration: '800ms',
+              position: 'absolute',
+              left: 0,
+              [`& .MuiCircularProgress-circle`]: {
+                strokeLinecap: 'round',
+              },
+            }}
+          />
+          {/* Center Icon */}
+          <Box className="absolute">
+            <IoSparkles className="text-blue-500 text-xl animate-pulse" />
+          </Box>
+        </Box>
+
+        {/* Clean Typography */}
+        <Stack spacing={0.5} alignItems="center">
+          <Typography 
+            variant="body1" 
+            fontWeight="600" 
+            color="text.primary"
+            sx={{ letterSpacing: '-0.01em' }}
+          >
+Loading for our school latest Guidance and Counseling sessions  to stay updated
+          </Typography>
+          <Typography 
+            variant="caption" 
+            color="text.secondary"
+            className="flex items-center gap-1"
+          >
+            Fetching latest Guidance and Counseling sessions
+          </Typography>
+        </Stack>
+      </Stack>
+    </Box>
+  );
+}
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 p-4 md:p-6">
       <Toaster position="top-right" richColors />
       
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-          <div className="mb-4 lg:mb-0">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg">
-                <FiHeart className="text-white text-lg w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 via-purple-900 to-pink-900 bg-clip-text text-transparent">
-                  Student Counseling & Support
-                </h1>
-                <p className="text-gray-600 mt-1">Comprehensive support for academic, emotional, and spiritual well-being</p>
-              </div>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+          <div>
+            <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-full border border-purple-200 mb-3">
+              <FiHeart className="text-purple-500" />
+              <span className="text-purple-700 font-bold text-sm uppercase tracking-wider">
+                Student Support
+              </span>
             </div>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-2">
+              Guidance & <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">Counseling</span>
+            </h1>
+            <p className="text-slate-600 text-lg max-w-2xl">
+              Professional support for academic, emotional, and spiritual well-being
+            </p>
           </div>
-          <div className="flex gap-2 md:gap-3 flex-wrap">
-            <button
-              onClick={() => fetchCounselingSessions(true)}
-              disabled={refreshing}
-              className="inline-flex items-center gap-2 bg-white text-gray-700 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-xs border border-gray-200 font-medium disabled:opacity-50 text-sm md:text-base"
-            >
-              <FiRotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'Refreshing...' : 'Refresh'}
-            </button>
-            <button
-              onClick={() => toast.info('Request counseling feature coming soon!')}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 shadow-lg font-medium text-sm md:text-base"
-            >
-              <FiPlus className="w-4 h-4" />
-              Request Counseling
-            </button>
+          
+          <div className="flex items-center gap-3">
+         <button
+           onClick={refreshData}
+           disabled={refreshing}
+           className="
+             inline-flex items-center gap-2
+             px-4 sm:px-5
+             py-2.5 sm:py-3
+             rounded-xl
+             bg-white text-slate-700
+             border border-slate-200
+             font-medium text-sm sm:text-base
+             shadow-sm
+             transition-all duration-300
+             hover:shadow-md
+             disabled:opacity-50 disabled:cursor-not-allowed
+           "
+         >
+           {refreshing && (
+             <CircularProgress
+               size={18}
+               thickness={4}
+               sx={{
+                 color: "#0284c7", // tailwind cyan-600
+               }}
+             />
+           )}
+         
+           <span className="whitespace-nowrap">
+             {refreshing ? "Refreshing..." : "Refresh"}
+           </span>
+         </button>
+            
+            <div className="flex bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-3 ${viewMode === 'grid' ? 'bg-purple-50 text-purple-600' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                <FiGrid />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-3 ${viewMode === 'list' ? 'bg-purple-50 text-purple-600' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                <FiList />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 mb-10">
           {stats.map((stat, index) => (
-            <StatCard key={index} stat={stat} />
+            <ModernStatCard key={index} stat={stat} />
           ))}
         </div>
 
         {/* 24/7 Support Team Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg">
-                  <FiPhoneCall className="text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900">24/7 Support Team</h2>
+        <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-3xl p-6 md:p-8 border border-emerald-100 shadow-sm mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8">
+            <div className="flex items-center gap-4 mb-4 lg:mb-0">
+              <div className="p-3 bg-emerald-500 rounded-2xl shadow-lg">
+                <FiPhoneCall className="text-white text-2xl" />
               </div>
-              <p className="text-gray-600">Always available to support you anytime, anywhere</p>
+              <div>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">24/7 Support Team</h2>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  Always available for immediate assistance
+                </p>
+              </div>
             </div>
           </div>
           
           <div className="grid md:grid-cols-3 gap-6">
             {supportTeam.map((member) => (
-              <SupportTeamCard
+              <ModernSupportTeamCard
                 key={member.id}
                 member={member}
                 onContact={() => handleContactSupport(member)}
@@ -907,125 +1294,323 @@ export default function StudentCounseling() {
           </div>
         </div>
 
-        {/* Counseling Sessions */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xs border border-gray-200/60 p-4">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Available Counseling Sessions</h2>
-              <p className="text-gray-600">Browse and join sessions for support and guidance</p>
-            </div>
+        {/* Main Content Layout */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Column: Counseling Sessions */}
+          <div className="flex-1 min-w-0 space-y-8">
             
-            <div className="flex flex-col lg:flex-row gap-3 mt-4 lg:mt-0">
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search sessions..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm w-full lg:w-64"
-                />
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-purple-900 rounded-2xl shadow-lg">
+                  <FiHeart className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Counseling Sessions</h2>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    {filteredSessions.length} Sessions Available
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    • First 2 sessions (Devotion) are static • Guidance sessions loaded from API
+                  </p>
+                </div>
               </div>
-              
-              <select 
-                value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value)}
-                className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-pointer"
-              >
-                {categories.map((category) => {
-                  const Icon = category.icon;
-                  return (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  );
-                })}
-              </select>
             </div>
-          </div>
 
-          {/* Category Tabs */}
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-            {categories.map((category) => {
-              const Icon = category.icon;
-              return (
+            {/* Modern Search & Filter Section */}
+            <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 p-3 rounded-[28px] shadow-sm">
+              <div className="flex flex-col md:flex-row items-center gap-3">
+                {/* Search */}
+                <div className="relative w-full flex-1 group">
+                  <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl shadow-sm transition-all focus-within:border-slate-900 focus-within:ring-4 focus-within:ring-slate-900/5">
+                    <div className="pl-5 pr-3 flex items-center justify-center pointer-events-none">
+                      <FiSearch className="text-slate-400 group-focus-within:text-slate-900 transition-colors" size={18} />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search sessions, counselors, or topics..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full py-4 bg-transparent text-slate-900 placeholder:text-slate-400 font-semibold text-sm focus:outline-none"
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="pr-4 text-slate-400 hover:text-slate-600"
+                      >
+                        <FiX size={18} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Category Selector */}
+                <div className="relative w-full md:w-auto">
+                  <select 
+                    value={activeTab}
+                    onChange={(e) => setActiveTab(e.target.value)}
+                    className="w-full md:w-48 appearance-none px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-semibold text-slate-600 text-sm cursor-pointer focus:ring-2 focus:ring-purple-500/20 transition-all"
+                  >
+                    {categoryOptions.map((category) => {
+                      const Icon = category.icon;
+                      return (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                </div>
+
+                {/* Reset Button */}
                 <button
-                  key={category.id}
-                  onClick={() => setActiveTab(category.id)}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap text-sm font-medium ${
-                    activeTab === category.id
-                      ? 'bg-blue-500 text-white shadow-xs'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  onClick={() => {
+                    setSearchTerm('');
+                    setActiveTab('all');
+                  }}
+                  className="px-6 py-3.5 bg-purple-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-purple-200 hover:bg-purple-700 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  <Icon className="w-4 h-4" />
-                  {category.name}
+                  <FiFilter size={16} />
+                  Reset
                 </button>
-              );
-            })}
-          </div>
-
-          {/* Sessions Grid */}
-          {filteredSessions.length === 0 ? (
-            <div className="text-center py-12">
-              <FiUsers className="text-gray-400 w-16 h-16 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Sessions Found</h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                {searchTerm || activeTab !== 'all' 
-                  ? 'No sessions match your current filters. Try adjusting your search criteria.' 
-                  : 'No counseling sessions available at the moment.'
-                }
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredSessions.map((session, index) => (
-                <CounselingCard 
-                  key={session.id || index}
-                  session={session}
-                  index={index}
-                  onView={() => setSelectedSession(session)}
-                />
-              ))}
-            </div>
-          )}
-          
-          {/* Results Count */}
-          {filteredSessions.length > 0 && (
-            <div className="pt-4 mt-4 border-t border-gray-100">
-              <div className="text-sm text-gray-600">
-                Showing <span className="font-semibold">{filteredSessions.length}</span> of{' '}
-                <span className="font-semibold">{counselingSessions.length}</span> sessions
               </div>
             </div>
-          )}
+
+            {/* Modern Category Pills */}
+            <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
+              {categoryOptions.map((category) => {
+                const Icon = category.icon;
+                const isActive = activeTab === category.id;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setActiveTab(category.id)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all border ${
+                      isActive 
+                        ? "bg-purple-600 border-purple-600 text-white shadow-md shadow-purple-100" 
+                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {Icon && <Icon className={isActive ? "text-white" : "text-slate-400"} />}
+                    {category.name}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Sessions Grid */}
+            <div className="relative">
+              {filteredSessions.length === 0 ? (
+                <div className="bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 py-16 text-center">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                    <FiHeart className="text-slate-300 text-2xl" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">No sessions found</h3>
+                  <p className="text-slate-500 text-sm mt-1 mb-6">Try adjusting your filters or search.</p>
+                  <button 
+                    onClick={() => { setSearchTerm(''); setActiveTab('all'); }}
+                    className="px-6 py-2.5 bg-white border border-slate-200 rounded-full font-bold text-slate-700 hover:bg-slate-50 transition-all text-sm"
+                  >
+                    Reset Filters
+                  </button>
+                </div>
+              ) : (
+                <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-4'}>
+                  {filteredSessions.map((session, index) => (
+                    <ModernCounselingCard 
+                      key={session.id || index} 
+                      session={session} 
+                      onView={setSelectedSession}
+                      onBookmark={handleBookmark}
+                      viewMode={viewMode}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Quick Actions & Info */}
+          <div className="lg:w-[380px] space-y-6">
+            <div className="lg:sticky lg:top-24 space-y-6">
+              
+              {/* Quick Actions Card */}
+              <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                    <FiZap className="text-purple-600 text-xl" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900">Quick Actions</h2>
+                </div>
+
+                <div className="space-y-3">
+                  <button
+                    onClick={() => toast.info('Emergency contact feature coming soon!')}
+                    className="w-full p-4 bg-red-50 text-red-700 rounded-2xl border border-red-100 flex items-center justify-between hover:bg-red-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-red-100 rounded-xl">
+                        <FiPhoneCall className="text-red-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold">Emergency Contact</p>
+                        <p className="text-xs text-red-600">Immediate assistance</p>
+                      </div>
+                    </div>
+                    <FiArrowRight className="text-red-400" />
+                  </button>
+
+                  <button
+                    onClick={() => toast.info('Schedule session feature coming soon!')}
+                    className="w-full p-4 bg-blue-50 text-blue-700 rounded-2xl border border-blue-100 flex items-center justify-between hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-xl">
+                        <FiCalendar className="text-blue-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold">Schedule Session</p>
+                        <p className="text-xs text-blue-600">Book appointment</p>
+                      </div>
+                    </div>
+                    <FiArrowRight className="text-blue-400" />
+                  </button>
+
+                  <button
+                    onClick={() => toast.info('Resources feature coming soon!')}
+                    className="w-full p-4 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100 flex items-center justify-between hover:bg-emerald-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-emerald-100 rounded-xl">
+                        <FiBookOpen className="text-emerald-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold">Resources</p>
+                        <p className="text-xs text-emerald-600">Self-help guides</p>
+                      </div>
+                    </div>
+                    <FiArrowRight className="text-emerald-400" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Session Info Banner */}
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-[32px] p-6 border border-blue-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2.5 bg-blue-100 rounded-xl">
+                    <FiBookOpen className="text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">Session Types</h4>
+                    <p className="text-sm text-slate-600">Loaded from different sources</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-blue-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                      <span className="text-sm font-medium text-slate-700">Devotion Sessions</span>
+                    </div>
+                    <span className="text-xs font-bold text-blue-600">Static</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-blue-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                      <span className="text-sm font-medium text-slate-700">24/7 Support</span>
+                    </div>
+                    <span className="text-xs font-bold text-blue-600">Static</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-blue-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                      <span className="text-sm font-medium text-slate-700">Guidance Sessions</span>
+                    </div>
+                    <span className="text-xs font-bold text-blue-600">API ({guidanceSessions.length})</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Confidentiality Banner */}
+              <div className="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-[32px] p-6 text-white overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[50px]" />
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-4">
+                    <FiShield className="text-white text-xl" />
+                  </div>
+                  <h4 className="text-lg font-bold mb-2">100% Confidential</h4>
+                  <p className="text-sm text-purple-200 mb-4">
+                    All sessions are private and secure. Your information is protected.
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                      <span>Secure conversations</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                      <span>No judgment policy</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                      <span>Professional ethics</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Information Banner */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
-              <FiShield className="text-white text-xl" />
+        {/* Feature Banner */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-purple-900 to-indigo-800 rounded-3xl p-5 md:p-8 shadow-xl">
+          {/* Abstract Background */}
+          <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 blur-[80px] rounded-full -mr-24 -mt-24" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 blur-[80px] rounded-full -ml-24 -mb-24" />
+
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            
+            {/* Icon */}
+            <div className="shrink-0">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white flex items-center justify-center shadow-lg">
+                <FiHeart className="text-purple-600 text-2xl md:text-3xl" />
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-gray-900 text-lg mb-2">Confidential & Safe Environment</h3>
-              <p className="text-gray-600 mb-3">
-                All counseling sessions are confidential and conducted in a safe, supportive environment. 
-                Our trained counselors and support staff are here to help you with any challenges you may be facing.
+
+            {/* Content */}
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">
+                Your Well-being Matters.
+              </h3>
+              <p className="text-purple-200 text-sm md:text-base leading-relaxed max-w-xl mx-auto md:mx-0">
+                Professional support for academic success, emotional health, and personal growth.
               </p>
-              <div className="flex flex-wrap gap-4 text-sm">
-                <div className="flex items-center gap-2 text-gray-700">
-                  <FiShield className="text-green-500" />
-                  <span>100% Confidential</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-700">
-                  <FiHeart className="text-red-500" />
-                  <span>Non-judgmental Support</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-700">
-                  <FiPhoneCall className="text-blue-500" />
-                  <span>24/7 Availability</span>
-                </div>
+
+              {/* Feature Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+                {[
+                  { label: 'Confidential', icon: FiShield, color: 'text-blue-300', bg: 'bg-blue-400/10' },
+                  { label: '24/7 Support', icon: FiPhoneCall, color: 'text-emerald-300', bg: 'bg-emerald-400/10' },
+                  { label: 'Professional', icon: FiUser, color: 'text-purple-300', bg: 'bg-purple-400/10' },
+                  { label: 'Holistic', icon: FiHeart, color: 'text-pink-300', bg: 'bg-pink-400/10' }
+                ].map((feature, idx) => (
+                  <div 
+                    key={idx} 
+                    className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10"
+                  >
+                    <div className={`p-1.5 rounded-md ${feature.bg} ${feature.color} shrink-0`}>
+                      <feature.icon size={16} />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-purple-200 truncate">
+                      {feature.label}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -1034,12 +1619,12 @@ export default function StudentCounseling() {
 
       {/* Session Detail Modal */}
       {selectedSession && (
-        <SessionDetailModal
+        <ModernDetailModal
           session={selectedSession}
           onClose={() => setSelectedSession(null)}
           onContact={() => {
             setSelectedSession(null);
-            toast.success('Contacting support...');
+            toast.success('Connecting you to support...');
           }}
         />
       )}

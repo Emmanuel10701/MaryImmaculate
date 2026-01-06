@@ -32,12 +32,16 @@ import {
   FiGlobe as FiGlobeIcon,
   FiBookmark,
   FiBarChart2,
+  
   FiActivity as FiActivityIcon,
   FiChevronLeft,
   FiChevronRight,
   FiChevronUp,
-  FiExternalLink
+  FiExternalLink,
+  FiLoader 
 } from 'react-icons/fi';
+import { FiAlertCircle, FiPhoneCall } from 'react-icons/fi';
+
 import { 
   IoRocketOutline, 
   IoPeopleOutline,
@@ -59,7 +63,7 @@ import {
   IoBookOutline,
   IoDesktopOutline
 } from 'react-icons/io5';
-import { FaCalendarAlt, FaWhatsapp } from 'react-icons/fa';
+import { FaCalendarAlt, FaWhatsapp, FaChalkboardTeacher  } from 'react-icons/fa';
 import { 
   GiGraduateCap, 
   GiModernCity,
@@ -183,7 +187,7 @@ const [error, setError] = useState(null);
       gradient: "from-emerald-500 via-teal-400 to-green-600",
       description: "Beyond academics, we cultivate well-rounded individuals through 15+ clubs, competitive sports teams, and comprehensive life skills training. Our balanced approach ensures students develop essential competencies for lifelong success.",
       background: "bg-gradient-to-br from-emerald-900/90 via-green-900/80 to-teal-900/70",
-      image: "/student.jpg",
+      image: "/im.jpg",
       stats: { 
         teams: "10+ Sports Teams", 
         clubs: "15+ Clubs", 
@@ -201,14 +205,14 @@ const [error, setError] = useState(null);
       gradient: "from-cyan-500 via-blue-400 to-indigo-600",
       description: "Experience cutting-edge education with our technology-enhanced smart classrooms, advanced computer labs, and comprehensive digital literacy programs. We prepare students for careers in an increasingly technological world.",
       background: "bg-gradient-to-br from-cyan-900/90 via-blue-900/80 to-indigo-900/70",
-      image: "/student.jpg",
+      image: "/im2.jpeg",
       stats: { 
         labs: "3 Modern Labs", 
         tech: "Digital Classrooms", 
         innovation: "STEM Programs" 
       },
       features: ["Computer Studies", "Science Innovation", "Career Guidance", "Coding Classes"],
-      cta: "Discover Technology",
+      cta: "Apply Now",
       highlightColor: "cyan",
       testimonial: "\"The advanced computer labs gave me skills that directly contributed to securing my university scholarship in Computer Science.\" - 2022 Alumni",
       icon: IoRocketOutline
@@ -459,6 +463,7 @@ const [error, setError] = useState(null);
   };
 
 
+// School Video API Service - Separate function
 const fetchSchoolVideo = async () => {
   try {
     setLoading(true);
@@ -471,6 +476,11 @@ const fetchSchoolVideo = async () => {
     if (data.success && data.school) {
       setSchoolData(data.school);
       setError(null);
+      console.log('Video data loaded:', {
+        name: data.school.name,
+        videoType: data.school.videoType,
+        videoTour: data.school.videoTour
+      });
     } else {
       throw new Error(data.message || 'No school data found');
     }
@@ -483,6 +493,33 @@ const fetchSchoolVideo = async () => {
   }
 };
 
+// Call this when modal opens
+// Add this useEffect inside your ModernHero component
+useEffect(() => {
+  if (showVideoModal) {
+    console.log('Fetching video data...');
+    fetchSchoolVideo();
+  }
+}, [showVideoModal]);
+
+// And this helper function anywhere in your component:
+const extractYouTubeId = (url) => {
+  if (!url) return null;
+  
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/v\/([^&\n?#]+)/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  
+  return null;
+};
 
 
 // Usage example:
@@ -549,7 +586,7 @@ const useSchoolVideo = () => {
   const handleEventClick = () => router.push('/pages/eventsandnews');
   const handleStaffClick = () => router.push('/pages/staff');
   const handleAdmissionsClick = () => router.push('/pages/admissions');
-  const handleContactClick = () => router.push('/pages/contact');
+  const handleContactClick = () => router.push('/pages/admissions');
 
   // Modern Loading Screen with Enhanced Design
   const LoadingScreen = () => (
@@ -633,208 +670,348 @@ const useSchoolVideo = () => {
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
-     {/* Hero Section - Refined */}
-{/* Hero Section - Modern Refined */}
-<section className="relative min-h-screen flex items-center justify-center pt-16 md:pt-20 overflow-hidden bg-gray-900">
-  {/* Background Image with opacity */}
+{/* Modern Hero Section - Optimized */}
+<section className="relative min-h-screen  flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900">
+  {/* Animated Background Gradient */}
+  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-cyan-900/20" />
+  
+  {/* Background Images */}
   <div className="absolute inset-0">
-    <Image
-      src={heroSlides[currentSlide]?.image || "/student.jpg"}
-      alt={heroSlides[currentSlide]?.title || "Nyaribu Secondary School"}
-      fill
-      className="object-cover opacity-50"
-      priority
-      sizes="100vw"
-      quality={50}
-    />
+    {heroSlides.map((slide, index) => (
+      <div
+        key={index}
+        className={`absolute inset-0 transition-opacity duration-500 ${
+          currentSlide === index ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <Image
+          src={slide.image || "/im2.jpeg"}
+          alt={slide.title}
+          fill
+          className="object-cover"
+          priority={index === 0}
+          sizes="100vw"
+          quality={70}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/70 to-transparent" />
+      </div>
+    ))}
   </div>
   
-  {/* Dark Overlay */}
-  <div className="absolute inset-0 bg-black/60" />
+  {/* Reduced Floating Elements */}
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {[...Array(4)].map((_, i) => (
+      <div
+        key={i}
+        className="absolute w-1 h-1 bg-white/5 rounded-full"
+        style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+        }}
+      />
+    ))}
+  </div>
   
   {/* Main Content */}
-  <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8 md:py-12">
-    <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center max-w-7xl mx-auto">
-      
-      {/* Left Content */}
-      <div className="text-white text-center lg:text-left space-y-6">
-        {/* Badge - Modern */}
-        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 hover:border-white/30 transition-colors duration-300">
-          <div className="flex gap-1">
-            {[...Array(3)].map((_, i) => (
-              <FiStar key={i} className="text-yellow-400 text-sm" />
+  <div className="relative z-10 w-full px-3 py-8 sm:py-12 md:py-16">
+    <div className="max-w-6xl mx-auto">
+      <div className="grid lg:grid-cols-2 gap-6 md:gap-8 items-center">
+        
+        {/* Left Content */}
+        <div className="text-white space-y-4 md:space-y-6">
+          {/* Premium Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 text-xs font-medium text-white">
+            <div className="flex gap-0.5">
+              {[...Array(2)].map((_, i) => (
+                <FiStar key={i} className="text-amber-400 text-xs" />
+              ))}
+            </div>
+            <span>Excellence in Education</span>
+          </div>
+
+          {/* Main Heading */}
+          <div className="space-y-2">
+<h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white/90">
+  Welcome to 
+  <span className="bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-300 bg-clip-text text-transparent">
+    {" "}Nyaribu Secondary School 
+  </span>
+</h2>
+            
+            <h1 className="text-3xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white">
+              {heroSlides[currentSlide]?.title}
+            </h1>
+            
+            <p className="text-md sm:text-xl text-white">
+              {heroSlides[currentSlide]?.subtitle}
+            </p>
+          </div>
+
+          {/* Description */}
+          <p className="text-sm text-white leading-relaxed max-w-lg bg-white/5 rounded-xl p-3 border border-white/5">
+            {heroSlides[currentSlide]?.description}
+          </p>
+
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {heroSlides[currentSlide]?.features?.slice(0, 4).map((feature, idx) => (
+              <div 
+                key={idx}
+                className="bg-white/5 rounded-lg p-2 border border-white/5"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <FiCheckCircle className="text-blue-300 text-xs" />
+                  </div>
+                  <span className="text-white text-xs">{feature}</span>
+                </div>
+              </div>
             ))}
           </div>
-          <span className="text-sm font-medium text-white">
-            Rated #1 School in Nyeri Kiganjo
-          </span>
-          
 
-        </div>
-<h2
-  className="
-    text-2xl sm:text-3xl md:text-4xl
-    font-extrabold 
-     text-gray-300
-    mt-3 text-center tracking-tight
-  "
->
-  Welcome to Nyaribu Secondary School
-</h2>
-
-
-        {/* Main Heading with Colored Text */}
-        <div className="space-y-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
-              {heroSlides[currentSlide]?.title}
-            </span>
-          </h1>
-          
-          <p className="text-lg sm:text-xl text-white/90">
-            {heroSlides[currentSlide]?.subtitle}
-          </p>
-        </div>
-
-        {/* Description */}
-        <p className="text-base text-white/80 leading-relaxed max-w-2xl">
-          {heroSlides[currentSlide]?.description}
-        </p>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          {heroSlides[currentSlide]?.features?.map((feature, idx) => (
-            <div key={idx} className="flex items-center gap-3 px-3 py-2 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors duration-300">
-              <FiCheckCircle className="text-green-400 flex-shrink-0" />
-              <span className="text-white text-sm text-left">{feature}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Stats */}
-        <div className="flex flex-wrap gap-4 pt-4">
-          {Object.entries(heroSlides[currentSlide]?.stats || {}).map(([key, value]) => (
-            <div key={key} className="text-center">
-              <div className="text-xl font-bold text-white">
-                {value}
+          {/* Stats */}
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(heroSlides[currentSlide]?.stats || {}).slice(0, 3).map(([key, value]) => (
+              <div 
+                key={key}
+                className="bg-white/5 rounded-lg px-3 py-2 border border-white/5"
+              >
+                <div className="text-center">
+                  <div className="text-lg font-bold text-blue-300 mb-0.5">
+                    {value}
+                  </div>
+                  <div className="text-[9px] text-white/50 uppercase tracking-wider">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                  </div>
+                </div>
               </div>
-              <div className="text-xs text-white/70 capitalize">
-                {key}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-2 pt-4">
+            <button
+              onClick={handleAdmissionsClick}
+              className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg text-md"
+            >
+              <span className="flex items-center justify-center gap-2">
+                {heroSlides[currentSlide]?.cta}
+                <FiArrowRight className="text-xs" />
+              </span>
+            </button>
+
+            <button
+              onClick={handleWatchTour}
+              className="px-4 py-2 bg-white/5 text-white font-medium rounded-lg border border-white/10 text-md"
+            >
+              <span className="flex items-center justify-center gap-2">
+                <FiPlay className="text-xs" />
+                Virtual Tour
+              </span>
+            </button>
+          </div>
         </div>
 
-        {/* CTA Buttons - Modern */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-6">
-          <button
-            onClick={handleAdmissionsClick}
-            className="group px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-500 hover:shadow-lg border border-blue-500/30"
-          >
-            <span className="flex items-center justify-center gap-2">
-              {heroSlides[currentSlide]?.cta}
-              <FiArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
-            </span>
-          </button>
-
-          <button
-            onClick={handleWatchTour}
-            className="group px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-medium rounded-lg border border-gray-700 hover:border-gray-600 hover:from-gray-700 hover:to-gray-800 transition-all duration-500 hover:shadow-lg"
-          >
-            <span className="flex items-center justify-center gap-2">
-              <FiPlay className="group-hover:scale-110 transition-transform duration-300" />
-              Virtual Tour
-            </span>
-          </button>
+    {/* Right Content - Modern Layout */}
+<div className="relative mt-6 lg:mt-0">
+  {/* Modern Glass Card with Gradient Border */}
+  <div className="relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] rounded-3xl p-6 border border-white/10 shadow-2xl shadow-blue-900/20 backdrop-blur-xl">
+    
+    {/* Background Glow Effect */}
+    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 rounded-3xl"></div>
+    
+    {/* Floating Elements */}
+    <div className="absolute -top-2 -right-2 w-16 h-16 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
+    <div className="absolute -bottom-2 -left-2 w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-full blur-xl"></div>
+    
+    <div className="relative z-10">
+      {/* Card Header with Icon Badge */}
+      <div className="flex items-center gap-3 mb-8">
+        <div className="relative">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+            <FiTarget className="text-white text-lg" />
+          </div>
+          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-white/90"></div>
+        </div>
+        <div>
+          <h3 className="text-xl font-bold text-white tracking-tight">School Overview</h3>
+          <p className="text-white/60 text-sm">Real-time metrics & insights</p>
         </div>
       </div>
-
-      {/* Right Content - Modern Cards */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-        <div className="mb-6">
-          <h3 className="text-xl font-bold text-white mb-4">School Overview</h3>
-          
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 rounded-lg p-4 border border-blue-500/20 hover:border-blue-400/30 transition-colors duration-300">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center mb-3 mx-auto">
-                <FiUsers className="text-white text-lg" />
+      
+      {/* Stats Grid - Modern Layout */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl blur-md group-hover:blur-xl transition-all duration-300"></div>
+          <div className="relative bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-sm hover:border-blue-400/30 transition-all duration-300">
+            <div className="flex items-center justify-center mb-3">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/30 to-blue-600/30 flex items-center justify-center">
+                  <FiUsers className="text-blue-300 text-xl" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center border-2 border-white/5">
+                  <span className="text-[10px] font-bold text-white">+</span>
+                </div>
               </div>
-              <h4 className="text-white font-medium text-center text-sm mb-1">Student Capacity</h4>
-              <p className="text-white/70 text-center text-xs">400+ Enrolled</p>
             </div>
-            
-            <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 rounded-lg p-4 border border-green-500/20 hover:border-green-400/30 transition-colors duration-300">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center mb-3 mx-auto">
-                <GiTeacher className="text-white text-lg" />
-              </div>
-              <h4 className="text-white font-medium text-center text-sm mb-1">Teaching Staff</h4>
-              <p className="text-white/70 text-center text-xs">15+ Qualified</p>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white mb-1 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">1,400+</div>
+              <div className="text-xs font-medium text-white/70 uppercase tracking-wider">Active Students</div>
             </div>
           </div>
-          
-          {/* Status Card */}
-          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-4 border border-purple-500/20 hover:border-purple-400/30 transition-colors duration-300">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-white font-medium text-sm">2025 Admissions</div>
-              <div className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded text-xs font-medium text-white">
+        </div>
+        
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl blur-md group-hover:blur-xl transition-all duration-300"></div>
+          <div className="relative bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-sm hover:border-emerald-400/30 transition-all duration-300">
+            <div className="flex items-center justify-center mb-3">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/30 to-green-600/30 flex items-center justify-center">
+                  <FaChalkboardTeacher className="text-emerald-300 text-xl" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-white/5">
+                  <span className="text-[10px] font-bold text-white">★</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white mb-1 bg-gradient-to-r from-white to-emerald-100 bg-clip-text text-transparent">15+</div>
+              <div className="text-xs font-medium text-white/70 uppercase tracking-wider">Expert Staff</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Admission Status - Modern Card */}
+      <div className="relative mb-8 group">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-purple-500/10 rounded-2xl blur-md group-hover:blur-xl transition-all duration-300"></div>
+        <div className="relative bg-gradient-to-r from-purple-500/15 to-pink-500/15 rounded-2xl p-5 border border-purple-500/20 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <div className="text-white font-semibold text-sm mb-0.5">{new Date().getFullYear()} Admissions</div>
+              <div className="text-white text-xs">spots  are ready available</div>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-md"></div>
+              <div className="relative px-4 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs font-bold text-white shadow-lg shadow-purple-500/30">
                 Open Now
               </div>
             </div>
-            <div className="text-white/70 text-xs">
-              Limited spots available. Deadline: February 20, 2026
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FiCalendar className="text-white text-sm" />
+              <span className="text-white text-xs">Deadline:</span>
             </div>
+       <div className="text-white font-medium text-xs px-3 py-1 bg-white/10 rounded-full">
+  Apply for {new Date().getFullYear()}
+</div>
+
           </div>
         </div>
+      </div>
 
-        {/* Quick Links */}
+      {/* Quick Links - Modern Design */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-white font-semibold text-sm">Quick Access</div>
+          <div className="text-[10px] text-white uppercase tracking-wider">Instant Navigation</div>
+        </div>
+        
         <div className="space-y-3">
-          <div className="text-white/70 text-sm">Quick Access</div>
           {[
-            { icon: FiCalendar, label: "Academic Calendar", color: "text-blue-400", action: handleEventClick },
-            { icon: IoPeopleOutline, label: "Meet Our Staff", color: "text-green-400", action: handleStaffClick },
-            { icon: FiBookOpen, label: "Admissions & Curriculum", color: "text-purple-400", action: handleAcademicsClick },
-            { icon: FiMapPin, label: "School Location and about us", color: "text-orange-400", action: handleContactClick }
+            { 
+              icon: FiCalendar, 
+              label: "Academic Calendar", 
+              gradient: "from-blue-500/20 to-cyan-500/20",
+              hoverGradient: "from-blue-500/30 to-cyan-500/30",
+              iconColor: "text-blue-300",
+              action: handleEventClick 
+            },
+            { 
+              icon: FiUsers, 
+              label: "Meet Our Staff", 
+              gradient: "from-emerald-500/20 to-green-500/20",
+              hoverGradient: "from-emerald-500/30 to-green-500/30",
+              iconColor: "text-emerald-300",
+              action: handleStaffClick 
+            },
+            { 
+              icon: FiBookOpen, 
+              label: "Admissions Info",
+              gradient: "from-purple-500/20 to-pink-500/20",
+              hoverGradient: "from-purple-500/30 to-pink-500/30",
+              iconColor: "text-purple-300",
+              action: handleAdmissionsClick 
+            },
+            { 
+              icon: FiPhoneCall, 
+              label: "Contact Us", 
+              gradient: "from-orange-500/20 to-yellow-500/20",
+              hoverGradient: "from-orange-500/30 to-yellow-500/30",
+              iconColor: "text-orange-300",
+              action: handleContactClick 
+            }
           ].map((link, idx) => (
             <button
               key={idx}
               onClick={link.action}
-              className="group w-full flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-300"
+              className="relative group w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <link.icon className={`text-lg ${link.color}`} />
+              {/* Background gradient on hover */}
+              <div className={`absolute inset-0 bg-gradient-to-r ${link.gradient} rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+              
+              <div className="relative z-10 flex items-center gap-3 w-full">
+                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${link.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                  <link.icon className={`${link.iconColor} text-base`} />
                 </div>
-                <span className="text-white text-sm">{link.label}</span>
+                <div className="flex-1 text-left">
+                  <div className="text-white font-medium text-sm">{link.label}</div>
+                  <div className="text-white text-xs">Click to explore →</div>
+                </div>
+                <FiArrowRight className="text-white group-hover:text-white transition-colors duration-300" />
               </div>
-              <FiArrowRight className="text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
             </button>
           ))}
         </div>
+        
+        {/* Status Indicator */}
+        <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            <span className="text-xs text-white">System Status:</span>
+          </div>
+          <span className="text-xs font-medium text-emerald-300 bg-emerald-500/10 px-2 py-1 rounded-full">
+            All Systems Operational
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
       </div>
     </div>
   </div>
 
   {/* Navigation Controls */}
-  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-    <div className="flex items-center gap-3">
+  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+    <div className="flex items-center gap-2">
       <button
         onClick={prevSlide}
-        className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors duration-300 hover:scale-105"
+        className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white text-xs"
         aria-label="Previous slide"
       >
         <FiChevronLeft />
       </button>
       
-      {/* Dots */}
-      <div className="flex gap-2">
+      {/* Progress Dots */}
+      <div className="flex gap-1">
         {heroSlides.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentSlide(idx)}
-            className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-              currentSlide === idx ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
-            }`}
+            className="w-1.5 h-1.5 rounded-full bg-white/20 data-[active=true]:bg-white"
+            data-active={currentSlide === idx}
             aria-label={`Go to slide ${idx + 1}`}
           />
         ))}
@@ -842,7 +1019,7 @@ const useSchoolVideo = () => {
       
       <button
         onClick={nextSlide}
-        className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors duration-300 hover:scale-105"
+        className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white text-xs"
         aria-label="Next slide"
       >
         <FiChevronRight />
@@ -850,13 +1027,26 @@ const useSchoolVideo = () => {
     </div>
   </div>
 
-  {/* Scroll Indicator */}
-  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-    <div className="flex flex-col items-center gap-1">
-      <span className="text-white/60 text-xs">Scroll to explore</span>
-      <div className="w-5 h-8 rounded-full border border-white/20 flex justify-center">
-        <div className="w-0.5 h-3 bg-white/60 rounded-full mt-2 animate-bounce" />
-      </div>
+  {/* Bottom Section */}
+  <div className="absolute bottom-0 left-0 right-0 z-10 overflow-hidden pointer-events-none">
+    <svg 
+      className="w-full h-12" 
+      viewBox="0 0 1440 60" 
+      fill="none" 
+      preserveAspectRatio="none"
+    >
+      <path 
+        d="M0,60 L1440,60 L1440,0 C1200,30 960,20 720,40 C480,60 240,30 0,50 Z" 
+        className="fill-white/5"
+      />
+    </svg>
+  </div>
+
+  {/* Slide Counter */}
+  <div className="absolute bottom-4 right-4 z-20">
+    <div className="text-white/60 text-xs">
+      <span className="text-white font-bold">{currentSlide + 1}</span>
+      <span className="text-white/40">/{heroSlides.length}</span>
     </div>
   </div>
 </section>
@@ -1339,7 +1529,9 @@ const useSchoolVideo = () => {
       />
 
 
-     {/* Video Modal */}
+
+
+
 {showVideoModal && (
   <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
     <div className="relative w-full max-w-6xl rounded-3xl overflow-hidden shadow-2xl">
@@ -1352,7 +1544,7 @@ const useSchoolVideo = () => {
           <div>
             <h4 className="text-white font-bold">Virtual Campus Tour</h4>
             <p className="text-white/60 text-sm">
-              {schoolData?.name || 'Nyaribu Secondary School'}
+              {schoolData?.name || 'Loading...'}
             </p>
           </div>
         </div>
@@ -1369,49 +1561,85 @@ const useSchoolVideo = () => {
       <div className="relative bg-black aspect-video">
         {loading ? (
           // Loading state
-          <div className="w-full h-full flex items-center justify-center">
-            <FiLoader className="animate-spin text-4xl text-white" />
+          <div className="w-full h-full flex flex-col items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+            <p className="text-white">Loading video tour...</p>
           </div>
         ) : error ? (
           // Error state
           <div className="w-full h-full flex flex-col items-center justify-center p-8">
             <FiAlertCircle className="text-5xl text-red-500 mb-4" />
-            <p className="text-white text-center mb-4">Unable to load video tour</p>
+            <p className="text-white text-center mb-4">{error}</p>
             <button
               onClick={fetchSchoolVideo}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
             >
-              Retry
+              Retry Loading
             </button>
           </div>
         ) : schoolData?.videoType === 'youtube' && schoolData?.videoTour ? (
           // YouTube Video
           <iframe
-            src={`https://www.youtube.com/embed/${extractYouTubeId(schoolData.videoTour)}?autoplay=1&rel=0&modestbranding=1`}
+            src={`https://www.youtube.com/embed/${extractYouTubeId(schoolData.videoTour)}?autoplay=1&rel=0&modestbranding=1&controls=1`}
             className="w-full h-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            title={`${schoolData?.name || 'School'} Virtual Tour`}
+            title={`${schoolData.name} Virtual Tour`}
           />
         ) : schoolData?.videoType === 'file' && schoolData?.videoTour ? (
           // Local MP4 Video
-          <video
-            src={schoolData.videoTour.startsWith('/') ? schoolData.videoTour : `/${schoolData.videoTour}`}
-            className="w-full h-full"
-            autoPlay
-            controls
-            title={`${schoolData?.name || 'School'} Virtual Tour`}
-            poster={schoolData?.videoThumbnail}
-          />
+          <div className="relative w-full h-full">
+            <video
+              src={schoolData.videoTour}
+              className="w-full h-full"
+              autoPlay
+              controls
+              title={`${schoolData.name} Virtual Tour`}
+              poster={schoolData?.videoThumbnail}
+              onLoadedData={() => console.log('Video loaded successfully')}
+              onError={(e) => {
+                console.error('Video loading error:', e);
+                const video = e.target;
+                if (video.error) {
+                  console.error('Video error details:', video.error);
+                  video.style.display = 'none';
+                  video.parentElement.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center justify-center p-8">
+                      <svg class="w-12 h-12 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p class="text-white text-center mb-2">Unable to load video file</p>
+                      <p class="text-white/60 text-sm text-center">
+                        The video file may be corrupted or in an unsupported format
+                      </p>
+                    </div>
+                  `;
+                }
+              }}
+            >
+              {/* Fallback message */}
+              <div className="w-full h-full flex flex-col items-center justify-center p-8">
+                <FiAlertCircle className="text-5xl text-gray-400 mb-4" />
+                <p className="text-white text-center">
+                  Your browser does not support the video tag.
+                </p>
+              </div>
+            </video>
+            
+            {/* Loading overlay */}
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center video-loading-overlay">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+            </div>
+          </div>
         ) : (
-          // Fallback to default video
-          <iframe
-            src="https://www.youtube.com/embed/iWHpv3ihfDQ?autoplay=1&rel=0&modestbranding=1"
-            className="w-full h-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            title="School Virtual Tour"
-          />
+          // No video available
+          <div className="w-full h-full flex flex-col items-center justify-center p-8">
+            <FiAlertCircle className="text-5xl text-gray-400 mb-4" />
+            <p className="text-white text-center mb-4">No video tour available</p>
+            <p className="text-white/60 text-sm text-center">
+              Please check back later for our virtual tour
+            </p>
+          </div>
         )}
       </div>
       
@@ -1419,19 +1647,22 @@ const useSchoolVideo = () => {
       <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-r from-transparent to-black/80 p-4">
         <div className="flex items-center justify-between">
           <div className="text-white/80 text-sm">
-            {schoolData?.description || 'Experience our campus from anywhere'}
+            {schoolData?.description?.substring(0, 100) + '...' || 'Experience our campus from anywhere'}
           </div>
           <button
             onClick={handleContactClick}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+            className="px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium rounded-lg hover:opacity-90 transition-all duration-300"
           >
-            Schedule Visit
+            Get To Know Us More
           </button>
         </div>
       </div>
     </div>
   </div>
 )}
+  
+
+ 
       <ChatBot />
 
       {/* Custom Animations */}

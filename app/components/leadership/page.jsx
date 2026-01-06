@@ -269,47 +269,60 @@ if (loading) {
           <div className="lg:col-span-8 flex flex-col bg-white rounded-2xl md:rounded-3xl shadow-xl border border-slate-100 overflow-hidden min-h-[600px] lg:min-h-[720px]">
             
             {/* Image Section - 50% taller */}
-            <div className="relative h-80 md:h-96 lg:h-[36rem] overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 to-purple-900/20 z-10"></div>
-              {featuredStaff.image ? (
-                <img
-                  src={featuredStaff.image.startsWith('/') ? featuredStaff.image : `/${featuredStaff.image}`}
-                  alt={featuredStaff.name}
-                  className="w-full h-full "
-                />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <div className="text-white text-center p-6 md:p-8">
-                    <GiGraduateCap className="text-6xl md:text-8xl mx-auto opacity-50" />
-                    <p className="mt-4 text-lg md:text-xl font-bold">{featuredStaff.name}</p>
-                    <p className="mt-2 text-xs md:text-sm opacity-90">{getRoleTitle(featuredStaff)}</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Overlay Content */}
-              <div className="absolute bottom-0 left-0 right-0 z-20 p-4 md:p-6 lg:p-8 bg-gradient-to-t from-black/80 via-black/50 to-transparent">
-                <span className={`px-3 md:px-4 py-1 md:py-2 ${getRoleColor(featuredStaff.role)} text-white text-xs font-bold uppercase tracking-widest rounded-full inline-block mb-2 md:mb-3`}>
-                  {getRoleTitle(featuredStaff)}
-                </span>
-                <h2 className="text-xl md:text-3xl lg:text-4xl font-black text-white">{featuredStaff.name}</h2>
-                <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-1 md:mt-2 text-white/90">
-                  <span className="flex items-center gap-1 text-xs md:text-sm">
-                    <FiMapPin className="text-xs" />
-                    {featuredStaff.department || 'Administration'}
-                  </span>
-                  {featuredStaff.phone && (
-                    <>
-                      <span className="hidden md:inline w-1 h-1 bg-white/50 rounded-full"></span>
-                      <span className="flex items-center gap-1 text-xs md:text-sm">
-                        <FiPhone className="text-xs" />
-                        {formatPhone(featuredStaff.phone)}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
+       {/* Image Section - Set to fill and anchor to top */}
+<div className="relative h-80 md:h-96 lg:h-[40rem] overflow-hidden">
+  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent z-10"></div>
+  
+  {featuredStaff.image ? (
+    <img
+      src={featuredStaff.image.startsWith('/') ? featuredStaff.image : `/${featuredStaff.image}`}
+      alt={featuredStaff.name}
+      /* object-cover makes it fill the space, object-top ensures we see the head/shoulders */
+      className="w-full h-full object-cover object-top"
+    />
+  ) : (
+    <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center">
+      <div className="text-white text-center p-6 md:p-8">
+        <GiGraduateCap className="text-6xl md:text-8xl mx-auto opacity-40" />
+        <p className="mt-4 text-xl md:text-2xl font-black tracking-tight">{featuredStaff.name}</p>
+        <p className="mt-2 text-sm md:text-base font-medium opacity-80 uppercase tracking-widest">{getRoleTitle(featuredStaff)}</p>
+      </div>
+    </div>
+  )}
+  
+  {/* Modernized Overlay: Darker bottom for text legibility, fading to transparent quickly */}
+  <div className="absolute inset-0 z-20 flex flex-col justify-end p-6 md:p-10 lg:p-12 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
+    <div className="transform transition-transform duration-500 hover:translate-x-2">
+      <span className={`px-4 py-1.5 ${getRoleColor(featuredStaff.role)} text-white text-[10px] md:text-xs font-black uppercase tracking-[0.2em] rounded-sm inline-block mb-3 shadow-lg`}>
+        {getRoleTitle(featuredStaff)}
+      </span>
+      
+      {/* Modern Gradient Title */}
+      <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-none tracking-tighter">
+        {featuredStaff.name.split(' ')[0]} 
+        <span className="block bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+          {featuredStaff.name.split(' ').slice(1).join(' ')}
+        </span>
+      </h2>
+
+      <div className="flex flex-wrap items-center gap-4 mt-4 text-white/80 font-medium">
+        <span className="flex items-center gap-2 text-sm md:text-base">
+          <FiMapPin className="text-blue-400" />
+          {featuredStaff.department || 'Administration'}
+        </span>
+        {featuredStaff.phone && (
+          <>
+            <span className="hidden md:inline w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+            <a href={`tel:${featuredStaff.phone}`} className="flex items-center gap-2 text-sm md:text-base hover:text-white transition-colors">
+              <FiPhone className="text-blue-400" />
+              {formatPhone(featuredStaff.phone)}
+            </a>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
 
             {/* Content Section */}
             <div className="flex-grow p-4 md:p-6 lg:p-8 -mt-4 bg-white relative rounded-t-2xl md:rounded-t-3xl shadow-[0_-20px_40px_rgba(0,0,0,0.03)] z-30">

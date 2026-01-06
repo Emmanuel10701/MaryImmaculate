@@ -152,7 +152,7 @@ export default function ModernNavbar() {
     },
     {
       name: 'Careers',
-      href: '/pages/career',
+      href: '/pages/careers',
       icon: FiBriefcase
     },
     {

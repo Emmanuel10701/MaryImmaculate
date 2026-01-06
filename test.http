@@ -1,269 +1,262 @@
-### =========================
-### NEWS 1
-### =========================
-POST http://localhost:3001/api/news
-Content-Type: multipart/form-data; boundary=---NEWS001
-
------NEWS001
-Content-Disposition: form-data; name="title"
-
-School Achieves Excellent KCSE Results
------NEWS001
-Content-Disposition: form-data; name="excerpt"
-
-Our school recorded outstanding KCSE performance this year.
------NEWS001
-Content-Disposition: form-data; name="fullContent"
-
-The school community celebrates remarkable KCSE results achieved through dedication, teamwork, disciplined learning, and strong collaboration between teachers, students, and parents.
------NEWS001
-Content-Disposition: form-data; name="date"
-
-2025-10-15
------NEWS001
-Content-Disposition: form-data; name="category"
-
-Academics
------NEWS001
-Content-Disposition: form-data; name="author"
-
-Principal
------NEWS001
-Content-Disposition: form-data; name="image"; filename="news1.jpg"
-Content-Type: image/jpeg
-
-< ./images/news1.jpg
------NEWS001--
-
-### =========================
-### NEWS 2
-### =========================
-POST http://localhost:3001/api/news
-Content-Type: multipart/form-data; boundary=---NEWS002
-
------NEWS002
-Content-Disposition: form-data; name="title"
-
-New Science Laboratory Commissioned
------NEWS002
-Content-Disposition: form-data; name="excerpt"
-
-A fully equipped science laboratory has been officially opened.
------NEWS002
-Content-Disposition: form-data; name="fullContent"
-
-The newly commissioned science laboratory is designed to support practical learning in Physics, Chemistry, and Biology, improving student engagement and examination performance.
------NEWS002
-Content-Disposition: form-data; name="date"
-
-2025-09-28
------NEWS002
-Content-Disposition: form-data; name="category"
-
-Infrastructure
------NEWS002
-Content-Disposition: form-data; name="author"
-
-Board of Management
------NEWS002
-Content-Disposition: form-data; name="image"; filename="news2.jpg"
-Content-Type: image/jpeg
-
-< ./images/news2.jpg
------NEWS002--
-
-### =========================
-### NEWS 3
-### =========================
-POST http://localhost:3001/api/news
-Content-Type: multipart/form-data; boundary=---NEWS003
-
------NEWS003
-Content-Disposition: form-data; name="title"
-
-Students Excel in Regional Sports
------NEWS003
-Content-Disposition: form-data; name="excerpt"
-
-Our students emerged champions in regional sports competitions.
------NEWS003
-Content-Disposition: form-data; name="fullContent"
-
-Through discipline, teamwork, and consistent training, our students performed exceptionally in regional sports competitions, earning trophies and advancing to national level.
------NEWS003
-Content-Disposition: form-data; name="date"
-
-2025-08-20
------NEWS003
-Content-Disposition: form-data; name="category"
-
-Sports
------NEWS003
-Content-Disposition: form-data; name="author"
-
-Games Department
------NEWS003
-Content-Disposition: form-data; name="image"; filename="news3.jpg"
-Content-Type: image/jpeg
-
-< ./images/news3.jpg
------NEWS003--
-
-### =========================
-### EVENT 1
-### =========================
-POST http://localhost:3001/api/events
-Content-Type: multipart/form-data; boundary=---EVENT001
-
------EVENT001
-Content-Disposition: form-data; name="title"
-
-Annual Prize Giving Day
------EVENT001
-Content-Disposition: form-data; name="category"
-
-Academic
------EVENT001
-Content-Disposition: form-data; name="description"
-
-The annual prize giving ceremony recognizes excellence in academics, leadership, discipline, and co-curricular achievements.
------EVENT001
-Content-Disposition: form-data; name="date"
-
-2025-11-10
------EVENT001
-Content-Disposition: form-data; name="time"
-
-09:00 AM
------EVENT001
-Content-Disposition: form-data; name="type"
-
-Physical
------EVENT001
-Content-Disposition: form-data; name="location"
-
-School Main Hall
------EVENT001
-Content-Disposition: form-data; name="featured"
-
-true
------EVENT001
-Content-Disposition: form-data; name="attendees"
-
-student
------EVENT001
-Content-Disposition: form-data; name="speaker"
-
-Chief Guest – County Director of Education
------EVENT001
-Content-Disposition: form-data; name="image"; filename="event1.jpg"
-Content-Type: image/jpeg
-
-< ./images/event1.jpg
------EVENT001--
-
-### =========================
-### EVENT 2
-### =========================
-POST http://localhost:3001/api/events
-Content-Type: multipart/form-data; boundary=---EVENT002
-
------EVENT002
-Content-Disposition: form-data; name="title"
-
-Career Guidance Seminar
------EVENT002
-Content-Disposition: form-data; name="category"
-
-Guidance
------EVENT002
-Content-Disposition: form-data; name="description"
-
-A career guidance session aimed at helping students understand career paths, subject choices, and future opportunities.
------EVENT002
-Content-Disposition: form-data; name="date"
-
-2025-10-05
------EVENT002
-Content-Disposition: form-data; name="time"
-
-10:30 AM
------EVENT002
-Content-Disposition: form-data; name="type"
-
-Physical
------EVENT002
-Content-Disposition: form-data; name="location"
-
-School Hall
------EVENT002
-Content-Disposition: form-data; name="featured"
-
-false
------EVENT002
-Content-Disposition: form-data; name="attendees"
-
-student
------EVENT002
-Content-Disposition: form-data; name="speaker"
-
-University Career Counselor
------EVENT002
-Content-Disposition: form-data; name="image"; filename="event2.jpg"
-Content-Type: image/jpeg
-
-< ./images/event2.jpg
------EVENT002--
-
-### =========================
-### EVENT 3
-### =========================
-POST http://localhost:3001/api/events
-Content-Type: multipart/form-data; boundary=---EVENT003
-
------EVENT003
-Content-Disposition: form-data; name="title"
-
-Staff Professional Development Workshop
------EVENT003
-Content-Disposition: form-data; name="category"
-
-Training
------EVENT003
-Content-Disposition: form-data; name="description"
-
-A professional development workshop focused on modern teaching strategies, curriculum delivery, and student-centered learning.
------EVENT003
-Content-Disposition: form-data; name="date"
-
-2025-09-12
------EVENT003
-Content-Disposition: form-data; name="time"
-
-02:00 PM
------EVENT003
-Content-Disposition: form-data; name="type"
-
-Physical
------EVENT003
-Content-Disposition: form-data; name="location"
-
-ICT Resource Center
------EVENT003
-Content-Disposition: form-data; name="featured"
-
-false
------EVENT003
-Content-Disposition: form-data; name="attendees"
-
-staff
------EVENT003
-Content-Disposition: form-data; name="speaker"
-
-Education Technology Consultant
------EVENT003
-Content-Disposition: form-data; name="image"; filename="event3.jpg"
-Content-Type: image/jpeg
-
-< ./images/event3.jpg
------EVENT003--
+### Test API Base URL
+@baseUrl = http://localhost:3001/api/career
+
+### 1. Senior Mathematics Teacher
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Senior Mathematics Teacher",
+  "department": "Mathematics",
+  "category": "Teaching",
+  "jobDescription": "We are seeking an experienced and passionate Senior Mathematics Teacher to lead our Advanced Mathematics program. The ideal candidate will be responsible for teaching Calculus, Advanced Algebra, and Statistics to Form 3 and Form 4 students. You will mentor junior mathematics teachers, develop innovative teaching methodologies, and prepare students for national examinations and mathematics olympiads. The role involves curriculum development, student assessment, and participating in departmental leadership meetings.",
+  "requirements": "• Minimum 5 years teaching experience in secondary mathematics\n• Proven track record of improving student performance in KCSE mathematics\n• Experience with modern teaching technologies and interactive learning platforms\n• Strong leadership and mentorship capabilities\n• Ability to develop and implement innovative teaching strategies\n• Excellent communication and interpersonal skills",
+  "experience": "5+ years teaching mathematics at secondary level with demonstrated leadership experience",
+  "qualifications": "• Bachelor of Education (Mathematics) or BSc Mathematics with PGDE\n• TSC registration mandatory\n• Master's degree in Mathematics Education preferred\n• Certification in Advanced Teaching Methodologies\n• ICT integration in teaching certification",
+  "positionsAvailable": 2,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-02-28T23:59:59.000Z",
+  "contactEmail": "hr.math@katwanyaa.sc.ke",
+  "contactPhone": "+254-720-111-222"
+}
+
+### 2. School Laboratory Technician
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Laboratory Technician (Sciences)",
+  "department": "Sciences",
+  "category": "Technical",
+  "jobDescription": "We require a meticulous Laboratory Technician to manage our state-of-the-art science laboratories. Responsibilities include preparing chemical solutions, maintaining laboratory equipment, ensuring safety protocols are followed, assisting teachers during practical sessions, and managing laboratory inventory. The technician will work across Biology, Chemistry, and Physics laboratories, ensuring all experiments are properly set up and all safety standards are maintained. Additional duties include training students on proper lab procedures and maintaining detailed records of all experiments conducted.",
+  "requirements": "• Experience in laboratory management and safety procedures\n• Knowledge of chemical handling and storage protocols\n• Ability to prepare and calibrate laboratory equipment\n• Familiarity with scientific apparatus maintenance\n• Strong organizational and record-keeping skills\n• Safety certification in laboratory management",
+  "experience": "3+ years in educational or research laboratory setting",
+  "qualifications": "• Diploma in Laboratory Technology or related field\n• Certificate in Laboratory Safety and Management\n• First Aid and Emergency Response certification\n• Knowledge of scientific equipment maintenance\n• Computer literacy for inventory management",
+  "positionsAvailable": 1,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-03-15T23:59:59.000Z",
+  "contactEmail": "sciences.dept@katwanyaa.sc.ke",
+  "contactPhone": "+254-720-333-444"
+}
+
+### 3. Guidance and Counseling Officer
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Guidance and Counseling Officer",
+  "department": "Student Welfare",
+  "category": "Administration",
+  "jobDescription": "We are looking for a compassionate and experienced Guidance and Counseling Officer to provide comprehensive counseling services to our diverse student population. The role involves conducting individual and group counseling sessions, career guidance programs, psychosocial support, and crisis intervention. You will develop and implement student welfare programs, conduct workshops on mental health, substance abuse prevention, and life skills. The officer will collaborate with teachers and parents to support student development and maintain confidential student records.",
+  "requirements": "• Experience in educational counseling or clinical psychology\n• Strong understanding of adolescent psychology and development\n• Ability to handle crisis situations and provide immediate support\n• Excellent listening and communication skills\n• Experience in developing and implementing counseling programs\n• Knowledge of career assessment tools and techniques",
+  "experience": "4+ years in educational counseling or related field",
+  "qualifications": "• Bachelor's degree in Counseling Psychology or related field\n• Registered with Kenya Counseling Association\n• Certification in Career Guidance and Assessment\n• Training in Adolescent Psychology and Development\n• Certificate in Trauma Counseling and Crisis Management",
+  "positionsAvailable": 1,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-03-10T23:59:59.000Z",
+  "contactEmail": "counseling@katwanyaa.sc.ke",
+  "contactPhone": "+254-720-555-666"
+}
+
+### 4. ICT Teacher and Systems Administrator
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "ICT Teacher & Systems Administrator",
+  "department": "Technical Department",
+  "category": "Teaching-Technical",
+  "jobDescription": "Dual-role position combining teaching Computer Studies with school ICT systems administration. Responsibilities include teaching computer studies to Forms 1-4, developing ICT curriculum, maintaining school network infrastructure, managing software systems, and providing technical support to staff and students. You will oversee computer laboratory maintenance, implement cybersecurity measures, train staff on educational technology tools, and manage the school's digital learning platforms.",
+  "requirements": "• Strong background in computer science and network administration\n• Experience teaching ICT at secondary level\n• Proficiency in network configuration and maintenance\n• Knowledge of educational technology platforms\n• Experience with server management and cybersecurity\n• Ability to train non-technical staff on ICT usage",
+  "experience": "4+ years in ICT teaching with systems administration experience",
+  "qualifications": "• Bachelor's degree in Computer Science or IT\n• Teaching certification (PGDE or equivalent)\n• Cisco/Microsoft network certification preferred\n• TSC registration\n• Certification in Educational Technology",
+  "positionsAvailable": 1,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-03-20T23:59:59.000Z",
+  "contactEmail": "ict.dept@katwanyaa.sc.ke",
+  "contactPhone": "+254-720-777-888"
+}
+
+### 5. Head of Languages Department
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Head of Languages Department",
+  "department": "Languages",
+  "category": "Leadership",
+  "jobDescription": "Leadership position responsible for overseeing the Languages Department comprising English, Kiswahili, French, and German programs. Duties include curriculum development and implementation, teacher supervision and mentorship, department budgeting, organizing language competitions and events, and ensuring high academic standards. The Head will lead pedagogical innovation, coordinate examination preparation, and represent the department in school leadership meetings.",
+  "requirements": "• Extensive experience in language teaching and department leadership\n• Strong administrative and management skills\n• Ability to mentor and develop teaching staff\n• Experience in curriculum development and implementation\n• Excellent communication and leadership abilities\n• Knowledge of modern language teaching methodologies",
+  "experience": "8+ years teaching experience with 3+ years in departmental leadership",
+  "qualifications": "• Master's degree in Linguistics, Literature, or Education\n• TSC registration with administrative endorsement\n• Leadership and Management certification\n• Subject specialization in English or Kiswahili\n• Experience in multicultural language programs",
+  "positionsAvailable": 1,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-03-05T23:59:59.000Z",
+  "contactEmail": "languages.hod@katwanyaa.sc.ke",
+  "contactPhone": "+254-720-999-000"
+}
+
+### 6. Sports and Games Coach
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Sports and Games Coach",
+  "department": "Physical Education",
+  "category": "Coaching",
+  "jobDescription": "Dynamic coach needed to lead our comprehensive sports program across multiple disciplines including athletics, football, basketball, volleyball, and swimming. Responsibilities include training student athletes, developing training schedules, coordinating inter-school competitions, managing sports facilities and equipment, and promoting physical fitness school-wide. The coach will identify and nurture talent, ensure safety protocols, and maintain sports records and achievements.",
+  "requirements": "• Professional coaching experience in multiple sports\n• Ability to train and motivate student athletes\n• Knowledge of sports safety and injury prevention\n• Experience in organizing sports events and competitions\n• Physical fitness and ability to demonstrate techniques\n• Strong leadership and team-building skills",
+  "experience": "5+ years coaching experience in educational or professional setting",
+  "qualifications": "• Diploma in Sports Science or Physical Education\n• Certified coach in at least two major sports\n• First Aid and Sports Injury Management certification\n• CPR and Emergency Response training\n• Valid driver's license",
+  "positionsAvailable": 2,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-03-25T23:59:59.000Z",
+  "contactEmail": "sports.dept@katwanyaa.sc.ke",
+  "contactPhone": "+254-721-111-222"
+}
+
+### 7. School Accountant
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "School Accountant",
+  "department": "Finance",
+  "category": "Administration",
+  "jobDescription": "We are seeking a detail-oriented School Accountant to manage all financial operations. Responsibilities include budgeting, financial reporting, fee collection management, payroll processing, procurement oversight, and financial compliance. The accountant will work closely with school administration to develop financial strategies, manage school assets, prepare audit reports, and ensure compliance with education financial regulations. Additional duties involve fee structure analysis and financial forecasting.",
+  "requirements": "• Extensive experience in accounting and financial management\n• Proficiency in accounting software (QuickBooks, Sage, etc.)\n• Strong knowledge of financial regulations and compliance\n• Experience in budgeting and financial reporting\n• Excellent analytical and problem-solving skills\n• Ability to work with minimal supervision",
+  "experience": "6+ years in accounting, preferably in educational institution",
+  "qualifications": "• CPA(K) or equivalent accounting certification\n• Bachelor's degree in Accounting or Finance\n• Proficiency in computerized accounting systems\n• Knowledge of education sector financial regulations\n• Strong excel and financial modeling skills",
+  "positionsAvailable": 1,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-03-08T23:59:59.000Z",
+  "contactEmail": "finance@katwanyaa.sc.ke",
+  "contactPhone": "+254-721-333-444"
+}
+
+### 8. Librarian and Resource Center Manager
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "School Librarian",
+  "department": "Academic Support",
+  "category": "Administration",
+  "jobDescription": "Professional librarian needed to manage our modern resource center and digital library. Responsibilities include cataloging and organizing resources, assisting students and staff with research, managing digital subscriptions and databases, conducting library orientation sessions, and promoting reading culture. The librarian will develop information literacy programs, manage acquisition of new materials, maintain library systems, and create engaging reading programs for different age groups.",
+  "requirements": "• Experience in library management and information systems\n• Knowledge of cataloging and classification systems\n• Proficiency in digital library management\n• Ability to promote reading and research culture\n• Strong organizational and customer service skills\n• Experience in educational resource management",
+  "experience": "4+ years in library management, preferably in educational setting",
+  "qualifications": "• Diploma in Library and Information Science\n• Certification in Library Management Systems\n• Knowledge of digital resource management\n• Computer literacy and database management skills\n• Training in information literacy instruction",
+  "positionsAvailable": 1,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-03-18T23:59:59.000Z",
+  "contactEmail": "library@katwanyaa.sc.ke",
+  "contactPhone": "+254-721-555-666"
+}
+
+### 9. Boarding Master/Mistress
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Boarding Master/Mistress",
+  "department": "Student Welfare",
+  "category": "Administration",
+  "jobDescription": "Responsible position overseeing boarding facilities and welfare of boarding students. Duties include supervising boarding staff, ensuring student discipline and safety, coordinating boarding activities, managing boarding facilities maintenance, and liaising with parents. The boarding master/mistress will implement boarding policies, handle emergencies, supervise meal times and prep sessions, and ensure a conducive living environment for all boarders.",
+  "requirements": "• Experience in boarding school management\n• Strong leadership and supervisory skills\n• Ability to handle student discipline and welfare issues\n• Experience in crisis management and emergency response\n• Excellent interpersonal and communication skills\n• Knowledge of child protection and safeguarding policies",
+  "experience": "5+ years in boarding school management or similar role",
+  "qualifications": "• Bachelor's degree in Education or Social Sciences\n• Certification in Child Protection and Safeguarding\n• First Aid and Emergency Response training\n• Leadership and Management certification\n• Experience in residential facility management",
+  "positionsAvailable": 2,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-03-12T23:59:59.000Z",
+  "contactEmail": "boarding@katwanyaa.sc.ke",
+  "contactPhone": "+254-721-777-888"
+}
+
+### 10. Music and Drama Teacher
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Music and Drama Teacher",
+  "department": "Creative Arts",
+  "category": "Teaching",
+  "jobDescription": "Creative teacher needed to lead our vibrant Music and Drama program. Responsibilities include teaching music theory and practical skills, directing school plays and musical productions, training choir and instrumental groups, preparing students for music and drama festivals, and developing creative arts curriculum. The teacher will organize performances, manage music equipment, and integrate technology in creative arts education.",
+  "requirements": "• Proficiency in music theory and practical music skills\n• Experience in directing plays and musical productions\n• Ability to play multiple musical instruments\n• Experience in preparing students for festivals and competitions\n• Strong creative and artistic abilities\n• Excellent performance and directing skills",
+  "experience": "4+ years teaching music and drama at secondary level",
+  "qualifications": "• Bachelor's degree in Music, Drama, or Performing Arts\n• Teaching certification (PGDE or equivalent)\n• TSC registration\n• Certification in specific musical instruments\n• Experience in festival preparation and management",
+  "positionsAvailable": 1,
+  "jobType": "Full-time",
+  "applicationDeadline": "2024-03-22T23:59:59.000Z",
+  "contactEmail": "arts.dept@katwanyaa.sc.ke",
+  "contactPhone": "+254-721-999-000"
+}
+
+### 11. Part-time Positions - French Language Tutor
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "French Language Tutor (Part-time)",
+  "department": "Languages",
+  "category": "Teaching",
+  "jobDescription": "Part-time position for a French language specialist to teach conversational French and prepare students for French language certifications. Responsibilities include developing French language curriculum for beginners to intermediate levels, conducting interactive language sessions, preparing students for DELF examinations, and organizing French cultural events. The tutor will work 3 days per week focusing on practical language skills and cultural immersion.",
+  "requirements": "• Native or near-native proficiency in French\n• Experience teaching French as a foreign language\n• Knowledge of DELF examination requirements\n• Ability to create engaging language learning activities\n• Strong cultural knowledge of French-speaking countries\n• Flexible schedule for part-time hours",
+  "experience": "3+ years teaching French language",
+  "qualifications": "• Bachelor's degree in French or related field\n• DELF/DALF certification\n• Teaching French as a Foreign Language certification\n• Native French speaker preferred\n• Experience with language teaching methodologies",
+  "positionsAvailable": 1,
+  "jobType": "Part-time",
+  "applicationDeadline": "2024-03-30T23:59:59.000Z",
+  "contactEmail": "languages@katwanyaa.sc.ke",
+  "contactPhone": "+254-722-111-222"
+}
+
+### 12. Internship Position - Teaching Assistant
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "jobTitle": "Teaching Assistant Intern",
+  "department": "Multiple Departments",
+  "category": "Internship",
+  "jobDescription": "One-year internship program for recent graduates interested in teaching careers. Interns will assist experienced teachers in classroom management, lesson preparation, student assessment, and extracurricular activities. The program includes mentorship, professional development workshops, and practical teaching experience across different subjects. Successful interns may be considered for permanent positions upon completion.",
+  "requirements": "• Recent graduate in Education or subject-specific degree\n• Passion for teaching and working with youth\n• Willingness to learn and adapt\n• Good communication and interpersonal skills\n• Ability to work in a team environment\n• Commitment to one-year internship program",
+  "experience": "No experience required (training provided)",
+  "qualifications": "• Bachelor's degree in any discipline\n• Interest in pursuing teaching career\n• Good academic record\n• Recommendation from university\n• Clean criminal record certificate",
+  "positionsAvailable": 3,
+  "jobType": "Internship",
+  "applicationDeadline": "2026-04-05T23:59:59.000Z",
+  "contactEmail": "internships@katwanyaa.sc.ke",
+  "contactPhone": "+254-722-333-444"
+}
+
+### --------------------- GET REQUESTS FOR TESTING ---------------------
+
+### Get all jobs (default pagination)
+GET {{baseUrl}}
+
+### Get jobs with pagination
+GET {{baseUrl}}?page=1&limit=5
+
+### Filter by category
+GET {{baseUrl}}?category=Teaching
+
+### Filter by department
+GET {{baseUrl}}?department=Mathematics
+
+### Filter by job type
+GET {{baseUrl}}?jobType=Part-time
+
+### Search for specific jobs
+GET {{baseUrl}}?search=teacher
+
+### Combined search with multiple filters
+GET {{baseUrl}}?category=Teaching&department=Languages&limit=3
+
+### Get expired jobs (for testing)
+GET {{baseUrl}}?applicationDeadline=2024-01-01
+
+### Test with non-existent category
+GET {{baseUrl}}?category=Engineering
+
+### Test with all parameters
+GET {{baseUrl}}?page=2&limit=3&category=Administration&search=manager

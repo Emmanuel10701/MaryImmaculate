@@ -553,7 +553,7 @@ const ModernEventsNewsSection = () => {
                           </div>
                           
                           <button 
-                            onClick={() => window.location.href = `/news/${currentNews.id}`}
+                            onClick={() => window.location.href = "pages/eventsandnews"}
                             className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg active:scale-[0.98] transition-all"
                           >
                             Read Full Article
@@ -565,6 +565,7 @@ const ModernEventsNewsSection = () => {
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
 
