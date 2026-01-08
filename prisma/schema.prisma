@@ -467,6 +467,7 @@ model StudentBulkUpload {
   skippedRows   Int               @default(0)
   errorRows     Int               @default(0)
   errorLog      Json?
+  metadata      Json? // Add this line
   students      databaseStudent[]
 
   @@map("student_bulk_uploads")
@@ -628,15 +629,18 @@ model FeeBalanceUpload {
   errorLog      Json?
   term          String
   academicYear  String
+  metadata      Json?        // ADD THIS FIELD
   feeBalances   FeeBalance[] @relation("UploadToFeeBalances")
 
   @@map("fee_balance_uploads")
 }
-
 model FeeBalance {
   id              String          @id @default(cuid())
   admissionNumber String
   student         databaseStudent @relation("StudentFeeBalances", fields: [admissionNumber], references: [admissionNumber], onDelete: Cascade)
+
+  // Add form field here
+  form String // Add this line
 
   term          String
   academicYear  String
@@ -667,7 +671,7 @@ model ResultUpload {
   validRows        Int             @default(0)
   skippedRows      Int             @default(0)
   errorRows        Int             @default(0)
-  errorLog         Json?
+  errorLog         Json? // This should allow null
   term             String?
   academicYear     String?
   uploadMode       String?         @default("create")
@@ -692,9 +696,23 @@ model StudentResult {
   updatedAt       DateTime         @updatedAt
 
   uploadBatchId String?
-  uploadBatch   ResultUpload? @relation(fields: [uploadBatchId], references: [id], onDelete: Cascade) // Keep this
+  uploadBatch   ResultUpload? @relation(fields: [uploadBatchId], references: [id], onDelete: Cascade)
 
   @@unique([admissionNumber, term, academicYear], name: "unique_student_term_year")
   @@index([admissionNumber])
   @@map("student_results")
+}
+
+// Add to your Prisma schema:
+model ResultsStats {
+  id                 String   @id @default("global_stats")
+  totalResults       Int      @default(0)
+  totalStudents      Int      @default(0)
+  averageScore       Float    @default(0)
+  topScore           Float    @default(0)
+  formDistribution   Json // Store JSON of form counts
+  termDistribution   Json // Store JSON of term counts
+  gradeDistribution  Json // Store JSON of grade distribution
+  subjectPerformance Json // Store JSON of subject averages
+  updatedAt          DateTime @updatedAt
 }

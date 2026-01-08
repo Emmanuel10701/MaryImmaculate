@@ -47,3 +47,5 @@ env/
 .venv*
 env/
 .env
+
+/app/generated/prisma

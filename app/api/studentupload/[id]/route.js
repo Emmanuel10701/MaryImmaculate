@@ -1,6 +1,6 @@
 // app/api/studentupload/[id]/route.js
 import { NextResponse } from 'next/server';
-import { prisma } from '@/libs/prisma';
+import { prisma } from '../../../../libs/prisma'; // ✅ named import
 
 // GET single student by ID
 export async function GET(request, { params }) {

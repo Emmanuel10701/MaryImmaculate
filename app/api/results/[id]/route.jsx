@@ -1,6 +1,6 @@
 // app/api/results/[id]/route.js
 import { NextResponse } from 'next/server';
-import { prisma } from '@/libs/prisma';
+import { prisma } from '../../../../libs/prisma'; // ✅ named import
 
 // Helper function to calculate grade
 const calculateGrade = (score) => {

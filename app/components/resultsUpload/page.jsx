@@ -25,7 +25,8 @@ import {
   FiRepeat, FiTrendingUp as FiTrendingUpIcon, FiTrendingDown as FiTrendingDownIcon,
   FiMoreVertical, FiExternalLink, FiCopy, FiTag, FiCodesandbox,
   FiPercent as FiPercentIcon, FiStar, FiAward as FiAwardIcon,
-  FiBook as FiBookIcon, FiTarget as FiTargetIcon, FiPlus
+  FiBook as FiBookIcon, FiTarget as FiTargetIcon, FiPlus,
+  FiLayers, FiDatabase, FiRefreshCw as FiRefreshCwIcon
 } from 'react-icons/fi';
 import {
   IoPeopleCircle, IoNewspaper, IoClose, IoStatsChart,
@@ -79,6 +80,571 @@ function ResultsLoadingSpinner({ message = "Loading academic results...", size =
       </div>
     </div>
   )
+}
+
+// Helper function for form colors
+function getFormColor(form) {
+  switch (form) {
+    case 'Form 1': return 'from-blue-500 to-blue-700';
+    case 'Form 2': return 'from-emerald-500 to-emerald-700';
+    case 'Form 3': return 'from-amber-500 to-amber-700';
+    case 'Form 4': return 'from-purple-500 to-purple-700';
+    default: return 'from-gray-400 to-gray-600';
+  }
+}
+
+function ResultsUploadStrategyModal({ open, onClose, onConfirm, loading, showNotification }) {
+  const [selectedForms, setSelectedForms] = useState([]);
+  const [targetForm, setTargetForm] = useState('');
+  const [term, setTerm] = useState('Term 1');
+  const [academicYear, setAcademicYear] = useState('2024/2025');
+  const [uploadMode, setUploadMode] = useState('new');
+
+  const handleFormToggle = (form) => {
+    if (selectedForms.includes(form)) {
+      setSelectedForms(selectedForms.filter(f => f !== form));
+    } else {
+      setSelectedForms([...selectedForms, form]);
+    }
+  };
+
+  const handleConfirm = () => {
+    if (uploadMode === 'new' && selectedForms.length === 0) {
+      showNotification('Please select at least one form for new upload', 'warning');
+      return;
+    }
+    
+    if (uploadMode === 'update' && !targetForm) {
+      showNotification('Please select a target form for update', 'warning');
+      return;
+    }
+    
+    if (!term || !academicYear) {
+      showNotification('Please select term and academic year', 'warning');
+      return;
+    }
+    
+    onConfirm({
+      uploadMode: uploadMode,
+      selectedForms,
+      targetForm,
+      term,
+      academicYear
+    });
+  };
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: {
+            xs: '95vw',    // Wider on mobile for better layout
+            sm: '90vw',    // Original width for small+
+            md: '600px'    // Original maxWidth
+          },
+          maxWidth: '600px',
+          maxHeight: {
+            xs: '85vh',    // Reduced height on mobile
+            sm: '90vh',    // Slightly reduced
+            md: '95vh'     // Original
+          },
+          bgcolor: 'background.paper',
+          borderRadius: 3,
+          boxShadow: 24,
+          overflow: 'hidden',
+          overflowY: 'auto' // Ensure content can scroll
+        }}
+      >
+        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 sm:p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 bg-white/20 rounded-xl">
+                <FiUpload className="text-lg sm:text-xl" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold">Results Upload Strategy</h2>
+                <p className="text-purple-100 opacity-90 text-sm sm:text-base">
+                  Choose how you want to upload results
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-lg transition"
+            >
+              <FiX className="text-lg sm:text-xl" />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Term *
+              </label>
+              <select
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+                className="w-full px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm sm:text-base"
+              >
+                <option value="Term 1">Term 1</option>
+                <option value="Term 2">Term 2</option>
+                <option value="Term 3">Term 3</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Academic Year *
+              </label>
+              <input
+                type="text"
+                required
+                value={academicYear}
+                onChange={(e) => setAcademicYear(e.target.value)}
+                placeholder="e.g., 2024/2025"
+                className="w-full px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm sm:text-base"
+              />
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Select Upload Type</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <div
+                onClick={() => setUploadMode('new')}
+                className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                  uploadMode === 'new'
+                    ? 'border-purple-500 bg-purple-50 shadow-lg'
+                    : 'border-gray-300 hover:border-purple-300'
+                }`}
+              >
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className={`p-1.5 sm:p-2 rounded-lg ${uploadMode === 'new' ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                    <FiPlus className={`text-base sm:text-lg ${uploadMode === 'new' ? 'text-purple-600' : 'text-gray-500'}`} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">Create New Results</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Add new result records</p>
+                  </div>
+                </div>
+                {uploadMode === 'new' && (
+                  <div className="mt-2 text-xs sm:text-sm text-purple-700">
+                    <FiCheckCircle className="inline mr-1" />
+                    Prevents duplicates by admission number + term + year
+                  </div>
+                )}
+              </div>
+
+              <div
+                onClick={() => setUploadMode('update')}
+                className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                  uploadMode === 'update'
+                    ? 'border-purple-500 bg-purple-50 shadow-lg'
+                    : 'border-gray-300 hover:border-purple-300'
+                }`}
+              >
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className={`p-1.5 sm:p-2 rounded-lg ${uploadMode === 'update' ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                    <FiDatabase className={`text-base sm:text-lg ${uploadMode === 'update' ? 'text-purple-600' : 'text-gray-500'}`} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">Update Existing Results</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">Replace results for specific form/term/year</p>
+                  </div>
+                </div>
+                {uploadMode === 'update' && (
+                  <div className="mt-2 text-xs sm:text-sm text-purple-700">
+                    <FiCheckCircle className="inline mr-1" />
+                    Replaces results for same student+term+year combination
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {uploadMode === 'new' && (
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
+                Select Forms <span className="text-xs sm:text-sm text-gray-500">(Choose one or more)</span>
+              </h3>
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                {['Form 1', 'Form 2', 'Form 3', 'Form 4'].map((form) => (
+                  <div
+                    key={form}
+                    onClick={() => handleFormToggle(form)}
+                    className={`p-2 sm:p-3 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
+                      selectedForms.includes(form)
+                        ? `border-purple-500 bg-gradient-to-r ${getFormColor(form)} text-white shadow-lg`
+                        : 'border-gray-300 hover:border-purple-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm sm:text-base">{form}</span>
+                      {selectedForms.includes(form) && (
+                        <FiCheckCircle className="text-white text-sm sm:text-base" />
+                      )}
+                    </div>
+                    <div className={`text-xs mt-0.5 sm:mt-1 ${selectedForms.includes(form) ? 'text-purple-100' : 'text-gray-500'}`}>
+                      Results for {form}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {selectedForms.length > 0 && (
+                <div className="mt-2 text-xs sm:text-sm text-gray-600">
+                  <FiInfo className="inline mr-1" />
+                  Only results for selected forms will be processed
+                </div>
+              )}
+            </div>
+          )}
+
+          {uploadMode === 'update' && (
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Select Form to Update</h3>
+              <div className="space-y-2 sm:space-y-3">
+                {['Form 1', 'Form 2', 'Form 3', 'Form 4'].map((form) => (
+                  <div
+                    key={form}
+                    onClick={() => setTargetForm(form)}
+                    className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                      targetForm === form
+                        ? `border-purple-500 bg-gradient-to-r ${getFormColor(form)} text-white shadow-lg`
+                        : 'border-gray-300 hover:border-purple-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className={`p-1.5 sm:p-2 rounded-lg ${targetForm === form ? 'bg-white/20' : 'bg-gray-100'}`}>
+                          <IoSchool className={`text-sm sm:text-base ${targetForm === form ? 'text-white' : 'text-gray-500'}`} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-sm sm:text-base">{form}</h4>
+                          <p className={`text-xs sm:text-sm ${targetForm === form ? 'text-purple-100' : 'text-gray-500'}`}>
+                            Update results for {term} {academicYear}
+                          </p>
+                        </div>
+                      </div>
+                      {targetForm === form && <FiCheckCircle className="text-white text-sm sm:text-base" />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {targetForm && (
+                <div className="mt-3 p-2 sm:p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <div className="flex items-start gap-2">
+                    <FiInfo className="text-purple-600 mt-0.5 text-sm sm:text-base" />
+                    <div>
+                      <p className="text-xs sm:text-sm text-purple-800 font-bold">Update Strategy:</p>
+                      <ul className="text-xs text-purple-700 mt-1 space-y-0.5 sm:space-y-1">
+                        <li>• Matches by admission number + term + academic year</li>
+                        <li>• Updates existing result records</li>
+                        <li>• Creates new results if combination doesn't exist</li>
+                        <li>• Preserves all historical data</li>
+                        <li>• Maintains grade consistency</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-200">
+            <button
+              onClick={onClose}
+              className="flex-1 py-2 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm sm:text-base"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={loading || !term || !academicYear || 
+                (uploadMode === 'new' && selectedForms.length === 0) ||
+                (uploadMode === 'update' && !targetForm)}
+              className="flex-1 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 hover:shadow-lg transition-all text-sm sm:text-base"
+            >
+              {loading ? (
+                <>
+                  <CircularProgress size={16}  className="text-white" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <FiCheckCircle />
+                  Continue to File Upload
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Box>
+    </Modal>
+  );
+}
+
+// Results Duplicate Validation Modal
+// Results Duplicate Validation Modal
+function ResultsDuplicateValidationModal({ 
+  open, 
+  onClose, 
+  duplicates, 
+  onProceed, 
+  loading, 
+  uploadType,
+  showNotification,
+  term,
+  academicYear,
+  targetForm 
+}) {
+  const [action, setAction] = useState('skip');
+
+  if (!open) return null;
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: {
+            xs: '98vw',
+            sm: '95vw',
+            md: '850px',
+            lg: '850px'
+          },
+          maxWidth: '850px',
+          maxHeight: {
+            xs: '85vh',
+            sm: '90vh',
+          },
+          bgcolor: 'background.paper',
+          borderRadius: 3,
+          boxShadow: 24,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <div className="bg-gradient-to-r from-amber-500 to-orange-600 p-4 sm:p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 bg-white/20 rounded-xl">
+                <FiAlertCircle className="text-lg sm:text-xl" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold">Duplicate Results Detection</h2>
+                <p className="text-amber-100 opacity-90 text-sm sm:text-base">
+                  Found {duplicates.length} duplicate result combinations
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-lg transition"
+            >
+              <FiX className="text-lg sm:text-xl" />
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-6">
+            <div className="mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-amber-500 rounded-full"></div>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                  {uploadType === 'update' 
+                    ? `Updating ${targetForm} - ${term} ${academicYear}: ${duplicates.length} existing results will be updated`
+                    : `${duplicates.length} result combinations already exist in the database`
+                  }
+                </h3>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+                <p className="text-amber-800 text-xs sm:text-sm">
+                  <strong>Note:</strong> Results are identified by admission number + term + academic year combination.
+                  Each student can have only one result record per term per academic year.
+                </p>
+              </div>
+            </div>
+
+            <div className="mb-4 sm:mb-6">
+              <h4 className="font-bold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">Duplicate Result Combinations:</h4>
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-bold text-gray-700">Row #</th>
+                        <th className="px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-bold text-gray-700">Admission</th>
+                        <th className="px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-bold text-gray-700">Form</th>
+                        <th className="px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-bold text-gray-700">Term</th>
+                        <th className="px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-bold text-gray-700">Year</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {duplicates.slice(0, 50).map((dup, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-600">{dup.row}</td>
+                          <td className="px-3 sm:px-4 py-2">
+                            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800">
+                              {dup.admissionNumber}
+                            </span>
+                          </td>
+                          <td className="px-3 sm:px-4 py-2">
+                            <span className={`px-2 py-1 rounded-md text-xs font-bold ${getFormColor(dup.form)} text-white`}>
+                              {dup.form}
+                            </span>
+                          </td>
+                          <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900">{dup.term}</td>
+                          <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900">{dup.academicYear}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {duplicates.length > 50 && (
+                  <div className="px-4 py-2 text-xs sm:text-sm text-gray-500 text-center border-t border-gray-200 bg-gray-50">
+                    ... and {duplicates.length - 50} more duplicates
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {uploadType === 'new' && (
+              <div className="mb-4 sm:mb-6">
+                <h4 className="font-bold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">How should we handle duplicates?</h4>
+                <div className="space-y-2 sm:space-y-3">
+                  <div
+                    onClick={() => setAction('skip')}
+                    className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                      action === 'skip'
+                        ? 'border-purple-500 bg-purple-50'
+                        : 'border-gray-300 hover:border-purple-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className={`p-1.5 sm:p-2 rounded-lg ${action === 'skip' ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                        <FiCheckCircle className={`text-sm sm:text-base ${action === 'skip' ? 'text-purple-600' : 'text-gray-500'}`} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm sm:text-base">Skip Duplicates</h4>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          Keep existing result records, skip duplicates in upload file
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => setAction('replace')}
+                    className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                      action === 'replace'
+                        ? 'border-purple-500 bg-purple-50'
+                        : 'border-gray-300 hover:border-purple-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className={`p-1.5 sm:p-2 rounded-lg ${action === 'replace' ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                        <FiDatabase className={`text-sm sm:text-base ${action === 'replace' ? 'text-purple-600' : 'text-gray-500'}`} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm sm:text-base">Replace Existing</h4>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          Update existing result records with new data from upload file
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-gray-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+              <h4 className="font-bold text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Summary:</h4>
+              <ul className="text-xs sm:text-sm text-gray-700 space-y-0.5 sm:space-y-1">
+                {uploadType === 'new' ? (
+                  <>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-500 rounded-full"></div>
+                      <span>Term/Year: {term} {academicYear}</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-amber-500 rounded-full"></div>
+                      <span>Duplicate combinations: {duplicates.length}</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></div>
+                      <span>New results to add: Based on file size</span>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-500 rounded-full"></div>
+                      <span>Updating: {targetForm} - {term} {academicYear}</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-amber-500 rounded-full"></div>
+                      <span>Results to update: {duplicates.length}</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></div>
+                      <span>New results will be created for new students</span>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Fixed Bottom Buttons */}
+        <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-4 sm:p-6">
+            <button
+              onClick={onClose}
+              disabled={loading}
+              className="flex-1 py-2 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all disabled:opacity-50 text-sm sm:text-base"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => onProceed(action)}
+              disabled={loading}
+              className="flex-1 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-50 text-sm sm:text-base"
+            >
+              {loading ? (
+                <>
+                  <CircularProgress size={16} className="text-white" />
+                  <span className="text-sm sm:text-base">Processing...</span>
+                </>
+              ) : uploadType === 'update' ? (
+                <>
+                  <FiCheckCircle className="text-sm sm:text-base" />
+                  <span className="text-sm sm:text-base">Update Results</span>
+                </>
+              ) : (
+                <>
+                  <FiCheckCircle className="text-sm sm:text-base" />
+                  <span className="text-sm sm:text-base">{action === 'skip' ? 'Skip Duplicates' : 'Replace Existing'}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Box>
+    </Modal>
+  );
 }
 
 // Delete Confirmation Modal for Results
@@ -182,7 +748,7 @@ function ResultsDeleteModal({
   )
 }
 
-// Result Edit Modal - Updated with Auto Comment Generation
+// Result Edit Modal
 function ResultEditModal({ result, student, onClose, onSave, loading }) {
   const [formData, setFormData] = useState({
     form: result?.form || '',
@@ -193,17 +759,70 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
 
   const [subjectEdits, setSubjectEdits] = useState([]);
 
-  // Enhanced comment generation function - same as in API
+  const calculateGrade = (score, subjectName = '') => {
+    if (score === null || score === undefined) return 'N/A';
+    
+    const isMathematics = subjectName.toLowerCase().includes('mathematics');
+    
+    if (isMathematics) {
+      if (score >= 75) return 'A';
+      if (score >= 70) return 'A-';
+      if (score >= 65) return 'B+';
+      if (score >= 60) return 'B';
+      if (score >= 55) return 'B-';
+      if (score >= 50) return 'C+';
+      if (score >= 45) return 'C';
+      if (score >= 40) return 'C-';
+      if (score >= 35) return 'D+';
+      if (score >= 30) return 'D';
+      return 'E';
+    } else {
+      if (score >= 80) return 'A';
+      if (score >= 70) return 'A-';
+      if (score >= 60) return 'B+';
+      if (score >= 55) return 'B';
+      if (score >= 50) return 'B-';
+      if (score >= 45) return 'C+';
+      if (score >= 40) return 'C';
+      if (score >= 35) return 'C-';
+      if (score >= 30) return 'D+';
+      if (score >= 25) return 'D';
+      return 'E';
+    }
+  };
+
+  const calculatePoints = (score, subjectName = '') => {
+    if (score === null) return null;
+    
+    const grade = calculateGrade(score, subjectName);
+    
+    const subjectLower = subjectName.toLowerCase().trim();
+    const optionalSubjects = ['agriculture', 'business studies', 'home science', 'computer studies', 'german', 'french', 'art', 'music', 'drama'];
+    const isOptional = optionalSubjects.some(sub => subjectLower.includes(sub));
+    const subjectType = isOptional ? 'optional' : 'main';
+    
+    const pointMap = {
+      'A': subjectType === 'main' ? 12 : 7,
+      'A-': subjectType === 'main' ? 11 : 6,
+      'B+': subjectType === 'main' ? 10 : 5,
+      'B': subjectType === 'main' ? 9 : 4,
+      'B-': subjectType === 'main' ? 8 : 3,
+      'C+': subjectType === 'main' ? 7 : 2,
+      'C': subjectType === 'main' ? 6 : 1,
+      'C-': subjectType === 'main' ? 5 : 0,
+      'D+': subjectType === 'main' ? 4 : 0,
+      'D': subjectType === 'main' ? 3 : 0,
+      'E': 0
+    };
+    
+    return pointMap[grade] || 0;
+  };
+
   const generateSubjectComment = (score, subjectName = '') => {
     if (score === null || score === undefined) return '';
     
-    // Mathematics has different thresholds
-    const isMathematics = subjectName.toLowerCase().includes('mathematics');
-    
-    // Determine grade first
     const grade = calculateGrade(score, subjectName);
     
-    // Grade-based comment templates with progressive tones
     const commentTemplates = {
       'A': {
         excellent: [
@@ -269,16 +888,13 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
       ]
     };
 
-    // Select appropriate comment based on score
     let selectedComment = '';
     
     if (grade === 'A') {
       if (score >= 90) {
-        // Excellent comments for 90+ scores
         const excellentComments = commentTemplates.A.excellent;
         selectedComment = excellentComments[Math.floor(Math.random() * excellentComments.length)];
       } else {
-        // Standard A comments for 80-89 (or 75-89 for Math)
         const standardComments = commentTemplates.A.standard;
         selectedComment = standardComments[Math.floor(Math.random() * standardComments.length)];
       }
@@ -287,7 +903,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
       if (gradeComments && Array.isArray(gradeComments)) {
         selectedComment = gradeComments[Math.floor(Math.random() * gradeComments.length)];
       } else {
-        // Fallback comment
         selectedComment = `Performance graded as ${grade}. ${score >= 50 ? 'Keep working hard!' : 'Needs significant improvement.'}`;
       }
     }
@@ -295,74 +910,10 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
     return selectedComment;
   };
 
-  // Helper functions for grade and point calculation
-  const calculateGrade = (score, subjectName = '') => {
-    if (score === null || score === undefined) return 'N/A';
-    
-    // Mathematics has different thresholds (A starts at 75)
-    const isMathematics = subjectName.toLowerCase().includes('mathematics');
-    
-    if (isMathematics) {
-      if (score >= 75) return 'A';
-      if (score >= 70) return 'A-';
-      if (score >= 65) return 'B+';
-      if (score >= 60) return 'B';
-      if (score >= 55) return 'B-';
-      if (score >= 50) return 'C+';
-      if (score >= 45) return 'C';
-      if (score >= 40) return 'C-';
-      if (score >= 35) return 'D+';
-      if (score >= 30) return 'D';
-      return 'E';
-    } else {
-      // Standard thresholds for other subjects (A starts at 80)
-      if (score >= 80) return 'A';
-      if (score >= 70) return 'A-';
-      if (score >= 60) return 'B+';
-      if (score >= 55) return 'B';
-      if (score >= 50) return 'B-';
-      if (score >= 45) return 'C+';
-      if (score >= 40) return 'C';
-      if (score >= 35) return 'C-';
-      if (score >= 30) return 'D+';
-      if (score >= 25) return 'D';
-      return 'E';
-    }
-  };
-
-  const calculatePoints = (score, subjectName = '') => {
-    if (score === null) return null;
-    
-    const grade = calculateGrade(score, subjectName);
-    
-    // Determine subject type (main vs optional)
-    const subjectLower = subjectName.toLowerCase().trim();
-    const optionalSubjects = ['agriculture', 'business studies', 'home science', 'computer studies', 'german', 'french', 'art', 'music', 'drama'];
-    const isOptional = optionalSubjects.some(sub => subjectLower.includes(sub));
-    const subjectType = isOptional ? 'optional' : 'main';
-    
-    const pointMap = {
-      'A': subjectType === 'main' ? 12 : 7,
-      'A-': subjectType === 'main' ? 11 : 6,
-      'B+': subjectType === 'main' ? 10 : 5,
-      'B': subjectType === 'main' ? 9 : 4,
-      'B-': subjectType === 'main' ? 8 : 3,
-      'C+': subjectType === 'main' ? 7 : 2,
-      'C': subjectType === 'main' ? 6 : 1,
-      'C-': subjectType === 'main' ? 5 : 0,
-      'D+': subjectType === 'main' ? 4 : 0,
-      'D': subjectType === 'main' ? 3 : 0,
-      'E': 0
-    };
-    
-    return pointMap[grade] || 0;
-  };
-
   useEffect(() => {
     if (result?.subjects) {
       let subjects = result.subjects;
       
-      // Parse subjects if they're stored as string
       if (typeof subjects === 'string') {
         try {
           subjects = JSON.parse(subjects);
@@ -372,22 +923,20 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
         }
       }
       
-      // Ensure all subject data are properly formatted with numbers converted to strings for input
       const parsedSubjects = subjects.map(subject => {
         const scoreValue = (subject.score || subject.score === 0) ? subject.score.toString() : '';
         const subjectName = subject.subject || '';
         
-        // Calculate grade and points based on current score
         const numericScore = parseFloat(scoreValue) || 0;
         const grade = calculateGrade(numericScore, subjectName);
         const points = calculatePoints(numericScore, subjectName);
         
         return {
           subject: subjectName,
-          score: scoreValue, // Keep as string for input field
+          score: scoreValue,
           grade: grade,
           points: points,
-          comment: subject.comment || '' // Keep existing comment
+          comment: subject.comment || ''
         };
       });
       
@@ -395,27 +944,21 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
     }
   }, [result]);
 
-  // Handle subject field changes - FIXED VERSION
   const handleSubjectChange = (index, field, value) => {
     const newSubjects = [...subjectEdits];
     
     if (field === 'score') {
-      // Store the raw value for display
       const displayValue = value;
-      
-      // Parse numeric value for calculations (only if not empty)
       const numericValue = value === '' ? null : parseFloat(value);
       
       if (value === '') {
-        // Empty field - keep empty for display, clear grade and points
         newSubjects[index] = { 
           ...newSubjects[index], 
-          score: '',  // Keep empty string
+          score: '',
           grade: '',
           points: 0
         };
       } else if (value === '-') {
-        // Allow minus sign for negative numbers (though scores shouldn't be negative)
         newSubjects[index] = { 
           ...newSubjects[index], 
           score: '-',
@@ -423,7 +966,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
           points: 0
         };
       } else if (!isNaN(numericValue) && numericValue !== null) {
-        // Valid number - calculate and update
         const clampedValue = Math.min(100, Math.max(0, numericValue));
         const subjectName = newSubjects[index].subject || '';
         const grade = calculateGrade(clampedValue, subjectName);
@@ -432,42 +974,38 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
         
         newSubjects[index] = { 
           ...newSubjects[index], 
-          score: displayValue,  // Keep the display value
+          score: displayValue,
           grade: grade,
           points: points,
-          comment: comment // Auto-generate comment
+          comment: comment
         };
       } else {
-        // Invalid input (like letters) - keep as is without calculations
         newSubjects[index] = { 
           ...newSubjects[index], 
           score: value,
           grade: '',
           points: 0,
-          comment: '' // Clear comment for invalid score
+          comment: ''
         };
       }
     } else if (field === 'subject') {
       newSubjects[index] = { ...newSubjects[index], subject: value };
     } else if (field === 'comment') {
-      // Allow manual override of comment
       newSubjects[index] = { ...newSubjects[index], comment: value };
     }
     
     setSubjectEdits(newSubjects);
   };
 
-  // Validate score input on blur - convert to proper number format and auto-generate comment
   const handleScoreBlur = (index) => {
     const newSubjects = [...subjectEdits];
     const currentValue = newSubjects[index].score;
     const subjectName = newSubjects[index].subject || '';
     
     if (currentValue === '' || currentValue === '-') {
-      // Keep as is - empty or just minus sign
       newSubjects[index] = { 
         ...newSubjects[index], 
-        comment: '' // Clear comment for empty score
+        comment: ''
       };
       setSubjectEdits(newSubjects);
       return;
@@ -475,7 +1013,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
     
     const numericValue = parseFloat(currentValue);
     if (!isNaN(numericValue)) {
-      // Format the number properly
       const formattedValue = parseFloat(numericValue.toFixed(1)).toString();
       const clampedValue = Math.min(100, Math.max(0, numericValue));
       const grade = calculateGrade(clampedValue, subjectName);
@@ -487,12 +1024,11 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
         score: formattedValue,
         grade: grade,
         points: points,
-        comment: comment // Auto-generate comment
+        comment: comment
       };
       
       setSubjectEdits(newSubjects);
     } else {
-      // Clear comment for invalid score
       newSubjects[index] = { 
         ...newSubjects[index], 
         comment: '' 
@@ -504,7 +1040,7 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
   const addSubject = () => {
     setSubjectEdits([...subjectEdits, { 
       subject: '', 
-      score: '',  // Start with empty string, not 0
+      score: '',
       grade: '',
       points: 0, 
       comment: '' 
@@ -518,17 +1054,14 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate all subjects have names and valid scores
     const validationErrors = [];
     const validatedSubjects = subjectEdits.map((subject, index) => {
       if (!subject.subject.trim()) {
         validationErrors.push(`Subject ${index + 1} is missing a name`);
       }
       
-      // Parse score - handle empty as 0 or show error
       let scoreValue = 0;
       if (subject.score === '') {
-        // Empty score - treat as 0
         scoreValue = 0;
       } else {
         const parsedScore = parseFloat(subject.score);
@@ -541,11 +1074,9 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
         }
       }
       
-      // Calculate grade, points, and auto-generate comment based on final score
       const grade = calculateGrade(scoreValue, subject.subject);
       const points = calculatePoints(scoreValue, subject.subject);
       
-      // If comment is empty or looks auto-generated, generate new one
       let comment = subject.comment;
       if (!comment || comment.includes('Performance graded as') || comment.includes('Excellent') || 
           comment.includes('Very good') || comment.includes('Good') || comment.includes('Poor')) {
@@ -566,7 +1097,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
       return;
     }
     
-    // Prepare data for API
     const formattedData = {
       form: formData.form,
       term: formData.term,
@@ -577,11 +1107,9 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
     await onSave(result.id, formattedData);
   };
 
-  // Calculate overall statistics - only include subjects with valid scores
   const calculateOverall = () => {
     if (subjectEdits.length === 0) return { total: 0, average: 0, points: 0, count: 0 };
     
-    // Filter subjects with valid scores
     const validSubjects = subjectEdits.filter(s => {
       const score = parseFloat(s.score);
       return !isNaN(score) && s.score !== '';
@@ -589,19 +1117,16 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
     
     if (validSubjects.length === 0) return { total: 0, average: 0, points: 0, count: 0 };
     
-    // Calculate total score (sum of all subject scores)
     const totalScore = validSubjects.reduce((sum, s) => {
       const score = parseFloat(s.score) || 0;
       return sum + score;
     }, 0);
     
-    // Calculate total points (sum of all subject points)
     const totalPoints = validSubjects.reduce((sum, s) => {
       const points = parseFloat(s.points) || 0;
       return sum + points;
     }, 0);
     
-    // Calculate average score
     const average = validSubjects.length > 0 ? totalScore / validSubjects.length : 0;
     
     return {
@@ -649,7 +1174,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
 
         <div className="max-h-[calc(95vh-80px)] overflow-y-auto p-6">
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Student Info */}
             {student && (
               <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
                 <h4 className="text-xl font-bold text-gray-900 mb-6">Student Information</h4>
@@ -691,7 +1215,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
               </div>
             )}
 
-            {/* Academic Information */}
             <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
               <h4 className="text-xl font-bold text-gray-900 mb-6">Academic Information</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -744,7 +1267,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
               </div>
             </div>
 
-            {/* Overall Performance Summary */}
             <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-2xl p-6 border-2 border-purple-300">
               <h4 className="text-xl font-bold text-purple-900 mb-4">Performance Summary</h4>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -775,7 +1297,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
               </div>
             </div>
 
-            {/* Subject Scores - UPDATED WITH AUTO-COMMENTS */}
             <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
               <div className="flex items-center justify-between mb-6">
                 <h4 className="text-xl font-bold text-gray-900">Subject Scores</h4>
@@ -790,7 +1311,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
               
               <div className="space-y-4">
                 {subjectEdits.map((subject, index) => {
-                  // Parse score for display calculations
                   const scoreValue = parseFloat(subject.score) || 0;
                   const isValidScore = !isNaN(parseFloat(subject.score)) && subject.score !== '';
                   
@@ -834,14 +1354,12 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
                             value={subject.score}
                             onChange={(e) => {
                               const val = e.target.value;
-                              // Allow numbers, decimal point, minus sign, and empty string
                               if (val === '' || /^-?\d*\.?\d*$/.test(val)) {
                                 handleSubjectChange(index, 'score', val);
                               }
                             }}
                             onBlur={() => handleScoreBlur(index)}
                             onKeyDown={(e) => {
-                              // Prevent non-numeric characters
                               if (!/[0-9.-]|Backspace|Delete|Tab|Arrow/.test(e.key)) {
                                 e.preventDefault();
                               }
@@ -886,7 +1404,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
                         </div>
                       </div>
                       
-                      {/* Performance bar - only show if valid score */}
                       {isValidScore && (
                         <div className="mt-3">
                           <div className="flex justify-between text-sm font-semibold mb-1">
@@ -918,7 +1435,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
                         </div>
                       )}
                       
-                      {/* Comment field with auto-generation */}
                       <div className="mt-4">
                         <label className="block text-sm font-bold text-gray-700 mb-2">
                           Teacher Comment {subject.score !== '' && '(Auto-generated)'}
@@ -927,7 +1443,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
                           value={subject.comment}
                           onChange={(e) => handleSubjectChange(index, 'comment', e.target.value)}
                           onFocus={(e) => {
-                            // If comment is empty or auto-generated, generate one on focus
                             if (!subject.comment || subject.comment.includes('Performance graded as') || 
                                 subject.comment.includes('Excellent') || subject.comment.includes('Very good') || 
                                 subject.comment.includes('Good') || subject.comment.includes('Poor')) {
@@ -975,7 +1490,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t-2 border-gray-200">
               <button
                 type="button"
@@ -1009,7 +1523,6 @@ function ResultEditModal({ result, student, onClose, onSave, loading }) {
   );
 }
 
-
 // File Upload Component for Results
 function ResultsFileUpload({ onFileSelect, file, onRemove, dragActive, onDrag, showNotification }) {
   const fileInputRef = useRef(null);
@@ -1036,7 +1549,7 @@ function ResultsFileUpload({ onFileSelect, file, onRemove, dragActive, onDrag, s
     relative
     border-3 border-dashed rounded-2xl p-10 text-center 
     cursor-pointer transition-all duration-200 ease-out
-    border-gray-300 /* Main permanent border */
+    border-gray-300
     ${dragActive 
       ? 'border-purple-500 bg-gradient-to-br from-purple-50/80 to-purple-100/80 ring-4 ring-purple-100/50 shadow-sm scale-[1.02]' 
       : 'bg-gradient-to-br from-gray-50 to-gray-100 hover:border-purple-300'
@@ -1079,12 +1592,10 @@ function ResultsFileUpload({ onFileSelect, file, onRemove, dragActive, onDrag, s
     }
   }}
 >
-  {/* Multiple permanent border layers */}
   <div className="absolute inset-0 rounded-2xl border-2 border-gray-200/30 pointer-events-none" />
   <div className="absolute inset-1 rounded-xl border border-gray-100/50 pointer-events-none" />
   <div className="absolute inset-2 rounded-lg border border-gray-50/30 pointer-events-none" />
   
-  {/* Visual feedback overlay - only on drag */}
   {dragActive && (
     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-purple-600/5 rounded-2xl pointer-events-none" />
   )}
@@ -1126,7 +1637,7 @@ function ResultsFileUpload({ onFileSelect, file, onRemove, dragActive, onDrag, s
   );
 }
 
-// Result Detail Modal - Fixed calculateOverall function
+// Result Detail Modal
 function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNotification }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -1158,14 +1669,11 @@ function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNot
     }
   };
 
-  // FIXED: Properly calculate overall statistics
   const calculateOverall = () => {
     if (!result.subjects || !Array.isArray(result.subjects)) return { total: 0, average: 0, points: 0, count: 0 };
     
-    // Ensure subjects are properly parsed
     let subjects = result.subjects;
     
-    // If subjects is a string, parse it
     if (typeof subjects === 'string') {
       try {
         subjects = JSON.parse(subjects);
@@ -1175,12 +1683,10 @@ function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNot
       }
     }
     
-    // Ensure we have valid subjects array
     if (!Array.isArray(subjects)) {
       subjects = [];
     }
     
-    // Calculate with proper type conversion
     const totalScore = subjects.reduce((sum, s) => {
       const score = parseFloat(s.score) || 0;
       return sum + score;
@@ -1221,7 +1727,6 @@ function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNot
       background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
     }}
   >
-    {/* Header */}
     <header className="flex items-center justify-between p-6 text-white bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800">
       <div className="flex items-center gap-4">
         <div className="p-3 bg-white/20 rounded-2xl">
@@ -1240,7 +1745,6 @@ function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNot
     </header>
 
     <main className="max-h-[calc(95vh-80px)] overflow-y-auto p-6 space-y-8">
-      {/* Student Header */}
       <section className="flex flex-col md:flex-row items-center gap-6">
         <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center ring-4 ring-purple-100">
           <IoSchool className="text-3xl text-white" />
@@ -1267,7 +1771,6 @@ function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNot
         </div>
       </section>
 
-      {/* Overall Performance */}
       <section className="p-6 rounded-2xl border-2 border-purple-300 bg-gradient-to-r from-purple-50 to-purple-100">
         <div className="flex justify-between mb-6">
           <h4 className="text-xl font-bold text-purple-900">Overall Performance</h4>
@@ -1296,7 +1799,6 @@ function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNot
         </div>
       </section>
 
-      {/* Subjects */}
       <section>
         <h4 className="flex items-center gap-3 mb-4 text-xl font-bold">
           <span className="p-2 bg-blue-100 rounded-xl">
@@ -1309,7 +1811,6 @@ function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNot
           {(Array.isArray(result.subjects) ? result.subjects : 
             (typeof result.subjects === 'string' ? JSON.parse(result.subjects) : []))
             .map((s, i) => {
-              // Parse subject data to ensure proper types
               const subject = s.subject || 'Unknown Subject';
               const score = parseFloat(s.score) || 0;
               const grade = s.grade || calculateGrade(score);
@@ -1346,7 +1847,6 @@ function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNot
         </div>
       </section>
 
-      {/* Actions */}
       <footer className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
         <button
           onClick={onEdit}
@@ -1383,40 +1883,6 @@ function ResultDetailModal({ result, student, onClose, onEdit, onDelete, showNot
   );
 }
 
-const updateResult = async (resultId, resultData) => {
-  setLoading(true);
-  try {
-    // Use the single result endpoint for updates
-    const res = await fetch(`/api/results/${resultId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(resultData)
-    });
-    
-    const data = await res.json();
-    
-    if (data.success) {
-      showNotification('Academic results updated successfully', 'success');
-      
-      // Reload data to show updated results
-      await Promise.all([
-        loadStudentResults(pagination.page),
-        loadStatistics()
-      ]);
-      
-      setEditingResult(null);
-      setSelectedResult(data.data);
-    } else {
-      showNotification(data.error || 'Failed to update results', 'error');
-    }
-  } catch (error) {
-    console.error('Update failed:', error);
-    showNotification('Failed to update results', 'error');
-  } finally {
-    setLoading(false);
-  }
-};
-
 // Statistics Card for Results
 function ResultsStatisticsCard({ title, value, icon: Icon, color, trend = 0, prefix = '', suffix = '' }) {
   const formatValue = (val) => {
@@ -1449,7 +1915,6 @@ function ResultsStatisticsCard({ title, value, icon: Icon, color, trend = 0, pre
 }
 
 // Results Chart Component
-// Results Chart Component - COMPLETE FIXED VERSION
 function ResultsChart({ 
   data, 
   type = 'bar', 
@@ -1465,20 +1930,15 @@ function ResultsChart({
   const renderChart = () => {
     switch (type) {
       case 'pie':
-        // For Form Distribution, ensure all forms are shown
         let displayData = data;
         
         if (title === 'Form Distribution') {
-          // Define all possible forms
           const allForms = ['Form 1', 'Form 2', 'Form 3', 'Form 4'];
-          
-          // Create a map of existing data
           const dataMap = new Map();
           data.forEach(item => {
             dataMap.set(item.name, item.value);
           });
           
-          // Ensure all forms are included, even with zero values
           displayData = allForms.map(form => ({
             name: form,
             value: dataMap.get(form) || 0
@@ -1895,6 +2355,7 @@ function ResultsChart({
     </div>
   );
 }
+
 // Filter Panel for Results
 function ResultsFilterPanel({ 
   filters, 
@@ -2105,12 +2566,17 @@ export default function ModernResultsManagement() {
   const [showFilters, setShowFilters] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState({ type: '', id: '', name: '' });
+
+  const [uploadStrategy, setUploadStrategy] = useState(null);
+  const [showStrategyModal, setShowStrategyModal] = useState(false);
+  const [showValidationModal, setShowValidationModal] = useState(false);
+  const [duplicates, setDuplicates] = useState([]);
+  const [validationLoading, setValidationLoading] = useState(false);
   
-  // Notification state
   const [notification, setNotification] = useState({
     open: false,
     message: '',
-    severity: 'info' // 'success', 'error', 'warning', 'info'
+    severity: 'info'
   });
 
   const [filters, setFilters] = useState({
@@ -2149,16 +2615,8 @@ export default function ModernResultsManagement() {
     pages: 1
   });
 
-  const [formData, setFormData] = useState({
-    term: 'Term 1',
-    academicYear: '2024/2025',
-    uploadedBy: 'Admin',
-  uploadMode: 'create' // Make sure this is included
-  });
-
   const fileInputRef = useRef(null);
 
-  // Show notification function
   const showNotification = (message, severity = 'info') => {
     setNotification({
       open: true,
@@ -2174,7 +2632,6 @@ export default function ModernResultsManagement() {
     setNotification({ ...notification, open: false });
   };
 
-  // Load student results
   const loadStudentResults = async (page = 1) => {
     setLoading(true);
     try {
@@ -2218,73 +2675,67 @@ export default function ModernResultsManagement() {
     }
   };
 
-
-
-const loadStatistics = async () => {
-  try {
-    const res = await fetch('/api/results?action=stats');
-    const data = await res.json();
-    
-    if (data.success) {
-      const resultsRes = await fetch('/api/results?limit=1000&includeStudent=true');
-      const resultsData = await resultsRes.json();
+  const loadStatistics = async () => {
+    try {
+      const res = await fetch('/api/results?action=stats');
+      const data = await res.json();
       
-      if (resultsData.success) {
-        const validResults = resultsData.data?.results?.filter(result => result.student) || [];
+      if (data.success) {
+        const resultsRes = await fetch('/api/results?limit=1000&includeStudent=true');
+        const resultsData = await resultsRes.json();
         
-        // Prepare chart data from API stats
-        const formData = Object.entries(data.stats.formDistribution || {}).map(([form, count]) => ({
-          name: form,
-          value: count
-        }));
+        if (resultsData.success) {
+          const validResults = resultsData.data?.results?.filter(result => result.student) || [];
+          
+          const formData = Object.entries(data.stats.formDistribution || {}).map(([form, count]) => ({
+            name: form,
+            value: count
+          }));
 
-        const termData = Object.entries(data.stats.termDistribution || {}).map(([term, count]) => ({
-          name: term,
-          value: count
-        }));
+          const termData = Object.entries(data.stats.termDistribution || {}).map(([term, count]) => ({
+            name: term,
+            value: count
+          }));
 
-        // Prepare grade distribution from API stats
-        const gradeData = Object.entries(data.stats.gradeDistribution || {}).map(([grade, count]) => ({
-          name: grade,
-          value: count
-        })).filter(item => item.value > 0); // Only show grades that have counts
+          const gradeData = Object.entries(data.stats.gradeDistribution || {}).map(([grade, count]) => ({
+            name: grade,
+            value: count
+          })).filter(item => item.value > 0);
 
-        // Prepare subject performance (top 10)
-        const subjectData = Object.entries(data.stats.subjectPerformance || {})
-          .map(([subject, info]) => ({
-            name: subject,
-            value: info.averageScore || 0,
-            count: info.totalResults || 0
-          }))
-          .sort((a, b) => b.value - a.value) // Sort by average score descending
-          .slice(0, 10); // Top 10 subjects
+          const subjectData = Object.entries(data.stats.subjectPerformance || {})
+            .map(([subject, info]) => ({
+              name: subject,
+              value: info.averageScore || 0,
+              count: info.totalResults || 0
+            }))
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 10);
 
-        setStats({
-          totalResults: data.stats.totalResults || 0,
-          averageScore: data.stats.averageScore || 0,
-          topScore: data.stats.topScore || 0,
-          totalStudents: data.stats.totalStudents || 0,
-          formDistribution: data.stats.formDistribution || {},
-          termDistribution: data.stats.termDistribution || {},
-          subjectPerformance: data.stats.subjectPerformance || {},
-          gradeDistribution: data.stats.gradeDistribution || {}
-        });
+          setStats({
+            totalResults: data.stats.totalResults || 0,
+            averageScore: data.stats.averageScore || 0,
+            topScore: data.stats.topScore || 0,
+            totalStudents: data.stats.totalStudents || 0,
+            formDistribution: data.stats.formDistribution || {},
+            termDistribution: data.stats.termDistribution || {},
+            subjectPerformance: data.stats.subjectPerformance || {},
+            gradeDistribution: data.stats.gradeDistribution || {}
+          });
 
-        setChartData({
-          formDistribution: formData,
-          termDistribution: termData,
-          subjectPerformance: subjectData,
-          gradeDistribution: gradeData
-        });
+          setChartData({
+            formDistribution: formData,
+            termDistribution: termData,
+            subjectPerformance: subjectData,
+            gradeDistribution: gradeData
+          });
+        }
       }
+    } catch (error) {
+      console.error('Failed to load statistics:', error);
+      showNotification('Failed to load statistics', 'error');
     }
-  } catch (error) {
-    console.error('Failed to load statistics:', error);
-    showNotification('Failed to load statistics', 'error');
-  }
-};
+  };
 
-  // Load upload history
   const loadUploadHistory = async (page = 1) => {
     setHistoryLoading(true);
     try {
@@ -2303,7 +2754,6 @@ const loadStatistics = async () => {
     }
   };
 
-  // Load student info for a result
   const loadStudentInfo = async (admissionNumber) => {
     try {
       const res = await fetch(`/api/results?action=student-results&admissionNumber=${admissionNumber}&includeStudent=true`);
@@ -2317,21 +2767,6 @@ const loadStatistics = async () => {
     return null;
   };
 
-  // Load student report
-  const loadStudentReport = async (admissionNumber) => {
-    try {
-      const res = await fetch(`/api/results?action=student-report&admissionNumber=${admissionNumber}`);
-      const data = await res.json();
-      if (data.success) {
-        return data.data;
-      }
-    } catch (error) {
-      console.error('Failed to load student report:', error);
-    }
-    return null;
-  };
-
-  // Initial load
   useEffect(() => {
     loadStudentResults();
     loadStatistics();
@@ -2376,175 +2811,254 @@ const loadStatistics = async () => {
     setResult(null);
   };
 
-  const handleUpload = async () => {
+const checkDuplicates = async () => {
+  if (!file || !uploadStrategy) {
+    showNotification('Please select a file and upload strategy first', 'warning');
+    return;
+  }
+
+  setValidationLoading(true);
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('checkDuplicates', 'true');
+    
+    console.log('uploadStrategy:', uploadStrategy);
+    console.log('uploadMode value:', uploadStrategy.uploadMode);
+    
+    formData.append('uploadType', uploadStrategy.uploadMode);
+    formData.append('term', uploadStrategy.term);
+    formData.append('academicYear', uploadStrategy.academicYear);
+    
+    if (uploadStrategy.uploadMode === 'new') {
+      console.log('Selected forms:', uploadStrategy.selectedForms);
+      formData.append('forms', JSON.stringify(uploadStrategy.selectedForms));
+    } else if (uploadStrategy.uploadMode === 'update') {
+      console.log('Target form:', uploadStrategy.targetForm);
+      formData.append('targetForm', uploadStrategy.targetForm);
+    }
+
+    // Debug: show all form data entries
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    const response = await fetch('/api/results', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log('Response:', data);
+    
+    if (data.success) {
+      if (data.duplicates && data.duplicates.length > 0) {
+        setDuplicates(data.duplicates);
+        setShowValidationModal(true);
+      } else {
+        proceedWithUpload('skip');
+      }
+    } else {
+      showNotification(data.error || 'Failed to check for duplicates', 'error');
+    }
+  } catch (error) {
+    console.error('Validation error:', error);
+    showNotification('Failed to validate file', 'error');
+  } finally {
+    setValidationLoading(false);
+  }
+};
+
+
+const proceedWithUpload = async (duplicateAction = 'skip') => {
+  setUploading(true);
+  setShowValidationModal(false);
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('uploadType', uploadStrategy.uploadMode);
+  formData.append('term', uploadStrategy.term);
+  formData.append('academicYear', uploadStrategy.academicYear);
+  formData.append('uploadedBy', 'Admin');
+  
+  if (uploadStrategy.uploadMode === 'new') {
+    formData.append('forms', JSON.stringify(uploadStrategy.selectedForms)); // CHANGED: 'forms' not 'selectedForms'
+    formData.append('duplicateAction', duplicateAction);
+  } else if (uploadStrategy.uploadMode === 'update') {
+    formData.append('targetForm', uploadStrategy.targetForm);
+  }
+
+  try {
+    const response = await fetch('/api/results', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Upload failed');
+    }
+    
+    setResult(data);
+    
+    if (data.success) {
+      let successMessage = '';
+      if (uploadStrategy.uploadMode === 'new') {
+        successMessage = `✅ New results upload successful! ${data.stats?.valid || 0} result records processed.`;
+      } else {
+        successMessage = `✅ Update successful! ${uploadStrategy.targetForm} - ${uploadStrategy.term} ${uploadStrategy.academicYear} updated: ${data.stats?.updated || 0} updated, ${data.stats?.created || 0} created.`;
+      }
+      
+      showNotification(successMessage, 'success');
+      
+      if (data.errors && data.errors.length > 0) {
+        data.errors.slice(0, 3).forEach(error => {
+          showNotification(error, 'error');
+        });
+      }
+      
+      await Promise.all([loadStudentResults(1), loadUploadHistory(1), loadStatistics()]);
+      setFile(null);
+      setUploadStrategy(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } else {
+      showNotification(data.error || 'Upload failed', 'error');
+    }
+  } catch (error) {
+    console.error('Upload error:', error);
+    showNotification(error.message || 'Upload failed. Please try again.', 'error');
+  } finally {
+    setUploading(false);
+  }
+};
+
+
+
+  const handleUploadWithStrategy = () => {
+    if (!uploadStrategy) {
+      setShowStrategyModal(true);
+      return;
+    }
+    
     if (!file) {
       showNotification('Please select a file first', 'warning');
       return;
     }
-
-    if (!formData.term || !formData.academicYear) {
-      showNotification('Please select term and academic year', 'warning');
-      return;
-    }
-
-    setUploading(true);
-    const uploadFormData = new FormData();
-    uploadFormData.append('file', file);
-    uploadFormData.append('term', formData.term);
-    uploadFormData.append('academicYear', formData.academicYear);
-uploadFormData.append('uploadedBy', formData.uploadedBy);
-  uploadFormData.append('uploadMode', formData.uploadMode || 'create');
-    try {
-      const response = await fetch('/api/results', {
-        method: 'POST',
-        body: uploadFormData
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Upload failed');
-      }
-      
-      setResult(data);
-      
-      if (data.success) {
-        showNotification(`✅ Upload successful! ${data.stats?.valid || 0} result records processed.`, 'success');
-        
-        await Promise.all([loadStudentResults(1), loadUploadHistory(1), loadStatistics()]);
-        setFile(null);
-        setFormData({
-          term: 'Term 1',
-          academicYear: '2024/2025',
-          uploadedBy: 'Admin',
-          uploadMode: 'create' // ← ADD THIS LINE
-        });
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      } else {
-        showNotification(data.error || 'Upload failed', 'error');
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      showNotification(error.message || 'Upload failed. Please try again.', 'error');
-    } finally {
-      setUploading(false);
-    }
+    
+    checkDuplicates();
   };
+
+
+const handleStrategyConfirm = (strategy) => {
+  // The modal sends uploadMode, not uploadType
+  setUploadStrategy(strategy);
+  setShowStrategyModal(false);
+  showNotification(`Strategy set: ${strategy.uploadMode === 'new' ? 'Create New Results' : 'Update Existing Results'} ${strategy.uploadMode === 'new' ? `for ${strategy.selectedForms.join(', ')}` : `for ${strategy.targetForm}`}`, 'success');
+};
 
   const handleDelete = async (type, id, name) => {
     setDeleteTarget({ type, id, name });
     setShowDeleteModal(true);
   };
 
-const confirmDelete = async () => {
-  try {
-    let url;
-    
-    // Show loading state
-    showNotification(`Deleting ${deleteTarget.type}...`, 'info');
-    
-    if (deleteTarget.type === 'batch') {
-      url = `/api/results?batchId=${deleteTarget.id}`;
-    } else {
-      url = `/api/results?resultId=${deleteTarget.id}`;
-    }
-
-    // Add timeout and retry logic
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-    
-    const res = await fetch(url, { 
-      method: 'DELETE',
-      signal: controller.signal,
-      headers: {
-        'Cache-Control': 'no-cache'
-      }
-    });
-    
-    clearTimeout(timeoutId);
-    
-    const data = await res.json();
-    
-    if (!res.ok) {
-      throw new Error(data.error || `HTTP ${res.status}: Delete failed`);
-    }
-    
-    if (data.success) {
-      showNotification(data.message || 'Deleted successfully', 'success');
+  const confirmDelete = async () => {
+    try {
+      let url;
       
-      // Refresh data
-      try {
+      showNotification(`Deleting ${deleteTarget.type}...`, 'info');
+      
+      if (deleteTarget.type === 'batch') {
+        url = `/api/results?batchId=${deleteTarget.id}`;
+      } else {
+        url = `/api/results?resultId=${deleteTarget.id}`;
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      const res = await fetch(url, { 
+        method: 'DELETE',
+        signal: controller.signal,
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || `HTTP ${res.status}: Delete failed`);
+      }
+      
+      if (data.success) {
+        showNotification(data.message || 'Deleted successfully', 'success');
+        
         await Promise.all([
           loadStudentResults(pagination.page),
           loadUploadHistory(1),
           loadStatistics()
         ]);
-      } catch (refreshError) {
-        console.error('Refresh after delete failed:', refreshError);
-        // Don't show error - data might still be updated
+        
+        if (deleteTarget.type === 'result') {
+          setSelectedResult(null);
+          setSelectedStudent(null);
+        }
+      } else {
+        showNotification(data.error || 'Failed to delete', 'error');
       }
+    } catch (error) {
+      console.error('Delete failed:', error);
       
-      if (deleteTarget.type === 'result') {
-        setSelectedResult(null);
-        setSelectedStudent(null);
+      if (error.name === 'AbortError') {
+        showNotification('Delete operation timed out. The delete may still be processing in the background.', 'warning');
+        loadUploadHistory(1);
+      } else if (error.message.includes('timeout')) {
+        showNotification('Delete timed out. Please check if the operation completed and refresh the page.', 'warning');
+      } else {
+        showNotification(`Delete failed: ${error.message}`, 'error');
       }
-    } else {
-      showNotification(data.error || 'Failed to delete', 'error');
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteTarget({ type: '', id: '', name: '' });
     }
-  } catch (error) {
-    console.error('Delete failed:', error);
-    
-    if (error.name === 'AbortError') {
-      showNotification('Delete operation timed out. The delete may still be processing in the background.', 'warning');
-      // Still refresh to check if delete succeeded
-      loadUploadHistory(1);
-    } else if (error.message.includes('timeout')) {
-      showNotification('Delete timed out. Please check if the operation completed and refresh the page.', 'warning');
-    } else {
-      showNotification(`Delete failed: ${error.message}`, 'error');
-    }
-  } finally {
-    setShowDeleteModal(false);
-    setDeleteTarget({ type: '', id: '', name: '' });
-  }
-};
+  };
 
-
-const updateResult = async (resultId, resultData) => {
-  setLoading(true);
-  try {
-    // Use the single result endpoint for updates
-    const res = await fetch(`/api/results/${resultId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(resultData)
-    });
-    
-    const data = await res.json();
-    
-    if (data.success) {
-      showNotification('Academic results updated successfully', 'success');
+  const updateResult = async (resultId, resultData) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/results/${resultId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(resultData)
+      });
       
-      // Reload data to show updated results
-      await Promise.all([
-        loadStudentResults(pagination.page),
-        loadStatistics()
-      ]);
+      const data = await res.json();
       
-      setEditingResult(null);
-      setSelectedResult(data.data);
-    } else {
-      showNotification(data.error || 'Failed to update results', 'error');
+      if (data.success) {
+        showNotification('Academic results updated successfully', 'success');
+        
+        await Promise.all([
+          loadStudentResults(pagination.page),
+          loadStatistics()
+        ]);
+        
+        setEditingResult(null);
+        setSelectedResult(data.data);
+      } else {
+        showNotification(data.error || 'Failed to update results', 'error');
+      }
+    } catch (error) {
+      console.error('Update failed:', error);
+      showNotification('Failed to update results', 'error');
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error('Update failed:', error);
-    showNotification('Failed to update results', 'error');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const viewResultDetails = async (result) => {
     setSelectedResult(result);
@@ -2560,8 +3074,7 @@ const updateResult = async (resultId, resultData) => {
   };
 
   const downloadCSVTemplate = () => {
-// For CSV template download
-const template = `admissionNumber,form,stream,term,academicYear,totalScore,averageScore,overallGrade,overallRemark,totalPoints,classPosition,examType,uploadDate,status,English_Score,English_Grade,English_Points,English_Comment,Kiswahili_Score,Kiswahili_Grade,Kiswahili_Points,Kiswahili_Comment,Mathematics_Score,Mathematics_Grade,Mathematics_Points,Mathematics_Comment,Biology_Score,Biology_Grade,Biology_Points,Biology_Comment,Chemistry_Score,Chemistry_Grade,Chemistry_Points,Chemistry_Comment,Physics_Score,Physics_Grade,Physics_Points,Physics_Comment,History_Score,History_Grade,History_Points,History_Comment,Geography_Score,Geography_Grade,Geography_Points,Geography_Comment,CRE_Score,CRE_Grade,CRE_Points,CRE_Comment,Business Studies_Score,Business Studies_Grade,Business Studies_Points,Business Studies_Comment,Agriculture_Score,Agriculture_Grade,Agriculture_Points,Agriculture_Comment,Computer Studies_Score,Computer Studies_Grade,Computer Studies_Points,Computer Studies_Comment
+    const template = `admissionNumber,form,stream,term,academicYear,totalScore,averageScore,overallGrade,overallRemark,totalPoints,classPosition,examType,uploadDate,status,English_Score,English_Grade,English_Points,English_Comment,Kiswahili_Score,Kiswahili_Grade,Kiswahili_Points,Kiswahili_Comment,Mathematics_Score,Mathematics_Grade,Mathematics_Points,Mathematics_Comment,Biology_Score,Biology_Grade,Biology_Points,Biology_Comment,Chemistry_Score,Chemistry_Grade,Chemistry_Points,Chemistry_Comment,Physics_Score,Physics_Grade,Physics_Points,Physics_Comment,History_Score,History_Grade,History_Points,History_Comment,Geography_Score,Geography_Grade,Geography_Points,Geography_Comment,CRE_Score,CRE_Grade,CRE_Points,CRE_Comment,Business Studies_Score,Business Studies_Grade,Business Studies_Points,Business Studies_Comment,Agriculture_Score,Agriculture_Grade,Agriculture_Points,Agriculture_Comment,Computer Studies_Score,Computer Studies_Grade,Computer Studies_Points,Computer Studies_Comment
 3000,Form 1,A,Term 1,2024/2025,876,73,A-,Very Good. Aim higher,130,22,End Term,12/31/2025,active,83,A,12,,66,B+,10,,65,B+,10,,64,B+,10,,87,A,12,,68,B+,10,,73,A-,11,,61,B+,10,,72,A-,11,,89,A,12,,71,A-,11,,77,A-,11,
 3001,Form 1,B,Term 1,2024/2025,951,79.2,A-,Very Good. Aim higher,135,10,End Term,12/31/2025,active,85,A,12,,76,A-,11,,77,A-,11,,84,A,12,,84,A,12,,85,A,12,,74,A-,11,,67,B+,10,,98,A,12,,68,B+,10,,76,A-,11,,77,A-,11,`;
 
@@ -2670,9 +3183,53 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
     return <ResultsLoadingSpinner message="Loading academic results..." size="large" />;
   }
 
-  return (
+return (
     <div className="p-6 space-y-6">
-      {/* Header */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={6000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MuiAlert
+          onClose={handleCloseNotification}
+          severity={notification.severity}
+          variant="filled"
+          elevation={0}
+          sx={{
+            width: '440px',
+            minHeight: '90px',
+            fontSize: '1.1rem',
+            padding: '18px 22px',
+            borderRadius: '18px',
+            boxShadow: '0 18px 40px rgba(0,0,0,0.18)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            backdropFilter: 'blur(10px)',
+            
+            backgroundColor: (theme) => {
+              switch (notification.severity) {
+                case 'success': return 'rgba(46, 125, 50, 0.9)';
+                case 'error': return 'rgba(211, 47, 47, 0.9)';
+                case 'warning': return 'rgba(237, 108, 2, 0.9)';
+                case 'info': return 'rgba(2, 136, 209, 0.9)';
+                default: return 'rgba(97, 97, 97, 0.9)';
+              }
+            },
+            color: '#fff',
+            
+            '& .MuiAlert-icon': {
+              fontSize: '1.8rem',
+              opacity: 0.9,
+              color: '#fff',
+            },
+          }}
+        >
+          {notification.message}
+        </MuiAlert>
+      </Snackbar>
+
       <div className="relative bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-800 rounded-2xl p-8 text-white overflow-hidden">
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-3">
@@ -2717,7 +3274,6 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
         </div>
       </div>
 
-      {/* Navigation Tabs */}
       <div className="bg-white rounded-2xl p-3 border-2 border-gray-200 shadow-2xl">
         <div className="flex flex-wrap items-center gap-2 p-2">
           <button
@@ -2778,14 +3334,12 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
       </div>
 
       <div className="space-y-6">
-        {/* Dashboard View */}
         {view === 'dashboard' && (
           <div className="space-y-8">
-            {/* Statistics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <ResultsStatisticsCard
                 title="Total Results"
-                value={stats.totalResults}
+        value={stats.totalStudents}
                 icon={FiBook}
                 color="from-purple-500 to-purple-700"
                 trend={8.5}
@@ -2815,7 +3369,6 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
               />
             </div>
 
-            {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <ResultsChart
                 data={chartData.formDistribution}
@@ -2832,7 +3385,6 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
               />
             </div>
 
-            {/* Recent Results */}
             <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-bold text-gray-900">Recent Academic Results</h3>
@@ -2911,207 +3463,355 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
           </div>
         )}
 
-        {/* Upload View */}
-        {view === 'upload' && (
-          <div className="space-y-8">
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-8">
-                <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-2xl p-6 border-2 border-purple-300">
-                  <h3 className="text-xl font-bold text-purple-900 mb-6 flex items-center gap-3">
-                    <FiInfo className="text-purple-700 text-2xl" />
-                    Upload Configuration
-                  </h3>
-                  
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-  <div>
-    <label className="block text-sm font-bold text-gray-700 mb-3">
-      Term *
-    </label>
-    <select
-      value={formData.term}
-      onChange={(e) => setFormData({...formData, term: e.target.value})}
-      className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-base"
-    >
-      <option value="Term 1">Term 1</option>
-      <option value="Term 2">Term 2</option>
-      <option value="Term 3">Term 3</option>
-    </select>
-  </div>
-  <div>
-    <label className="block text-sm font-bold text-gray-700 mb-3">
-      Academic Year *
-    </label>
-    <input
-      type="text"
-      required
-      value={formData.academicYear}
-      onChange={(e) => setFormData({...formData, academicYear: e.target.value})}
-      placeholder="e.g., 2024/2025"
-      className="w-full px-5 py-3.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-base"
-    />
-  </div>
-  <div>
-    <label className="block text-sm font-bold text-gray-700 mb-3">
-      Upload Mode
-    </label>
-    <div className="space-y-3">
-      <div className="flex gap-4">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="radio"
-            name="uploadMode"
-            value="create"
-            checked={formData.uploadMode === 'create'}
-            onChange={(e) => setFormData({...formData, uploadMode: e.target.value})}
-            className="w-5 h-5 text-purple-600"
-          />
-          <span className="font-bold text-gray-800">Create</span>
-        </label>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="radio"
-            name="uploadMode"
-            value="update"
-            checked={formData.uploadMode === 'update'}
-            onChange={(e) => setFormData({...formData, uploadMode: e.target.value})}
-            className="w-5 h-5 text-purple-600"
-          />
-          <span className="font-bold text-gray-800">Update</span>
-        </label>
-      </div>
-      <div className="text-xs text-gray-600 space-y-1">
-        <div className="flex items-start gap-1">
-          <span className="font-bold">• Create:</span>
-          <span>Skips duplicates, creates new records for different terms/years</span>
-        </div>
-        <div className="flex items-start gap-1">
-          <span className="font-bold">• Update:</span>
-          <span>Replaces existing results for same student+term+year</span>
-        </div>
-      </div>
+{view === 'upload' && (
+  <div className="space-y-8">
+    {/* Statistics Cards Row */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <ResultsStatisticsCard
+        title="Total Results"
+        value={stats.totalStudents}
+        icon={FiBook}
+        color="from-purple-500 to-purple-700"
+        trend={8.5}
+      />
+      <ResultsStatisticsCard
+        title="Average Score"
+        value={stats.averageScore}
+        icon={FiPercentIcon}
+        color="from-blue-500 to-blue-700"
+        trend={2.3}
+        suffix="%"
+      />
+      <ResultsStatisticsCard
+        title="Top Score"
+        value={stats.topScore}
+        icon={FiAward}
+        color="from-emerald-500 to-emerald-700"
+        trend={1.7}
+        suffix="%"
+      />
+      <ResultsStatisticsCard
+        title="Unique Students"
+        value={stats.totalStudents}
+        icon={FiUsers}
+        color="from-indigo-500 to-indigo-700"
+        trend={5.2}
+      />
     </div>
-  </div>
-</div>
-                </div>
 
-                <ResultsFileUpload
-                  onFileSelect={handleFileSelect}
-                  file={file}
-                  onRemove={() => setFile(null)}
-                  dragActive={dragActive}
-                  onDrag={handleDrag}
-                  showNotification={showNotification}
-                />
-
-                {file && (
-                  <div className="bg-white rounded-2xl p-6 border-2 border-gray-300 shadow-2xl">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                      <div className="flex items-center gap-6">
-                        <div className="p-4 bg-gradient-to-r from-purple-100 to-purple-200 rounded-2xl">
-                          {file.name.endsWith('.csv') ? (
-                            <FiFile className="text-purple-700 text-3xl" />
-                          ) : (
-                            <IoDocumentText className="text-emerald-700 text-3xl" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-bold text-gray-900 text-lg truncate max-w-[200px] md:max-w-none">{file.name}</p>
-                          <div className="flex flex-col md:flex-row md:items-center gap-6 mt-2">
-                            <span className="text-gray-600 font-semibold text-base">
-                              {(file.size / 1024 / 1024).toFixed(2)} MB
-                            </span>
-                            <span className="px-3 py-1.5 bg-gray-100 rounded-lg font-bold text-gray-700 text-sm">
-                              {file.name.split('.').pop().toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <button
-                          onClick={() => setFile(null)}
-                          className="p-3 rounded-xl text-gray-600"
-                        >
-                          <FiX className="text-xl" />
-                        </button>
-                        <button
-                          onClick={handleUpload}
-                          disabled={uploading || !formData.term || !formData.academicYear}
-                          className="px-6 py-4 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl font-bold flex items-center gap-3 text-base shadow-xl disabled:opacity-50"
-                        >
-                          {uploading ? (
-                            <>
-                              <CircularProgress size={18} className="text-white" />
-                              <span>Processing...</span>
-                            </>
-                          ) : (
-                            <>
-                              <FiUpload className="text-base" />
-                              <span>Upload Now</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+    <div className="grid lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2 space-y-8">
+        {/* Upload Strategy Info */}
+        <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-2xl p-6 border-2 border-purple-300">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-purple-900 flex items-center gap-3">
+              <FiLayers className="text-purple-700 text-2xl" />
+              Upload Strategy
+            </h3>
+            {uploadStrategy && (
+              <span className="px-4 py-2 bg-purple-600 text-white rounded-lg font-bold text-sm">
+                {uploadStrategy.uploadMode === 'create' 
+                  ? `New Upload for ${uploadStrategy.selectedForms?.join(', ') || ''}`
+                  : `Update Upload for ${uploadStrategy.targetForm}`
+                }
+              </span>
+            )}
+          </div>
+          
+          {!uploadStrategy ? (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <FiUpload className="text-purple-600 text-2xl" />
               </div>
-
-              <div className="space-y-8">
-                <div className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-xl">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Download Templates</h3>
-                  <div className="space-y-4">
-                    <button
-                      onClick={downloadCSVTemplate}
-                      className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl"
-                    >
-                      <FiFile className="text-purple-600 text-2xl" />
-                      <span className="font-bold text-gray-900 text-base">CSV Template</span>
-                    </button>
-                    <button
-                      onClick={downloadExcelTemplate}
-                      className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl"
-                    >
-                      <IoDocumentText className="text-emerald-600 text-2xl" />
-                      <span className="font-bold text-gray-900 text-base">Excel Template</span>
-                    </button>
+              <p className="text-purple-800 font-bold text-lg mb-4">
+                No upload strategy selected
+              </p>
+              <button
+                onClick={() => setShowStrategyModal(true)}
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-xl font-bold flex items-center gap-3 mx-auto hover:shadow-xl transition-all duration-300"
+              >
+                <FiSettings className="text-base" />
+                Select Upload Strategy
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white rounded-xl p-4 border border-purple-200">
+                  <h4 className="font-bold text-gray-900 mb-2">Upload Type</h4>
+                  <div className="flex items-center gap-2">
+                    <div className={`p-2 rounded-lg ${
+                      uploadStrategy.uploadMode === 'create' 
+                        ? 'bg-purple-100 text-purple-700' 
+                        : 'bg-indigo-100 text-indigo-700'
+                    }`}>
+                      {uploadStrategy.uploadMode === 'create' ? <FiPlus /> : <FiDatabase />}
+                    </div>
+                    <span className="font-bold text-gray-900">
+                      {uploadStrategy.uploadMode === 'create' ? 'New Upload' : 'Update Upload'}
+                    </span>
                   </div>
                 </div>
-
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-300 p-6 shadow-xl">
-                  <h3 className="text-xl font-bold text-purple-900 mb-6">Upload Guidelines</h3>
-                  <ul className="space-y-4">
-                    <li className="flex items-start gap-4">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-purple-700 font-bold text-base">1</span>
-                      </div>
-                      <span className="text-purple-800 font-semibold text-base">Use provided templates for correct format</span>
-                    </li>
-                    <li className="flex items-start gap-4">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-purple-700 font-bold text-base">2</span>
-                      </div>
-                      <span className="text-purple-800 font-semibold text-base">Admission numbers must match existing students</span>
-                    </li>
-                    <li className="flex items-start gap-4">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-purple-700 font-bold text-base">3</span>
-                      </div>
-                      <span className="text-purple-800 font-semibold text-base">Include subject scores (0-100%)</span>
-                    </li>
-                    <li className="flex items-start gap-4">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-purple-700 font-bold text-base">4</span>
-                      </div>
-                      <span className="text-purple-800 font-semibold text-base">For Form 3/4, include only student's subject combinations</span>
-                    </li>
-                  </ul>
+                
+                <div className="bg-white rounded-xl p-4 border border-purple-200">
+                  <h4 className="font-bold text-gray-900 mb-2">Term & Year</h4>
+                  <div className="flex items-center gap-2">
+                    <FiCalendar className="text-purple-600" />
+                    <span className="font-bold text-gray-900">
+                      {uploadStrategy.term} {uploadStrategy.academicYear}
+                    </span>
+                  </div>
                 </div>
+              </div>
+              
+              <div className="bg-white rounded-xl p-4 border border-purple-200">
+                <h4 className="font-bold text-gray-900 mb-2">Target Forms</h4>
+                <div className="flex flex-wrap gap-2">
+                  {uploadStrategy.uploadMode === 'create' 
+                    ? (uploadStrategy.selectedForms || []).map(form => (
+                        <span key={form} className={`px-3 py-1 rounded-lg text-sm font-bold text-white bg-gradient-to-r ${getFormColor(form)}`}>
+                          {form}
+                        </span>
+                      ))
+                    : (
+                      <span className={`px-3 py-1 rounded-lg text-sm font-bold text-white bg-gradient-to-r ${getFormColor(uploadStrategy.targetForm)}`}>
+                        {uploadStrategy.targetForm}
+                      </span>
+                    )
+                  }
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-xl p-4 border border-purple-200">
+                <h4 className="font-bold text-gray-900 mb-2">Strategy Details</h4>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  {uploadStrategy.uploadMode === 'create' ? (
+                    <>
+                      <li className="flex items-center gap-2">
+                        <FiCheckCircle className="text-green-500" />
+                        <span>Results identified by admission number + term + academic year</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <FiCheckCircle className="text-green-500" />
+                        <span>Prevents duplicate results for same student/term/year</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <FiCheckCircle className="text-green-500" />
+                        <span>Only processes selected forms and academic year</span>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="flex items-center gap-2">
+                        <FiCheckCircle className="text-green-500" />
+                        <span>Replaces results for specific form/term/year combination</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <FiCheckCircle className="text-green-500" />
+                        <span>Matches students by admission number + term + academic year</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <FiCheckCircle className="text-green-500" />
+                        <span>Preserves historical data and maintains grade consistency</span>
+                      </li>
+                    </>
+                  )}
+                </ul>
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowStrategyModal(true)}
+                  className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-bold hover:border-purple-500 hover:text-purple-600 transition-all duration-300"
+                >
+                  Change Strategy
+                </button>
+                <button
+                  onClick={() => setUploadStrategy(null)}
+                  className="px-4 py-2 border-2 border-red-300 text-red-700 rounded-lg font-bold hover:border-red-500 hover:text-red-800 transition-all duration-300"
+                >
+                  Clear Strategy
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* File Upload Section */}
+        <ResultsFileUpload
+          onFileSelect={handleFileSelect}
+          file={file}
+          onRemove={() => setFile(null)}
+          dragActive={dragActive}
+          onDrag={handleDrag}
+          showNotification={showNotification}
+        />
+
+        {file && (
+          <div className="bg-white rounded-2xl p-6 border-2 border-gray-300 shadow-2xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <div className="p-4 bg-gradient-to-r from-purple-100 to-purple-200 rounded-2xl">
+                  {file.name.endsWith('.csv') ? (
+                    <FiFile className="text-purple-700 text-3xl" />
+                  ) : (
+                    <IoDocumentText className="text-green-700 text-3xl" />
+                  )}
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900 text-lg truncate max-w-[200px] md:max-w-none">{file.name}</p>
+                  <div className="flex flex-col md:flex-row md:items-center gap-6 mt-2">
+                    <span className="text-gray-600 font-semibold text-base">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                    <span className="px-3 py-1.5 bg-gray-100 rounded-lg font-bold text-gray-700 text-sm">
+                      {file.name.split('.').pop().toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setFile(null)}
+                  className="p-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
+                >
+                  <FiX className="text-xl" />
+                </button>
+                <button
+                  onClick={handleUploadWithStrategy}
+                  disabled={uploading || validationLoading || !uploadStrategy}
+                  className="px-6 py-4 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl font-bold flex items-center gap-3 text-base shadow-xl disabled:opacity-50 hover:shadow-2xl transition-all duration-300"
+                >
+                  {uploading ? (
+                    <>
+                      <CircularProgress size={18} className="text-white" />
+                      <span>Processing...</span>
+                    </>
+                  ) : validationLoading ? (
+                    <>
+                      <CircularProgress size={18} className="text-white" />
+                      <span>Checking...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiUpload className="text-base" />
+                      <span>Upload Now</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
         )}
+      </div>
 
-        {/* Results View */}
+      <div className="space-y-8">
+        {/* Templates Section */}
+        <div className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-xl">
+          <h3 className="text-xl font-bold text-gray-900 mb-6">Download Templates</h3>
+          <div className="space-y-4">
+            <button
+              onClick={downloadCSVTemplate}
+              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:shadow-lg transition-all duration-300"
+            >
+              <FiFile className="text-purple-600 text-2xl" />
+              <span className="font-bold text-gray-900 text-base">CSV Template</span>
+            </button>
+            <button
+              onClick={downloadExcelTemplate}
+              className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:shadow-lg transition-all duration-300"
+            >
+              <IoDocumentText className="text-green-600 text-2xl" />
+              <span className="font-bold text-gray-900 text-base">Excel Template</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Guidelines Section */}
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-300 p-6 shadow-xl">
+          <h3 className="text-xl font-bold text-purple-900 mb-6">Upload Guidelines</h3>
+          <ul className="space-y-4">
+            <li className="flex items-start gap-4">
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <span className="text-purple-700 font-bold text-base">1</span>
+              </div>
+              <span className="text-purple-800 font-semibold text-base">Select upload strategy first (Create or Update)</span>
+            </li>
+            <li className="flex items-start gap-4">
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <span className="text-purple-700 font-bold text-base">2</span>
+              </div>
+              <span className="text-purple-800 font-semibold text-base">Term and academic year are required for all results</span>
+            </li>
+            <li className="flex items-start gap-4">
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <span className="text-purple-700 font-bold text-base">3</span>
+              </div>
+              <span className="text-purple-800 font-semibold text-base">Each student can have only one result per term per academic year</span>
+            </li>
+            <li className="flex items-start gap-4">
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <span className="text-purple-700 font-bold text-base">4</span>
+              </div>
+              <span className="text-purple-800 font-semibold text-base">System checks for duplicates before uploading</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl border-2 border-indigo-300 p-6 shadow-xl">
+          <h3 className="text-xl font-bold text-indigo-900 mb-6">Quick Stats</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-indigo-800 font-bold">Total Forms</span>
+              <span className="text-2xl font-bold text-indigo-700">4</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-indigo-800 font-bold">Unique Identifier</span>
+              <span className="font-bold text-indigo-700">Admission # + Term + Year</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-indigo-800 font-bold">Max File Size</span>
+              <span className="font-bold text-indigo-700">10 MB</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-indigo-800 font-bold">Supported Formats</span>
+              <span className="font-bold text-indigo-700">CSV, Excel</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Required Fields Info */}
+        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl border-2 border-emerald-300 p-6 shadow-xl">
+          <h3 className="text-xl font-bold text-emerald-900 mb-4">Required Fields</h3>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+              <span className="text-emerald-800 font-semibold text-sm">admissionNumber (Required)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+              <span className="text-emerald-800 font-semibold text-sm">form (Required: Form 1-4)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+              <span className="text-emerald-800 font-semibold text-sm">term (Required: Term 1-3)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+              <span className="text-emerald-800 font-semibold text-sm">academicYear (Required: e.g., 2024/2025)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+              <span className="text-emerald-800 font-semibold text-sm">Subject scores (Mathematics, English, etc.)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
         {view === 'results' && (
           <div className="space-y-8">
             {showFilters && (
@@ -3133,9 +3833,13 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
                       type="text"
                       value={filters.search}
                       onChange={(e) => handleFilterChange('search', e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && loadStudentResults(1)}
-                      placeholder="Search by admission number or student name..."
-                      className="w-full pl-14 pr-4 py-4 bg-white border-2 border-gray-400 rounded-2xl focus:ring-4 focus:ring-purple-500 focus:border-purple-600 text-base"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          loadStudentResults(1);
+                        }
+                      }}
+                      placeholder="Search by admission number, student name..."
+                      className="w-full pl-14 pr-4 py-4 bg-white border-2 border-gray-400 rounded-2xl focus:ring-4 focus:ring-purple-500 focus:border-purple-600 transition-all duration-300 text-base"
                     />
                   </div>
                 </div>
@@ -3143,16 +3847,16 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
                 <div className="flex items-center gap-4 w-full lg:w-auto mt-4 lg:mt-0">
                   <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className="flex-1 lg:flex-none px-6 py-4 bg-white border-2 border-gray-400 rounded-2xl text-gray-700 font-bold flex items-center justify-center gap-3 text-base"
+                    className="flex-1 lg:flex-none px-6 py-4 bg-white border-2 border-gray-400 rounded-2xl text-gray-700 font-bold flex items-center justify-center gap-3 text-base hover:border-purple-500 hover:text-purple-600 transition-all duration-300"
                   >
-                    <IoFilterIcon />
+                    <FiFilter />
                     {showFilters ? 'Hide Filters' : 'Show Filters'}
                   </button>
 
                   <button
                     onClick={() => loadStudentResults(1)}
                     disabled={loading}
-                    className="flex-1 lg:flex-none px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-2xl font-bold flex items-center justify-center gap-3 text-base shadow-xl disabled:opacity-50"
+                    className="flex-1 lg:flex-none px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-2xl font-bold flex items-center justify-center gap-3 text-base shadow-xl disabled:opacity-50 hover:shadow-2xl transition-all duration-300"
                   >
                     {loading ? (
                       <>
@@ -3176,59 +3880,41 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
               </div>
             ) : (
               <>
-                {studentResults.length > 0 ? (
+                {studentResults.length > 0 && (
                   <>
-                    <div className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden shadow-2xl">
-                      <div className="px-8 py-6 border-b-2 border-gray-300 bg-gradient-to-r from-gray-50 to-white">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                          <h3 className="text-2xl font-bold text-gray-900">Academic Results ({pagination.total})</h3>
-                          <div className="flex items-center gap-4">
-                            <div className="text-gray-600 font-bold bg-white px-4 py-2 rounded-xl border-2 text-base">
-                              Page {pagination.page} of {pagination.pages}
-                            </div>
-                          </div>
-                        </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-3">
+                      <h3 className="text-2xl font-bold text-gray-900">
+                        Academic Results ({pagination.total})
+                      </h3>
+                      <div className="text-gray-600 font-bold text-base">
+                        Page {pagination.page} of {pagination.pages}
                       </div>
-
+                    </div>
+                    
+                    <div className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden shadow-2xl">
                       <div className="overflow-x-auto">
                         <table className="w-full min-w-[768px]">
-                          <thead className="bg-gray-100">
+                          <thead className="bg-gradient-to-r from-gray-100 to-white">
                             <tr>
-                              <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
-                                Student
-                              </th>
-                              <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
-                                Academic Info
-                              </th>
-                              <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
-                                Subject Performance
-                              </th>
-                              <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
-                                Overall Score
-                              </th>
-                              <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
-                                Actions
-                              </th>
+                              <th className="px-8 py-6 text-left text-base font-bold text-gray-700">Student</th>
+                              <th className="px-8 py-6 text-left text-base font-bold text-gray-700">Form/Term/Year</th>
+                              <th className="px-8 py-6 text-left text-base font-bold text-gray-700">Subjects</th>
+                              <th className="px-8 py-6 text-left text-base font-bold text-gray-700">Average Score</th>
+                              <th className="px-8 py-6 text-left text-base font-bold text-gray-700">Actions</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y-2 divide-gray-200">
                             {studentResults.map(result => {
                               const average = calculateResultAverage(result);
-                              const subjects = Array.isArray(result.subjects) ? result.subjects : 
-                                (typeof result.subjects === 'string' ? JSON.parse(result.subjects) : []);
-                              const topSubjects = subjects.slice(0, 2);
-                              
                               return (
-                                <tr key={result.id}>
-                                  <td className="px-8 py-5">
+                                <tr key={result.id} className="hover:bg-gray-50 transition-colors">
+                                  <td className="px-8 py-6">
                                     <div className="flex items-center gap-4">
-                                      <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-700 via-purple-600 to-indigo-500 flex items-center justify-center flex-shrink-0">
-                                        <FiUser className="text-white text-base" />
+                                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                                        <FiUser className="text-white text-xl" />
                                       </div>
                                       <div>
-                                        <div className="font-bold text-gray-900 text-base">
-                                          #{result.admissionNumber}
-                                        </div>
+                                        <div className="font-bold text-gray-900 text-lg">#{result.admissionNumber}</div>
                                         {result.student && (
                                           <div className="text-gray-600 text-sm">
                                             {result.student.firstName} {result.student.lastName}
@@ -3237,50 +3923,38 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
                                       </div>
                                     </div>
                                   </td>
-                                  <td className="px-8 py-5">
-                                    <div>
-                                      <div className="font-bold text-gray-900">{result.form}</div>
-                                      <div className="text-gray-600 text-sm">{result.term}</div>
-                                      <div className="text-gray-500 text-xs">{result.academicYear}</div>
+                                  <td className="px-8 py-6">
+                                    <div className="space-y-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className={`px-3 py-1.5 rounded-lg text-sm font-bold text-white bg-gradient-to-r ${getFormColor(result.form)}`}>
+                                          {result.form}
+                                        </span>
+                                      </div>
+                                      <div className="text-gray-700 text-sm">{result.term} {result.academicYear}</div>
                                     </div>
                                   </td>
-                                  <td className="px-8 py-5">
-                                    <div className="space-y-2">
-                                      {topSubjects.map((subject, idx) => (
-                                        <div key={idx} className="flex items-center justify-between">
-                                          <span className="text-gray-600 text-sm truncate max-w-[100px]">{subject.subject}</span>
-                                          <span className={`font-bold text-sm px-2 py-1 rounded ${
-                                            subject.score >= 80 ? 'bg-emerald-100 text-emerald-800' :
-                                            subject.score >= 70 ? 'bg-green-100 text-green-800' :
-                                            subject.score >= 60 ? 'bg-blue-100 text-blue-800' :
-                                            subject.score >= 50 ? 'bg-yellow-100 text-yellow-800' :
-                                            subject.score >= 40 ? 'bg-orange-100 text-orange-800' :
-                                            'bg-red-100 text-red-800'
-                                          }`}>
-                                            {subject.score}% ({subject.grade})
-                                          </span>
-                                        </div>
-                                      ))}
-                                      {subjects.length > 2 && (
-                                        <div className="text-gray-500 text-xs">
-                                          +{subjects.length - 2} more subjects
+                                  <td className="px-8 py-6">
+                                    <div className="text-gray-700">
+                                      {result.subjects && Array.isArray(result.subjects) 
+                                        ? result.subjects.slice(0, 3).map((s, i) => (
+                                            <div key={i} className="text-sm">
+                                              {s.subject}: {s.score}% ({s.grade})
+                                            </div>
+                                          ))
+                                        : 'No subjects'}
+                                      {result.subjects && Array.isArray(result.subjects) && result.subjects.length > 3 && (
+                                        <div className="text-sm text-gray-500 mt-1">
+                                          +{result.subjects.length - 3} more subjects
                                         </div>
                                       )}
                                     </div>
                                   </td>
-                                  <td className="px-8 py-5">
-                                    <div className="text-center">
-                                      <div className={`text-2xl font-bold mb-1 ${
-                                        average >= 80 ? 'text-emerald-700' :
-                                        average >= 70 ? 'text-green-700' :
-                                        average >= 60 ? 'text-blue-700' :
-                                        average >= 50 ? 'text-yellow-700' :
-                                        average >= 40 ? 'text-orange-700' :
-                                        'text-red-700'
-                                      }`}>
+                                  <td className="px-8 py-6">
+                                    <div className="flex items-center gap-3">
+                                      <div className={`text-2xl font-bold ${getGradeColor(average).replace('bg-', 'text-')}`}>
                                         {average}%
                                       </div>
-                                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                      <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                                         <div 
                                           className={`h-full rounded-full ${
                                             average >= 80 ? 'bg-emerald-500' :
@@ -3294,25 +3968,19 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
                                       </div>
                                     </div>
                                   </td>
-                                  <td className="px-8 py-5">
+                                  <td className="px-8 py-6">
                                     <div className="flex items-center gap-2">
                                       <button
                                         onClick={() => viewResultDetails(result)}
-                                        className="px-3 py-2 bg-blue-50 text-blue-700 rounded-xl font-bold text-sm"
+                                        className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg font-bold text-sm hover:bg-purple-200 transition-colors"
                                       >
                                         View
                                       </button>
                                       <button
                                         onClick={() => editResult(result)}
-                                        className="px-3 py-2 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm"
+                                        className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm hover:bg-blue-200 transition-colors"
                                       >
                                         Edit
-                                      </button>
-                                      <button
-                                        onClick={() => handleDelete('result', result.id, `Results for ${result.admissionNumber}`)}
-                                        className="px-3 py-2 bg-red-50 text-red-700 rounded-xl font-bold text-sm"
-                                      >
-                                        Delete
                                       </button>
                                     </div>
                                   </td>
@@ -3323,72 +3991,70 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
                         </table>
                       </div>
                     </div>
-
-                    {/* Pagination - Added at the bottom */}
-                    {pagination.pages > 1 && (
-                      <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-white rounded-2xl border-2 border-gray-200 shadow-xl">
-                        <div className="text-gray-700 font-bold text-base">
-                          Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} results
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => handlePageChange(pagination.page - 1)}
-                            disabled={pagination.page === 1 || loading}
-                            className="p-3 rounded-full border-2 border-gray-300 hover:border-purple-500 hover:bg-purple-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
-                          >
-                            <FiArrowLeft className="text-lg" />
-                          </button>
-                          
-                          {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                            let pageNum;
-                            if (pagination.pages <= 5) {
-                              pageNum = i + 1;
-                            } else if (pagination.page <= 3) {
-                              pageNum = i + 1;
-                            } else if (pagination.page >= pagination.pages - 2) {
-                              pageNum = pagination.pages - 4 + i;
-                            } else {
-                              pageNum = pagination.page - 2 + i;
-                            }
-                            return (
-                              <button
-                                key={pageNum}
-                                onClick={() => handlePageChange(pageNum)}
-                                className={`w-12 h-12 rounded-xl font-bold text-base ${
-                                  pagination.page === pageNum
-                                    ? 'bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-2xl'
-                                    : 'border-2 border-gray-300 hover:border-purple-500 hover:bg-purple-50'
-                                }`}
-                              >
-                                {pageNum}
-                              </button>
-                            );
-                          })}
-                          
-                          <button
-                            onClick={() => handlePageChange(pagination.page + 1)}
-                            disabled={pagination.page === pagination.pages || loading}
-                            className="p-3 rounded-full border-2 border-gray-300 hover:border-purple-500 hover:bg-purple-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
-                          >
-                            <FiArrowRight className="text-lg" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </>
-                ) : (
+                )}
+
+                {studentResults.length === 0 && !loading && (
                   <div className="text-center py-20 bg-white rounded-2xl border-2 border-gray-300 shadow-xl">
                     <FiBook className="text-6xl text-gray-300 mx-auto mb-6" />
                     <p className="text-gray-600 text-xl font-bold mb-4">No academic results found</p>
                     {(filters.search || filters.form || filters.term) && (
                       <button
                         onClick={handleClearFilters}
-                        className="text-purple-600 font-bold text-lg"
+                        className="text-purple-600 font-bold text-lg hover:text-purple-800 transition-colors"
                       >
                         Clear filters to see all results
                       </button>
                     )}
+                  </div>
+                )}
+
+                {studentResults.length > 0 && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t-2 border-gray-300">
+                    <div className="text-gray-700 font-bold text-base">
+                      Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} results
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handlePageChange(pagination.page - 1)}
+                        disabled={pagination.page === 1}
+                        className="p-3 rounded-xl border-2 border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed hover:border-purple-500 hover:text-purple-600 transition-colors"
+                      >
+                        <FiArrowLeft className="text-base" />
+                      </button>
+                      {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
+                        let pageNum;
+                        if (pagination.pages <= 5) {
+                          pageNum = i + 1;
+                        } else if (pagination.page <= 3) {
+                          pageNum = i + 1;
+                        } else if (pagination.page >= pagination.pages - 2) {
+                          pageNum = pagination.pages - 4 + i;
+                        } else {
+                          pageNum = pagination.page - 2 + i;
+                        }
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`w-12 h-12 rounded-xl font-bold text-sm transition-all duration-300 ${
+                              pagination.page === pageNum
+                                ? 'bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-2xl'
+                                : 'border-2 border-gray-400 hover:border-purple-500 hover:text-purple-600'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                      <button
+                        onClick={() => handlePageChange(pagination.page + 1)}
+                        disabled={pagination.page === pagination.pages}
+                        className="p-3 rounded-xl border-2 border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed hover:border-purple-500 hover:text-purple-600 transition-colors"
+                      >
+                        <FiArrowRight className="text-base" />
+                      </button>
+                    </div>
                   </div>
                 )}
               </>
@@ -3396,7 +4062,6 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
           </div>
         )}
 
-        {/* History View */}
         {view === 'history' && (
           <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -3433,23 +4098,12 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
               <div className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[768px]">
-                    <thead className="bg-gradient-to-r from-purple-100 to-white">
+                    <thead className="bg-gradient-to-r from-gray-100 to-white">
                       <tr>
-                        <th className="px-8 py-6 text-left text-base font-bold text-purple-700 uppercase tracking-wider">
-                          Upload Details
-                        </th>
-                        <th className="px-8 py-6 text-left text-base font-bold text-purple-700 uppercase tracking-wider">
-                          Academic Info
-                        </th>
-                        <th className="px-8 py-6 text-left text-base font-bold text-purple-700 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-8 py-6 text-left text-base font-bold text-purple-700 uppercase tracking-wider">
-                          Statistics
-                        </th>
-                        <th className="px-8 py-6 text-left text-base font-bold text-purple-700 uppercase tracking-wider">
-                          Actions
-                        </th>
+                        <th className="px-8 py-6 text-left text-base font-bold text-gray-700">Upload Details</th>
+                        <th className="px-8 py-6 text-left text-base font-bold text-gray-700">Status</th>
+                        <th className="px-8 py-6 text-left text-base font-bold text-gray-700">Statistics</th>
+                        <th className="px-8 py-6 text-left text-base font-bold text-gray-700">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y-2 divide-gray-200">
@@ -3464,29 +4118,30 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
                                 <div className="font-bold text-gray-900 text-base truncate max-w-[250px] lg:max-w-md">
                                   {upload.fileName}
                                 </div>
-                                <div className="text-gray-600 mt-2 space-y-1">
-                                  <div className="text-sm font-semibold">
-                                    {new Date(upload.uploadDate).toLocaleDateString('en-US', {
-                                      year: 'numeric',
-                                      month: 'long',
-                                      day: 'numeric',
-                                      hour: '2-digit',
-                                      minute: '2-digit'
-                                    })}
-                                  </div>
-                                  <div className="text-sm text-gray-500">
-                                    By: {upload.uploadedBy}
-                                  </div>
+                                <div className="text-gray-600 mt-2 font-semibold text-sm">
+                                  {new Date(upload.uploadDate).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
                                 </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-8 py-6">
-                            <div className="space-y-1">
-                              <div className="font-bold text-gray-900">{upload.term}</div>
-                              <div className="text-sm text-gray-600">{upload.academicYear}</div>
-                              <div className="text-xs text-gray-500">
-                                {upload.fileType.toUpperCase()}
+                                <div className="mt-2">
+                                  <span className="px-2 py-1 rounded text-xs font-bold bg-purple-100 text-purple-700">
+                                    {upload.metadata?.uploadMode === 'create' ? 'Create' : 'Update'}
+                                  </span>
+                                  {upload.metadata?.selectedForms && (
+                                    <span className="ml-2 px-2 py-1 rounded text-xs font-bold bg-gray-100 text-gray-700">
+                                      {upload.metadata.selectedForms.length} forms
+                                    </span>
+                                  )}
+                                  {upload.metadata?.targetForm && (
+                                    <span className="ml-2 px-2 py-1 rounded text-xs font-bold bg-gray-100 text-gray-700">
+                                      {upload.metadata.targetForm}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -3511,11 +4166,6 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
                               <div className="text-gray-600 font-semibold text-sm">
                                 Total: {upload.totalRows || 0} rows processed
                               </div>
-                              {upload.resultCount > 0 && (
-                                <div className="text-purple-700 font-bold text-sm">
-                                  {upload.resultCount || 0} result records
-                                </div>
-                              )}
                             </div>
                           </td>
                           <td className="px-8 py-6">
@@ -3537,58 +4187,7 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
         )}
       </div>
 
-
-<Snackbar
-  open={notification.open}
-  autoHideDuration={6000}
-  onClose={handleCloseNotification}
-  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
->
-  <MuiAlert
-    onClose={handleCloseNotification}
-    severity={notification.severity}
-    variant="filled"
-    elevation={0}
-    sx={{
-      width: '440px',
-      minHeight: '90px',
-      fontSize: '1.1rem',
-      padding: '18px 22px',
-      borderRadius: '18px',
-      boxShadow: '0 18px 40px rgba(0,0,0,0.18)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 2,
-      backdropFilter: 'blur(10px)',
-      
-      // Custom colors for each severity
-      backgroundColor: (theme) => {
-        switch (notification.severity) {
-          case 'success': return 'rgba(46, 125, 50, 0.9)'; // Darker green
-          case 'error': return 'rgba(211, 47, 47, 0.9)'; // Darker red
-          case 'warning': return 'rgba(237, 108, 2, 0.9)'; // Orange
-          case 'info': return 'rgba(2, 136, 209, 0.9)'; // Blue
-          default: return 'rgba(97, 97, 97, 0.9)'; // Grey
-        }
-      },
-      color: '#fff',
-      
-      '& .MuiAlert-icon': {
-        fontSize: '1.8rem',
-        opacity: 0.9,
-        color: '#fff',
-      },
-    }}
-  >
-    {notification.message}
-  </MuiAlert>
-</Snackbar>
-
-
-      
-
-      {/* Modals */}
-      {selectedResult && !editingResult && (
+      {selectedResult && (
         <ResultDetailModal
           result={selectedResult}
           student={selectedStudent}
@@ -3596,8 +4195,11 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
             setSelectedResult(null);
             setSelectedStudent(null);
           }}
-          onEdit={() => editResult(selectedResult)}
-          onDelete={(admissionNumber) => handleDelete('result', selectedResult.id, `Results for ${admissionNumber}`)}
+          onEdit={() => {
+            setEditingResult(selectedResult);
+            setSelectedResult(null);
+          }}
+          onDelete={() => handleDelete('result', selectedResult.id, `Results for ${selectedResult.admissionNumber}`)}
           showNotification={showNotification}
         />
       )}
@@ -3629,6 +4231,26 @@ const template = `admissionNumber,form,stream,term,academicYear,totalScore,avera
           showNotification={showNotification}
         />
       )}
+
+      <ResultsUploadStrategyModal
+        open={showStrategyModal}
+        onClose={() => setShowStrategyModal(false)}
+        onConfirm={handleStrategyConfirm}
+        loading={loading}
+        showNotification={showNotification}
+      />
+<ResultsDuplicateValidationModal
+  open={showValidationModal}
+  onClose={() => setShowValidationModal(false)}
+  duplicates={duplicates}
+  onProceed={proceedWithUpload}
+  loading={uploading}
+  uploadType={uploadStrategy?.uploadMode} // Make sure this is uploadType
+  showNotification={showNotification}
+  term={uploadStrategy?.term}
+  academicYear={uploadStrategy?.academicYear}
+  targetForm={uploadStrategy?.targetForm}
+/>
     </div>
   );
 }

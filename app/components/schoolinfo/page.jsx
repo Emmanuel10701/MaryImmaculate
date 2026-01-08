@@ -3730,67 +3730,128 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       <label className="block text-sm font-bold text-gray-700 mb-1.5">
                         School Name <span className="text-red-500">*</span>
                       </label>
-                      <TextField 
-                        fullWidth 
-                        size="small"
-                        value={formData.name} 
-                        onChange={(e) => handleChange('name', e.target.value)}
-                        placeholder="Enter school name..." 
-                        required
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '10px',
-                            backgroundColor: '#f9fafb',
-                            fontSize: '0.875rem'
-                          }
-                        }}
-                      />
+                   <TextField
+  fullWidth
+  value={formData.name}
+  onChange={(e) => handleChange('name', e.target.value)}
+  placeholder="Enter school name..."
+  required
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      width: '100%',
+      fontSize: '1rem',               // text-base
+      paddingLeft: '0px',             // handled by input
+      borderRadius: '12px',            // rounded-xl
+      backgroundColor: '#fff',
+
+      '& fieldset': {
+        borderWidth: '2px',            // border-2
+        borderColor: '#d1d5db',         // border-gray-300
+      },
+
+      '&:hover fieldset': {
+        borderColor: '#d1d5db',
+      },
+
+      '&.Mui-focused fieldset': {
+        borderColor: '#6366f1',         // indigo-500
+      },
+    },
+
+    '& .MuiOutlinedInput-input': {
+      padding: '14px 16px',             // py-3.5 px-4
+    },
+  }}
+/>
+
                     </div>
                     
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-1.5">
                         Student Count <span className="text-red-500">*</span>
                       </label>
-                      <TextField 
-                        fullWidth 
-                        size="small"
-                        type="number"
-                        min="1"
-                        value={formData.studentCount} 
-                        onChange={(e) => handleChange('studentCount', e.target.value)}
-                        placeholder="Enter number of students..." 
-                        required
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '10px',
-                            backgroundColor: '#f9fafb',
-                            fontSize: '0.875rem'
-                          }
-                        }}
-                      />
+                    <TextField
+  fullWidth
+  type="number"
+  inputProps={{ min: 1 }}
+  value={formData.studentCount}
+  onChange={(e) => handleChange('studentCount', e.target.value)}
+  placeholder="Enter number of students..."
+  required
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      fontSize: '1rem',
+      borderRadius: '12px',
+      backgroundColor: '#fff',
+
+      '& fieldset': {
+        borderWidth: '2px',
+        borderColor: '#d1d5db',
+      },
+
+      '&:hover fieldset': {
+        borderColor: '#d1d5db',
+      },
+
+      '&.Mui-focused fieldset': {
+        borderColor: '#6366f1',
+      },
+
+      '&.Mui-focused': {
+        boxShadow: '0 0 0 1px #6366f1',
+      },
+    },
+
+    '& .MuiOutlinedInput-input': {
+      padding: '14px 16px',
+    },
+  }}
+/>
+
                     </div>
                     
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-1.5">
                         Staff Count <span className="text-red-500">*</span>
                       </label>
-                      <TextField 
-                        fullWidth 
-                        size="small"
-                        type="number"
-                        min="1"
-                        value={formData.staffCount} 
-                        onChange={(e) => handleChange('staffCount', e.target.value)}
-                        placeholder="Enter number of staff..." 
-                        required
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '10px',
-                            backgroundColor: '#f9fafb',
-                            fontSize: '0.875rem'
-                          }
-                        }}
-                      />
+                   <TextField
+  fullWidth
+  type="number"
+  inputProps={{ min: 1 }}
+  value={formData.staffCount}
+  onChange={(e) => handleChange('staffCount', e.target.value)}
+  placeholder="Enter number of staff..."
+  required
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      fontSize: '1rem',
+      borderRadius: '12px',
+      backgroundColor: '#fff',
+
+      '& fieldset': {
+        borderWidth: '2px',
+        borderColor: '#d1d5db',
+      },
+
+      '&:hover fieldset': {
+        borderColor: '#d1d5db',
+      },
+
+      '&.Mui-focused fieldset': {
+        borderColor: '#6366f1',
+      },
+
+      '&.Mui-focused': {
+        boxShadow: '0 0 0 1px #6366f1',
+      },
+    },
+
+    '& .MuiOutlinedInput-input': {
+      padding: '14px 16px',
+    },
+  }}
+/>
+
                     </div>
                   </div>
                   
@@ -3799,46 +3860,105 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       <label className="block text-sm font-bold text-gray-700 mb-1.5">
                         School Motto
                       </label>
-                      <TextField 
-                        fullWidth 
-                        size="small"
-                        value={formData.motto} 
-                        onChange={(e) => handleChange('motto', e.target.value)}
-                        placeholder="Enter school motto..." 
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '10px',
-                            backgroundColor: '#f9fafb',
-                            fontSize: '0.875rem'
-                          }
-                        }}
-                      />
+                  <TextField
+  fullWidth
+  value={formData.motto}
+  onChange={(e) => handleChange('motto', e.target.value)}
+  placeholder="Enter school motto..."
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      fontSize: '1rem',
+      borderRadius: '12px',
+      backgroundColor: '#fff',
+
+      '& fieldset': {
+        borderWidth: '2px',
+        borderColor: '#d1d5db',
+      },
+
+      '&:hover fieldset': {
+        borderColor: '#d1d5db',
+      },
+
+      '&.Mui-focused fieldset': {
+        borderColor: '#6366f1',
+      },
+
+      '&.Mui-focused': {
+        boxShadow: '0 0 0 1px #6366f1',
+      },
+    },
+
+    '& .MuiOutlinedInput-input': {
+      padding: '14px 16px',
+    },
+  }}
+/>
+
                     </div>
                     
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-1.5">
                         Vision Statement
                       </label>
-                      <TextareaAutosize 
-                        minRows={2} 
-                        value={formData.vision} 
-                        onChange={(e) => handleChange('vision', e.target.value)}
-                        placeholder="Enter vision statement..."
-                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-gray-50 font-medium text-sm"
-                      />
+             <TextareaAutosize
+  minRows={2}
+  value={formData.vision}
+  onChange={(e) => handleChange('vision', e.target.value)}
+  placeholder="Enter vision statement..."
+  style={{
+    width: '100%',
+    padding: '14px 16px',           // py-3.5 px-4
+    fontSize: '1rem',               // text-base
+    fontFamily: 'inherit',
+    borderRadius: '12px',           // rounded-xl
+    border: '2px solid #d1d5db',    // border-gray-300
+    backgroundColor: '#fff',
+    resize: 'none',
+    outline: 'none',
+  }}
+  onFocus={(e) => {
+    e.target.style.borderColor = '#6366f1';     // indigo-500
+    e.target.style.boxShadow = '0 0 0 1px #6366f1';
+  }}
+  onBlur={(e) => {
+    e.target.style.borderColor = '#d1d5db';
+    e.target.style.boxShadow = 'none';
+  }}
+/>
+
                     </div>
                     
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-1.5">
                         Mission Statement
                       </label>
-                      <TextareaAutosize 
-                        minRows={2} 
-                        value={formData.mission} 
-                        onChange={(e) => handleChange('mission', e.target.value)}
-                        placeholder="Enter mission statement..."
-                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-gray-50 font-medium text-sm"
-                      />
+                <TextareaAutosize
+  minRows={2}
+  value={formData.mission}
+  onChange={(e) => handleChange('mission', e.target.value)}
+  placeholder="Enter mission statement..."
+  style={{
+    width: '100%',
+    padding: '14px 16px',
+    fontSize: '1rem',
+    fontFamily: 'inherit',
+    borderRadius: '12px',
+    border: '2px solid #d1d5db',
+    backgroundColor: '#fff',
+    resize: 'none',
+    outline: 'none',
+  }}
+  onFocus={(e) => {
+    e.target.style.borderColor = '#6366f1';
+    e.target.style.boxShadow = '0 0 0 1px #6366f1';
+  }}
+  onBlur={(e) => {
+    e.target.style.borderColor = '#d1d5db';
+    e.target.style.boxShadow = 'none';
+  }}
+/>
+
                     </div>
                   </div>
                 </div>
@@ -3847,13 +3967,32 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                   <label className="block text-sm font-bold text-gray-700 mb-1.5">
                     School Description
                   </label>
-                  <TextareaAutosize 
-                    minRows={3} 
-                    value={formData.description} 
-                    onChange={(e) => handleChange('description', e.target.value)}
-                    placeholder="Describe your school... Write about history, achievements, facilities, etc."
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-gray-50 font-medium text-sm"
-                  />
+             <TextareaAutosize
+  minRows={3}
+  value={formData.description}
+  onChange={(e) => handleChange('description', e.target.value)}
+  placeholder="Describe your school... Write about history, achievements, facilities, etc."
+  style={{
+    width: '100%',
+    padding: '14px 16px',
+    fontSize: '1rem',
+    fontFamily: 'inherit',
+    borderRadius: '12px',
+    border: '2px solid #d1d5db',
+    backgroundColor: '#fff',
+    resize: 'none',
+    outline: 'none',
+  }}
+  onFocus={(e) => {
+    e.target.style.borderColor = '#6366f1';
+    e.target.style.boxShadow = '0 0 0 1px #6366f1';
+  }}
+  onBlur={(e) => {
+    e.target.style.borderColor = '#d1d5db';
+    e.target.style.boxShadow = 'none';
+  }}
+/>
+
                 </div>
               </div>
             )}

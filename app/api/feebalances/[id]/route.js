@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/libs/prisma';
+import { prisma } from '../../../../libs/prisma'; // ✅ named import
 
 // GET fee balances by admission number
 export async function GET(request, { params }) {

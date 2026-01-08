@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { parse } from 'papaparse';
 import * as XLSX from 'xlsx';
-import { prisma } from "../../../libs/prisma";
+import { prisma } from '../../../libs/prisma';
 
-// ========== ENHANCED HELPER FUNCTIONS ==========
+// ========== HELPER FUNCTIONS ==========
 
 const parseScore = (value) => {
   if (!value && value !== 0) return null;
@@ -15,11 +15,9 @@ const parseScore = (value) => {
   return isNaN(parsed) ? null : Math.round(parsed * 100) / 100;
 };
 
-// Enhanced calculateGrade with subject-specific thresholds
 const calculateGrade = (score, subjectName = '') => {
   if (score === null || score === undefined) return 'N/A';
   
-  // Mathematics has different thresholds (A starts at 75)
   const isMathematics = subjectName.toLowerCase().includes('mathematics');
   
   if (isMathematics) {
@@ -35,7 +33,6 @@ const calculateGrade = (score, subjectName = '') => {
     if (score >= 30) return 'D';
     return 'E';
   } else {
-    // Standard thresholds for other subjects (A starts at 80)
     if (score >= 80) return 'A';
     if (score >= 70) return 'A-';
     if (score >= 60) return 'B+';
@@ -50,27 +47,11 @@ const calculateGrade = (score, subjectName = '') => {
   }
 };
 
-// AUTO-GENERATED COMMENT SYSTEM
 const generateSubjectComment = (score, subjectName = '') => {
   if (score === null || score === undefined) return '';
   
-  // Mathematics has different thresholds
-  const isMathematics = subjectName.toLowerCase().includes('mathematics');
-  
-  // Determine grade first
   const grade = calculateGrade(score, subjectName);
   
-  // Core subjects with specific grading
-  const coreSubjects = ['english', 'kiswahili', 'biology', 'chemistry', 'physics'];
-  const humanitiesSubjects = ['cre', 'ire', 'hre', 'geography', 'history'];
-  const optionalSubjects = ['agriculture', 'business studies', 'home science', 'computer studies', 'german', 'french'];
-  
-  const subjectLower = subjectName.toLowerCase().trim();
-  const isCoreSubject = coreSubjects.some(sub => subjectLower.includes(sub));
-  const isHumanities = humanitiesSubjects.some(sub => subjectLower.includes(sub));
-  const isOptional = optionalSubjects.some(sub => subjectLower.includes(sub));
-  
-  // Grade-based comment templates with progressive tones
   const commentTemplates = {
     'A': {
       excellent: [
@@ -136,16 +117,13 @@ const generateSubjectComment = (score, subjectName = '') => {
     ]
   };
 
-  // Select appropriate comment based on score
   let selectedComment = '';
   
   if (grade === 'A') {
     if (score >= 90) {
-      // Excellent comments for 90+ scores
       const excellentComments = commentTemplates.A.excellent;
       selectedComment = excellentComments[Math.floor(Math.random() * excellentComments.length)];
     } else {
-      // Standard A comments for 80-89 (or 75-89 for Math)
       const standardComments = commentTemplates.A.standard;
       selectedComment = standardComments[Math.floor(Math.random() * standardComments.length)];
     }
@@ -154,7 +132,6 @@ const generateSubjectComment = (score, subjectName = '') => {
     if (gradeComments && Array.isArray(gradeComments)) {
       selectedComment = gradeComments[Math.floor(Math.random() * gradeComments.length)];
     } else {
-      // Fallback comment
       selectedComment = `Performance graded as ${grade}. ${score >= 50 ? 'Keep working hard!' : 'Needs significant improvement.'}`;
     }
   }
@@ -162,35 +139,11 @@ const generateSubjectComment = (score, subjectName = '') => {
   return selectedComment;
 };
 
-const calculateResultAverage = (result) => {
-  if (!result.subjects) return 0;
-  
-  let subjects = result.subjects;
-  
-  if (typeof subjects === 'string') {
-    try {
-      subjects = JSON.parse(subjects);
-    } catch (e) {
-      return 0;
-    }
-  }
-  
-  if (!Array.isArray(subjects) || subjects.length === 0) return 0;
-  
-  const totalScore = subjects.reduce((sum, s) => {
-    const score = parseFloat(s.score) || 0;
-    return sum + score;
-  }, 0);
-  
-  return subjects.length > 0 ? parseFloat((totalScore / subjects.length).toFixed(2)) : 0;
-};
-
 const calculatePoints = (score, subjectName = '') => {
   if (score === null) return null;
   
   const grade = calculateGrade(score, subjectName);
   
-  // Determine subject type (main vs optional)
   const subjectLower = subjectName.toLowerCase().trim();
   const optionalSubjects = ['agriculture', 'business studies', 'home science', 'computer studies', 'german', 'french', 'art', 'music', 'drama'];
   const isOptional = optionalSubjects.some(sub => subjectLower.includes(sub));
@@ -317,167 +270,950 @@ const normalizeSubjectName = (subjectName) => {
     .join(' ');
 };
 
-// ========== ENHANCED PARSING FUNCTIONS WITH AUTO-COMMENTS ==========
-
-const parseResultsCSV = async (file, term, academicYear) => {
-  const text = await file.text();
+// ========== BUILD WHERE CLAUSE ==========
+const buildWhereClause = (params) => {
+  const { admissionNumber, form, term, academicYear, search } = params;
+  const where = {};
   
-  return new Promise((resolve, reject) => {
-    parse(text, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        const data = results.data
-          .map((row, index) => {
-            try {
-              // Extract admission number
-              const admissionNumber = row.admissionNumber || row.admissionnumber || 
-                                    row.admno || row.AdmNo || row.admission || row.Admission ||
-                                    Object.values(row).find(val => /^3[0-5]\d{2}$/.test(String(val))) || '';
-              
-              if (!admissionNumber) {
-                return null;
-              }
-              
-              const subjects = [];
-              const processedSubjects = new Set();
-              
-              // Extract all subject scores from the row
-              for (const [columnName, value] of Object.entries(row)) {
-                const columnStr = String(columnName).trim();
+  if (admissionNumber) where.admissionNumber = admissionNumber;
+  if (form) where.form = form;
+  if (term) where.term = term;
+  if (academicYear) where.academicYear = academicYear;
+  
+  if (search && search.trim()) {
+    const searchTerm = search.toLowerCase();
+    where.OR = [
+      { admissionNumber: { contains: searchTerm } }
+    ];
+  }
+  
+  return where;
+};
+
+// ========== CALCULATE STATISTICS ==========
+const calculateStatistics = async (whereClause = {}) => {
+  try {
+    // Get all results for calculations
+    const allResults = await prisma.studentResult.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        form: true,
+        term: true,
+        subjects: true,
+        admissionNumber: true
+      }
+    });
+
+    let totalScore = 0;
+    let resultCount = 0;
+    let topScore = 0;
+    
+    const formDistribution = {
+      'Form 1': 0,
+      'Form 2': 0,
+      'Form 3': 0,
+      'Form 4': 0
+    };
+    
+    const termDistribution = {
+      'Term 1': 0,
+      'Term 2': 0,
+      'Term 3': 0
+    };
+    
+    const gradeDistribution = {
+      'A': 0, 'A-': 0, 'B+': 0, 'B': 0, 'B-': 0,
+      'C+': 0, 'C': 0, 'C-': 0, 'D+': 0, 'D': 0, 'E': 0
+    };
+    
+    const subjectPerformance = {};
+    const uniqueStudents = new Set();
+    
+    // Process each result
+    allResults.forEach(result => {
+      uniqueStudents.add(result.admissionNumber);
+      
+      // Update form distribution
+      if (result.form) {
+        const formKey = result.form.includes('Form ') ? result.form : `Form ${result.form}`;
+        if (formDistribution[formKey] !== undefined) {
+          formDistribution[formKey] = (formDistribution[formKey] || 0) + 1;
+        }
+      }
+      
+      // Update term distribution
+      if (result.term) {
+        const termKey = result.term.includes('Term ') ? result.term : `Term ${result.term}`;
+        if (termDistribution[termKey] !== undefined) {
+          termDistribution[termKey] = (termDistribution[termKey] || 0) + 1;
+        }
+      }
+      
+      // Parse subjects
+      let subjects = [];
+      try {
+        if (typeof result.subjects === 'string') {
+          subjects = JSON.parse(result.subjects);
+        } else if (Array.isArray(result.subjects)) {
+          subjects = result.subjects;
+        }
+      } catch (e) {
+        console.error('Error parsing subjects:', e);
+        return;
+      }
+      
+      // Calculate average score for this result
+      if (subjects.length > 0) {
+        const resultTotal = subjects.reduce((sum, s) => sum + (parseFloat(s.score) || 0), 0);
+        const avg = resultTotal / subjects.length;
+        
+        totalScore += avg;
+        resultCount++;
+        
+        if (avg > topScore) topScore = avg;
+        
+        // Process each subject
+        subjects.forEach(subject => {
+          const score = parseFloat(subject.score) || 0;
+          const subjectName = subject.subject || 'Unknown';
+          const grade = subject.grade || calculateGrade(score, subjectName);
+          
+          // Update subject performance
+          if (!subjectPerformance[subjectName]) {
+            subjectPerformance[subjectName] = {
+              totalScore: 0,
+              count: 0,
+              average: 0
+            };
+          }
+          subjectPerformance[subjectName].totalScore += score;
+          subjectPerformance[subjectName].count++;
+          subjectPerformance[subjectName].average = 
+            subjectPerformance[subjectName].totalScore / subjectPerformance[subjectName].count;
+          
+          // Update grade distribution
+          if (gradeDistribution[grade] !== undefined) {
+            gradeDistribution[grade]++;
+          } else {
+            gradeDistribution[grade] = 1;
+          }
+        });
+      }
+    });
+
+    // Calculate overall averages
+    const averageScore = resultCount > 0 ? totalScore / resultCount : 0;
+    
+    // Format subject performance for response
+    const formattedSubjectPerformance = {};
+    Object.keys(subjectPerformance).forEach(subject => {
+      formattedSubjectPerformance[subject] = {
+        averageScore: parseFloat(subjectPerformance[subject].average.toFixed(2)),
+        totalResults: subjectPerformance[subject].count
+      };
+    });
+
+    const stats = {
+      totalResults: allResults.length,
+      totalStudents: uniqueStudents.size,
+      averageScore: parseFloat(averageScore.toFixed(2)),
+      topScore: parseFloat(topScore.toFixed(2)),
+      formDistribution,
+      termDistribution,
+      gradeDistribution,
+      subjectPerformance: formattedSubjectPerformance,
+      updatedAt: new Date()
+    };
+
+    return {
+      stats,
+      validation: {
+        isValid: true,
+        totalResults: allResults.length,
+        uniqueStudents: uniqueStudents.size,
+        calculatedScore: parseFloat(averageScore.toFixed(2))
+      }
+    };
+  } catch (error) {
+    console.error('Error calculating statistics:', error);
+    throw error;
+  }
+};
+
+// ========== UPDATE CACHED STATS ==========
+const updateCachedStats = async (stats) => {
+  try {
+    await prisma.resultsStats.upsert({
+      where: { id: 'global_stats' },
+      update: {
+        totalResults: stats.totalResults,
+        totalStudents: stats.totalStudents,
+        averageScore: stats.averageScore,
+        topScore: stats.topScore,
+        formDistribution: stats.formDistribution,
+        termDistribution: stats.termDistribution,
+        gradeDistribution: stats.gradeDistribution,
+        subjectPerformance: stats.subjectPerformance,
+        updatedAt: new Date()
+      },
+      create: {
+        id: 'global_stats',
+        ...stats
+      }
+    });
+  } catch (error) {
+    console.error('Error updating cached stats:', error);
+  }
+};
+
+// ========== UPLOAD STRATEGY FUNCTIONS ==========
+const validateFormSelection = (forms) => {
+  if (!forms || forms.length === 0) {
+    throw new Error('Please select at least one form to upload');
+  }
+  
+  const validForms = ['Form 1', 'Form 2', 'Form 3', 'Form 4'];
+  const normalizedForms = [];
+  
+  forms.forEach(form => {
+    const trimmed = form.trim();
+    const formMap = {
+      'form1': 'Form 1',
+      'form 1': 'Form 1',
+      '1': 'Form 1',
+      'form2': 'Form 2',
+      'form 2': 'Form 2',
+      '2': 'Form 2',
+      'form3': 'Form 3',
+      'form 3': 'Form 3',
+      '3': 'Form 3',
+      'form4': 'Form 4',
+      'form 4': 'Form 4',
+      '4': 'Form 4'
+    };
+    
+    const normalized = formMap[trimmed.toLowerCase()] || trimmed;
+    if (validForms.includes(normalized)) {
+      normalizedForms.push(normalized);
+    }
+  });
+  
+  if (normalizedForms.length === 0) {
+    throw new Error('Please select valid forms (Form 1, Form 2, Form 3, Form 4)');
+  }
+  
+  return normalizedForms;
+};
+
+const checkDuplicateResults = async (results, targetForm = null, term = null, academicYear = null) => {
+  const admissionNumbers = results.map(r => r.admissionNumber);
+  
+  const whereClause = {
+    admissionNumber: { in: admissionNumbers }
+  };
+  
+  if (targetForm) whereClause.form = targetForm;
+  if (term) whereClause.term = term;
+  if (academicYear) whereClause.academicYear = academicYear;
+  
+  const existingResults = await prisma.studentResult.findMany({
+    where: whereClause,
+    select: {
+      admissionNumber: true,
+      form: true,
+      term: true,
+      academicYear: true
+    }
+  });
+  
+  const duplicates = results
+    .map((result, index) => {
+      const existing = existingResults.find(r => 
+        r.admissionNumber === result.admissionNumber &&
+        r.form === (targetForm || result.form) &&
+        r.term === (term || result.term) &&
+        r.academicYear === (academicYear || result.academicYear)
+      );
+      if (existing) {
+        return {
+          row: index + 2,
+          admissionNumber: result.admissionNumber,
+          form: existing.form,
+          term: existing.term,
+          academicYear: existing.academicYear
+        };
+      }
+      return null;
+    })
+    .filter(dup => dup !== null);
+  
+  return duplicates;
+};
+
+// Compare results for changes
+const compareResults = (oldSubjects, newSubjects) => {
+  if (!Array.isArray(oldSubjects) || !Array.isArray(newSubjects)) {
+    return { hasChanges: true, changedSubjects: [] };
+  }
+  
+  const changedSubjects = [];
+  const oldSubjectsMap = new Map();
+  const newSubjectsMap = new Map();
+  
+  // Create maps for comparison
+  oldSubjects.forEach(subject => {
+    const key = subject.subject?.toLowerCase() || '';
+    oldSubjectsMap.set(key, subject);
+  });
+  
+  newSubjects.forEach(subject => {
+    const key = subject.subject?.toLowerCase() || '';
+    newSubjectsMap.set(key, subject);
+  });
+  
+  // Check for changed scores
+  for (const [subjectKey, oldSubject] of oldSubjectsMap.entries()) {
+    const newSubject = newSubjectsMap.get(subjectKey);
+    
+    if (newSubject) {
+      const oldScore = parseFloat(oldSubject.score) || 0;
+      const newScore = parseFloat(newSubject.score) || 0;
+      
+      if (Math.abs(oldScore - newScore) > 0.01) {
+        changedSubjects.push({
+          subject: subjectKey,
+          oldScore,
+          newScore,
+          change: newScore - oldScore
+        });
+      }
+    } else {
+      // Subject removed from new results
+      changedSubjects.push({
+        subject: subjectKey,
+        oldScore: parseFloat(oldSubject.score) || 0,
+        newScore: 0,
+        change: 'removed'
+      });
+    }
+  }
+  
+  // Check for new subjects added
+  for (const [subjectKey, newSubject] of newSubjectsMap.entries()) {
+    if (!oldSubjectsMap.has(subjectKey)) {
+      changedSubjects.push({
+        subject: subjectKey,
+        oldScore: 0,
+        newScore: parseFloat(newSubject.score) || 0,
+        change: 'added'
+      });
+    }
+  }
+  
+  return {
+    hasChanges: changedSubjects.length > 0,
+    changedSubjects
+  };
+};
+
+// Validate result data
+const validateResult = (result, index) => {
+  const errors = [];
+  
+  // Admission number
+  if (!result.admissionNumber) {
+    errors.push(`Row ${index + 2}: Admission number is required`);
+  } else if (!/^\d{4,10}$/.test(result.admissionNumber)) {
+    errors.push(`Row ${index + 2}: Admission number must be 4-10 digits (got: ${result.admissionNumber})`);
+  }
+  
+  // Form validation
+  if (!result.form) {
+    errors.push(`Row ${index + 2}: Form is required`);
+  } else {
+    const formValue = result.form.trim();
+    const validForms = ['Form 1', 'Form 2', 'Form 3', 'Form 4'];
+    if (!validForms.includes(formValue)) {
+      errors.push(`Row ${index + 2}: Form must be one of: ${validForms.join(', ')} (got: ${formValue})`);
+    }
+  }
+  
+  // Term validation
+  if (!result.term) {
+    errors.push(`Row ${index + 2}: Term is required`);
+  } else {
+    const termValue = normalizeTerm(result.term);
+    const validTerms = ['Term 1', 'Term 2', 'Term 3'];
+    if (!validTerms.includes(termValue)) {
+      errors.push(`Row ${index + 2}: Term must be one of: ${validTerms.join(', ')} (got: ${termValue})`);
+    }
+  }
+  
+  // Academic year validation
+  if (!result.academicYear) {
+    errors.push(`Row ${index + 2}: Academic year is required`);
+  }
+  
+  // Subjects validation
+  if (!result.subjects || !Array.isArray(result.subjects) || result.subjects.length === 0) {
+    errors.push(`Row ${index + 2}: At least one subject score is required`);
+  } else {
+    result.subjects.forEach((subject, subIndex) => {
+      if (!subject.subject) {
+        errors.push(`Row ${index + 2}: Subject name is required for subject ${subIndex + 1}`);
+      }
+      if (subject.score === null || subject.score === undefined) {
+        errors.push(`Row ${index + 2}: Score is required for ${subject.subject || `subject ${subIndex + 1}`}`);
+      } else if (subject.score < 0 || subject.score > 100) {
+        errors.push(`Row ${index + 2}: Score for ${subject.subject} must be between 0 and 100 (got: ${subject.score})`);
+      }
+    });
+  }
+  
+  return { isValid: errors.length === 0, errors };
+};
+
+// ========== PROCESSING FUNCTIONS ==========
+const processNewResultsUpload = async (results, uploadBatchId, selectedForms, duplicateAction = 'skip') => {
+  const stats = {
+    totalRows: results.length,
+    validRows: 0,
+    skippedRows: 0,
+    errorRows: 0,
+    newRecords: 0,
+    updatedRecords: 0,
+    duplicateRecords: 0,
+    errors: [],
+    warnings: []
+  };
+  
+  // Filter results to only include selected forms
+  const filteredResults = results.filter(result => 
+    selectedForms.includes(result.form)
+  );
+  
+  if (filteredResults.length === 0) {
+    throw new Error(`No results found for selected forms: ${selectedForms.join(', ')}`);
+  }
+  
+  // Check if students exist
+  const admissionNumbers = filteredResults.map(r => r.admissionNumber);
+  const existingStudents = await prisma.databaseStudent.findMany({
+    where: {
+      admissionNumber: { in: admissionNumbers },
+      status: 'active'
+    },
+    select: {
+      admissionNumber: true,
+      firstName: true,
+      lastName: true,
+      form: true
+    }
+  });
+  
+  const studentMap = new Map();
+  existingStudents.forEach(student => {
+    studentMap.set(student.admissionNumber, student);
+  });
+  
+  // Check for existing results
+  const existingResults = await prisma.studentResult.findMany({
+    where: {
+      admissionNumber: { in: admissionNumbers }
+    },
+    select: {
+      admissionNumber: true,
+      form: true,
+      term: true,
+      academicYear: true,
+      id: true,
+      subjects: true
+    }
+  });
+  
+  const existingResultMap = new Map();
+  existingResults.forEach(result => {
+    const key = `${result.admissionNumber}_${result.form}_${result.term}_${result.academicYear}`;
+    existingResultMap.set(key, result);
+  });
+  
+  const seenAdmissionNumbers = new Set();
+  const resultsToCreate = [];
+  const resultsToUpdate = [];
+  
+  for (const [index, result] of filteredResults.entries()) {
+    const validation = validateResult(result, index);
+    
+    if (!validation.isValid) {
+      stats.errorRows++;
+      stats.errors.push(...validation.errors);
+      continue;
+    }
+    
+    const admissionNumber = result.admissionNumber;
+    
+    // Check duplicates within the file
+    const resultKey = `${admissionNumber}_${result.form}_${result.term}_${result.academicYear}`;
+    if (seenAdmissionNumbers.has(resultKey)) {
+      stats.skippedRows++;
+      stats.errors.push(`Row ${index + 2}: Duplicate result combination in file: ${admissionNumber} - ${result.form} ${result.term} ${result.academicYear}`);
+      continue;
+    }
+    seenAdmissionNumbers.add(resultKey);
+    
+    // Check if student exists
+    const student = studentMap.get(admissionNumber);
+    if (!student) {
+      stats.errorRows++;
+      stats.errors.push(`Row ${index + 2}: Student ${admissionNumber} not found in database`);
+      continue;
+    }
+    
+    // Check if student form matches
+    if (student.form !== result.form) {
+      stats.errorRows++;
+      stats.errors.push(`Row ${index + 2}: Student ${admissionNumber} is in ${student.form}, not ${result.form}`);
+      continue;
+    }
+    
+    // Check if result already exists
+    const existingResult = existingResultMap.get(resultKey);
+    
+    if (existingResult) {
+      if (duplicateAction === 'skip') {
+        stats.duplicateRecords++;
+        stats.skippedRows++;
+        stats.warnings.push(`Row ${index + 2}: Skipped - result already exists for ${admissionNumber} - ${result.form} ${result.term} ${result.academicYear}`);
+        continue;
+      } else if (duplicateAction === 'replace') {
+        // Check for actual changes
+        let oldSubjects = [];
+        try {
+          if (typeof existingResult.subjects === 'string') {
+            oldSubjects = JSON.parse(existingResult.subjects);
+          } else if (Array.isArray(existingResult.subjects)) {
+            oldSubjects = existingResult.subjects;
+          }
+        } catch (e) {
+          console.error('Error parsing existing subjects:', e);
+          oldSubjects = [];
+        }
+        
+        const comparison = compareResults(oldSubjects, result.subjects);
+        
+        if (comparison.hasChanges) {
+          resultsToUpdate.push({
+            id: existingResult.id,
+            data: {
+              subjects: result.subjects,
+              updatedAt: new Date(),
+              uploadBatchId: uploadBatchId
+            }
+          });
+          stats.updatedRecords++;
+          stats.warnings.push(`Row ${index + 2}: Updated ${student.firstName} ${student.lastName}'s results. Changes: ${comparison.changedSubjects.map(c => `${c.subject}: ${c.oldScore} → ${c.newScore}`).join(', ')}`);
+        } else {
+          stats.duplicateRecords++;
+          stats.skippedRows++;
+          stats.warnings.push(`Row ${index + 2}: No changes detected for ${student.firstName} ${student.lastName}. Skipped update.`);
+        }
+      }
+    } else {
+      // New result
+      resultsToCreate.push({
+        admissionNumber: result.admissionNumber,
+        form: result.form,
+        term: normalizeTerm(result.term),
+        academicYear: normalizeAcademicYear(result.academicYear),
+        subjects: result.subjects,
+        uploadBatchId: uploadBatchId
+      });
+      stats.newRecords++;
+    }
+    
+    stats.validRows++;
+  }
+  
+  // Execute database operations
+  if (resultsToCreate.length > 0) {
+    try {
+      await prisma.studentResult.createMany({
+        data: resultsToCreate,
+        skipDuplicates: true
+      });
+    } catch (error) {
+      console.error('Error creating results:', error);
+      stats.errorRows += resultsToCreate.length;
+      stats.errors.push(`Failed to create ${resultsToCreate.length} results: ${error.message}`);
+    }
+  }
+  
+  if (resultsToUpdate.length > 0) {
+    for (const update of resultsToUpdate) {
+      try {
+        await prisma.studentResult.update({
+          where: { id: update.id },
+          data: update.data
+        });
+      } catch (error) {
+        console.error('Error updating result:', error);
+        stats.errorRows++;
+        stats.errors.push(`Failed to update result: ${error.message}`);
+      }
+    }
+  }
+  
+  return stats;
+};
+
+const processUpdateResultsUpload = async (results, uploadBatchId, targetForm, term, academicYear) => {
+  const stats = {
+    totalRows: results.length,
+    validRows: 0,
+    skippedRows: 0,
+    errorRows: 0,
+    newRecords: 0,
+    updatedRecords: 0,
+    unchangedRecords: 0,
+    errors: [],
+    warnings: []
+  };
+  
+  // Filter results to only include the target form
+  const filteredResults = results.filter(result => 
+    result.form === targetForm
+  );
+  
+  if (filteredResults.length === 0) {
+    throw new Error(`No results found for form ${targetForm}. Make sure the form column matches the selected form.`);
+  }
+  
+  // Check if students exist
+  const admissionNumbers = filteredResults.map(r => r.admissionNumber);
+  const existingStudents = await prisma.databaseStudent.findMany({
+    where: {
+      admissionNumber: { in: admissionNumbers },
+      status: 'active'
+    },
+    select: {
+      admissionNumber: true,
+      firstName: true,
+      lastName: true,
+      form: true
+    }
+  });
+  
+  const studentMap = new Map();
+  existingStudents.forEach(student => {
+    studentMap.set(student.admissionNumber, student);
+  });
+  
+  // Get existing results for this form/term/year
+  const existingResults = await prisma.studentResult.findMany({
+    where: {
+      form: targetForm,
+      term: normalizeTerm(term),
+      academicYear: normalizeAcademicYear(academicYear)
+    },
+    select: {
+      admissionNumber: true,
+      id: true,
+      subjects: true
+    }
+  });
+  
+  const existingResultMap = new Map();
+  existingResults.forEach(result => {
+    existingResultMap.set(result.admissionNumber, result);
+  });
+  
+  const seenAdmissionNumbers = new Set();
+  const resultsToCreate = [];
+  const resultsToUpdate = [];
+  
+  for (const [index, result] of filteredResults.entries()) {
+    const validation = validateResult(result, index);
+    
+    if (!validation.isValid) {
+      stats.errorRows++;
+      stats.errors.push(...validation.errors);
+      continue;
+    }
+    
+    const admissionNumber = result.admissionNumber;
+    
+    // Check duplicates within the file
+    if (seenAdmissionNumbers.has(admissionNumber)) {
+      stats.skippedRows++;
+      stats.errors.push(`Row ${index + 2}: Duplicate admission number in file: ${admissionNumber}`);
+      continue;
+    }
+    seenAdmissionNumbers.add(admissionNumber);
+    
+    // Check if student exists
+    const student = studentMap.get(admissionNumber);
+    if (!student) {
+      stats.errorRows++;
+      stats.errors.push(`Row ${index + 2}: Student ${admissionNumber} not found in database`);
+      continue;
+    }
+    
+    // Check if student form matches target form
+    if (student.form !== targetForm) {
+      stats.skippedRows++;
+      stats.warnings.push(`Row ${index + 2}: Student ${student.firstName} ${student.lastName} (${admissionNumber}) is in ${student.form}, not ${targetForm}. Skipped.`);
+      continue;
+    }
+    
+    // Check if result already exists for this term/year
+    const existingResult = existingResultMap.get(admissionNumber);
+    
+    if (existingResult) {
+      // Check for actual changes
+      let oldSubjects = [];
+      try {
+        if (typeof existingResult.subjects === 'string') {
+          oldSubjects = JSON.parse(existingResult.subjects);
+        } else if (Array.isArray(existingResult.subjects)) {
+          oldSubjects = existingResult.subjects;
+        }
+      } catch (e) {
+        console.error('Error parsing existing subjects:', e);
+        oldSubjects = [];
+      }
+      
+      const comparison = compareResults(oldSubjects, result.subjects);
+      
+      if (comparison.hasChanges) {
+        resultsToUpdate.push({
+          id: existingResult.id,
+          data: {
+            subjects: result.subjects,
+            updatedAt: new Date(),
+            uploadBatchId: uploadBatchId
+          }
+        });
+        stats.updatedRecords++;
+        stats.warnings.push(`Row ${index + 2}: Updated ${student.firstName} ${student.lastName}'s results. Changes: ${comparison.changedSubjects.map(c => `${c.subject}: ${c.oldScore} → ${c.newScore}`).join(', ')}`);
+      } else {
+        stats.unchangedRecords++;
+        stats.skippedRows++;
+        stats.warnings.push(`Row ${index + 2}: No changes detected for ${student.firstName} ${student.lastName}. Skipped update.`);
+      }
+    } else {
+      // New result for this term/year
+      resultsToCreate.push({
+        admissionNumber: result.admissionNumber,
+        form: targetForm,
+        term: normalizeTerm(term),
+        academicYear: normalizeAcademicYear(academicYear),
+        subjects: result.subjects,
+        uploadBatchId: uploadBatchId
+      });
+      stats.newRecords++;
+    }
+    
+    stats.validRows++;
+  }
+  
+  // Execute database operations
+  if (resultsToCreate.length > 0) {
+    try {
+      await prisma.studentResult.createMany({
+        data: resultsToCreate,
+        skipDuplicates: true
+      });
+    } catch (error) {
+      console.error('Error creating results:', error);
+      stats.errorRows += resultsToCreate.length;
+      stats.errors.push(`Failed to create ${resultsToCreate.length} results: ${error.message}`);
+    }
+  }
+  
+  if (resultsToUpdate.length > 0) {
+    for (const update of resultsToUpdate) {
+      try {
+        await prisma.studentResult.update({
+          where: { id: update.id },
+          data: update.data
+        });
+      } catch (error) {
+        console.error('Error updating result:', error);
+        stats.errorRows++;
+        stats.errors.push(`Failed to update result: ${error.message}`);
+      }
+    }
+  }
+  
+  return stats;
+};
+
+// ========== PARSING FUNCTIONS ==========
+const parseResultsCSV = async (file) => {
+  try {
+    const text = await file.text();
+    
+    return await new Promise((resolve, reject) => {
+      parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const data = results.data
+            .map((row, index) => {
+              try {
+                const admissionNumber = row.admissionNumber || row.admissionnumber || 
+                                      row.admno || row.AdmNo || row.admission || row.Admission ||
+                                      Object.values(row).find(val => /^3[0-5]\d{2}$/.test(String(val))) || '';
                 
-                // Skip non-subject columns
-                if (columnStr.toLowerCase().includes('admission') ||
-                    columnStr.toLowerCase().includes('form') ||
-                    columnStr.toLowerCase().includes('stream') ||
-                    columnStr.toLowerCase().includes('term') ||
-                    columnStr.toLowerCase().includes('year') ||
-                    columnStr.toLowerCase().includes('total') ||
-                    columnStr.toLowerCase().includes('average') ||
-                    columnStr.toLowerCase().includes('grade') && !columnStr.toLowerCase().includes('_grade') ||
-                    columnStr.toLowerCase().includes('points') && !columnStr.toLowerCase().includes('_points') ||
-                    columnStr.toLowerCase().includes('comment') && !columnStr.toLowerCase().includes('_comment') ||
-                    columnStr.toLowerCase().includes('position') ||
-                    columnStr.toLowerCase().includes('remark') ||
-                    columnStr.toLowerCase().includes('date') ||
-                    columnStr.toLowerCase().includes('status')) {
-                  continue;
+                if (!admissionNumber) {
+                  return null;
                 }
                 
-                // Check if this is a score column
-                if (columnStr.endsWith('_Score') || 
-                    columnStr.toLowerCase().endsWith(' score') ||
-                    columnStr.toLowerCase().includes('score') && !columnStr.toLowerCase().includes('total')) {
+                const subjects = [];
+                const processedSubjects = new Set();
+                
+                // Extract subject scores
+                for (const [columnName, value] of Object.entries(row)) {
+                  const columnStr = String(columnName).trim();
                   
-                  let subjectName = columnStr.replace(/_Score$/i, '').replace(/ score$/i, '').trim();
-                  
-                  if (processedSubjects.has(subjectName.toLowerCase())) {
+                  // Skip non-subject columns
+                  if (columnStr.toLowerCase().includes('admission') ||
+                      columnStr.toLowerCase().includes('form') ||
+                      columnStr.toLowerCase().includes('stream') ||
+                      columnStr.toLowerCase().includes('term') ||
+                      columnStr.toLowerCase().includes('year') ||
+                      columnStr.toLowerCase().includes('total') ||
+                      columnStr.toLowerCase().includes('average') ||
+                      columnStr.toLowerCase().includes('grade') && !columnStr.toLowerCase().includes('_grade') ||
+                      columnStr.toLowerCase().includes('points') && !columnStr.toLowerCase().includes('_points') ||
+                      columnStr.toLowerCase().includes('comment') && !columnStr.toLowerCase().includes('_comment') ||
+                      columnStr.toLowerCase().includes('position') ||
+                      columnStr.toLowerCase().includes('remark') ||
+                      columnStr.toLowerCase().includes('date') ||
+                      columnStr.toLowerCase().includes('status')) {
                     continue;
                   }
                   
-                  const score = parseScore(value);
-                  if (score === null || score < 0 || score > 100) {
-                    continue;
-                  }
-                  
-                  const normalizedSubject = normalizeSubjectName(subjectName);
-                  
-                  // AUTO-GENERATE GRADE, POINTS, AND COMMENT
-                  const grade = calculateGrade(score, normalizedSubject);
-                  const points = calculatePoints(score, normalizedSubject);
-                  const comment = generateSubjectComment(score, normalizedSubject);
-                  
-                  subjects.push({
-                    subject: normalizedSubject,
-                    score: score,
-                    grade: grade,
-                    points: points,
-                    comment: comment
-                  });
-                  
-                  processedSubjects.add(subjectName.toLowerCase());
-                }
-              }
-              
-              // Also check for columns that might just be subject names with scores
-              for (const [columnName, value] of Object.entries(row)) {
-                const columnStr = String(columnName).trim();
-                const lowerCol = columnStr.toLowerCase();
-                
-                if (lowerCol.includes('admission') || 
-                    lowerCol.includes('form') || 
-                    lowerCol.includes('term') ||
-                    lowerCol.includes('year') ||
-                    lowerCol.includes('total') ||
-                    lowerCol.includes('average') ||
-                    lowerCol.includes('position') ||
-                    lowerCol.includes('remark') ||
-                    lowerCol.includes('status') ||
-                    lowerCol.includes('date')) {
-                  continue;
-                }
-                
-                // Skip if already processed as a subject with _Score suffix
-                const isProcessed = Array.from(processedSubjects).some(processed => 
-                  lowerCol.startsWith(processed) && 
-                  (lowerCol.endsWith('_grade') || lowerCol.endsWith('_points') || lowerCol.endsWith('_comment'))
-                );
-                
-                if (isProcessed) {
-                  continue;
-                }
-                
-                const score = parseScore(value);
-                if (score !== null && score >= 0 && score <= 100) {
-                  const normalizedCol = normalizeSubjectName(columnStr);
-                  if (!processedSubjects.has(normalizedCol.toLowerCase())) {
-                    // AUTO-GENERATE GRADE, POINTS, AND COMMENT
-                    const grade = calculateGrade(score, normalizedCol);
-                    const points = calculatePoints(score, normalizedCol);
-                    const comment = generateSubjectComment(score, normalizedCol);
+                  // Check if this is a score column
+                  if (columnStr.endsWith('_Score') || 
+                      columnStr.toLowerCase().endsWith(' score') ||
+                      columnStr.toLowerCase().includes('score') && !columnStr.toLowerCase().includes('total')) {
+                    
+                    let subjectName = columnStr.replace(/_Score$/i, '').replace(/ score$/i, '').trim();
+                    
+                    if (processedSubjects.has(subjectName.toLowerCase())) {
+                      continue;
+                    }
+                    
+                    const score = parseScore(value);
+                    if (score === null || score < 0 || score > 100) {
+                      continue;
+                    }
+                    
+                    const normalizedSubject = normalizeSubjectName(subjectName);
+                    
+                    // Auto-generate grade, points, and comment
+                    const grade = calculateGrade(score, normalizedSubject);
+                    const points = calculatePoints(score, normalizedSubject);
+                    const comment = generateSubjectComment(score, normalizedSubject);
                     
                     subjects.push({
-                      subject: normalizedCol,
+                      subject: normalizedSubject,
                       score: score,
                       grade: grade,
                       points: points,
                       comment: comment
                     });
                     
-                    processedSubjects.add(normalizedCol.toLowerCase());
+                    processedSubjects.add(subjectName.toLowerCase());
                   }
                 }
-              }
-              
-              if (subjects.length === 0) {
+                
+                // Also check for columns that might just be subject names with scores
+                for (const [columnName, value] of Object.entries(row)) {
+                  const columnStr = String(columnName).trim();
+                  const lowerCol = columnStr.toLowerCase();
+                  
+                  if (lowerCol.includes('admission') || 
+                      lowerCol.includes('form') || 
+                      lowerCol.includes('term') ||
+                      lowerCol.includes('year') ||
+                      lowerCol.includes('total') ||
+                      lowerCol.includes('average') ||
+                      lowerCol.includes('position') ||
+                      lowerCol.includes('remark') ||
+                      lowerCol.includes('status') ||
+                      lowerCol.includes('date')) {
+                    continue;
+                  }
+                  
+                  const isProcessed = Array.from(processedSubjects).some(processed => 
+                    lowerCol.startsWith(processed) && 
+                    (lowerCol.endsWith('_grade') || lowerCol.endsWith('_points') || lowerCol.endsWith('_comment'))
+                  );
+                  
+                  if (isProcessed) {
+                    continue;
+                  }
+                  
+                  const score = parseScore(value);
+                  if (score !== null && score >= 0 && score <= 100) {
+                    const normalizedCol = normalizeSubjectName(columnStr);
+                    if (!processedSubjects.has(normalizedCol.toLowerCase())) {
+                      const grade = calculateGrade(score, normalizedCol);
+                      const points = calculatePoints(score, normalizedCol);
+                      const comment = generateSubjectComment(score, normalizedCol);
+                      
+                      subjects.push({
+                        subject: normalizedCol,
+                        score: score,
+                        grade: grade,
+                        points: points,
+                        comment: comment
+                      });
+                      
+                      processedSubjects.add(normalizedCol.toLowerCase());
+                    }
+                  }
+                }
+                
+                if (subjects.length === 0) {
+                  return null;
+                }
+                
+                return {
+                  admissionNumber: String(admissionNumber).trim(),
+                  form: String(row.form || '').trim() || 'Form 1',
+                  term: row.term || '',
+                  academicYear: row.academicYear || row.academicyear || '',
+                  subjects
+                };
+              } catch (error) {
+                console.error(`Error parsing row ${index}:`, error);
                 return null;
               }
-              
-              return {
-                admissionNumber: String(admissionNumber).trim(),
-                subjects,
-                csvTerm: row.term || term || '',
-                csvAcademicYear: row.academicYear || row.academicyear || academicYear || '',
-                csvForm: row.form || '',
-                csvStream: row.stream || ''
-              };
-            } catch (error) {
-              console.error(`Error parsing row ${index}:`, error);
-              return null;
-            }
-          })
-          .filter(item => item !== null);
-        
-        resolve(data);
-      },
-      error: (error) => {
-        reject(error);
-      }
+            })
+            .filter(item => item !== null);
+          
+          if (data.length === 0) {
+            reject(new Error('No valid result data found in CSV file'));
+            return;
+          }
+          
+          resolve(data);
+        },
+        error: reject
+      });
     });
-  });
+    
+  } catch (error) {
+    console.error('CSV parsing error:', error);
+    throw new Error(`CSV parsing failed: ${error.message}`);
+  }
 };
 
-const parseResultsExcel = async (file, term, academicYear) => {
+const parseResultsExcel = async (file) => {
   try {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: 'buffer' });
@@ -488,7 +1224,6 @@ const parseResultsExcel = async (file, term, academicYear) => {
     const data = jsonData
       .map((row, index) => {
         try {
-          // Extract admission number
           const findValue = (possibleKeys) => {
             for (const key of possibleKeys) {
               if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
@@ -595,7 +1330,6 @@ const parseResultsExcel = async (file, term, academicYear) => {
               continue;
             }
             
-            // Skip if already processed as a subject with _Score suffix
             const isProcessed = Array.from(processedSubjects).some(processed => 
               lowerCol.startsWith(processed) && 
               (lowerCol.endsWith('_grade') || lowerCol.endsWith('_points') || lowerCol.endsWith('_comment'))
@@ -609,7 +1343,6 @@ const parseResultsExcel = async (file, term, academicYear) => {
             if (score !== null && score >= 0 && score <= 100) {
               const normalizedCol = normalizeSubjectName(columnStr);
               if (!processedSubjects.has(normalizedCol.toLowerCase())) {
-                // AUTO-GENERATE GRADE, POINTS, AND COMMENT
                 const grade = calculateGrade(score, normalizedCol);
                 const points = calculatePoints(score, normalizedCol);
                 const comment = generateSubjectComment(score, normalizedCol);
@@ -633,11 +1366,10 @@ const parseResultsExcel = async (file, term, academicYear) => {
           
           return {
             admissionNumber: String(admissionNumber).trim(),
-            subjects,
-            csvTerm: row.term || row.Term || term || '',
-            csvAcademicYear: row.academicYear || row.academicyear || row.year || academicYear || '',
-            csvForm: row.form || row.Form || '',
-            csvStream: row.stream || row.Stream || ''
+            form: findValue(['form', 'Form']) || 'Form 1',
+            term: findValue(['term', 'Term']) || '',
+            academicYear: findValue(['academicYear', 'academicyear', 'year', 'Year', 'academic_year']) || '',
+            subjects
           };
         } catch (error) {
           console.error(`Error parsing Excel row ${index}:`, error);
@@ -646,22 +1378,32 @@ const parseResultsExcel = async (file, term, academicYear) => {
       })
       .filter(item => item !== null);
     
+    if (data.length === 0) {
+      throw new Error('No valid result data found in Excel file');
+    }
+    
     return data;
     
   } catch (error) {
+    console.error('Excel parsing error:', error);
     throw new Error(`Excel parsing failed: ${error.message}`);
   }
 };
 
-// ========== MAIN POST ENDPOINT ==========
+// ========== API ENDPOINTS ==========
+
+// POST - Bulk upload with new strategy
 export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file');
+    const uploadType = formData.get('uploadType'); // 'new' or 'update'
+    const formsInput = formData.get('forms'); // JSON string for forms
+    const targetForm = formData.get('targetForm'); // Single form for updates
     const term = formData.get('term') || '';
     const academicYear = formData.get('academicYear') || '';
-    const uploadedBy = formData.get('uploadedBy') || 'System';
-    const uploadMode = formData.get('uploadMode') || 'create';
+    const checkDuplicates = formData.get('checkDuplicates') === 'true';
+    const duplicateAction = formData.get('duplicateAction') || 'skip'; // 'skip' or 'replace'
     
     if (!file) {
       return NextResponse.json(
@@ -670,9 +1412,48 @@ export async function POST(request) {
       );
     }
     
-    if (!term || !academicYear) {
+    if (!uploadType) {
       return NextResponse.json(
-        { success: false, error: 'Term and academic year are required' },
+        { success: false, error: 'Upload type is required (new or update)' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate form selection based on upload type
+    let selectedForms = [];
+    if (uploadType === 'new') {
+      if (!formsInput) {
+        return NextResponse.json(
+          { success: false, error: 'Please select at least one form for new upload' },
+          { status: 400 }
+        );
+      }
+      try {
+        const forms = JSON.parse(formsInput);
+        selectedForms = validateFormSelection(forms);
+      } catch (error) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid form selection' },
+          { status: 400 }
+        );
+      }
+    } else if (uploadType === 'update') {
+      if (!targetForm) {
+        return NextResponse.json(
+          { success: false, error: 'Target form is required for update upload' },
+          { status: 400 }
+        );
+      }
+      if (!term || !academicYear) {
+        return NextResponse.json(
+          { success: false, error: 'Term and academic year are required for update upload' },
+          { status: 400 }
+        );
+      }
+      selectedForms = validateFormSelection([targetForm]);
+    } else {
+      return NextResponse.json(
+        { success: false, error: 'Invalid upload type. Must be "new" or "update"' },
         { status: 400 }
       );
     }
@@ -680,16 +1461,18 @@ export async function POST(request) {
     const fileName = file.name.toLowerCase();
     const fileExtension = fileName.split('.').pop();
     
-    if (!['csv', 'xlsx', 'xls'].includes(fileExtension)) {
+    const validExtensions = ['csv', 'xlsx', 'xls'];
+    if (!validExtensions.includes(fileExtension)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid file type. Please upload CSV or Excel files.' },
+        { 
+          success: false, 
+          error: 'Invalid file type. Please upload CSV or Excel (xlsx/xls) files.' 
+        },
         { status: 400 }
       );
     }
     
-    const normalizedTerm = normalizeTerm(term);
-    const normalizedAcademicYear = normalizeAcademicYear(academicYear);
-    
+    // Create batch record
     const batchId = `RESULT_BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     const uploadBatch = await prisma.resultUpload.create({
@@ -697,250 +1480,136 @@ export async function POST(request) {
         id: batchId,
         fileName: file.name,
         fileType: fileExtension,
-        uploadedBy,
-        term: normalizedTerm,
-        academicYear: normalizedAcademicYear,
-        status: 'processing'
+        uploadedBy: 'System Upload',
+        status: 'processing',
+        term: term || null,
+        academicYear: academicYear || null,
+        uploadMode: uploadType,
+        totalRows: 0,
+        validRows: 0,
+        skippedRows: 0,
+        errorRows: 0
       }
     });
     
     try {
+      // Parse file
       let rawData = [];
       
-      // Parse file
       if (fileExtension === 'csv') {
-        rawData = await parseResultsCSV(file, term, academicYear);
+        rawData = await parseResultsCSV(file);
       } else {
-        rawData = await parseResultsExcel(file, term, academicYear);
+        rawData = await parseResultsExcel(file);
       }
       
       if (rawData.length === 0) {
-        throw new Error(`No valid result data found in file. Parsed ${rawData.length} records. Please check file format.`);
+        throw new Error(`No valid result data found.`);
       }
       
-      const stats = {
-        totalRows: rawData.length,
-        validRows: 0,
-        skippedRows: 0,
-        errorRows: 0,
-        studentNotFound: 0,
-        inactiveStudents: 0,
-        newRecords: 0,
-        updatedRecords: 0,
-        duplicateRecords: 0,
-        errors: [],
-        warnings: []
-      };
-      
-      // Get all admission numbers for batch lookup
-      const csvAdmissionNumbers = rawData.map(r => r.admissionNumber);
-      
-      // Batch fetch all students
-      const students = await prisma.databaseStudent.findMany({
-        where: {
-          admissionNumber: {
-            in: csvAdmissionNumbers
-          }
-        },
-        select: {
-          admissionNumber: true,
-          firstName: true,
-          middleName: true,
-          lastName: true,
-          form: true,
-          stream: true,
-          status: true
+      // If just checking for duplicates
+      if (checkDuplicates) {
+        let duplicates = [];
+        
+        if (uploadType === 'new') {
+          // Check for duplicates across all forms
+          duplicates = await checkDuplicateResults(rawData);
+        } else if (uploadType === 'update') {
+          // Check for duplicates in the target form/term/year
+          duplicates = await checkDuplicateResults(rawData, targetForm, term, academicYear);
         }
-      });
+        
+        return NextResponse.json({
+          success: true,
+          hasDuplicates: duplicates.length > 0,
+          duplicates: duplicates,
+          totalRows: rawData.length,
+          message: duplicates.length > 0 
+            ? `Found ${duplicates.length} duplicate result combinations` 
+            : 'No duplicates found'
+        });
+      }
       
-      // Create a map for quick lookup
-      const studentMap = new Map();
-      students.forEach(student => {
-        studentMap.set(student.admissionNumber, student);
-      });
+      let processingStats;
       
-      // Process each record
-      for (const [index, record] of rawData.entries()) {
-        try {
-          if (!record.admissionNumber) {
-            stats.skippedRows++;
-            stats.errors.push(`Row ${index + 2}: Missing admission number`);
-            continue;
-          }
+      // Use transaction for consistency
+      await prisma.$transaction(async (tx) => {
+        if (uploadType === 'new') {
+          // Process new upload
+          processingStats = await processNewResultsUpload(rawData, batchId, selectedForms, duplicateAction);
           
-          const student = studentMap.get(record.admissionNumber);
-          
-          if (!student) {
-            stats.studentNotFound++;
-            stats.errors.push(`Row ${index + 2}: Student ${record.admissionNumber} not found in database`);
-            continue;
-          }
-          
-          if (student.status !== 'active') {
-            stats.inactiveStudents++;
-            stats.errors.push(`Row ${index + 2}: Student ${student.admissionNumber} (${student.firstName} ${student.lastName}) is not active (status: ${student.status})`);
-            continue;
-          }
-          
-          if (!record.subjects || record.subjects.length === 0) {
-            stats.skippedRows++;
-            stats.errors.push(`Row ${index + 2}: No subject scores found`);
-            continue;
-          }
-          
-          const studentForm = student.form;
-          const studentStream = student.stream;
-          const studentName = `${student.firstName} ${student.lastName}`;
-          
-          const resultTerm = record.csvTerm ? normalizeTerm(record.csvTerm) : normalizedTerm;
-          const resultAcademicYear = record.csvAcademicYear ? normalizeAcademicYear(record.csvAcademicYear) : normalizedAcademicYear;
-          
-          // Check for existing result
-          const existingResult = await prisma.studentResult.findFirst({
-            where: {
-              admissionNumber: record.admissionNumber,
-              term: resultTerm,
-              academicYear: resultAcademicYear
+          // Update batch with new upload stats
+          await tx.resultUpload.update({
+            where: { id: batchId },
+            data: {
+              status: 'completed',
+              processedDate: new Date(),
+              totalRows: processingStats.totalRows,
+              validRows: processingStats.validRows,
+              skippedRows: processingStats.skippedRows,
+              errorRows: processingStats.errorRows,
+              newRecords: processingStats.newRecords,
+              updatedRecords: processingStats.updatedRecords,
+              duplicateRecords: processingStats.duplicateRecords,
+              errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined,
+              warningLog: processingStats.warnings.length > 0 ? processingStats.warnings.slice(0, 50) : undefined
             }
           });
           
-          // Process subjects (comments are already auto-generated)
-          const cleanSubjects = record.subjects
-            .map(subject => ({
-              subject: subject.subject,
-              score: Math.max(0, Math.min(100, subject.score || 0)),
-              grade: subject.grade,
-              points: subject.points,
-              comment: subject.comment // Already auto-generated
-            }))
-            .filter(subject => 
-              subject.subject && 
-              !subject.subject.toLowerCase().includes('admission') &&
-              !subject.subject.toLowerCase().includes('total') &&
-              !subject.subject.toLowerCase().includes('average') &&
-              !subject.subject.toLowerCase().includes('position') &&
-              !subject.subject.toLowerCase().includes('date')
-            );
+        } else if (uploadType === 'update') {
+          // Process update upload
+          processingStats = await processUpdateResultsUpload(rawData, batchId, targetForm, term, academicYear);
           
-          if (cleanSubjects.length === 0) {
-            stats.skippedRows++;
-            stats.errors.push(`Row ${index + 2}: No valid subjects after cleaning`);
-            continue;
-          }
-          
-          // Handle duplicates vs new records
-          if (existingResult) {
-            if (uploadMode === 'update') {
-              // Update existing record
-              await prisma.studentResult.update({
-                where: { id: existingResult.id },
-                data: {
-                  form: studentForm,
-                  subjects: cleanSubjects,
-                  updatedAt: new Date(),
-                  uploadBatchId: batchId
-                }
-              });
-              stats.updatedRecords++;
-              stats.validRows++;
-              
-              if (existingResult.form !== studentForm) {
-                stats.warnings.push(`Row ${index + 2}: Updated form from ${existingResult.form} to ${studentForm} for ${studentName}`);
-              }
-            } else {
-              // Skip duplicate record
-              stats.duplicateRecords++;
-              stats.skippedRows++;
-              stats.warnings.push(`Row ${index + 2}: Duplicate record skipped for ${studentName} (${resultTerm} ${resultAcademicYear}) - Use update mode to replace`);
+          // Update batch with update stats
+          await tx.resultUpload.update({
+            where: { id: batchId },
+            data: {
+              status: 'completed',
+              processedDate: new Date(),
+              totalRows: processingStats.totalRows,
+              validRows: processingStats.validRows,
+              skippedRows: processingStats.skippedRows,
+              errorRows: processingStats.errorRows,
+              newRecords: processingStats.newRecords,
+              updatedRecords: processingStats.updatedRecords,
+              duplicateRecords: processingStats.unchangedRecords,
+              errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined,
+              warningLog: processingStats.warnings.length > 0 ? processingStats.warnings.slice(0, 50) : undefined
             }
-          } else {
-            // Create new record
-            await prisma.studentResult.create({
-              data: {
-                admissionNumber: record.admissionNumber,
-                form: studentForm,
-                term: resultTerm,
-                academicYear: resultAcademicYear,
-                subjects: cleanSubjects,
-                uploadBatchId: batchId
-              }
-            });
-            stats.newRecords++;
-            stats.validRows++;
-            
-            // Log if student has previous results
-            const previousResults = await prisma.studentResult.findMany({
-              where: {
-                admissionNumber: record.admissionNumber
-              },
-              select: {
-                term: true,
-                academicYear: true
-              }
-            });
-            
-            if (previousResults.length > 0) {
-              stats.warnings.push(`Row ${index + 2}: Created new result for ${studentName} (${resultTerm} ${resultAcademicYear}) - Student has ${previousResults.length} previous result(s)`);
-            }
-          }
-          
-        } catch (error) {
-          stats.errorRows++;
-          const errorMsg = `Row ${index + 2}: ${error.message}`;
-          stats.errors.push(errorMsg);
+          });
         }
-      }
-      
-      // Update batch with statistics
-      await prisma.resultUpload.update({
-        where: { id: batchId },
-        data: {
-          status: stats.validRows > 0 ? 'completed' : 'failed',
-          processedDate: new Date(),
-          totalRows: stats.totalRows,
-          validRows: stats.validRows,
-          skippedRows: stats.skippedRows,
-          errorRows: stats.errorRows,
-          newRecords: stats.newRecords,
-          updatedRecords: stats.updatedRecords,
-          duplicateRecords: stats.duplicateRecords,
-          errorLog: stats.errors.length > 0 ? stats.errors.slice(0, 50) : null,
-          warningLog: stats.warnings.length > 0 ? stats.warnings.slice(0, 50) : null
-        }
+        
+        // Update statistics
+        const finalStats = await calculateStatistics({});
+        await updateCachedStats(finalStats.stats);
       });
       
-      // Prepare response
-      const response = {
-        success: stats.validRows > 0,
-        message: stats.validRows > 0 
-          ? `Successfully processed ${stats.validRows} out of ${stats.totalRows} records (${stats.newRecords} new, ${stats.updatedRecords} updated, ${stats.duplicateRecords} duplicates skipped)`
-          : `Failed to process any records.`,
+      // Recalculate to ensure consistency
+      const finalStats = await calculateStatistics({});
+      
+      return NextResponse.json({
+        success: true,
+        message: uploadType === 'new' 
+          ? `Successfully processed ${processingStats.validRows} result records (${processingStats.newRecords} new, ${processingStats.updatedRecords} updated, ${processingStats.duplicateRecords} duplicates)` 
+          : `Successfully updated form ${targetForm} - ${term} ${academicYear}: ${processingStats.updatedRecords} updated, ${processingStats.newRecords} created, ${processingStats.unchangedRecords} unchanged`,
         batch: {
           id: batchId,
           fileName: uploadBatch.fileName,
-          term: normalizedTerm,
-          academicYear: normalizedAcademicYear,
-          uploadMode: uploadMode || 'create',
-          status: stats.validRows > 0 ? 'completed' : 'failed'
+          status: 'completed',
+          uploadType,
+          selectedForms,
+          targetForm: uploadType === 'update' ? targetForm : null
         },
-        statistics: {
-          total: stats.totalRows,
-          valid: stats.validRows,
-          newRecords: stats.newRecords,
-          updatedRecords: stats.updatedRecords,
-          duplicateRecords: stats.duplicateRecords,
-          skipped: stats.skippedRows,
-          errors: stats.errorRows,
-          studentNotFound: stats.studentNotFound,
-          inactiveStudents: stats.inactiveStudents
-        },
-        warnings: stats.warnings.slice(0, 10),
-        errors: stats.errors.slice(0, 10)
-      };
-      
-      return NextResponse.json(response);
+        stats: finalStats.stats,
+        validation: finalStats.validation,
+        processingStats: processingStats,
+        errors: processingStats.errors.slice(0, 20),
+        warnings: processingStats.warnings.slice(0, 20)
+      });
       
     } catch (error) {
+      console.error('Processing error:', error);
+      
+      // Update batch as failed
       await prisma.resultUpload.update({
         where: { id: batchId },
         data: {
@@ -955,36 +1624,35 @@ export async function POST(request) {
     }
     
   } catch (error) {
+    console.error('Upload error:', error);
     return NextResponse.json(
       { 
         success: false, 
-        error: error.message || 'Results upload failed',
-        suggestion: 'Please ensure your file has columns for admission number (3000-3500), term, academic year, and subject scores. Sample format: admissionNumber, English_Score, Mathematics_Score, etc. Comments are automatically generated.'
+        error: error.message || 'Upload failed',
+        suggestion: 'Please ensure your file has columns for admission number (3000-3500), term, academic year, and subject scores. Comments are automatically generated.'
       },
       { status: 500 }
     );
   }
 }
 
-// ========== OTHER ENDPOINTS (GET, PUT, DELETE) ==========
-// [Keep all other endpoints exactly as they were - unchanged]
-// GET, PUT, DELETE endpoints remain the same
-
+// GET - Main endpoint with consistent statistics
 export async function GET(request) {
-  // ... keep existing GET endpoint exactly as it was ...
   try {
     const url = new URL(request.url);
     const action = url.searchParams.get('action');
     const admissionNumber = url.searchParams.get('admissionNumber');
-    const form = url.searchParams.get('form');
-    const term = url.searchParams.get('term');
-    const academicYear = url.searchParams.get('academicYear');
+    const form = url.searchParams.get('form') || '';
+    const term = url.searchParams.get('term') || '';
+    const academicYear = url.searchParams.get('academicYear') || '';
     const subject = url.searchParams.get('subject');
     const minScore = url.searchParams.get('minScore');
     const maxScore = url.searchParams.get('maxScore');
+    const search = url.searchParams.get('search') || '';
     const sortBy = url.searchParams.get('sortBy') || 'updatedAt';
     const sortOrder = url.searchParams.get('sortOrder') || 'desc';
     const includeStudent = url.searchParams.get('includeStudent') === 'true';
+    const includeStats = url.searchParams.get('includeStats') !== 'false';
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '20');
 
@@ -1008,7 +1676,11 @@ export async function GET(request) {
           validRows: true,
           skippedRows: true,
           errorRows: true,
-          errorLog: true
+          newRecords: true,
+          updatedRecords: true,
+          duplicateRecords: true,
+          errorLog: true,
+          warningLog: true
         }
       });
 
@@ -1027,144 +1699,25 @@ export async function GET(request) {
     }
 
     if (action === 'stats') {
-      // Get total results count
-      const totalResults = await prisma.studentResult.count();
+      // Build filters for stats
+      const filters = { form, term, academicYear, search };
+      const where = buildWhereClause(filters);
       
-      // Get all results for calculations
-      const allResults = await prisma.studentResult.findMany({
-        select: {
-          id: true,
-          form: true,
-          term: true,
-          subjects: true,
-          admissionNumber: true
-        }
-      });
-
-      let totalScore = 0;
-      let resultCount = 0;
-      let topScore = 0;
+      // Calculate fresh statistics with filters
+      const statsResult = await calculateStatistics(where);
       
-      // Initialize with all forms (even if zero)
-      const formDistribution = {
-        'Form 1': 0,
-        'Form 2': 0,
-        'Form 3': 0,
-        'Form 4': 0
-      };
+      // Update cache for consistency
+      if (Object.keys(where).length === 0) {
+        await updateCachedStats(statsResult.stats);
+      }
       
-      const termDistribution = {
-        'Term 1': 0,
-        'Term 2': 0,
-        'Term 3': 0
-      };
-      
-      const gradeDistribution = {
-        'A': 0, 'A-': 0, 'B+': 0, 'B': 0, 'B-': 0,
-        'C+': 0, 'C': 0, 'C-': 0, 'D+': 0, 'D': 0, 'E': 0
-      };
-      
-      const subjectPerformance = {};
-      const uniqueStudents = new Set();
-      
-      // Process each result
-      allResults.forEach(result => {
-        // Track unique students
-        uniqueStudents.add(result.admissionNumber);
-        
-        // Update form distribution
-        if (result.form) {
-          const formKey = result.form.includes('Form ') ? result.form : `Form ${result.form}`;
-          if (formDistribution[formKey] !== undefined) {
-            formDistribution[formKey] = (formDistribution[formKey] || 0) + 1;
-          }
-        }
-        
-        // Update term distribution
-        if (result.term) {
-          const termKey = result.term.includes('Term ') ? result.term : `Term ${result.term}`;
-          if (termDistribution[termKey] !== undefined) {
-            termDistribution[termKey] = (termDistribution[termKey] || 0) + 1;
-          }
-        }
-        
-        // Parse subjects
-        let subjects = [];
-        try {
-          if (typeof result.subjects === 'string') {
-            subjects = JSON.parse(result.subjects);
-          } else if (Array.isArray(result.subjects)) {
-            subjects = result.subjects;
-          }
-        } catch (e) {
-          console.error('Error parsing subjects:', e);
-          return; // Skip this result if subjects can't be parsed
-        }
-        
-        // Calculate average score for this result
-        if (subjects.length > 0) {
-          const resultTotal = subjects.reduce((sum, s) => sum + (parseFloat(s.score) || 0), 0);
-          const avg = resultTotal / subjects.length;
-          
-          totalScore += avg;
-          resultCount++;
-          
-          if (avg > topScore) topScore = avg;
-          
-          // Process each subject
-          subjects.forEach(subject => {
-            const score = parseFloat(subject.score) || 0;
-            const subjectName = subject.subject || 'Unknown';
-            const grade = subject.grade || calculateGrade(score, subjectName);
-            
-            // Update subject performance (average score per subject)
-            if (!subjectPerformance[subjectName]) {
-              subjectPerformance[subjectName] = {
-                totalScore: 0,
-                count: 0,
-                average: 0
-              };
-            }
-            subjectPerformance[subjectName].totalScore += score;
-            subjectPerformance[subjectName].count++;
-            subjectPerformance[subjectName].average = 
-              subjectPerformance[subjectName].totalScore / subjectPerformance[subjectName].count;
-            
-            // Update grade distribution
-            if (gradeDistribution[grade] !== undefined) {
-              gradeDistribution[grade]++;
-            } else {
-              // For any unexpected grades, add them
-              gradeDistribution[grade] = 1;
-            }
-          });
-        }
-      });
-
-      // Calculate overall averages
-      const averageScore = resultCount > 0 ? totalScore / resultCount : 0;
-      
-      // Format subject performance for response
-      const formattedSubjectPerformance = {};
-      Object.keys(subjectPerformance).forEach(subject => {
-        formattedSubjectPerformance[subject] = {
-          averageScore: parseFloat(subjectPerformance[subject].average.toFixed(2)),
-          totalResults: subjectPerformance[subject].count
-        };
-      });
-
       return NextResponse.json({
         success: true,
-        stats: {
-          totalResults,
-          totalStudents: uniqueStudents.size,
-          averageScore: parseFloat(averageScore.toFixed(2)),
-          topScore: parseFloat(topScore.toFixed(2)),
-          formDistribution,
-          termDistribution,
-          gradeDistribution,
-          subjectPerformance: formattedSubjectPerformance,
-          updatedAt: new Date().toISOString()
+        data: {
+          stats: statsResult.stats,
+          filters,
+          validation: statsResult.validation,
+          timestamp: new Date().toISOString()
         }
       });
     }
@@ -1172,7 +1725,21 @@ export async function GET(request) {
     if (action === 'student-report' && admissionNumber) {
       const results = await prisma.studentResult.findMany({
         where: { admissionNumber },
-        orderBy: [{ academicYear: 'desc' }, { term: 'desc' }]
+        orderBy: [{ academicYear: 'desc' }, { term: 'desc' }],
+        include: includeStudent ? {
+          student: {
+            select: {
+              id: true,
+              firstName: true,
+              middleName: true,
+              lastName: true,
+              admissionNumber: true,
+              form: true,
+              stream: true,
+              email: true
+            }
+          }
+        } : undefined
       });
 
       const parsedResults = results.map(result => {
@@ -1195,7 +1762,8 @@ export async function GET(request) {
           subjects,
           totalScore,
           averageScore: parseFloat(averageScore.toFixed(2)),
-          overallGrade: calculateGrade(averageScore)
+          overallGrade: calculateGrade(averageScore),
+          student: result.student || null
         };
       });
 
@@ -1275,40 +1843,39 @@ export async function GET(request) {
       });
     }
 
-    const where = {};
-
-    if (admissionNumber) where.admissionNumber = admissionNumber;
-    if (form) where.form = form;
-    if (term) where.term = term;
-    if (academicYear) where.academicYear = academicYear;
+    // Build WHERE clause for regular results query
+    const filters = { admissionNumber, form, term, academicYear, search };
+    const where = buildWhereClause(filters);
 
     const orderBy = {};
-    if (sortBy === 'averageScore') {
-      orderBy.updatedAt = sortOrder;
-    } else {
-      orderBy[sortBy] = sortOrder;
-    }
+    orderBy[sortBy] = sortOrder;
 
-    const allMatchingResults = await prisma.studentResult.findMany({
-      where,
-      orderBy,
-      include: includeStudent ? {
-        student: {
-          select: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            lastName: true,
-            admissionNumber: true,
-            form: true,
-            stream: true,
-            email: true
+    const [results, total] = await Promise.all([
+      prisma.studentResult.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+        include: includeStudent ? {
+          student: {
+            select: {
+              id: true,
+              firstName: true,
+              middleName: true,
+              lastName: true,
+              admissionNumber: true,
+              form: true,
+              stream: true,
+              email: true
+            }
           }
-        }
-      } : undefined
-    });
+        } : undefined
+      }),
+      prisma.studentResult.count({ where })
+    ]);
 
-    const allParsedResults = allMatchingResults.map(result => {
+    // Parse subjects and calculate averages
+    const parsedResults = results.map(result => {
       let subjects = [];
       try {
         if (typeof result.subjects === 'string') {
@@ -1333,7 +1900,8 @@ export async function GET(request) {
       };
     });
 
-    let filteredResults = allParsedResults;
+    // Apply additional filters
+    let filteredResults = parsedResults;
     
     if (subject) {
       filteredResults = filteredResults.filter(result => {
@@ -1362,20 +1930,36 @@ export async function GET(request) {
     const endIndex = startIndex + limit;
     const paginatedResults = filteredResults.slice(startIndex, endIndex);
 
+    // Calculate statistics if requested
+    let statsResult = null;
+    if (includeStats) {
+      statsResult = await calculateStatistics(where);
+      
+      // If no filters, update cache
+      if (Object.keys(where).length === 0) {
+        await updateCachedStats(statsResult.stats);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: {
         results: paginatedResults,
+        stats: statsResult?.stats || null,
+        validation: statsResult?.validation || null,
+        filters,
         pagination: {
           page,
           limit,
           total: totalFiltered,
           pages: Math.ceil(totalFiltered / limit)
-        }
+        },
+        timestamp: new Date().toISOString()
       }
     });
 
   } catch (error) {
+    console.error('GET error:', error);
     return NextResponse.json(
       {
         success: false,
@@ -1387,18 +1971,19 @@ export async function GET(request) {
   }
 }
 
+// PUT - Update result with transaction
 export async function PUT(request) {
   try {
     const body = await request.json();
     const { id, subjects, ...updateData } = body;
-    
+
     if (!id) {
       return NextResponse.json(
         { success: false, error: 'Result ID is required' },
         { status: 400 }
       );
     }
-    
+
     if (subjects) {
       if (!Array.isArray(subjects)) {
         return NextResponse.json(
@@ -1416,31 +2001,65 @@ export async function PUT(request) {
         }
       }
     }
-    
-    const updatedResult = await prisma.studentResult.update({
-      where: { id },
-      data: {
-        ...(subjects && { subjects }),
-        ...updateData,
-        updatedAt: new Date()
-      },
-      include: {
-        student: {
-          select: {
-            firstName: true,
-            lastName: true,
-            form: true
+
+    // Use transaction for consistency
+    const result = await prisma.$transaction(async (tx) => {
+      // Get current result
+      const currentResult = await tx.studentResult.findUnique({
+        where: { id },
+        include: {
+          student: {
+            select: {
+              firstName: true,
+              lastName: true
+            }
           }
         }
+      });
+
+      if (!currentResult) {
+        throw new Error('Result not found');
       }
+
+      // Update result
+      const updatedResult = await tx.studentResult.update({
+        where: { id },
+        data: {
+          ...(subjects && { subjects }),
+          ...updateData,
+          updatedAt: new Date()
+        },
+        include: {
+          student: {
+            select: {
+              firstName: true,
+              lastName: true,
+              form: true
+            }
+          }
+        }
+      });
+
+      // Update statistics
+      const finalStats = await calculateStatistics({});
+      await updateCachedStats(finalStats.stats);
+
+      return updatedResult;
     });
-    
+
+    // Recalculate to ensure consistency
+    const finalStats = await calculateStatistics({});
+
     return NextResponse.json({
       success: true,
       message: 'Result updated successfully',
-      data: updatedResult
+      data: {
+        result: result,
+        stats: finalStats.stats,
+        validation: finalStats.validation
+      }
     });
-    
+
   } catch (error) {
     if (error.code === 'P2025') {
       return NextResponse.json(
@@ -1458,90 +2077,107 @@ export async function PUT(request) {
   }
 }
 
+// DELETE - Result or batch with transaction
 export async function DELETE(request) {
   try {
     const url = new URL(request.url);
     const batchId = url.searchParams.get('batchId');
     const resultId = url.searchParams.get('resultId');
-    
+    const hardDelete = url.searchParams.get('hardDelete') === 'true';
+
     if (batchId) {
-      const batch = await prisma.resultUpload.findUnique({
-        where: { id: batchId },
-        select: {
-          fileName: true,
-          validRows: true
+      const result = await prisma.$transaction(async (tx) => {
+        const batch = await tx.resultUpload.findUnique({
+          where: { id: batchId },
+          select: {
+            fileName: true,
+            validRows: true
+          }
+        });
+
+        if (!batch) {
+          throw new Error('Upload batch not found');
+        }
+
+        // Delete all results from this batch
+        const deleteResult = await tx.studentResult.deleteMany({
+          where: { uploadBatchId: batchId }
+        });
+
+        // Delete batch record
+        await tx.resultUpload.delete({
+          where: { id: batchId }
+        });
+
+        return { 
+          batch, 
+          deletedCount: deleteResult.count
+        };
+      });
+
+      // Recalculate statistics
+      const finalStats = await calculateStatistics({});
+      await updateCachedStats(finalStats.stats);
+
+      return NextResponse.json({
+        success: true,
+        message: `Deleted batch ${result.batch.fileName} and ${result.deletedCount} results`,
+        data: {
+          stats: finalStats.stats,
+          validation: finalStats.validation
         }
       });
-      
-      if (!batch) {
-        return NextResponse.json(
-          { success: false, error: 'Upload batch not found' },
-          { status: 404 }
-        );
-      }
-      
-      await prisma.resultUpload.delete({
-        where: { id: batchId }
-      });
-      
-      return NextResponse.json({
-        success: true,
-        message: `Deleted upload batch "${batch.fileName}" and ${batch.validRows || 0} result records`
-      });
     }
-    
+
     if (resultId) {
-      const result = await prisma.studentResult.findUnique({
-        where: { id: resultId }
+      const result = await prisma.$transaction(async (tx) => {
+        const resultData = await tx.studentResult.findUnique({
+          where: { id: resultId },
+          include: {
+            student: {
+              select: {
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        });
+
+        if (!resultData) {
+          throw new Error('Result not found');
+        }
+
+        // Delete result
+        await tx.studentResult.delete({
+          where: { id: resultId }
+        });
+
+        return resultData;
       });
-      
-      if (!result) {
-        return NextResponse.json(
-          { success: false, error: 'Result not found' },
-          { status: 404 }
-        );
-      }
-      
-      await prisma.studentResult.delete({
-        where: { id: resultId }
-      });
-      
+
+      // Recalculate statistics
+      const finalStats = await calculateStatistics({});
+      await updateCachedStats(finalStats.stats);
+
       return NextResponse.json({
         success: true,
-        message: `Deleted result for admission ${result.admissionNumber}`
+        message: `Deleted result for ${result.student?.firstName} ${result.student?.lastName} (${result.admissionNumber})`,
+        data: {
+          stats: finalStats.stats,
+          validation: finalStats.validation
+        }
       });
     }
-    
+
     return NextResponse.json(
       { success: false, error: 'Provide batchId or resultId' },
       { status: 400 }
     );
-    
+
   } catch (error) {
-    if (error.code === 'P2025') {
-      return NextResponse.json(
-        { success: false, error: 'Record not found' },
-        { status: 404 }
-      );
-    }
-    
-    if (error.code === 'P2028' || error.code === 'P2034') {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Database operation timed out. Please try again or delete in smaller batches.',
-          suggestion: 'Try deleting individual results instead of the entire batch.'
-        },
-        { status: 408 }
-      );
-    }
-    
+    console.error('Delete error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error.message || 'Delete operation failed',
-        code: error.code
-      },
+      { success: false, error: error.message || 'Delete failed' },
       { status: 500 }
     );
   }

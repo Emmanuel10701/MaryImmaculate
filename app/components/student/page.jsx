@@ -83,7 +83,11 @@ import {
   FiStar,
   FiBook as FiBookIcon,
   FiTarget as FiTargetIcon,
-  FiPlus
+  FiPlus,
+  FiCheckCircle,
+  FiDatabase,
+  FiRefreshCw as FiRefreshCwIcon,
+  FiLayers
 } from 'react-icons/fi';
 
 import { IoSchool } from 'react-icons/io5';
@@ -1009,7 +1013,7 @@ function StudentsChart({
                 contentStyle={{
                   borderRadius: '12px',
                   padding: '12px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  backgroundColor: 'rgba(255, 255,255, 0.95)',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                   border: '1px solid #e5e7eb'
                 }}
@@ -1474,6 +1478,519 @@ function EnhancedFilterPanel({
   );
 }
 
+// Upload Strategy Modal Component
+function UploadStrategyModal({ open, onClose, onConfirm, loading }) {
+  const [uploadType, setUploadType] = useState('new');
+  const [selectedForms, setSelectedForms] = useState([]);
+  const [targetForm, setTargetForm] = useState('');
+
+  const handleFormToggle = (form) => {
+    if (selectedForms.includes(form)) {
+      setSelectedForms(selectedForms.filter(f => f !== form));
+    } else {
+      setSelectedForms([...selectedForms, form]);
+    }
+  };
+
+  const handleConfirm = () => {
+    if (uploadType === 'new' && selectedForms.length === 0) {
+      sooner.error('Please select at least one form for new upload');
+      return;
+    }
+    
+    if (uploadType === 'update' && !targetForm) {
+      sooner.error('Please select a target form for update');
+      return;
+    }
+    
+    onConfirm({
+      uploadType,
+      selectedForms,
+      targetForm
+    });
+  };
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: {
+            xs: '98vw',
+            sm: '95vw',
+            md: '650px',
+            lg: '650px'
+          },
+          maxWidth: '650px',
+          maxHeight: {
+            xs: '85vh',
+            sm: '90vh',
+          },
+          bgcolor: 'background.paper',
+          borderRadius: 3,
+          boxShadow: 24,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 sm:p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 bg-white/20 rounded-xl">
+                <FiUpload className="text-lg sm:text-xl" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold">Upload Strategy</h2>
+                <p className="text-blue-100 opacity-90 text-sm sm:text-base">
+                  Choose how you want to upload students
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-lg transition"
+            >
+              <FiX className="text-lg sm:text-xl" />
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            {/* Upload Type Selection */}
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Select Upload Type</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <div
+                  onClick={() => setUploadType('new')}
+                  className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                    uploadType === 'new'
+                      ? 'border-blue-500 bg-blue-50 shadow-lg'
+                      : 'border-gray-300 hover:border-blue-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className={`p-1.5 sm:p-2 rounded-lg ${uploadType === 'new' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                      <FiPlus className={`text-sm sm:text-lg ${uploadType === 'new' ? 'text-blue-600' : 'text-gray-500'}`} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">New Upload</h4>
+                      <p className="text-xs sm:text-sm text-gray-600">Add new students to selected forms</p>
+                    </div>
+                  </div>
+                  {uploadType === 'new' && (
+                    <div className="mt-2 text-xs sm:text-sm text-blue-700">
+                      <FiCheckCircle className="inline mr-1" />
+                      Prevents duplicates by admission number
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  onClick={() => setUploadType('update')}
+                  className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                    uploadType === 'update'
+                      ? 'border-blue-500 bg-blue-50 shadow-lg'
+                      : 'border-gray-300 hover:border-blue-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className={`p-1.5 sm:p-2 rounded-lg ${uploadType === 'update' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                      <FiDatabase className={`text-sm sm:text-lg ${uploadType === 'update' ? 'text-blue-600' : 'text-gray-500'}`} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">Update Upload</h4>
+                      <p className="text-xs sm:text-sm text-gray-600">Update existing form with new data</p>
+                    </div>
+                  </div>
+                  {uploadType === 'update' && (
+                    <div className="mt-2 text-xs sm:text-sm text-blue-700">
+                      <FiCheckCircle className="inline mr-1" />
+                      Replaces entire form batch safely
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Form Selection */}
+            {uploadType === 'new' && (
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
+                  Select Forms to Upload <span className="text-xs sm:text-sm text-gray-500">(Choose one or more)</span>
+                </h3>
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  {['Form 1', 'Form 2', 'Form 3', 'Form 4'].map((form) => (
+                    <div
+                      key={form}
+                      onClick={() => handleFormToggle(form)}
+                      className={`p-2 sm:p-3 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
+                        selectedForms.includes(form)
+                          ? `border-blue-500 bg-gradient-to-r ${getFormColor(form)} text-white shadow-lg`
+                          : 'border-gray-300 hover:border-blue-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm sm:text-base">{form}</span>
+                        {selectedForms.includes(form) && (
+                          <FiCheckCircle className="text-white text-sm sm:text-base" />
+                        )}
+                      </div>
+                      <div className={`text-xs mt-0.5 sm:mt-1 ${selectedForms.includes(form) ? 'text-blue-100' : 'text-gray-500'}`}>
+                        Students will be added to {form}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {selectedForms.length > 0 && (
+                  <div className="mt-2 text-xs sm:text-sm text-gray-600">
+                    <FiInfo className="inline mr-1" />
+                    Only students in selected forms will be processed
+                  </div>
+                )}
+              </div>
+            )}
+
+            {uploadType === 'update' && (
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Select Form to Update</h3>
+                <div className="space-y-2 sm:space-y-3">
+                  {['Form 1', 'Form 2', 'Form 3', 'Form 4'].map((form) => (
+                    <div
+                      key={form}
+                      onClick={() => setTargetForm(form)}
+                      className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                        targetForm === form
+                          ? `border-blue-500 bg-gradient-to-r ${getFormColor(form)} text-white shadow-lg`
+                          : 'border-gray-300 hover:border-blue-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className={`p-1.5 sm:p-2 rounded-lg ${targetForm === form ? 'bg-white/20' : 'bg-gray-100'}`}>
+                            <IoSchool className={`text-sm sm:text-base ${targetForm === form ? 'text-white' : 'text-gray-500'}`} />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm sm:text-base">{form}</h4>
+                            <p className={`text-xs sm:text-sm ${targetForm === form ? 'text-blue-100' : 'text-gray-500'}`}>
+                              Replace all students in {form}
+                            </p>
+                          </div>
+                        </div>
+                        {targetForm === form && <FiCheckCircle className="text-white text-sm sm:text-base" />}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {targetForm && (
+                  <div className="mt-3 p-2 sm:p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-start gap-2">
+                      <FiInfo className="text-blue-600 mt-0.5 text-sm sm:text-base" />
+                      <div>
+                        <p className="text-xs sm:text-sm text-blue-800 font-bold">Update Strategy:</p>
+                        <ul className="text-xs text-blue-700 mt-1 space-y-0.5 sm:space-y-1">
+                          <li>• Matches students by admission number</li>
+                          <li>• Updates existing records</li>
+                          <li>• Creates new students if not exists</li>
+                          <li>• Marks missing students as inactive</li>
+                          <li>• Preserves relational integrity</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Fixed Bottom Buttons */}
+        <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-4 sm:p-6">
+            <button
+              onClick={onClose}
+              className="flex-1 py-2 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm sm:text-base"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={loading || (uploadType === 'new' && selectedForms.length === 0) || (uploadType === 'update' && !targetForm)}
+              className="flex-1 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 hover:shadow-lg transition-all text-sm sm:text-base"
+            >
+              {loading ? (
+                <>
+                  <CircularProgress size={16} className="text-white" />
+                  <span className="text-sm sm:text-base">Processing...</span>
+                </>
+              ) : (
+                <>
+                  <FiCheckCircle className="text-sm sm:text-base" />
+                  <span className="text-sm sm:text-base">Continue to File Upload</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Box>
+    </Modal>
+  );
+}
+
+// Duplicate Validation Modal
+function DuplicateValidationModal({ open, onClose, duplicates, onProceed, loading, uploadType, targetForm }) {
+  const [action, setAction] = useState('skip');
+
+  if (!open) return null;
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: {
+            xs: '98vw',
+            sm: '95vw',
+            md: '850px',
+            lg: '850px'
+          },
+          maxWidth: '850px',
+          maxHeight: {
+            xs: '85vh',
+            sm: '90vh',
+          },
+          bgcolor: 'background.paper',
+          borderRadius: 3,
+          boxShadow: 24,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        {/* Header */}
+        <div className="bg-gradient-to-r from-amber-500 to-orange-600 p-4 sm:p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 bg-white/20 rounded-xl">
+                <FiAlertCircle className="text-lg sm:text-xl" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold">Duplicate Detection</h2>
+                <p className="text-amber-100 opacity-90 text-sm sm:text-base">
+                  Found {duplicates.length} duplicate admission numbers
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-lg transition"
+            >
+              <FiX className="text-lg sm:text-xl" />
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-6">
+            <div className="mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-amber-500 rounded-full"></div>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                  {uploadType === 'update' 
+                    ? `Updating ${targetForm}: ${duplicates.length} existing students will be updated`
+                    : `${duplicates.length} admission numbers already exist in the database`
+                  }
+                </h3>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+                <p className="text-amber-800 text-xs sm:text-sm">
+                  <strong>Note:</strong> Admission numbers must be unique. The system uses admission number as the primary identifier.
+                </p>
+              </div>
+            </div>
+
+            {/* Duplicate List */}
+            <div className="mb-4 sm:mb-6">
+              <h4 className="font-bold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">Duplicate Admission Numbers:</h4>
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-bold text-gray-700">Row #</th>
+                        <th className="px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-bold text-gray-700">Admission</th>
+                        <th className="px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-bold text-gray-700">Name</th>
+                        <th className="px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-bold text-gray-700">Form</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {duplicates.slice(0, 50).map((dup, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-600">{dup.row}</td>
+                          <td className="px-3 sm:px-4 py-2">
+                            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800">
+                              {dup.admissionNumber}
+                            </span>
+                          </td>
+                          <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900">{dup.name}</td>
+                          <td className="px-3 sm:px-4 py-2">
+                            <span className={`px-2 py-1 rounded-md text-xs font-bold ${getFormColor(dup.form)} text-white`}>
+                              {dup.form}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {duplicates.length > 50 && (
+                  <div className="px-4 py-2 text-xs sm:text-sm text-gray-500 text-center border-t border-gray-200 bg-gray-50">
+                    ... and {duplicates.length - 50} more duplicates
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Selection */}
+            {uploadType === 'new' && (
+              <div className="mb-4 sm:mb-6">
+                <h4 className="font-bold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">How should we handle duplicates?</h4>
+                <div className="space-y-2 sm:space-y-3">
+                  <div
+                    onClick={() => setAction('skip')}
+                    className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                      action === 'skip'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-300 hover:border-blue-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className={`p-1.5 sm:p-2 rounded-lg ${action === 'skip' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                        <FiCheckCircle className={`text-sm sm:text-base ${action === 'skip' ? 'text-blue-600' : 'text-gray-500'}`} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm sm:text-base">Skip Duplicates</h4>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          Keep existing records, skip duplicates in upload file
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => setAction('replace')}
+                    className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                      action === 'replace'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-300 hover:border-blue-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className={`p-1.5 sm:p-2 rounded-lg ${action === 'replace' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                        <FiDatabase className={`text-sm sm:text-base ${action === 'replace' ? 'text-blue-600' : 'text-gray-500'}`} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm sm:text-base">Replace Existing</h4>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          Update existing records with new data from upload file
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Summary */}
+            <div className="bg-gray-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+              <h4 className="font-bold text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Summary:</h4>
+              <ul className="text-xs sm:text-sm text-gray-700 space-y-0.5 sm:space-y-1">
+                {uploadType === 'new' ? (
+                  <>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full"></div>
+                      <span>Total students in file: {duplicates.length + (duplicates.length * 2)}</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-amber-500 rounded-full"></div>
+                      <span>Duplicate admission numbers: {duplicates.length}</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></div>
+                      <span>New students to add: {duplicates.length}</span>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full"></div>
+                      <span>Updating form: {targetForm}</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-amber-500 rounded-full"></div>
+                      <span>Students to update: {duplicates.length}</span>
+                    </li>
+                    <li className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-500 rounded-full"></div>
+                      <span>Existing students not in file will be marked inactive</span>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Fixed Bottom Buttons */}
+        <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-4 sm:p-6">
+            <button
+              onClick={onClose}
+              disabled={loading}
+              className="flex-1 py-2 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all disabled:opacity-50 text-sm sm:text-base"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => onProceed(action)}
+              disabled={loading}
+              className="flex-1 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-50 text-sm sm:text-base"
+            >
+              {loading ? (
+                <>
+                  <CircularProgress size={16} className="text-white" />
+                  <span className="text-sm sm:text-base">Processing...</span>
+                </>
+              ) : uploadType === 'update' ? (
+                <>
+                  <FiCheckCircle className="text-sm sm:text-base" />
+                  <span className="text-sm sm:text-base">Update Form</span>
+                </>
+              ) : (
+                <>
+                  <FiCheckCircle className="text-sm sm:text-base" />
+                  <span className="text-sm sm:text-base">{action === 'skip' ? 'Skip Duplicates' : 'Replace Existing'}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Box>
+    </Modal>
+  );
+}
+
 // Main Component
 export default function ModernStudentBulkUpload() {
   const [uploading, setUploading] = useState(false);
@@ -1487,11 +2004,16 @@ export default function ModernStudentBulkUpload() {
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [displayMode, setDisplayMode] = useState('grid');
-  const [replaceOption, setReplaceOption] = useState('skip');
-  const [editingStudent, setEditingStudent] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState({ type: '', id: '', name: '' });
+  const [showStrategyModal, setShowStrategyModal] = useState(false);
+  const [showValidationModal, setShowValidationModal] = useState(false);
+  const [uploadStrategy, setUploadStrategy] = useState(null);
+  const [duplicates, setDuplicates] = useState([]);
+  const [validationLoading, setValidationLoading] = useState(false);
+    const [editingStudent, setEditingStudent] = useState(null); // <-- ADD THIS
+
   
   const [filters, setFilters] = useState({
     search: '',
@@ -1531,7 +2053,6 @@ export default function ModernStudentBulkUpload() {
   });
 
   const fileInputRef = useRef(null);
-  const FORMS = ['Form 1', 'Form 2', 'Form 3', 'Form 4'];
 
   // Helper function to process API responses
   const processApiResponse = (data) => {
@@ -1845,16 +2366,69 @@ export default function ModernStudentBulkUpload() {
     setResult(null);
   };
 
-  const handleUpload = async () => {
-    if (!file) {
-      sooner.error('Please select a file first');
+  // Check for duplicates before upload
+  const checkDuplicates = async () => {
+    if (!file || !uploadStrategy) {
+      sooner.error('Please select a file and upload strategy first');
       return;
     }
 
+    setValidationLoading(true);
+    try {
+      // Create FormData
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('checkDuplicates', 'true');
+      
+      if (uploadStrategy.uploadType === 'new') {
+        formData.append('uploadType', 'new');
+        formData.append('forms', JSON.stringify(uploadStrategy.selectedForms));
+      } else {
+        formData.append('uploadType', 'update');
+        formData.append('targetForm', uploadStrategy.targetForm);
+      }
+
+      const response = await fetch('/api/studentupload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        if (data.duplicates && data.duplicates.length > 0) {
+          setDuplicates(data.duplicates);
+          setShowValidationModal(true);
+        } else {
+          // No duplicates, proceed with upload
+          proceedWithUpload('skip');
+        }
+      } else {
+        sooner.error(data.error || 'Failed to check for duplicates');
+      }
+    } catch (error) {
+      console.error('Validation error:', error);
+      sooner.error('Failed to validate file');
+    } finally {
+      setValidationLoading(false);
+    }
+  };
+
+  // Proceed with upload after duplicate check
+  const proceedWithUpload = async (duplicateAction = 'skip') => {
     setUploading(true);
+    setShowValidationModal(false);
+    
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('replaceExisting', replaceOption === 'replace');
+    formData.append('uploadType', uploadStrategy.uploadType);
+    
+    if (uploadStrategy.uploadType === 'new') {
+      formData.append('forms', JSON.stringify(uploadStrategy.selectedForms));
+      formData.append('duplicateAction', duplicateAction);
+    } else {
+      formData.append('targetForm', uploadStrategy.targetForm);
+    }
 
     try {
       const response = await fetch('/api/studentupload', {
@@ -1871,7 +2445,14 @@ export default function ModernStudentBulkUpload() {
       setResult(data);
       
       if (data.success) {
-        sooner.success(`✅ Upload successful! ${data.validRows || 0} students processed.`);
+        let successMessage = '';
+        if (uploadStrategy.uploadType === 'new') {
+          successMessage = `✅ New upload successful! ${data.processingStats?.validRows || 0} students processed.`;
+        } else {
+          successMessage = `✅ Update successful! Form ${uploadStrategy.targetForm} updated: ${data.processingStats?.updatedRows || 0} updated, ${data.processingStats?.createdRows || 0} created.`;
+        }
+        
+        sooner.success(successMessage);
         
         if (data.errors && data.errors.length > 0) {
           data.errors.slice(0, 3).forEach(error => {
@@ -1884,6 +2465,7 @@ export default function ModernStudentBulkUpload() {
         
         await Promise.all([loadStudents(1), loadUploadHistory(1), loadStats()]);
         setFile(null);
+        setUploadStrategy(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -2103,6 +2685,29 @@ export default function ModernStudentBulkUpload() {
     }
   };
 
+  // Handle upload strategy confirmation
+  const handleStrategyConfirm = (strategy) => {
+    setUploadStrategy(strategy);
+    setShowStrategyModal(false);
+    sooner.success(`Strategy set: ${strategy.uploadType === 'new' ? 'New Upload' : 'Update Upload'} ${strategy.uploadType === 'new' ? `for ${strategy.selectedForms.join(', ')}` : `for ${strategy.targetForm}`}`);
+  };
+
+  // Handle file upload with strategy
+  const handleUploadWithStrategy = () => {
+    if (!uploadStrategy) {
+      setShowStrategyModal(true);
+      return;
+    }
+    
+    if (!file) {
+      sooner.error('Please select a file first');
+      return;
+    }
+    
+    // Check for duplicates before upload
+    checkDuplicates();
+  };
+
   if (loading && students.length === 0 && view !== 'upload' && view !== 'demographics') {
     return <ModernLoadingSpinner message="Loading student records..." size="large" />;
   }
@@ -2121,8 +2726,8 @@ export default function ModernStudentBulkUpload() {
             <div>
               <h1 className="text-3xl font-bold">Student Bulk Upload & Analytics</h1>
               <p className="text-blue-100 text-lg mt-2 max-w-2xl">
-                Comprehensive student management with bulk upload, real-time filtering, 
-                demographic analytics, and distribution charts for all academic forms and streams.
+                Comprehensive student management with structured upload strategy, 
+                duplicate prevention, and real-time analytics.
               </p>
             </div>
           </div>
@@ -2139,7 +2744,7 @@ export default function ModernStudentBulkUpload() {
               {loading ? (
                 <CircularProgress size={16} color="inherit" thickness={6} />
               ) : (
-                <FiRefreshCw className="text-base" />
+                <FiRefreshCwIcon className="text-base" />
               )}
               {loading ? 'Syncing...' : 'Refresh Stats'}
             </button>
@@ -2253,56 +2858,133 @@ export default function ModernStudentBulkUpload() {
 
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-8">
+                {/* Upload Strategy Info */}
                 <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-300">
-                  <h3 className="text-xl font-bold text-blue-900 mb-6 flex items-center gap-3">
-                    <FiInfo className="text-blue-700 text-2xl" />
-                    Duplicate Prevention Strategy
-                  </h3>
-                  <div className="flex flex-col sm:flex-row gap-6 mb-4">
-                    <div className="flex-1">
-                      <label className={`flex items-center gap-4 p-5 rounded-2xl border-3 cursor-pointer transition-all duration-300 ${
-                        replaceOption === 'skip' 
-                          ? 'border-blue-600 bg-blue-50 shadow-lg' 
-                          : 'border-gray-300 hover:border-blue-400'
-                      }`}>
-                        <input
-                          type="radio"
-                          checked={replaceOption === 'skip'}
-                          onChange={() => setReplaceOption('skip')}
-                          className="text-blue-600 focus:ring-blue-500 h-5 w-5"
-                        />
-                        <div className="flex-1">
-                          <div className="font-bold text-gray-900 text-lg">Skip Duplicates</div>
-                          <div className="text-gray-600 text-sm mt-2">Preserve existing records with unique admission numbers</div>
-                        </div>
-                      </label>
-                    </div>
-                    <div className="flex-1">
-                      <label className={`flex items-center gap-4 p-5 rounded-2xl border-3 cursor-pointer transition-all duration-300 ${
-                        replaceOption === 'replace' 
-                          ? 'border-blue-600 bg-blue-50 shadow-lg' 
-                          : 'border-gray-300 hover:border-blue-400'
-                      }`}>
-                        <input
-                          type="radio"
-                          checked={replaceOption === 'replace'}
-                          onChange={() => setReplaceOption('replace')}
-                          className="text-blue-600 focus:ring-blue-500 h-5 w-5"
-                        />
-                        <div className="flex-1">
-                          <div className="font-bold text-gray-900 text-lg">Replace Records</div>
-                          <div className="text-gray-600 text-sm mt-2">Update existing records with new data</div>
-                        </div>
-                      </label>
-                    </div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-blue-900 flex items-center gap-3">
+                      <FiLayers className="text-blue-700 text-2xl" />
+                      Upload Strategy
+                    </h3>
+                    {uploadStrategy && (
+                      <span className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm">
+                        {uploadStrategy.uploadType === 'new' 
+                          ? `New Upload for ${uploadStrategy.selectedForms.join(', ')}`
+                          : `Update Upload for ${uploadStrategy.targetForm}`
+                        }
+                      </span>
+                    )}
                   </div>
-                  <div className="bg-white/80 rounded-xl p-4 border border-blue-200">
-                    <p className="text-sm text-blue-800 font-semibold">
-                      ⚠️ Admission numbers must be unique. Names can be duplicated but admission numbers cannot.
-                    </p>
-                  </div>
+                  
+                  {!uploadStrategy ? (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <FiUpload className="text-blue-600 text-2xl" />
+                      </div>
+                      <p className="text-blue-800 font-bold text-lg mb-4">
+                        No upload strategy selected
+                      </p>
+                      <button
+                        onClick={() => setShowStrategyModal(true)}
+                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl font-bold flex items-center gap-3 mx-auto hover:shadow-xl transition-all duration-300"
+                      >
+                        <FiSettings className="text-base" />
+                        Select Upload Strategy
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white rounded-xl p-4 border border-blue-200">
+                          <h4 className="font-bold text-gray-900 mb-2">Upload Type</h4>
+                          <div className="flex items-center gap-2">
+                            <div className={`p-2 rounded-lg ${
+                              uploadStrategy.uploadType === 'new' 
+                                ? 'bg-blue-100 text-blue-700' 
+                                : 'bg-purple-100 text-purple-700'
+                            }`}>
+                              {uploadStrategy.uploadType === 'new' ? <FiPlus /> : <FiDatabase />}
+                            </div>
+                            <span className="font-bold text-gray-900">
+                              {uploadStrategy.uploadType === 'new' ? 'New Upload' : 'Update Upload'}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-xl p-4 border border-blue-200">
+                          <h4 className="font-bold text-gray-900 mb-2">Target Forms</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {uploadStrategy.uploadType === 'new' 
+                              ? uploadStrategy.selectedForms.map(form => (
+                                  <span key={form} className={`px-3 py-1 rounded-lg text-sm font-bold text-white bg-gradient-to-r ${getFormColor(form)}`}>
+                                    {form}
+                                  </span>
+                                ))
+                              : (
+                                <span className={`px-3 py-1 rounded-lg text-sm font-bold text-white bg-gradient-to-r ${getFormColor(uploadStrategy.targetForm)}`}>
+                                  {uploadStrategy.targetForm}
+                                </span>
+                              )
+                            }
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-xl p-4 border border-blue-200">
+                        <h4 className="font-bold text-gray-900 mb-2">Strategy Details</h4>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          {uploadStrategy.uploadType === 'new' ? (
+                            <>
+                              <li className="flex items-center gap-2">
+                                <FiCheckCircle className="text-green-500" />
+                                <span>Admission number is unique identifier</span>
+                              </li>
+                              <li className="flex items-center gap-2">
+                                <FiCheckCircle className="text-green-500" />
+                                <span>Prevents duplicate admission numbers</span>
+                              </li>
+                              <li className="flex items-center gap-2">
+                                <FiCheckCircle className="text-green-500" />
+                                <span>Only processes selected forms</span>
+                              </li>
+                            </>
+                          ) : (
+                            <>
+                              <li className="flex items-center gap-2">
+                                <FiCheckCircle className="text-green-500" />
+                                <span>Replaces entire form batch safely</span>
+                              </li>
+                              <li className="flex items-center gap-2">
+                                <FiCheckCircle className="text-green-500" />
+                                <span>Matches students by admission number</span>
+                              </li>
+                              <li className="flex items-center gap-2">
+                                <FiCheckCircle className="text-green-500" />
+                                <span>Preserves relational integrity</span>
+                              </li>
+                            </>
+                          )}
+                        </ul>
+                      </div>
+                      
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setShowStrategyModal(true)}
+                          className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-bold hover:border-blue-500 hover:text-blue-600 transition-all duration-300"
+                        >
+                          Change Strategy
+                        </button>
+                        <button
+                          onClick={() => setUploadStrategy(null)}
+                          className="px-4 py-2 border-2 border-red-300 text-red-700 rounded-lg font-bold hover:border-red-500 hover:text-red-800 transition-all duration-300"
+                        >
+                          Clear Strategy
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
+                {/* File Upload Section */}
                 <ModernFileUpload
                   onFileSelect={handleFileSelect}
                   file={file}
@@ -2342,14 +3024,19 @@ export default function ModernStudentBulkUpload() {
                           <FiX className="text-xl" />
                         </button>
                         <button
-                          onClick={handleUpload}
-                          disabled={uploading}
+                          onClick={handleUploadWithStrategy}
+                          disabled={uploading || validationLoading || !uploadStrategy}
                           className="px-6 py-4 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-xl font-bold flex items-center gap-3 text-base shadow-xl disabled:opacity-50 hover:shadow-2xl transition-all duration-300"
                         >
                           {uploading ? (
                             <>
                               <CircularProgress size={18} className="text-white" />
                               <span>Processing...</span>
+                            </>
+                          ) : validationLoading ? (
+                            <>
+                              <CircularProgress size={18} className="text-white" />
+                              <span>Checking...</span>
                             </>
                           ) : (
                             <>
@@ -2365,6 +3052,7 @@ export default function ModernStudentBulkUpload() {
               </div>
 
               <div className="space-y-8">
+                {/* Templates Section */}
                 <div className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-xl">
                   <h3 className="text-xl font-bold text-gray-900 mb-6">Download Templates</h3>
                   <div className="space-y-4">
@@ -2385,6 +3073,7 @@ export default function ModernStudentBulkUpload() {
                   </div>
                 </div>
 
+                {/* Guidelines Section */}
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-300 p-6 shadow-xl">
                   <h3 className="text-xl font-bold text-blue-900 mb-6">Upload Guidelines</h3>
                   <ul className="space-y-4">
@@ -2392,7 +3081,7 @@ export default function ModernStudentBulkUpload() {
                       <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-blue-700 font-bold text-base">1</span>
                       </div>
-                      <span className="text-blue-800 font-semibold text-base">Use provided templates for correct format</span>
+                      <span className="text-blue-800 font-semibold text-base">Select upload strategy first (New or Update)</span>
                     </li>
                     <li className="flex items-start gap-4">
                       <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -2404,15 +3093,38 @@ export default function ModernStudentBulkUpload() {
                       <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-blue-700 font-bold text-base">3</span>
                       </div>
-                      <span className="text-blue-800 font-semibold text-base">Keep file size under 10MB for optimal performance</span>
+                      <span className="text-blue-800 font-semibold text-base">For updates, only students in selected form will be processed</span>
                     </li>
                     <li className="flex items-start gap-4">
                       <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-blue-700 font-bold text-base">4</span>
                       </div>
-                      <span className="text-blue-800 font-semibold text-base">All required fields must be filled (marked with *)</span>
+                      <span className="text-blue-800 font-semibold text-base">System checks for duplicates before uploading</span>
                     </li>
                   </ul>
+                </div>
+
+                {/* Quick Stats */}
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-300 p-6 shadow-xl">
+                  <h3 className="text-xl font-bold text-purple-900 mb-6">Quick Stats</h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-purple-800 font-bold">Total Forms</span>
+                      <span className="text-2xl font-bold text-purple-700">4</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-purple-800 font-bold">Unique Identifier</span>
+                      <span className="font-bold text-purple-700">Admission #</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-purple-800 font-bold">Max File Size</span>
+                      <span className="font-bold text-purple-700">10 MB</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-purple-800 font-bold">Supported Formats</span>
+                      <span className="font-bold text-purple-700">CSV, Excel</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2610,7 +3322,7 @@ export default function ModernStudentBulkUpload() {
                             </button>
 
                             <button
-                              onClick={() => setEditingStudent(student)}
+                            onClick={() => setEditingStudent(student)} // This is correct
                               className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition"
                             >
                               <FiEdit className="text-xs" />
@@ -3076,6 +3788,27 @@ export default function ModernStudentBulkUpload() {
                                     minute: '2-digit'
                                   })}
                                 </div>
+                                {upload.metadata && (
+                                  <div className="mt-2">
+                                    <span className={`px-2 py-1 rounded text-xs font-bold ${
+                                      upload.metadata.uploadType === 'new' 
+                                        ? 'bg-blue-100 text-blue-700' 
+                                        : 'bg-purple-100 text-purple-700'
+                                    }`}>
+                                      {upload.metadata.uploadType === 'new' ? 'New Upload' : 'Update Upload'}
+                                    </span>
+                                    {upload.metadata.selectedForms && (
+                                      <span className="ml-2 px-2 py-1 rounded text-xs font-bold bg-gray-100 text-gray-700">
+                                        {upload.metadata.selectedForms.length} forms
+                                      </span>
+                                    )}
+                                    {upload.metadata.targetForm && (
+                                      <span className="ml-2 px-2 py-1 rounded text-xs font-bold bg-gray-100 text-gray-700">
+                                        {upload.metadata.targetForm}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </td>
@@ -3100,6 +3833,13 @@ export default function ModernStudentBulkUpload() {
                               <div className="text-gray-600 font-semibold text-sm">
                                 Total: {upload.totalRows || 0} rows processed
                               </div>
+                              {upload.metadata && (upload.metadata.updatedRows || upload.metadata.createdRows || upload.metadata.deactivatedRows) && (
+                                <div className="text-gray-500 text-xs">
+                                  {upload.metadata.updatedRows > 0 && `Updated: ${upload.metadata.updatedRows} `}
+                                  {upload.metadata.createdRows > 0 && `Created: ${upload.metadata.createdRows} `}
+                                  {upload.metadata.deactivatedRows > 0 && `Deactivated: ${upload.metadata.deactivatedRows}`}
+                                </div>
+                              )}
                             </div>
                           </td>
                           <td className="px-8 py-6">
@@ -3155,6 +3895,23 @@ export default function ModernStudentBulkUpload() {
           itemName={deleteTarget.name}
         />
       )}
+
+      <UploadStrategyModal
+        open={showStrategyModal}
+        onClose={() => setShowStrategyModal(false)}
+        onConfirm={handleStrategyConfirm}
+        loading={loading}
+      />
+
+      <DuplicateValidationModal
+        open={showValidationModal}
+        onClose={() => setShowValidationModal(false)}
+        duplicates={duplicates}
+        onProceed={proceedWithUpload}
+        loading={uploading}
+        uploadType={uploadStrategy?.uploadType}
+        targetForm={uploadStrategy?.targetForm}
+      />
     </div>
   );
 }
