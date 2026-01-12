@@ -1,23 +1,66 @@
 'use client';
 
-import { 
-  useState, useMemo, useEffect, useCallback 
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
 } from 'react';
+
 import {
-  FiGrid, FiList, FiSearch, FiFilter, FiDownload,
-  FiEye, FiFileText, FiVideo, FiImage, FiMic,
-  FiCalendar, FiUser, FiClock, FiCheckCircle,
-  FiAward, FiArrowRight, FiX, FiBook, FiFile,
-  FiRefreshCw, FiAlertTriangle, FiExternalLink,
-  FiChevronDown, FiChevronUp, FiCheck, FiStar,
-  FiBarChart2, FiTrendingUp, FiTrendingDown, FiInfo,
-  FiPrinter, FiShare2, FiBell, FiBookOpen
+  FiGrid,
+  FiList,
+  FiSearch,
+  FiFilter,
+  FiDownload,
+  FiEye,
+  FiFileText,
+  FiVideo,
+  FiImage,
+  FiMic,
+  FiCalendar,
+  FiUser,
+  FiClock,
+  FiCheckCircle,
+  FiAward,
+  FiArrowRight,
+  FiX,
+  FiBook,
+  FiFile,
+  FiRefreshCw,
+  FiAlertTriangle,
+  FiExternalLink,
+  FiChevronDown,
+  FiChevronUp,
+  FiCheck,
+  FiStar,
+  FiBarChart2,
+  FiTrendingUp,
+  FiTrendingDown,
+  FiInfo,
+  FiPrinter,
+  FiShare2,
+  FiBell,
+  FiBookOpen,
+  FiTag,
+  FiSchool,
+  FiPaperclip,
+  FiSettings , 
 } from 'react-icons/fi';
+
 import {
-  IoDocumentsOutline, IoFolderOpen, IoStatsChart,
-  IoAnalytics, IoSparkles, IoClose, IoFilter,
-  IoSchool, IoDocumentAttach
+  IoDocumentsOutline,
+  IoFolderOpen,
+  IoStatsChart,
+  IoAnalytics,
+  IoSparkles,
+  IoClose,
+  IoFilter,
+  IoSchool,
+  IoDocumentAttach,
 } from 'react-icons/io5';
+
+
 import {
   CircularProgress,
   Tooltip,
@@ -549,7 +592,7 @@ function AttachmentsSection({
   );
 }
 
-function ResourceStatsCard({ title, value, icon: Icon, color, trend = 0, prefix = '', suffix = '', description }) {
+function ResourceStatsCard({ title, value, icon: Icon, color, trend = 0, prefix = '', suffix = '', description, featured = false }) {
   const formatValue = (val) => {
     if (typeof val === 'number') {
       return prefix + val.toLocaleString() + suffix;
@@ -558,10 +601,10 @@ function ResourceStatsCard({ title, value, icon: Icon, color, trend = 0, prefix 
   };
 
   return (
-    <div className="bg-white rounded-2xl p-3 sm:p-4 md:p-6 border-2 border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <div className={`bg-white rounded-2xl border-2 border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 ${featured ? 'p-4 sm:p-6 md:p-8' : 'p-3 sm:p-4 md:p-6'}`}>
       <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
-        <div className={`p-1.5 sm:p-2 md:p-3 rounded-xl bg-gradient-to-r ${color} flex-shrink-0`}>
-          <Icon className="text-white text-lg sm:text-xl md:text-2xl" />
+        <div className={`p-1.5 sm:p-2 md:p-3 rounded-xl bg-gradient-to-r ${color} flex-shrink-0 ${featured ? 'p-2 sm:p-3 md:p-4' : ''}`}>
+          <Icon className={`text-white ${featured ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg sm:text-xl md:text-2xl'}`} />
         </div>
         <div className={`text-xs px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg font-bold ${
           trend > 0 
@@ -569,18 +612,28 @@ function ResourceStatsCard({ title, value, icon: Icon, color, trend = 0, prefix 
             : trend < 0 
             ? 'bg-red-100 text-red-800' 
             : 'bg-gray-100 text-gray-800'
-        }`}>
+        } ${featured ? 'text-sm sm:text-base' : ''}`}>
           {trend > 0 ? `+${trend}%` : trend < 0 ? `${trend}%` : '0%'}
         </div>
       </div>
-      <h4 className="text-lg sm:text-xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">{formatValue(value)}</h4>
-      <p className="text-gray-900 text-xs sm:text-sm font-semibold truncate">{title}</p>
+      <h4 className={`font-bold text-gray-900 mb-1 md:mb-2 ${featured ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-lg sm:text-xl md:text-3xl'}`}>
+        {formatValue(value)}
+      </h4>
+      <p className={`text-gray-900 font-semibold truncate ${featured ? 'text-base sm:text-lg' : 'text-xs sm:text-sm'}`}>
+        {title}
+      </p>
       {description && (
-        <p className="text-gray-600 text-xs mt-0.5 truncate">{description}</p>
+        <p className={`text-gray-600 truncate ${featured ? 'text-sm mt-1' : 'text-xs mt-0.5'}`}>
+          {description}
+        </p>
       )}
     </div>
   );
 }
+
+
+// Resource Type Icon Component
+
 
 function ResourceAssignmentCard({ item, type = 'resource', isStudentClass = false, onView, onDownload }) {
   const isResource = type === 'resource';
@@ -590,117 +643,202 @@ function ResourceAssignmentCard({ item, type = 'resource', isStudentClass = fals
     ? (item.mainAttachment ? 1 : 0)
     : ((item.assignmentFileAttachments?.length || 0) + (item.attachmentAttachments?.length || 0));
 
+  // Get status color for assignments
+  const getStatusColor = (status) => {
+    const colors = {
+      completed: { bg: 'from-emerald-500 to-teal-400', text: 'text-emerald-600', border: 'border-emerald-200' },
+      pending: { bg: 'from-amber-500 to-orange-400', text: 'text-amber-600', border: 'border-amber-200' },
+      submitted: { bg: 'from-blue-500 to-cyan-400', text: 'text-blue-600', border: 'border-blue-200' },
+      overdue: { bg: 'from-rose-500 to-red-400', text: 'text-rose-600', border: 'border-rose-200' }
+    };
+    return colors[status] || colors.pending;
+  };
+
+  const statusColor = isResource 
+    ? { bg: 'from-blue-500 to-indigo-400', text: 'text-blue-600', border: 'border-blue-200' } 
+    : getStatusColor(item.status);
+
+  // Format date function
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   return (
-    <div 
-      className={`bg-white rounded-2xl border-2 ${
-        isStudentClass 
-          ? 'border-blue-500 border-l-4 shadow-lg' 
-          : 'border-gray-200'
-      } hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group`}
-    >
-      {isStudentClass && (
-        <div className="absolute top-0 right-0">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-xs px-2 py-0.5 sm:px-3 sm:py-1 rounded-bl-lg font-bold shadow-lg">
-            Your Class
-          </div>
-        </div>
-      )}
-
-      {isOverdue && (
-        <div className="absolute top-0 left-0 w-full bg-gradient-to-r from-rose-500 to-rose-600 text-white text-xs px-2 py-0.5 text-center font-bold">
-          ⚠️ Overdue
-        </div>
-      )}
-
-      <div className="p-3 sm:p-4 md:p-5">
-        <div className="flex items-start justify-between mb-2 sm:mb-3 md:mb-4">
-          <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className={`p-1.5 sm:p-2 md:p-3 rounded-xl flex-shrink-0 ${
-              isResource 
-                ? 'bg-blue-50' 
-                : item.status === 'completed' 
-                  ? 'bg-emerald-50' 
-                  : 'bg-amber-50'
-            }`}>
+    <div className="w-full max-w-md mx-auto group">
+      {/* Main Card Container */}
+      <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-300 flex flex-col h-full">
+        
+        {/* Top Visual Section - Responsive padding */}
+        <div className={`bg-gradient-to-r ${statusColor.bg} p-6 sm:p-8 relative`}>
+          <div className="relative z-10 flex justify-between items-start">
+            <div className="bg-white/20 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl border border-white/30">
               {isResource ? (
-                <ResourceTypeIcon type={item.type} size={16} className="sm:size-5" />
+                <ResourceTypeIcon type={item.type} size={20} className="sm:size-6 text-white" />
               ) : (
-                <FiBook className={`${item.status === 'completed' ? 'text-emerald-500' : 'text-amber-500'} size-4 sm:size-5`} />
+                <FiBook className="text-white w-5 h-5 sm:w-6 sm:h-6" />
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-gray-900 text-sm sm:text-base line-clamp-2">
-                {item.title}
-              </h3>
-              <p className="text-xs text-gray-600 mt-0.5 truncate">
-                {isResource ? item.subject : `${item.subject} • ${item.teacher}`}
+            
+            <div className="flex flex-col items-end gap-2">
+              {isStudentClass && (
+                <span className="bg-white/20 backdrop-blur-md text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
+                  Your Class
+                </span>
+              )}
+              {isOverdue && (
+                <span className="bg-rose-600 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
+                  ⚠️ Overdue
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <div className="mt-4 sm:mt-6 relative z-10">
+            <div className="flex items-center gap-2 text-white/90 text-[10px] sm:text-xs font-medium mb-1 sm:mb-2">
+              <FiTag size={12} className="sm:size-4" />
+              {isResource ? (item.category || item.type?.toUpperCase()) : item.subject}
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight break-words">
+              {item.title}
+            </h3>
+          </div>
+
+          {/* Decorative background elements - scaled for zoom */}
+          <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full -mr-12 -mt-12 sm:-mr-16 sm:-mt-16 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 sm:w-24 sm:h-24 bg-indigo-400/20 rounded-full -ml-8 -mb-8 sm:-ml-12 sm:-mb-12 blur-2xl"></div>
+        </div>
+
+        {/* Body Content - Fluid spacing */}
+        <div className="p-5 sm:p-6 space-y-4 sm:space-y-6 flex-grow">
+          
+          {/* Metadata Grid - Wraps on tiny screens if zoomed */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-1">
+              <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                {isResource ? 'Subject' : 'Class'}
               </p>
+              <div className="flex items-center gap-1.5 sm:gap-2 text-slate-700 font-semibold">
+                {isResource ? (
+                  <>
+                    <FiBookOpen size={14} className="text-indigo-500 shrink-0" />
+                    <span className="text-xs sm:text-sm truncate">{item.subject}</span>
+                  </>
+                ) : (
+                  <>
+                    <IoSchool size={14} className="text-purple-500 shrink-0" />
+                    <span className="text-xs sm:text-sm truncate">{item.className}</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                {isResource ? 'Class' : 'Teacher'}
+              </p>
+              <div className="flex items-center gap-1.5 sm:gap-2 text-slate-700 font-semibold">
+                {isResource ? (
+                  <span className="text-xs sm:text-sm truncate">{item.className}</span>
+                ) : (
+                  <>
+                    <FiUser size={14} className="text-blue-500 shrink-0" />
+                    <span className="text-xs sm:text-sm truncate">{item.teacher}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-          {!isResource && (
-            <div className="ml-2 flex-shrink-0">
-              <StatusBadge status={item.status} size="sm" />
-            </div>
-          )}
-        </div>
 
-        <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 md:mb-4">
-          {!isResource && (
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <FiCalendar size={12} className="sm:size-4 text-blue-500 flex-shrink-0" />
-              <span className="text-xs truncate">Due: {new Date(item.dueDate).toLocaleDateString()}</span>
+          {/* Secondary Info - Flexible layout */}
+          <div className="pt-4 border-t border-slate-50 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-xs">
+              {!isResource && item.dueDate && (
+                <div className="flex items-center gap-1.5 text-slate-500">
+                  <FiCalendar size={14} />
+                  <span>Due: {formatDate(item.dueDate)}</span>
+                </div>
+              )}
+              
+              {totalAttachments > 0 && (
+                <div className="flex items-center gap-1.5 text-slate-500">
+                  <IoDocumentAttach size={14} />
+                  <span>{totalAttachments} {totalAttachments === 1 ? 'file' : 'files'}</span>
+                </div>
+              )}
             </div>
-          )}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <IoSchool size={12} className="sm:size-4 text-purple-500 flex-shrink-0" />
-            <span className="text-xs truncate">{item.className}</span>
-          </div>
-          
-          {totalAttachments > 0 && (
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <IoDocumentAttach size={12} className="sm:size-4 text-green-500 flex-shrink-0" />
-              <span className="text-xs">
-                {totalAttachments} {totalAttachments === 1 ? 'attachment' : 'attachments'}
-              </span>
-            </div>
-          )}
-          
-          {isResource && item.fileSize && (
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <FiFile size={12} className="sm:size-4 text-gray-500 flex-shrink-0" />
-              <span className="text-xs truncate">{item.fileSize}</span>
-            </div>
-          )}
-        </div>
 
-        {item.description && (
-          <p className="text-xs text-gray-700 mb-2 sm:mb-3 md:mb-4 line-clamp-2">
-            {item.description}
-          </p>
-        )}
-
-        <div className="flex flex-col xs:flex-row gap-2">
-          <button
-            onClick={() => onView?.(item)}
-            className="w-full xs:flex-1 py-1.5 sm:py-2 md:py-2.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-xl text-xs sm:text-sm font-semibold hover:from-blue-100 hover:to-blue-200 transition-all flex items-center justify-center gap-1.5"
-          >
-            <FiEye size={12} className="sm:size-4" />
-            {isResource ? 'Preview' : 'View Details'}
-          </button>
-          <button
-            onClick={() => onDownload?.(item)}
-            className="w-full xs:w-auto px-3 py-1.5 sm:py-2 md:py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 rounded-xl text-xs sm:text-sm font-semibold hover:from-gray-100 hover:to-gray-200 transition-all flex items-center justify-center gap-1.5"
-          >
-            <FiDownload size={12} className="sm:size-4" />
-            {totalAttachments > 0 && (
-              <span className="ml-0.5">({totalAttachments})</span>
+            {/* File/Resource Info Card */}
+            {(isResource && (item.fileName || item.description)) && (
+              <div className="bg-slate-50 rounded-xl p-2.5 sm:p-3 flex items-center justify-between group/file border border-slate-100">
+                <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+                  <div className="shrink-0 text-indigo-500">
+                    <FiExternalLink size={16} className="sm:size-5" />
+                  </div>
+                  <div className="truncate">
+                    <p className="text-[10px] sm:text-[11px] font-medium text-slate-700 truncate">
+                      {item.fileName || item.description?.substring(0, 40)}
+                    </p>
+                    {item.fileSize && (
+                      <p className="text-[9px] sm:text-[10px] text-slate-400">{item.fileSize}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
-          </button>
+
+            {/* Assignment Description */}
+            {!isResource && item.description && (
+              <div className="bg-slate-50 rounded-xl p-2.5 sm:p-3 border border-slate-100">
+                <p className="text-[10px] sm:text-[11px] text-slate-700 line-clamp-2">
+                  {item.description}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Actions - Flex wrap for narrow/zoomed screens */}
+          <div className="flex gap-2 sm:gap-3 pt-2">
+            <button 
+              onClick={() => onView?.(item)}
+              className="flex-[2] bg-slate-900 text-white py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200 active:scale-95"
+            >
+              <span className="truncate">
+                {isResource ? 'View Resource' : 'View Details'}
+              </span>
+              <FiArrowRight size={16} className="shrink-0" />
+            </button>
+            <button 
+              onClick={() => onDownload?.(item)}
+              className="flex-1 max-w-[60px] sm:max-w-none bg-indigo-50 text-indigo-600 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl flex items-center justify-center hover:bg-indigo-100 transition-colors active:scale-95"
+              title={`Download ${totalAttachments > 0 ? `(${totalAttachments} files)` : ''}`}
+            >
+              <FiDownload size={18} className="sm:size-5" />
+              {totalAttachments > 0 && (
+                <span className="ml-1 text-xs font-bold hidden sm:inline">
+                  ({totalAttachments})
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Status/Access Badge - Scaled for better visibility */}
+      <div className="mt-4 flex justify-center">
+        <div className={`inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 ${statusColor.border} bg-white border rounded-full shadow-sm`}>
+          <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${statusColor.text.replace('text-', 'bg-')}`}></div>
+          <span className="text-[9px] sm:text-[10px] font-bold text-slate-600 uppercase tracking-tighter">
+            {isResource ? (item.accessLevel || 'student') + ' Access' : item.status || 'pending'}
+          </span>
         </div>
       </div>
     </div>
   );
 }
+
 
 function ResourceDetailsModal({ item, type = 'resource', onClose, onDownload }) {
   if (!item) return null;
@@ -765,9 +903,9 @@ function ResourceDetailsModal({ item, type = 'resource', onClose, onDownload }) 
               {!isResource && (
                 <>
                   <div className="text-center p-2 sm:p-3 bg-gray-50 rounded-xl border border-gray-200">
-                    <div className="text-xs sm:text-sm font-semibold text-gray-700">Due Date</div>
+                    <div className="text-xs sm:text-sm font-semibold text-gray-700">Date Created</div>
                     <div className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mt-0.5 sm:mt-1">
-                      {new Date(item.dueDate).toLocaleDateString()}
+                      {new Date(item.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                   <div className="text-center p-2 sm:p-3 bg-gray-50 rounded-xl border border-gray-200">
@@ -830,7 +968,7 @@ function ResourceDetailsModal({ item, type = 'resource', onClose, onDownload }) 
               </>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full">
+            <div className="flex flex-col sm:flex-col gap-2 sm:gap-3 w-full">
               <button
                 onClick={onClose}
                 className="
@@ -907,7 +1045,7 @@ export default function ModernResourcesAssignmentsView({
   // Get student's class format
   const getStudentClass = useCallback(() => {
     if (!student || !student.form) return '';
-    return `Form ${student.form} ${student.stream || ''}`.trim();
+    return ` ${student.form} ${student.stream || ''}`.trim();
   }, [student]);
 
   // Fetch assignments from API
@@ -1216,21 +1354,7 @@ export default function ModernResourcesAssignmentsView({
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
-                {/* Download All Button */}
-                {filteredCount > 0 && (
-                  <button
-                    onClick={handleDownloadAll}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-xl font-bold text-xs sm:text-sm hover:from-green-700 hover:to-emerald-800 disabled:opacity-50 flex items-center gap-1.5"
-                    title={`Download all ${filteredCount} ${activeTab}`}
-                  >
-                    <FiDownload className="text-sm sm:text-base" />
-                    <span className="hidden sm:inline">Download All</span>
-                    <span className="inline sm:hidden">All</span>
-                    <span className="bg-white/30 px-1.5 py-0.5 rounded-md text-xs">
-                      {filteredCount}
-                    </span>
-                  </button>
-                )}
+         
                 <button
                   onClick={handleRefresh}
                   disabled={isLoading}
@@ -1244,210 +1368,334 @@ export default function ModernResourcesAssignmentsView({
           </div>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-          <ResourceStatsCard
-            title="Total Assignments"
-            value={stats.totalAssignments}
-            icon={FiBook}
-            color="from-purple-500 to-purple-700"
-            trend={stats.totalAssignments > 0 ? Math.round((stats.pendingAssignments / stats.totalAssignments) * 100) : 0}
-            description={`${stats.pendingAssignments} pending`}
-          />
-          <ResourceStatsCard
-            title="Learning Resources"
-            value={stats.totalResources}
-            icon={IoDocumentsOutline}
-            color="from-blue-500 to-blue-700"
-            trend={stats.pdfResources}
-            suffix=" PDFs"
-            description="Study materials available"
-          />
-          <ResourceStatsCard
-            title="Completion Rate"
-            value={stats.averageCompletion}
-            icon={FiCheckCircle}
-            color="from-emerald-500 to-emerald-700"
-            trend={stats.averageCompletion}
-            suffix="%"
-            description="Assignments completed"
-          />
+<div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+  <ResourceStatsCard
+    title="Total Assignments"
+    value={stats.totalAssignments}
+    icon={FiBook}
+    color="from-purple-500 to-purple-700"
+    trend={stats.totalAssignments > 0 ? Math.round((stats.pendingAssignments / stats.totalAssignments) * 100) : 0}
+    description={`${stats.pendingAssignments} pending`}
+    featured={true}
+  />
+  
+  <div className="lg:col-span-2 grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+    <ResourceStatsCard
+      title="Learning Resources"
+      value={stats.totalResources}
+      icon={IoDocumentsOutline}
+      color="from-blue-500 to-blue-700"
+      trend={stats.pdfResources}
+      suffix=" PDFs"
+      description="Study materials available"
+    />
+    <ResourceStatsCard
+      title="Completion Rate"
+      value={stats.averageCompletion}
+      icon={FiCheckCircle}
+      color="from-emerald-500 to-emerald-700"
+      trend={stats.averageCompletion}
+      suffix="%"
+      description="Assignments completed"
+    />
+  </div>
+</div>
+<div className="bg-white rounded-2xl md:rounded-[1.5rem] p-4 sm:p-5 md:p-6 border border-slate-100 shadow-lg">
+  <div className="space-y-4 sm:space-y-5 md:space-y-6">
+    {/* Modern Tabs */}
+    <div className="flex bg-gradient-to-r from-slate-50/80 to-white p-1 rounded-xl border border-slate-100 overflow-hidden">
+      <button
+        onClick={() => setActiveTab('assignments')}
+        className={`flex-1 py-2.5 sm:py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 ${
+          activeTab === 'assignments'
+            ? 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20 text-white'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50/50'
+        }`}
+      >
+        <div className={`p-1.5 sm:p-2 rounded-lg ${
+          activeTab === 'assignments'
+            ? 'bg-white/20 backdrop-blur-sm'
+            : 'bg-blue-50 text-blue-600'
+        }`}>
+          <FiBook className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </div>
+        <div className="text-left min-w-0">
+          <div className="text-xs sm:text-sm font-bold leading-tight truncate">Assignments</div>
+          <div className={`text-[10px] sm:text-xs font-medium ${
+            activeTab === 'assignments' ? 'text-white/80' : 'text-slate-400'
+          } truncate`}>
+            {assignments.length} active
+          </div>
+        </div>
+      </button>
+      
+      <div className="w-px h-6 my-auto bg-slate-200"></div>
+      
+      <button
+        onClick={() => setActiveTab('resources')}
+        className={`flex-1 py-2.5 sm:py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 ${
+          activeTab === 'resources'
+            ? 'bg-gradient-to-r from-purple-500 to-violet-600 shadow-lg shadow-purple-500/20 text-white'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50/50'
+        }`}
+      >
+        <div className={`p-1.5 sm:p-2 rounded-lg ${
+          activeTab === 'resources'
+            ? 'bg-white/20 backdrop-blur-sm'
+            : 'bg-purple-50 text-purple-600'
+        }`}>
+          <IoDocumentsOutline className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        </div>
+        <div className="text-left min-w-0">
+          <div className="text-xs sm:text-sm font-bold leading-tight truncate">Resources</div>
+          <div className={`text-[10px] sm:text-xs font-medium ${
+            activeTab === 'resources' ? 'text-white/80' : 'text-slate-400'
+          } truncate`}>
+            {resources.length} files
+          </div>
+        </div>
+      </button>
+    </div>
 
-        {/* Tabs & Filters */}
-        <div className="bg-white rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4 border-2 border-gray-200">
-          <div className="flex flex-col gap-2 sm:gap-3 md:gap-4">
-            {/* Tabs */}
-            <div className="flex border-b border-gray-200">
+    {/* Search and Controls - Modern Layout */}
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+      {/* Search Bar */}
+      <div className="flex-1 w-full">
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-xl blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+          <div className="relative">
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 sm:w-5 sm:h-5 z-10" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={`Search ${activeTab === 'assignments' ? 'assignments by title, subject...' : 'resources by name, type...'}`}
+              className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3.5 text-sm sm:text-base border-2 border-slate-200 bg-white/80 backdrop-blur-sm rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all placeholder:text-slate-400"
+              style={{ fontSize: '16px' }} // Prevents zoom on mobile
+            />
+            {searchTerm && (
               <button
-                onClick={() => setActiveTab('assignments')}
-                className={`flex-1 py-1.5 sm:py-2 md:py-3 text-center font-bold text-xs sm:text-sm md:text-base border-b-2 ${
-                  activeTab === 'assignments'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
-                <div className="flex items-center justify-center gap-1 sm:gap-2">
-                  <FiBook className="text-sm sm:text-base" />
-                  <span className="truncate">Assignments ({assignments.length})</span>
-                </div>
+                <FiX className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <button
-                onClick={() => setActiveTab('resources')}
-                className={`flex-1 py-1.5 sm:py-2 md:py-3 text-center font-bold text-xs sm:text-sm md:text-base border-b-2 ${
-                  activeTab === 'resources'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-1 sm:gap-2">
-                  <IoDocumentsOutline className="text-sm sm:text-base" />
-                  <span className="truncate">Resources ({resources.length})</span>
-                </div>
-              </button>
-            </div>
-
-            {/* Search and Controls */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-              <div className="flex-1 w-full">
-                <div className="relative">
-                  <FiSearch className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm sm:text-lg" />
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder={`Search ${activeTab === 'assignments' ? 'assignments' : 'resources'}...`}
-                    className="w-full pl-9 sm:pl-12 pr-8 sm:pr-10 py-1.5 sm:py-2.5 md:py-3 border-2 border-gray-300 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                  />
-                  {searchTerm && (
-                    <button
-                      onClick={() => setSearchTerm('')}
-                      className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      <FiX className="text-sm sm:text-base" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <div className="flex bg-gray-100 rounded-lg p-0.5">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs font-bold flex items-center gap-0.5 sm:gap-1 ${
-                      viewMode === 'grid' 
-                        ? 'bg-white text-gray-900 shadow-sm' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    <FiGrid size={10} className="sm:size-3" />
-                    <span className="hidden xs:inline">Grid</span>
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs font-bold flex items-center gap-0.5 sm:gap-1 ${
-                      viewMode === 'list' 
-                        ? 'bg-white text-gray-900 shadow-sm' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    <FiList size={10} className="sm:size-3" />
-                    <span className="hidden xs:inline">List</span>
-                  </button>
-                </div>
-                <button
-                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="p-1.5 sm:p-2 border-2 border-gray-300 rounded-xl text-gray-600 hover:text-gray-900"
-                >
-                  <FiFilter className="text-sm sm:text-base" />
-                </button>
-              </div>
-            </div>
-
-            {/* Advanced Filters */}
-            {showAdvancedFilters && (
-              <div className="pt-2 sm:pt-3 border-t border-gray-200">
-                <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-0.5 sm:mb-1">Class</label>
-                    <select
-                      value={selectedClass}
-                      onChange={(e) => setSelectedClass(e.target.value)}
-                      className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                    >
-                      {classes.map(cls => (
-                        <option key={cls} value={cls}>
-                          {cls === 'all' ? 'All Classes' : cls}
-                          {cls === studentClass && ' (Your Class)'}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-0.5 sm:mb-1">Subject</label>
-                    <select
-                      value={selectedSubject}
-                      onChange={(e) => setSelectedSubject(e.target.value)}
-                      className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                    >
-                      {subjects.map(subject => (
-                        <option key={subject} value={subject}>
-                          {subject === 'all' ? 'All Subjects' : subject}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {activeTab === 'assignments' ? (
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-0.5 sm:mb-1">Status</label>
-                      <select
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                        className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                      >
-                        {statuses.map(status => (
-                          <option key={status.id} value={status.id}>
-                            {status.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ) : (
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-0.5 sm:mb-1">Resource Type</label>
-                      <select
-                        value={selectedResourceType}
-                        onChange={(e) => setSelectedResourceType(e.target.value)}
-                        className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                      >
-                        {resourceTypes.map(type => (
-                          <option key={type.id} value={type.id}>
-                            {type.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  <div className="flex items-end">
-                    {(selectedClass !== 'all' || selectedSubject !== 'all' || 
-                      selectedStatus !== 'all' || selectedResourceType !== 'all' || searchTerm) && (
-                      <button
-                        onClick={clearFilters}
-                        className="w-full px-2 py-1.5 sm:px-3 sm:py-2 bg-gradient-to-r from-red-50 to-red-100 text-red-600 rounded-lg text-xs sm:text-sm font-bold hover:from-red-100 hover:to-red-200 transition-all flex items-center justify-center gap-1 sm:gap-2"
-                      >
-                        <FiX className="text-sm" />
-                        <span>Clear Filters</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
             )}
           </div>
         </div>
+      </div>
+
+      {/* View Toggle & Filter Button */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* View Toggle */}
+        <div className="flex bg-gradient-to-r from-slate-50 to-slate-50/50 rounded-xl p-1 border border-slate-100 shadow-sm">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg flex items-center gap-1.5 sm:gap-2 transition-all ${
+              viewMode === 'grid' 
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <FiGrid className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-sm font-bold hidden sm:inline">Grid</span>
+            <span className="text-xs font-bold sm:hidden">Grid</span>
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg flex items-center gap-1.5 sm:gap-2 transition-all ${
+              viewMode === 'list' 
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <FiList className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-sm font-bold hidden sm:inline">List</span>
+            <span className="text-xs font-bold sm:hidden">List</span>
+          </button>
+        </div>
+
+        {/* Filter Button */}
+        <button
+          onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+          className={`relative p-2.5 sm:p-3 rounded-xl border transition-all duration-300 flex items-center justify-center ${
+            showAdvancedFilters
+              ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-blue-600 shadow-lg shadow-blue-500/10'
+              : 'bg-white border-slate-200 text-slate-600 hover:border-blue-200 hover:text-blue-600 hover:shadow-md'
+          }`}
+        >
+          <FiFilter className="w-4 h-4 sm:w-5 sm:h-5" />
+          {(selectedClass !== 'all' || selectedSubject !== 'all' || 
+            selectedStatus !== 'all' || selectedResourceType !== 'all' || searchTerm) && (
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-rose-500 rounded-full border border-white"></span>
+          )}
+        </button>
+      </div>
+    </div>
+
+    {/* Advanced Filters - Modern Dropdown */}
+    {showAdvancedFilters && (
+      <div className="pt-4 sm:pt-5 border-t border-slate-100 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* Class Filter */}
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-[10px] sm:text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-1.5">
+              <IoSchool className="w-3 h-3 text-blue-500" />
+              Class
+            </label>
+            <div className="relative">
+              <select
+                value={selectedClass}
+                onChange={(e) => setSelectedClass(e.target.value)}
+                className="w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border-2 border-slate-200 bg-white rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
+                style={{ fontSize: '16px' }} // Prevents zoom
+              >
+                {classes.map(cls => (
+                  <option key={cls} value={cls} className="py-2">
+                    {cls === 'all' ? 'All Classes' : cls}
+                    {cls === studentClass && ' (Your Class)'}
+                  </option>
+                ))}
+              </select>
+              <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+          </div>
+
+          {/* Subject Filter */}
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-[10px] sm:text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-1.5">
+              <FiBookOpen className="w-3 h-3 text-indigo-500" />
+              Subject
+            </label>
+            <div className="relative">
+              <select
+                value={selectedSubject}
+                onChange={(e) => setSelectedSubject(e.target.value)}
+                className="w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border-2 border-slate-200 bg-white rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
+                style={{ fontSize: '16px' }}
+              >
+                {subjects.map(subject => (
+                  <option key={subject} value={subject} className="py-2">
+                    {subject === 'all' ? 'All Subjects' : subject}
+                  </option>
+                ))}
+              </select>
+              <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+          </div>
+
+          {/* Conditional Filter - Status or Resource Type */}
+          {activeTab === 'assignments' ? (
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-[10px] sm:text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-1.5">
+                <FiCheckCircle className="w-3 h-3 text-emerald-500" />
+                Status
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border-2 border-slate-200 bg-white rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
+                  style={{ fontSize: '16px' }}
+                >
+                  {statuses.map(status => (
+                    <option key={status.id} value={status.id} className="py-2">
+                      {status.label}
+                    </option>
+                  ))}
+                </select>
+                <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-[10px] sm:text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-1.5">
+                <FiTag className="w-3 h-3 text-purple-500" />
+                Resource Type
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedResourceType}
+                  onChange={(e) => setSelectedResourceType(e.target.value)}
+                  className="w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border-2 border-slate-200 bg-white rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
+                  style={{ fontSize: '16px' }}
+                >
+                  {resourceTypes.map(type => (
+                    <option key={type.id} value={type.id} className="py-2">
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+                <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+            </div>
+          )}
+
+          {/* Clear Filters Button */}
+          <div className="flex items-end">
+            {(selectedClass !== 'all' || selectedSubject !== 'all' || 
+              selectedStatus !== 'all' || selectedResourceType !== 'all' || searchTerm) && (
+              <button
+                onClick={clearFilters}
+                className="w-full h-full min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-xl hover:from-slate-800 hover:to-slate-700 transition-all duration-300 shadow-lg shadow-slate-900/10 active:scale-[0.98]"
+                style={{ minHeight: '44px' }} // Better touch target on mobile
+              >
+                <FiX className="w-4 h-4" />
+                <span className="text-sm font-bold">Clear All</span>
+              </button>
+            )}
+          </div>
+        </div>
+        
+        {/* Active Filters Summary */}
+        {(selectedClass !== 'all' || selectedSubject !== 'all' || 
+          selectedStatus !== 'all' || selectedResourceType !== 'all') && (
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-slate-500">Active filters:</span>
+              {selectedClass !== 'all' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-100">
+                  <IoSchool className="w-3 h-3" />
+                  {selectedClass} {selectedClass === studentClass && '(Your Class)'}
+                  <button onClick={() => setSelectedClass('all')} className="ml-1 text-blue-500 hover:text-blue-700">
+                    <FiX className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {selectedSubject !== 'all' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-medium border border-indigo-100">
+                  <FiBookOpen className="w-3 h-3" />
+                  {selectedSubject}
+                  <button onClick={() => setSelectedSubject('all')} className="ml-1 text-indigo-500 hover:text-indigo-700">
+                    <FiX className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {activeTab === 'assignments' && selectedStatus !== 'all' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium border border-emerald-100">
+                  <FiCheckCircle className="w-3 h-3" />
+                  {statuses.find(s => s.id === selectedStatus)?.label}
+                  <button onClick={() => setSelectedStatus('all')} className="ml-1 text-emerald-500 hover:text-emerald-700">
+                    <FiX className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {activeTab === 'resources' && selectedResourceType !== 'all' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium border border-purple-100">
+                  <FiTag className="w-3 h-3" />
+                  {resourceTypes.find(t => t.id === selectedResourceType)?.label}
+                  <button onClick={() => setSelectedResourceType('all')} className="ml-1 text-purple-500 hover:text-purple-700">
+                    <FiX className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+</div>
 
         {/* Content Area */}
         <div>
@@ -1543,120 +1791,305 @@ export default function ModernResourcesAssignmentsView({
               )}
             </div>
           ) : (
-            // List View
-            <div className="bg-white rounded-xl md:rounded-2xl border-2 border-gray-200 overflow-hidden">
-              <div className="overflow-x-auto scrollbar-hide-sm">
-                <table className="w-full min-w-[600px]">
-                  <thead className="bg-gradient-to-r from-gray-50 to-white border-b-2 border-gray-200">
-                    <tr>
-                      <th className="px-2 sm:px-3 md:px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">Class</th>
-                      <th className="px-2 sm:px-3 md:px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">Title</th>
-                      <th className="px-2 sm:px-3 md:px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">Subject</th>
-                      {activeTab === 'assignments' ? (
-                        <>
-                          <th className="px-2 sm:px-3 md:px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">Due Date</th>
-                          <th className="px-2 sm:px-3 md:px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">Status</th>
-                        </>
-                      ) : (
-                        <th className="px-2 sm:px-3 md:px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">Type</th>
-                      )}
-                      <th className="px-2 sm:px-3 md:px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">Attachments</th>
-                      <th className="px-2 sm:px-3 md:px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {currentItems.map((item, index) => {
-                      const totalAttachments = activeTab === 'assignments' 
-                        ? ((item.assignmentFileAttachments?.length || 0) + 
-                          (item.attachmentAttachments?.length || 0))
-                        : item.mainAttachment ? 1 : 0;
-                      
-                      return (
-                        <tr key={index} className={`hover:bg-gray-50 transition-colors ${
-                          item.priority === 1 ? 'bg-gradient-to-r from-blue-50/50 to-blue-50/30' : ''
-                        }`}>
-                          <td className="px-2 sm:px-3 md:px-4 py-2">
-                            <div className="flex items-center gap-1">
-                              <span className="font-medium text-gray-900 text-xs sm:text-sm">
-                                {item.className}
-                              </span>
-                              {item.priority === 1 && (
-                                <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">Your Class</span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-2 sm:px-3 md:px-4 py-2">
-                            <div className="flex items-center gap-1.5 sm:gap-2">
-                              <div className={`p-1 sm:p-1.5 rounded-lg flex-shrink-0 ${
-                                activeTab === 'assignments'
-                                  ? 'bg-amber-50'
-                                  : 'bg-blue-50'
-                              }`}>
-                                {activeTab === 'assignments' ? (
-                                  <FiBook className="text-amber-500 size-3 sm:size-4" />
-                                ) : (
-                                  <ResourceTypeIcon type={item.type} size={12} className="sm:size-4" />
-                                )}
-                              </div>
-                              <div className="min-w-0">
-                                <div className="font-medium text-gray-900 text-xs sm:text-sm truncate">{item.title}</div>
-                                {item.description && (
-                                  <div className="text-xs text-gray-500 line-clamp-1 hidden sm:block">{item.description}</div>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-2 sm:px-3 md:px-4 py-2 text-xs sm:text-sm text-gray-900 truncate">{item.subject}</td>
-                          {activeTab === 'assignments' ? (
-                            <>
-                              <td className="px-2 sm:px-3 md:px-4 py-2 whitespace-nowrap text-xs sm:text-sm text-gray-600">
-                                {new Date(item.dueDate).toLocaleDateString()}
-                              </td>
-                              <td className="px-2 sm:px-3 md:px-4 py-2 whitespace-nowrap">
-                                <StatusBadge status={item.status} size="sm" />
-                              </td>
-                            </>
-                          ) : (
-                            <td className="px-2 sm:px-3 md:px-4 py-2">
-                              <span className="text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 bg-gray-100 text-gray-700 rounded-md">
-                                {item.type}
-                              </span>
-                            </td>
-                          )}
-                          <td className="px-2 sm:px-3 md:px-4 py-2">
-                            {totalAttachments > 0 ? (
-                              <div className="flex items-center gap-0.5 sm:gap-1">
-                                <IoDocumentAttach className="text-green-500 text-xs sm:text-sm" />
-                                <span className="text-xs text-gray-700">{totalAttachments}</span>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-gray-400">None</span>
-                            )}
-                          </td>
-                          <td className="px-2 sm:px-3 md:px-4 py-2 whitespace-nowrap">
-                            <div className="flex items-center gap-1 sm:gap-2">
-                              <button
-                                onClick={() => handleViewDetails(item)}
-                                className="px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-lg text-xs font-bold hover:from-blue-100 hover:to-blue-200 transition-all flex items-center gap-0.5 sm:gap-1"
-                              >
-                                <FiEye size={10} className="sm:size-3" />
-                                <span className="hidden xs:inline">View</span>
-                              </button>
-                              <button
-                                onClick={() => handleDownload(item)}
-                                className="p-1 sm:p-1.5 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 rounded-lg hover:from-gray-100 hover:to-gray-200 transition-all"
-                              >
-                                <FiDownload size={10} className="sm:size-3" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+           // List View
+<div className="bg-white rounded-[1.5rem] border border-slate-100 shadow-lg overflow-hidden">
+  <div className="overflow-x-auto custom-scrollbar">
+    <table className="w-full min-w-[800px]">
+      {/* Modern Header */}
+      <thead className="bg-gradient-to-r from-indigo-50/80 to-white backdrop-blur-sm border-b border-slate-100">
+        <tr>
+          <th className="pl-6 pr-4 py-4 text-left">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+                <IoSchool className="text-indigo-600 w-3.5 h-3.5" />
               </div>
+              <span className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Class</span>
             </div>
+          </th>
+          <th className="px-4 py-4 text-left">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+                <FiFileText className="text-indigo-600 w-3.5 h-3.5" />
+              </div>
+              <span className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Title & Details</span>
+            </div>
+          </th>
+          <th className="px-4 py-4 text-left">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+                <FiBookOpen className="text-indigo-600 w-3.5 h-3.5" />
+              </div>
+              <span className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Subject</span>
+            </div>
+          </th>
+          {activeTab === 'assignments' ? (
+            <>
+              <th className="px-4 py-4 text-left">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <FiCalendar className="text-rose-600 w-3.5 h-3.5" />
+                  </div>
+                  <span className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Due Date</span>
+                </div>
+              </th>
+              <th className="px-4 py-4 text-left">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <FiCheckCircle className="text-emerald-600 w-3.5 h-3.5" />
+                  </div>
+                  <span className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Status</span>
+                </div>
+              </th>
+            </>
+          ) : (
+            <th className="px-4 py-4 text-left">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+                  <FiTag className="text-purple-600 w-3.5 h-3.5" />
+                </div>
+                <span className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Type</span>
+              </div>
+            </th>
+          )}
+          <th className="px-4 py-4 text-left">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+                <FiPaperclip className="text-emerald-600 w-3.5 h-3.5" />
+              </div>
+              <span className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Files</span>
+            </div>
+          </th>
+          <th className="pl-4 pr-6 py-4 text-left">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+                <FiSettings className="text-indigo-600 w-3.5 h-3.5" />
+              </div>
+              <span className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Actions</span>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      
+      {/* Modern Body */}
+      <tbody className="divide-y divide-slate-50">
+        {currentItems.map((item, index) => {
+          const totalAttachments = activeTab === 'assignments' 
+            ? ((item.assignmentFileAttachments?.length || 0) + 
+              (item.attachmentAttachments?.length || 0))
+            : item.mainAttachment ? 1 : 0;
+          
+          const isStudentClass = item.priority === 1;
+          const isOverdue = activeTab === 'assignments' && new Date(item.dueDate) < new Date() && item.status !== 'completed';
+          
+          return (
+            <tr 
+              key={index} 
+              className={`group hover:bg-gradient-to-r hover:from-indigo-50/30 hover:to-white transition-all duration-300 ${
+                isStudentClass ? 'bg-gradient-to-r from-blue-50/10 to-blue-50/5' : ''
+              } ${isOverdue ? 'bg-gradient-to-r from-rose-50/10 to-rose-50/5' : ''}`}
+            >
+              {/* Class Column */}
+              <td className="pl-6 pr-4 py-4">
+                <div className="flex items-center gap-3">
+                  <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
+                    isStudentClass 
+                      ? 'bg-gradient-to-br from-blue-500 to-indigo-400' 
+                      : 'bg-gradient-to-br from-slate-400 to-slate-500'
+                  }`}>
+                    <IoSchool className="text-white w-4 h-4" />
+                    {isStudentClass && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border border-white"></div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-sm font-bold text-slate-900 block truncate">{item.className}</span>
+                    {isStudentClass && (
+                      <span className="text-[10px] font-black text-blue-600 uppercase tracking-wider mt-0.5 flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                        Your Class
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </td>
+              
+              {/* Title Column */}
+              <td className="px-4 py-4">
+                <div className="flex items-center gap-4">
+                  <div className={`relative w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
+                    activeTab === 'assignments'
+                      ? 'bg-gradient-to-br from-amber-500 to-orange-400'
+                      : 'bg-gradient-to-br from-blue-500 to-indigo-400'
+                  }`}>
+                    {activeTab === 'assignments' ? (
+                      <FiBook className="text-white w-5 h-5" />
+                    ) : (
+                      <ResourceTypeIcon type={item.type} size={16} className="text-white" />
+                    )}
+                    <div className="absolute -top-1 -right-1 bg-white border border-slate-100 text-[8px] font-black uppercase px-1.5 py-0.5 rounded shadow-sm">
+                      {activeTab === 'assignments' ? 'ASG' : (item.extension || item.type)}
+                    </div>
+                  </div>
+                  
+                  <div className="flex-grow min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded">
+                        {activeTab === 'assignments' ? 'Assignment' : item.category || 'Resource'}
+                      </span>
+                      {activeTab === 'assignments' && item.priority && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          item.priority === 'high' 
+                            ? 'bg-rose-50 text-rose-700' 
+                            : item.priority === 'medium'
+                            ? 'bg-amber-50 text-amber-700'
+                            : 'bg-emerald-50 text-emerald-700'
+                        }`}>
+                          {item.priority}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <h4 className="text-sm font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
+                      {item.title}
+                    </h4>
+                    
+                    {item.description && (
+                      <p className="text-xs text-slate-500 truncate mt-1 max-w-xs">
+                        {item.description.length > 60 
+                          ? `${item.description.substring(0, 60)}...` 
+                          : item.description
+                        }
+                      </p>
+                    )}
+                    
+                    <div className="flex items-center gap-2 mt-2 text-[11px] text-slate-400">
+                      {activeTab === 'assignments' && item.teacher && (
+                        <div className="flex items-center gap-1">
+                          <FiUser className="w-3 h-3" />
+                          <span>{item.teacher}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              
+              {/* Subject Column */}
+              <td className="px-4 py-4">
+                <div className="inline-flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-100 rounded-full">
+                  <FiBookOpen className="text-indigo-500 w-3.5 h-3.5" />
+                  <span className="text-xs font-bold text-slate-700">{item.subject}</span>
+                </div>
+              </td>
+              
+              {/* Conditional Columns */}
+              {activeTab === 'assignments' ? (
+                <>
+                  {/* Due Date Column */}
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-rose-50 border border-rose-100 rounded-lg">
+                        <FiCalendar className="text-rose-600 w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className={`text-sm font-bold block ${
+                          isOverdue ? 'text-rose-700' : 'text-slate-900'
+                        }`}>
+                          {new Date(item.dueDate).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          {new Date(item.dueDate).toLocaleDateString('en-US', {
+                            year: 'numeric'
+                          })}
+                        </span>
+                        {isOverdue && (
+                          <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider mt-0.5 block">
+                            Overdue
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  
+                  {/* Status Column */}
+                  <td className="px-4 py-4">
+                    <div className={`px-4 py-2 rounded-xl text-xs font-bold border shadow-sm ${
+                      item.status === 'completed' 
+                        ? 'bg-gradient-to-r from-emerald-50 to-emerald-50/50 text-emerald-700 border-emerald-200'
+                        : item.status === 'pending'
+                        ? 'bg-gradient-to-r from-amber-50 to-amber-50/50 text-amber-700 border-amber-200'
+                        : item.status === 'submitted'
+                        ? 'bg-gradient-to-r from-blue-50 to-blue-50/50 text-blue-700 border-blue-200'
+                        : 'bg-gradient-to-r from-slate-50 to-slate-50/50 text-slate-700 border-slate-200'
+                    }`}>
+                      {item.status?.charAt(0).toUpperCase() + item.status?.slice(1)}
+                    </div>
+                  </td>
+                </>
+              ) : (
+                // Type Column for Resources
+                <td className="px-4 py-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-50 to-purple-50/50 border border-purple-100 rounded-full">
+                    <FiTag className="text-purple-600 w-3.5 h-3.5" />
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      {item.type}
+                    </span>
+                  </div>
+                </td>
+              )}
+              
+              {/* Attachments Column */}
+              <td className="px-4 py-4">
+                {totalAttachments > 0 ? (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-emerald-50 border border-emerald-100 rounded-lg">
+                      <FiPaperclip className="text-emerald-600 w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-bold text-slate-900 block">{totalAttachments}</span>
+                      <span className="text-[11px] text-slate-500">file{totalAttachments !== 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 text-slate-300">
+                    <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg">
+                      <FiPaperclip className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-medium">None</span>
+                  </div>
+                )}
+              </td>
+              
+              {/* Actions Column */}
+              <td className="pl-4 pr-6 py-4">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleViewDetails(item)}
+                    className="flex items-center justify-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-600 transition-all active:scale-95 shadow-lg shadow-slate-200 group/action"
+                    title="View Details"
+                  >
+                    <span className="hidden lg:inline">View</span>
+                    <FiEye className="w-3.5 h-3.5 group-hover/action:scale-110 transition-transform" />
+                  </button>
+                  <button
+                    onClick={() => handleDownload(item)}
+                    className="bg-indigo-50 text-indigo-600 p-2.5 rounded-xl hover:bg-indigo-100 transition-all active:scale-95 shadow-sm group/action"
+                    title="Download"
+                  >
+                    <FiDownload className="w-4 h-4 group-hover/action:scale-110 transition-transform" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+</div>
           )}
         </div>
 

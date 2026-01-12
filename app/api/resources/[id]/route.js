@@ -181,6 +181,7 @@ async function handleFileUpdate(request, id, existingResource) {
   const uploadedBy = formData.get("uploadedBy")?.trim() || existingResource.uploadedBy;
   const gradeLevel = formData.get("gradeLevel")?.trim() || existingResource.gradeLevel;
   const isActive = formData.get("isActive") || existingResource.isActive.toString();
+  const teacher = formData.get("teacher")?.trim() || existingResource.teacher;
   
   // Handle file upload if provided
   const file = formData.get("file");
@@ -192,6 +193,7 @@ async function handleFileUpdate(request, id, existingResource) {
     category,
     accessLevel,
     uploadedBy,
+    teacher,
     gradeLevel,
     isActive: isActive === "true",
     updatedAt: new Date(),

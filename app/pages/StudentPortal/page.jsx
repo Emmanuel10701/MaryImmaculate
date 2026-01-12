@@ -21,6 +21,8 @@ import {
   FaIdCard, FaDesktop, FaWandMagic, FaUser
 } from 'react-icons/fa6';
 
+import { useRouter } from 'next/navigation';
+ 
 import Image from 'next/image';
 
 // Font Awesome 5 (Legacy)
@@ -187,6 +189,9 @@ function ModernStudentHeader({
     }
   };
 
+
+
+const router = useRouter();
   return (
     <>
       <style jsx global>{responsiveStyles}</style>
@@ -1160,20 +1165,37 @@ if (!student || !token) {
                     <span className="text-xs text-gray-400">Session Active</span>
                   </div>
                 </div>
-                <div className="flex items-center justify-center gap-4 sm:gap-6 flex-wrap">
-                  <a href="#" className="text-gray-500 hover:text-gray-700 text-xs sm:text-sm font-medium transition-colors mobile-touch-friendly">
-                    Privacy
-                  </a>
-                  <a href="#" className="text-gray-500 hover:text-gray-700 text-xs sm:text-sm font-medium transition-colors mobile-touch-friendly">
-                    Terms
-                  </a>
-                  <a href="#" className="text-gray-500 hover:text-gray-700 text-xs sm:text-sm font-medium transition-colors mobile-touch-friendly">
-                    Help
-                  </a>
-                  <button className="text-gray-500 hover:text-gray-700 text-xs sm:text-sm font-medium transition-colors mobile-touch-friendly">
-                    <FaGlobe className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </button>
-                </div>
+<div className="flex items-center justify-center gap-4 sm:gap-6 flex-wrap">
+  <button
+    onClick={() => router.push('/pages/TermsandPrivacy')}
+    className="text-gray-500 hover:text-gray-700 text-xs sm:text-sm font-medium transition-colors mobile-touch-friendly"
+  >
+    Privacy
+  </button>
+
+  <button
+    onClick={() => router.push('/pages/TermsandPrivacy')}
+    className="text-gray-500 hover:text-gray-700 text-xs sm:text-sm font-medium transition-colors mobile-touch-friendly"
+  >
+    Terms
+  </button>
+
+  <button
+    onClick={() => router.push('/pages/TermsandPrivacy')}
+    className="text-gray-500 hover:text-gray-700 text-xs sm:text-sm font-medium transition-colors mobile-touch-friendly"
+  >
+    Help
+  </button>
+
+  <button
+    onClick={() => router.push('/pages/TermsandPrivacy')}
+    className="text-gray-500 hover:text-gray-700 transition-colors mobile-touch-friendly"
+    aria-label="Language & Policies"
+  >
+    <FaGlobe className="w-3 h-3 sm:w-4 sm:h-4" />
+  </button>
+</div>
+
               </div>
             </div>
           </footer>

@@ -109,6 +109,7 @@ export async function POST(request) {
     const uploadedBy = formData.get("uploadedBy")?.trim() || "System";
     const gradeLevel = formData.get("gradeLevel")?.trim() || null;
     const isActive = formData.get("isActive") !== "false";
+    const teacher = formData.get("teacher")?.trim() || "";
 
     // Validate required fields
     if (!title || !subject || !className) { // ADDED: Validate class
@@ -157,6 +158,7 @@ export async function POST(request) {
         extension: fileData.extension,
         accessLevel,
         uploadedBy,
+        teacher, // ADDED: Include teacher
         gradeLevel,
         downloads: 0,
         isActive,

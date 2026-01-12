@@ -400,14 +400,6 @@ const ModernSessionDetailModal = ({ event, onClose, onEdit }) => {
               <FiArrowLeft size={14} />
               Close
             </button>
-            
-            <button
-              onClick={() => { onClose(); onEdit(); }}
-              className="flex-1 h-11 bg-white border border-slate-200 text-slate-900 rounded-xl font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition-all hover:border-indigo-200"
-            >
-              <FiEdit3 size={14} />
-              Edit
-            </button>
           </div>
         </div>
       </div>
@@ -1521,14 +1513,14 @@ const GuidanceTeamCard = ({ team, onView, onEdit, onDelete }) => {
   );
 };
 
-// Modern Team Member Modal Component
 const ModernMemberModal = ({ 
   open, 
   onClose, 
   member = null,
   onSave 
 }) => {
-  const [formData, setFormData] = useState({
+  // Initial empty form state
+  const initialFormData = {
     name: '',
     role: 'teacher',
     title: '',
@@ -1537,45 +1529,87 @@ const ModernMemberModal = ({
     bio: '',
     image: null,
     imagePreview: '',
-  });
-  
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
-  // Add this function with other handlers
-const handleViewMember = (member) => {
-  setMemberDetailModal({
-    open: true,
-    member,
-  });
-};
+  const [errors, setErrors] = useState({});
+  const [isFormTouched, setIsFormTouched] = useState(false);
   
-  // Initialize form when editing
+  // Role icons and colors
+  const roleOptions = [
+    { value: 'teacher', label: 'Guidance Teacher', icon: <FiBriefcase />, color: 'text-blue-600', bgColor: 'bg-blue-100' },
+    { value: 'patron', label: 'Patron', icon: <FiAward />, color: 'text-purple-600', bgColor: 'bg-purple-100' },
+    { value: 'matron', label: 'Matron', icon: <FiUserCheck />, color: 'text-pink-600', bgColor: 'bg-pink-100' },
+    { value: 'assistant', label: 'Assistant', icon: <FiUserPlus />, color: 'text-gray-600', bgColor: 'bg-gray-100' },
+  ];
+  
+  const selectedRole = roleOptions.find(r => r.value === formData.role) || roleOptions[0];
+  const isEditMode = !!member;
+
+  // Reset form when modal opens/closes or member changes
   useEffect(() => {
-    if (member) {
-      setFormData({
-        name: member.name || '',
-        role: member.role || 'teacher',
-        title: member.title || '',
-        phone: member.phone || '',
-        email: member.email || '',
-        bio: member.bio || '',
-        image: null,
-        imagePreview: member.image || '',
-      });
-    } else {
-      // Reset form for new member
-      setFormData({
-        name: '',
-        role: 'teacher',
-        title: '',
-        phone: '',
-        email: '',
-        bio: '',
-        image: null,
-        imagePreview: '',
-      });
+    if (open) {
+      // Reset everything when modal opens
+      setErrors({});
+      setIsFormTouched(false);
+      
+      if (member) {
+        // Editing existing member
+        setFormData({
+          name: member.name || '',
+          role: member.role || 'teacher',
+          title: member.title || '',
+          phone: member.phone || '',
+          email: member.email || '',
+          bio: member.bio || '',
+          image: null,
+          imagePreview: member.image || '',
+        });
+      } else {
+        // Creating new member - Reset to defaults
+        setFormData(initialFormData);
+      }
     }
-  }, [member]);
-  
+    
+    // Reset loading state when modal closes
+    if (!open) {
+      setIsLoading(false);
+    }
+  }, [open, member]); // Only reset when open or member changes
+
+  // Validate form fields
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (formData.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle field changes
+  const handleFieldChange = (field, value) => {
+    if (!isFormTouched) setIsFormTouched(true);
+    
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1597,6 +1631,10 @@ const handleViewMember = (member) => {
         image: file,
         imagePreview: e.target.result,
       }));
+      setIsFormTouched(true);
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read image file');
     };
     reader.readAsDataURL(file);
     
@@ -1609,42 +1647,45 @@ const handleViewMember = (member) => {
       image: null,
       imagePreview: '',
     }));
+    setIsFormTouched(true);
     toast.info('Image removed');
   };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name.trim()) {
-      toast.error('Please enter name');
+    // Validate form
+    if (!validateForm()) {
+      toast.error('Please fix the errors in the form');
       return;
     }
     
     setIsLoading(true);
+    const loadingToast = toast.loading(isEditMode ? 'Updating team member...' : 'Creating team member...');
     
     try {
       const submitData = new FormData();
-      submitData.append('name', formData.name);
+      submitData.append('name', formData.name.trim());
       submitData.append('role', formData.role);
-      submitData.append('title', formData.title);
-      submitData.append('phone', formData.phone);
-      submitData.append('email', formData.email);
-      submitData.append('bio', formData.bio);
+      submitData.append('title', formData.title.trim());
+      submitData.append('phone', formData.phone.trim());
+      submitData.append('email', formData.email.trim());
+      submitData.append('bio', formData.bio.trim());
       
       // Only append image if a new one is uploaded
       if (formData.image) {
         submitData.append('image', formData.image);
       }
       
-      // If editing and image was removed
-      if (member && member.image && !formData.imagePreview) {
+      // If editing and image was removed (imagePreview empty but member had image)
+      if (isEditMode && member?.image && !formData.imagePreview) {
         submitData.append('removeImage', 'true');
       }
       
       let url = '/api/guidanceteam';
       let method = 'POST';
       
-      if (member?.id) {
+      if (isEditMode && member?.id) {
         url = `/api/guidanceteam/${member.id}`;
         method = 'PUT';
       }
@@ -1656,281 +1697,320 @@ const handleViewMember = (member) => {
       
       const result = await response.json();
       
+      toast.dismiss(loadingToast);
+      
       if (result.success) {
-        toast.success(member ? 'Member updated successfully!' : 'Member created successfully!');
+        toast.success(isEditMode ? 'Member updated successfully!' : 'Member created successfully!');
         onSave();
         onClose();
       } else {
         throw new Error(result.error || 'An error occurred');
       }
     } catch (error) {
+      toast.dismiss(loadingToast);
       toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
   };
   
+  // Handle modal close with confirmation if form has changes
+  const handleClose = () => {
+    if (isFormTouched && !isLoading) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to close?')) {
+        onClose();
+      }
+    } else {
+      onClose();
+    }
+  };
+  
   if (!open) return null;
-  
-  const isEditMode = !!member;
-  
-  // Role icons and colors
-  const roleOptions = [
-    { value: 'teacher', label: 'Guidance Teacher', icon: <FiBriefcase />, color: 'text-blue-600', bgColor: 'bg-blue-100' },
-    { value: 'patron', label: 'Patron', icon: <FiAward />, color: 'text-purple-600', bgColor: 'bg-purple-100' },
-    { value: 'matron', label: 'Matron', icon: <FiUserCheck />, color: 'text-pink-600', bgColor: 'bg-pink-100' },
-    { value: 'assistant', label: 'Assistant', icon: <FiUserPlus />, color: 'text-gray-600', bgColor: 'bg-gray-100' },
-  ];
-  
-  const selectedRole = roleOptions.find(r => r.value === formData.role) || roleOptions[0];
 
-return (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto py-8">
-    {/* Modal Container */}
-    <div className="relative w-full max-w-5xl bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[90vh] md:max-h-[85vh] flex flex-col">
-      
-      {/* Close Button */}
-      <button 
-        onClick={onClose}
-        className="absolute top-3 right-3 md:top-5 md:right-5 z-10 p-2.5 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full hover:bg-white transition-all shadow-md"
-        disabled={isLoading}
-      >
-        <FiX className="w-5 h-5 md:w-6 md:h-6" />
-      </button>
-      
-      {/* Header - Modern Gradient */}
-      <div className="relative bg-gradient-to-r from-indigo-600 to-violet-600 p-5 md:p-7 text-white">
-        <div className="flex items-center gap-4">
-          <div className={`p-3 md:p-4 rounded-2xl ${selectedRole.bgColor} ${selectedRole.color} shadow-lg`}>
-            {selectedRole.icon}
-          </div>
-          <div>
-            <h2 className="text-xl md:text-3xl font-bold tracking-tight mb-1">
-              {isEditMode ? 'Edit Team Member' : 'Add Team Member'}
-            </h2>
-            <p className="text-indigo-100 text-sm md:text-base opacity-90">
-              {isEditMode ? 'Update member details and information' : 'Create a new guidance team member profile'}
-            </p>
-          </div>
-        </div>
-      </div>
-      
-      {/* Content - Scrollable Area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-5 md:p-7">
-          <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
-            
-            {/* Image Upload Section */}
-            <div className="flex flex-col items-center mb-2">
-              <div className="relative mb-4 md:mb-5">
-                {formData.imagePreview ? (
-                  <div className="relative">
-                    <img
-                      src={formData.imagePreview}
-                      alt="Preview"
-                      className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover border-4 border-white shadow-2xl"
-                    />
-                    <button
-                      type="button"
-                      onClick={removeImage}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
-                      disabled={isLoading}
-                    >
-                      <FiX className="w-4 h-4 md:w-5 md:h-5" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-4 border-white shadow-2xl flex flex-col items-center justify-center">
-                    <FiUser className="text-gray-400 w-12 h-12 md:w-16 md:h-16 mb-2" />
-                    <span className="text-sm text-gray-500 font-medium">No image</span>
-                  </div>
-                )}
-              </div>
-              
-              <input
-                type="file"
-                id="memberImage"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-                disabled={isLoading}
-              />
-              <label
-                htmlFor="memberImage"
-                className="inline-flex items-center gap-3 px-5 py-3 md:px-6 md:py-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-lg md:rounded-xl font-semibold hover:from-blue-100 hover:to-indigo-100 transition-all cursor-pointer border-2 border-blue-200 hover:border-blue-300 text-base md:text-lg shadow-sm"
-              >
-                <FiUpload className="w-5 h-5 md:w-6 md:h-6" />
-                {formData.imagePreview ? 'Change Profile Image' : 'Upload Profile Image'}
-              </label>
-              <p className="text-xs md:text-sm text-gray-500 mt-3 font-medium">
-                Maximum 5MB • PNG, JPG, or JPEG format
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto py-8">
+      {/* Modal Container */}
+      <div className="relative w-full max-w-5xl bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[90vh] md:max-h-[85vh] flex flex-col">
+        
+        {/* Close Button */}
+        <button 
+          onClick={handleClose}
+          className="absolute top-3 right-3 md:top-5 md:right-5 z-10 p-2.5 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full hover:bg-white transition-all shadow-md"
+          disabled={isLoading}
+        >
+          <FiX className="w-5 h-5 md:w-6 md:h-6" />
+        </button>
+        
+        {/* Header - Modern Gradient */}
+        <div className="relative bg-gradient-to-r from-indigo-600 to-violet-600 p-5 md:p-7 text-white">
+          <div className="flex items-center gap-4">
+            <div className={`p-3 md:p-4 rounded-2xl ${selectedRole.bgColor} ${selectedRole.color} shadow-lg`}>
+              {selectedRole.icon}
+            </div>
+            <div>
+              <h2 className="text-xl md:text-3xl font-bold tracking-tight mb-1">
+                {isEditMode ? 'Edit Team Member' : 'Add Team Member'}
+              </h2>
+              <p className="text-indigo-100 text-sm md:text-base opacity-90">
+                {isEditMode ? 'Update member details and information' : 'Create a new guidance team member profile'}
               </p>
             </div>
-            
-            {/* Form Fields Grid */}
-            <div className="space-y-6 md:space-y-7">
+          </div>
+        </div>
+        
+        {/* Content - Scrollable Area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-5 md:p-7">
+            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
               
-              {/* Name Field */}
-              <div>
-                <label className="block text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3">
-                  Full Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-4 py-3.5 md:px-5 md:py-4 text-base md:text-lg border-2 border-gray-300 rounded-xl md:rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm"
-                  placeholder="Enter team member's full name"
-                  disabled={isLoading}
-                />
-              </div>
-              
-              {/* Role Selection */}
-              <div>
-                <label className="block text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4">
-                  Member Role <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
-                  {roleOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => !isLoading && setFormData(prev => ({ ...prev, role: option.value }))}
-                      className={`flex flex-col items-center justify-center p-4 md:p-5 rounded-xl md:rounded-2xl border-2 transition-all min-h-[85px] md:min-h-[100px] shadow-sm hover:shadow-md ${
-                        formData.role === option.value
-                          ? `${option.bgColor} border-${option.color.split('-')[1]}-400 shadow-md`
-                          : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
-                      } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                      disabled={isLoading}
-                    >
-                      <span className={`text-xl md:text-2xl mb-2 ${formData.role === option.value ? option.color : 'text-gray-600'}`}>
-                        {option.icon}
-                      </span>
-                      <span className={`text-sm md:text-base font-bold text-center px-1 ${
-                        formData.role === option.value ? 'text-gray-900' : 'text-gray-700'
-                      }`}>
-                        {option.label}
-                      </span>
-                    </button>
-                  ))}
+              {/* Image Upload Section */}
+              <div className="flex flex-col items-center mb-2">
+                <div className="relative mb-4 md:mb-5">
+                  {formData.imagePreview ? (
+                    <div className="relative">
+                      <img
+                        src={formData.imagePreview}
+                        alt="Preview"
+                        className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover border-4 border-white shadow-2xl"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                        disabled={isLoading}
+                      >
+                        <FiX className="w-4 h-4 md:w-5 md:h-5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-4 border-white shadow-2xl flex flex-col items-center justify-center">
+                      <FiUser className="text-gray-400 w-12 h-12 md:w-16 md:h-16 mb-2" />
+                      <span className="text-sm text-gray-500 font-medium">No image</span>
+                    </div>
+                  )}
                 </div>
-              </div>
-              
-              {/* Title Field */}
-              <div>
-                <label className="block text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3">
-                  Title / Position
-                </label>
+                
                 <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-4 py-3.5 md:px-5 md:py-4 text-base md:text-lg border-2 border-gray-300 rounded-xl md:rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm"
-                  placeholder="e.g., Head Counselor, Senior Teacher, Academic Advisor"
+                  type="file"
+                  id="memberImage"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
                   disabled={isLoading}
                 />
+                <label
+                  htmlFor="memberImage"
+                  className={`inline-flex items-center gap-3 px-5 py-3 md:px-6 md:py-3.5 rounded-lg md:rounded-xl font-semibold transition-all cursor-pointer border-2 text-base md:text-lg shadow-sm ${
+                    isLoading 
+                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 hover:from-blue-100 hover:to-indigo-100 border-blue-200 hover:border-blue-300'
+                  }`}
+                >
+                  <FiUpload className="w-5 h-5 md:w-6 md:h-6" />
+                  {formData.imagePreview ? 'Change Profile Image' : 'Upload Profile Image'}
+                </label>
+                <p className="text-xs md:text-sm text-gray-500 mt-3 font-medium">
+                  Maximum 5MB • PNG, JPG, or JPEG format
+                </p>
               </div>
               
-              {/* Contact Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {/* Form Fields Grid */}
+              <div className="space-y-6 md:space-y-7">
+                
+                {/* Name Field */}
                 <div>
                   <label className="block text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3">
-                    Phone Number
+                    Full Name <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-                      <FiPhone className="w-5 h-5 md:w-6 md:h-6" />
-                    </div>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      className="w-full pl-12 md:pl-14 pr-4 py-3.5 md:py-4 text-base md:text-lg border-2 border-gray-300 rounded-xl md:rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm"
-                      placeholder="+1 (123) 456-7890"
-                      disabled={isLoading}
-                      inputMode="tel"
-                    />
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => handleFieldChange('name', e.target.value)}
+                    className={`w-full px-4 py-3.5 md:px-5 md:py-4 text-base md:text-lg border-2 rounded-xl md:rounded-2xl focus:outline-none focus:ring-4 transition-all shadow-sm ${
+                      errors.name 
+                        ? 'border-red-500 focus:border-red-500 focus:ring-red-100' 
+                        : 'border-gray-300 focus:border-blue-500 focus:ring-blue-100'
+                    }`}
+                    placeholder="Enter team member's full name"
+                    disabled={isLoading}
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-2 font-medium">{errors.name}</p>
+                  )}
+                </div>
+                
+                {/* Role Selection */}
+                <div>
+                  <label className="block text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4">
+                    Member Role <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+                    {roleOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => !isLoading && handleFieldChange('role', option.value)}
+                        className={`flex flex-col items-center justify-center p-4 md:p-5 rounded-xl md:rounded-2xl border-2 transition-all min-h-[85px] md:min-h-[100px] shadow-sm hover:shadow-md ${
+                          formData.role === option.value
+                            ? `${option.bgColor} border-${option.color.split('-')[1]}-400 shadow-md`
+                            : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                        } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        disabled={isLoading}
+                      >
+                        <span className={`text-xl md:text-2xl mb-2 ${formData.role === option.value ? option.color : 'text-gray-600'}`}>
+                          {option.icon}
+                        </span>
+                        <span className={`text-sm md:text-base font-bold text-center px-1 ${
+                          formData.role === option.value ? 'text-gray-900' : 'text-gray-700'
+                        }`}>
+                          {option.label}
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 </div>
                 
+                {/* Title Field */}
                 <div>
                   <label className="block text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3">
-                    Email Address
+                    Title / Position
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-                      <FiMail className="w-5 h-5 md:w-6 md:h-6" />
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => handleFieldChange('title', e.target.value)}
+                    className="w-full px-4 py-3.5 md:px-5 md:py-4 text-base md:text-lg border-2 border-gray-300 rounded-xl md:rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm"
+                    placeholder="e.g., Head Counselor, Senior Teacher, Academic Advisor"
+                    disabled={isLoading}
+                  />
+                </div>
+                
+                {/* Contact Info Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div>
+                    <label className="block text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3">
+                      Phone Number
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        <FiPhone className="w-5 h-5 md:w-6 md:h-6" />
+                      </div>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => handleFieldChange('phone', e.target.value)}
+                        className={`w-full pl-12 md:pl-14 pr-4 py-3.5 md:py-4 text-base md:text-lg border-2 rounded-xl md:rounded-2xl focus:outline-none focus:ring-4 transition-all shadow-sm ${
+                          errors.phone 
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-100' 
+                            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-100'
+                        }`}
+                        placeholder="+1 (123) 456-7890"
+                        disabled={isLoading}
+                        inputMode="tel"
+                      />
                     </div>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full pl-12 md:pl-14 pr-4 py-3.5 md:py-4 text-base md:text-lg border-2 border-gray-300 rounded-xl md:rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm"
-                      placeholder="member@university.edu"
-                      disabled={isLoading}
-                      inputMode="email"
-                    />
+                    {errors.phone && (
+                      <p className="text-red-500 text-sm mt-2 font-medium">{errors.phone}</p>
+                    )}
                   </div>
+                  
+                  <div>
+                    <label className="block text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        <FiMail className="w-5 h-5 md:w-6 md:h-6" />
+                      </div>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleFieldChange('email', e.target.value)}
+                        className={`w-full pl-12 md:pl-14 pr-4 py-3.5 md:py-4 text-base md:text-lg border-2 rounded-xl md:rounded-2xl focus:outline-none focus:ring-4 transition-all shadow-sm ${
+                          errors.email 
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-100' 
+                            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-100'
+                        }`}
+                        placeholder="member@university.edu"
+                        disabled={isLoading}
+                        inputMode="email"
+                      />
+                    </div>
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-2 font-medium">{errors.email}</p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Bio/Description */}
+                <div>
+                  <label className="block text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3">
+                    Bio / Description
+                  </label>
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => handleFieldChange('bio', e.target.value)}
+                    rows="4"
+                    className="w-full px-4 py-3.5 md:px-5 md:py-4 text-base md:text-lg border-2 border-gray-300 rounded-xl md:rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all resize-none shadow-sm"
+                    placeholder="Describe the team member's background, experience, responsibilities, and expertise. You can include qualifications, years of experience, and specific areas of focus..."
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs md:text-sm text-gray-500 mt-2 font-medium">
+                    Provide detailed information about the team member's role and background
+                  </p>
                 </div>
               </div>
               
-              {/* Bio/Description */}
-              <div>
-                <label className="block text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3">
-                  Bio / Description
-                </label>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                  rows="4"
-                  className="w-full px-4 py-3.5 md:px-5 md:py-4 text-base md:text-lg border-2 border-gray-300 rounded-xl md:rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all resize-none shadow-sm"
-                  placeholder="Describe the team member's background, experience, responsibilities, and expertise. You can include qualifications, years of experience, and specific areas of focus..."
-                  disabled={isLoading}
-                />
-                <p className="text-xs md:text-sm text-gray-500 mt-2 font-medium">
-                  Provide detailed information about the team member's role and background
-                </p>
+              {/* Action Buttons */}
+              <div className="pt-6 md:pt-8 border-t border-gray-200">
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    disabled={isLoading}
+                    className="flex-1 h-12 md:h-14 bg-gray-100 text-gray-800 rounded-xl md:rounded-2xl font-bold hover:bg-gray-200 disabled:opacity-50 transition-all flex items-center justify-center gap-3 text-base md:text-lg border-2 border-gray-300 shadow-sm hover:shadow"
+                  >
+                    <FiX className="w-5 h-5 md:w-6 md:h-6" />
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex-1 h-12 md:h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl md:rounded-2xl font-bold hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 md:h-6 md:w-6 border-b-2 border-white"></div>
+                        <span>{isEditMode ? 'Updating Member...' : 'Creating Member...'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <FiSave className="w-5 h-5 md:w-6 md:h-6" />
+                        <span>{isEditMode ? 'Save Changes' : 'Create Team Member'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                {/* Form status indicator */}
+                {isFormTouched && !isLoading && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <FiAlertCircle className="text-blue-500" />
+                      <span className="text-sm text-blue-700 font-medium">
+                        You have unsaved changes. Click "Save Changes" to save them.
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="pt-6 md:pt-8 border-t border-gray-200">
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  disabled={isLoading}
-                  className="flex-1 h-12 md:h-14 bg-gray-100 text-gray-800 rounded-xl md:rounded-2xl font-bold hover:bg-gray-200 disabled:opacity-50 transition-all flex items-center justify-center gap-3 text-base md:text-lg border-2 border-gray-300 shadow-sm hover:shadow"
-                >
-                  <FiX className="w-5 h-5 md:w-6 md:h-6" />
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="flex-1 h-12 md:h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl md:rounded-2xl font-bold hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 md:h-6 md:w-6 border-b-2 border-white"></div>
-                      <span>{isEditMode ? 'Updating Member...' : 'Creating Member...'}</span>
-                    </>
-                  ) : (
-                    <>
-                      <FiSave className="w-5 h-5 md:w-6 md:h-6" />
-                      <span>{isEditMode ? 'Save Changes' : 'Create Team Member'}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 };
 
 
@@ -3349,14 +3429,14 @@ const handleViewMember = (member) => {
               <h2 className="text-2xl font-bold text-gray-900">Guidance Team Members</h2>
               <p className="text-gray-600 text-sm mt-1">Manage school guidance team members</p>
             </div>
-            <button
-              onClick={() => setMemberModal({ open: true, member: null })}
-              className="group relative inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl text-base font-bold tracking-tight shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-0.5"
-            >
-              <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <FiUserPlus className="w-5 h-5 transition-transform group-hover:scale-110 group-hover:-rotate-12" />
-              <span className="relative">Add Team Member</span>
-            </button>
+<button
+  onClick={() => setMemberModal({ open: true, member: null })}
+  className="group relative inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl text-base font-bold tracking-tight shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-0.5"
+>
+  <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+  <FiUserPlus className="w-5 h-5 transition-transform group-hover:scale-110 group-hover:-rotate-12" />
+  <span className="relative">Add Team Member</span>
+</button>
           </div>
           
           {membersLoading ? (

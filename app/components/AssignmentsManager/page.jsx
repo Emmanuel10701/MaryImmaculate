@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, React, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { 
   FiPlus, 
@@ -892,115 +892,310 @@ const clearAllAttachments = () => {
   </div>
 </div>
 
-      {/* Assignments Grid */}
-      <div className="grid gap-4 lg:gap-6">
+         {/* Modern Assignments Grid */}
+      <div className="space-y-4 lg:space-y-6">
         {filteredAssignments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((assignment) => (
           <div
             key={assignment.id}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200/50 cursor-pointer"
+            className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden cursor-pointer"
             onClick={() => handleView(assignment)}
           >
-            <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-              <div className="flex-1">
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className={`px-3 py-1.5 rounded-full text-xs font-semibold bg-${getStatusColor(assignment.status)}-100 text-${getStatusColor(assignment.status)}-800`}>
-                    {assignment.status.replace('-', ' ')}
-                  </span>
-                  <span className={`px-3 py-1.5 rounded-full text-xs font-semibold bg-${getPriorityColor(assignment.priority)}-100 text-${getPriorityColor(assignment.priority)}-800`}>
-                    {assignment.priority} priority
-                  </span>
-                  <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                    {assignment.subject}
-                  </span>
-                  <span className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">
-                    {assignment.className}
-                  </span>
-                </div>
+            <div className="flex flex-col lg:flex-row items-stretch">
+              
+              {/* Left Decorator/Priority */}
+              <div className={`w-2 lg:w-3 ${assignment.priority === 'high' ? 'bg-red-500' : assignment.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}`} />
+
+              {/* Content Area */}
+              <div className="flex-1 p-5 md:p-6 flex flex-col lg:flex-row lg:items-center gap-6">
                 
-                <h3 className="text-xl lg:text-2xl font-bold text-gray-800 mb-3">
-                  {assignment.title}
-                </h3>
-                <p className="text-gray-600 mb-4 leading-relaxed text-base lg:text-lg line-clamp-2">
-                  {assignment.description}
-                </p>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 text-sm">
-                  <div>
-                    <p className="text-gray-500 mb-1">Teacher</p>
-                    <p className="font-semibold text-gray-800 flex items-center gap-2">
-                      <FiUsers className="text-gray-400" />
-                      {assignment.teacher}
-                    </p>
+                {/* Main Info */}
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                      {assignment.subject}
+                    </span>
+                    <span className="text-slate-400 text-xs flex items-center gap-1">
+                      <FiClock size={12} /> {assignment.className}
+                    </span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full bg-${getStatusColor(assignment.status)}-100 text-${getStatusColor(assignment.status)}-800`}>
+                      {assignment.status.replace('-', ' ')}
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-gray-500 mb-1">Due Date</p>
-                    <p className="font-semibold text-gray-800 flex items-center gap-2">
-                      <FiCalendar className="text-gray-400" />
+                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                    {assignment.title}
+                  </h3>
+                  <p className="text-sm text-slate-500 line-clamp-1">
+                    {assignment.description}
+                  </p>
+                </div>
+
+                {/* Stats Bar */}
+                <div className="flex flex-wrap items-center gap-4 md:gap-8 lg:px-8 lg:border-x lg:border-slate-100">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Due Date</span>
+                    <span className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                      <FiCalendar size={14} className="text-slate-400" />
                       {formatDate(assignment.dueDate)}
-                    </p>
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-gray-500 mb-1">Estimated Time</p>
-                    <p className="font-semibold text-gray-800 flex items-center gap-2">
-                      <FiClock className="text-gray-400" />
-                      {assignment.estimatedTime}
-                    </p>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Teacher</span>
+                    <span className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                      <FiUser size={14} className="text-slate-400" />
+                      {assignment.teacher.split('for')[0]}
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-gray-500 mb-1">Attachments</p>
-                    <p className="font-semibold text-gray-800 flex items-center gap-2">
-                      <FiPaperclip className="text-gray-400" />
-                      {(assignment.assignmentFiles?.length || 0) + (assignment.attachments?.length || 0)}
-                    </p>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Files</span>
+                    <span className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                      <FiPaperclip size={14} className="text-slate-400" />
+                      {(assignment.assignmentFiles?.length || 0) + (assignment.attachments?.length || 0)} Total
+                    </span>
                   </div>
                 </div>
 
-                {assignment.learningObjectives && assignment.learningObjectives.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-gray-500 text-sm mb-2">Learning Objectives:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {assignment.learningObjectives.slice(0, 3).map((objective, index) => (
-                        <span key={index} className="px-3 py-1.5 bg-purple-100 text-purple-800 rounded-lg text-sm font-medium">
-                          {objective}
-                        </span>
-                      ))}
-                      {assignment.learningObjectives.length > 3 && (
-                        <span className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium">
-                          +{assignment.learningObjectives.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+                {/* Action */}
+                <div className="flex items-center gap-3 min-w-max">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(assignment);
+                    }}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-blue-200"
+                  >
+                    <FiEdit size={16} />
+                    Edit
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(assignment);
+                    }}
+                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-red-200"
+                  >
+                    <FiTrash2 size={16} />
+                    Delete
+                  </button>
+                </div>
 
-              {/* Action Buttons */}
-              <div className="flex lg:flex-col gap-3">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(assignment);
-                  }}
-                  className="flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-3 rounded-xl font-semibold min-w-[120px] justify-center"
-                >
-                  <FiEdit className="text-lg" />
-                  Edit
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(assignment);
-                  }}
-                  className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-3 rounded-xl font-semibold min-w-[120px] justify-center"
-                >
-                  <FiTrash2 className="text-lg" />
-                  Delete
-                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+   {/* Modern Assignment View Modal with Loading */}
+   {showViewModal && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-sm">
+    {/* Loading State */}
+    {!viewAssignment ? (
+      <div className="bg-white rounded-[2rem] p-12 text-center max-w-md">
+        <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
+          <FiBook className="text-3xl text-blue-500" />
+        </div>
+        <h3 className="text-xl font-bold text-slate-900 mb-4">Loading Assignment...</h3>
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        </div>
+      </div>
+    ) : (
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-5xl bg-white sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
+        
+        {/* Modal Header */}
+        <div className="p-6 md:p-8 border-b border-slate-100 flex items-start justify-between bg-white sticky top-0 z-10">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm font-bold text-blue-600 uppercase tracking-widest">
+              <FiCheck size={16} />
+              Assignment Details
+            </div>
+            <h2 className="text-2xl font-black text-slate-900">{viewAssignment.title}</h2>
+          </div>
+          <button 
+            onClick={() => setShowViewModal(false)}
+            className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-all"
+          >
+            <FiX size={24} />
+          </button>
+        </div>
+
+        {/* Modal Scroll Content */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-10 custom-scrollbar">
+          
+          {/* Meta Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Subject', val: viewAssignment.subject, icon: <FiBook />, color: 'blue' },
+              { label: 'Class', val: viewAssignment.className, icon: <FiClock />, color: 'purple' },
+              { label: 'Priority', val: viewAssignment.priority, icon: <FiAlertCircle />, color: 'red' },
+              { label: 'Duration', val: viewAssignment.estimatedTime, icon: <FiAward />, color: 'amber' }
+            ].map((item, idx) => (
+              <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div className={`text-${item.color}-500 mb-2`}>{React.cloneElement(item.icon, { size: 18 })}</div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase mb-0.5">{item.label}</p>
+                <p className="font-bold text-slate-800 truncate capitalize">{item.val}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Teacher & Dates Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <div className="flex items-center gap-2 mb-2">
+                <FiUser className="text-blue-500" size={16} />
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Teacher</p>
+              </div>
+              <p className="font-bold text-slate-900">{viewAssignment.teacher}</p>
+            </div>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <div className="flex items-center gap-2 mb-2">
+                <FiCalendar className="text-emerald-500" size={16} />
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Due Date</p>
+              </div>
+              <p className="font-bold text-slate-900">{formatDate(viewAssignment.dueDate)}</p>
+            </div>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <div className="flex items-center gap-2 mb-2">
+                <FiCalendar className="text-purple-500" size={16} />
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Assigned</p>
+              </div>
+              <p className="font-bold text-slate-900">{formatDate(viewAssignment.dateAssigned)}</p>
+            </div>
+          </div>
+
+          {/* Description & Instructions */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <section className="space-y-3">
+              <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                <FiFileText size={18} className="text-blue-500" /> Description
+              </h4>
+              <div className="text-slate-600 text-sm leading-relaxed p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                {viewAssignment.description}
+              </div>
+            </section>
+            <section className="space-y-3">
+              <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                <FiAlertCircle size={18} className="text-amber-500" /> Instructions
+              </h4>
+              <div className="text-slate-600 text-sm leading-relaxed p-5 bg-amber-50/30 rounded-2xl border border-amber-100/50">
+                {viewAssignment.instructions}
+              </div>
+            </section>
+          </div>
+
+          {/* Learning Objectives */}
+          {viewAssignment.learningObjectives && viewAssignment.learningObjectives.length > 0 && (
+            <section className="space-y-3">
+              <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                <FiAward size={18} className="text-purple-500" /> 
+                Learning Objectives
+              </h4>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {viewAssignment.learningObjectives.map((objective, i) => (
+                  <div key={i} className="p-4 bg-purple-50/50 rounded-2xl border border-purple-100">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center text-xs font-bold">
+                        {i + 1}
+                      </div>
+                      <p className="text-sm font-bold text-slate-900">Objective {i + 1}</p>
+                    </div>
+                    <p className="text-sm text-slate-700">{objective}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Additional Work */}
+          {viewAssignment.additionalWork && (
+            <section className="space-y-3">
+              <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                <FiPlus size={18} className="text-emerald-500" /> 
+                Additional Work
+              </h4>
+              <div className="text-slate-600 text-sm leading-relaxed p-5 bg-emerald-50/30 rounded-2xl border border-emerald-100/50">
+                {viewAssignment.additionalWork}
+              </div>
+            </section>
+          )}
+
+          {/* File Grid */}
+          {(viewAssignment.assignmentFiles?.length > 0 || viewAssignment.attachments?.length > 0) && (
+            <div className="space-y-6">
+              <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                <FiPaperclip size={18} className="text-slate-400" /> 
+                Attached Documents & Assets
+              </h4>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {[...(viewAssignment.assignmentFiles || []), ...(viewAssignment.attachments || [])].map((file, i) => (
+                  <a 
+                    key={i} 
+                    href={file} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:border-blue-400 hover:shadow-sm transition-all cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="shrink-0 w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-500">
+                        <FiFileText size={16} />
+                      </div>
+                      <span className="text-xs font-semibold text-slate-700 truncate">
+                        {file.split('/').pop()}
+                      </span>
+                    </div>
+                    <FiDownload size={14} className="text-slate-300 group-hover:text-blue-500" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Remarks Banner */}
+          {viewAssignment.teacherRemarks && (
+            <div className="bg-slate-900 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden shadow-xl">
+              <div className="absolute top-0 right-0 p-8 opacity-5">
+                <FiMessageSquare size={120} />
+              </div>
+              <div className="relative z-10 space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2 text-blue-400">
+                  <FiMessageSquare size={20} />
+                  Teacher's Remarks
+                </h3>
+                <p className="text-slate-300 text-sm italic leading-relaxed">
+                  "{viewAssignment.teacherRemarks}"
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
+          <button 
+            onClick={() => setShowViewModal(false)}
+            className="px-6 py-2.5 font-bold text-slate-500 hover:text-slate-700 transition-colors"
+          >
+            Close
+          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => handleEdit(viewAssignment)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-blue-100 flex items-center gap-2"
+            >
+              <FiEdit size={16} />
+              Edit Assignment
+            </button>
+            <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-purple-100 flex items-center gap-2">
+              <FiDownload size={16} />
+              Download All Files
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
       {/* Empty State */}
       {filteredAssignments.length === 0 && !loading && (

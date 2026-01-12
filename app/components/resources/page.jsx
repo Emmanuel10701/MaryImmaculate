@@ -442,6 +442,7 @@ export default function ResourcesManager() {
     category: 'General',
     accessLevel: 'student',
     uploadedBy: '',
+    teacher: '',
     isActive: true
   });
   const [selectedFile, setSelectedFile] = useState(null);
@@ -640,6 +641,7 @@ export default function ResourcesManager() {
     setSelectedClass('all');
     setSelectedAccessLevel('all');
     setSearchTerm('');
+
     setCurrentPage(1);
   };
 
@@ -652,6 +654,7 @@ export default function ResourcesManager() {
       category: 'General',
       accessLevel: 'student',
       uploadedBy: 'Admin',
+      teacher: '',
       isActive: true
     });
     setSelectedFile(null);
@@ -669,6 +672,7 @@ export default function ResourcesManager() {
           className: fullResource.className,
           description: fullResource.description,
           category: fullResource.category,
+          teacher: fullResource.teacher,
           accessLevel: fullResource.accessLevel,
           uploadedBy: fullResource.uploadedBy,
           isActive: fullResource.isActive
@@ -1355,6 +1359,20 @@ export default function ResourcesManager() {
                     placeholder="Enter resource title"
                   />
                 </div>
+                      <div className="lg:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Teacher *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.teacher}
+                    onChange={(e) => setFormData({ ...formData, teacher: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter teacher name"
+                  />
+                </div>
+
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -1542,6 +1560,9 @@ export default function ResourcesManager() {
                         <span className="font-medium">{viewResource.subject}</span>
                         <div className="w-1 h-1 rounded-full bg-slate-300" />
                         <span>{viewResource.className}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-slate-600">
+                        <span className="font-medium">{viewResource.teacher}</span>
                       </div>
                     </div>
                   </div>

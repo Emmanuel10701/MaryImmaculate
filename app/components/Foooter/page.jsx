@@ -32,9 +32,6 @@ import {
 import { motion } from 'framer-motion';
 
 export default function ModernFooter() {
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showSitemap, setShowSitemap] = useState(false);
@@ -52,7 +49,7 @@ export default function ModernFooter() {
 
   const quickLinks = [
     { name: 'About Us', href: '/pages/AboutUs', icon: FiHome, color: 'text-blue-500' },
-    { name: 'Academics', href: '/pages/academics', icon: FiBook, color: 'text-green-500' },
+    { name: 'Academics', href: '/pages/admissions', icon: FiBook, color: 'text-green-500' },
     { name: 'Admissions', href: '/pages/admissions', icon: FiUserCheck, color: 'text-purple-500' },
     { name: 'Assignments', href: '/pages/assignments', icon: FiBookOpen, color: 'text-orange-500' },
     { name: 'Staff', href: '/pages/staff', icon: FiUser, color: 'text-pink-500' },
@@ -62,11 +59,11 @@ export default function ModernFooter() {
   ];
 
   const resources = [
-    { name: 'Student Support', href: '/support', icon: FiHelpCircle, color: 'text-blue-400' },
-    { name: 'School Policies', href: '/policies', icon: FiLock, color: 'text-green-400' },
-    { name: 'Library Resources', href: '/library', icon: FiBookOpen, color: 'text-purple-400' },
-    { name: 'Alumni Network', href: '/alumni', icon: FiGlobe, color: 'text-orange-400' },
-    { name: 'Career Guidance', href: '/career', icon: FiUserCheck, color: 'text-pink-400' },
+    { name: 'Student Portal', href: '/pages/StudentPortal', icon: FiHelpCircle, color: 'text-blue-400' },
+    { name: 'School Policies', href: '/pages/TermsandPrivacy', icon: FiLock, color: 'text-green-400' },
+    { name: 'Library Resources', href: '/pages/StudentPortal', icon: FiBookOpen, color: 'text-purple-400' },
+    { name: 'Apply Now', href: '/pages/apply-for-admissions', icon: FiGlobe, color: 'text-orange-400' },
+    { name: 'Career Guidance', href: '/pages/Guidance-and-Councelling', icon: FiUserCheck, color: 'text-pink-400' },
   ];
 
   const socialLinks = [
@@ -113,6 +110,77 @@ export default function ModernFooter() {
       label: 'WhatsApp'
     },
   ];
+
+
+
+  // Add these states near your other states
+const [email, setEmail] = useState('');
+const [isSubmitting, setIsSubmitting] = useState(false);
+const [showSuccess, setShowSuccess] = useState(false);
+
+// Add this handler function
+const handleSubscribe = async (e) => {
+  e.preventDefault();
+  
+  if (!email || isSubmitting) return;
+  
+  setIsSubmitting(true);
+  
+  try {
+    // Call your API endpoint
+    const response = await fetch('/api/subscriber', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email.trim(),
+        subscribedAt: new Date().toISOString(),
+        source: 'guidance-portal' // You can customize this
+      }),
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Success
+      setShowSuccess(true);
+      setEmail(''); // Clear the input
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 5000);
+      
+      // Optional: Show a toast notification
+      toast.success('Successfully subscribed to newsletter!', {
+        icon: '✅',
+        duration: 3000,
+      });
+    } else {
+      throw new Error(data.error || 'Subscription failed');
+    }
+  } catch (error) {
+    console.error('Subscription error:', error);
+    toast.error('Failed to subscribe. Please try again.', {
+      icon: '❌',
+      duration: 3000,
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+// Optional: Add email validation
+const isValidEmail = (email) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+};
+
+
+
+
+
 
   const contactInfo = [
     {
@@ -165,20 +233,6 @@ export default function ModernFooter() {
     { text: '95% University Placement Rate', color: 'text-purple-300' },
     { text: 'Sports Excellence Award 2023', color: 'text-orange-300' },
   ];
-
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    if (!email) return;
-    setIsSubmitting(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setShowSuccess(true);
-      setEmail('');
-      setTimeout(() => setShowSuccess(false), 5000);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <footer className="relative bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 text-white overflow-hidden">
@@ -310,37 +364,88 @@ export default function ModernFooter() {
           {/* Newsletter & Social */}
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-purple-300">Stay Updated</h4>
-            
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/20">
-              <p className="text-gray-300 text-sm mb-4">
-                Subscribe to receive updates on academic events and important announcements.
-              </p>
-              <form onSubmit={handleSubscribe} className="space-y-3">
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-300 focus:outline-none focus:border-blue-400"
-                />
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !email}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-all hover:opacity-90"
-                >
-                  {isSubmitting ? 'Subscribing...' : 'Subscribe Now'}
-                </button>
-              </form>
-              {showSuccess && (
-                <div className="mt-3 bg-green-500/20 border border-green-500/30 rounded-lg p-2">
-                  <div className="text-green-300 text-xs flex items-center gap-1">
-                    <FiCheckCircle />
-                    Successfully subscribed!
-                  </div>
-                </div>
-              )}
-            </div>
+  <div className="relative group">
+  {/* Background effects */}
+  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+  
+  <div className="relative bg-gradient-to-br from-white/15 to-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl shadow-blue-900/20">
+    {/* Header with icon */}
+    <div className="flex items-center gap-3 mb-5">
+      <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+        <FiBell className="text-white text-lg" />
+      </div>
+      <div>
+        <h4 className="text-lg font-bold text-white">Stay Updated</h4>
+        <p className="text-blue-200/80 text-sm">Get academic events & announcements</p>
+      </div>
+    </div>
+
+    {/* Form */}
+    <form onSubmit={handleSubscribe} className="space-y-4">
+      <div className="relative">
+        <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-300 text-lg" />
+        <input
+          type="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full pl-12 pr-4 py-3.5 bg-white/10 border-2 border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 backdrop-blur-sm"
+        />
+      </div>
+      
+      <button
+        type="submit"
+        disabled={isSubmitting || !email}
+        className="group relative w-full overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3.5 rounded-xl font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <span className="relative flex items-center justify-center gap-2">
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Subscribing...
+            </>
+          ) : (
+            <>
+              <FiCheckCircle className="text-lg" />
+              Subscribe Now
+            </>
+          )}
+        </span>
+      </button>
+    </form>
+
+    {/* Success Message */}
+    {showSuccess && (
+      <div className="mt-4 p-4 bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-500/30 rounded-xl backdrop-blur-sm animate-fadeIn">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-emerald-500/30 rounded-lg">
+            <FiCheckCircle className="text-emerald-300 text-lg" />
+          </div>
+          <div>
+            <p className="text-emerald-300 font-medium">Successfully subscribed!</p>
+            <p className="text-emerald-200/80 text-sm">You'll receive updates soon.</p>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+
+  {/* Add this CSS for fade-in animation */}
+  <style jsx>{`
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+  `}</style>
+</div>
 
             {/* Social Media */}
             <div className="space-y-3">

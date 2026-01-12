@@ -152,7 +152,7 @@ const FeesView = ({ student, token }) => {
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900 flex items-center justify-center">
+      <div className="mx-auto bg-slate-50 p-4 md:p-8 font-sans text-slate-900 flex items-center justify-center">
         <div className="text-center">
           <CircularProgress size={60} className="mb-4" />
           <p className="text-slate-600">Loading fee information...</p>
@@ -206,7 +206,7 @@ const FeesView = ({ student, token }) => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-2 font-sans text-slate-900">
+    <div className=" bg-slate-50 p-4 md:p-2 font-sans text-slate-900 mb-1">
       {/* Header Section */}
       <div className="max-w-5xl mx-auto mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

@@ -78,6 +78,7 @@ model Resource {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(255)
   subject     String   @db.VarChar(100)
+  teacher     String   @db.VarChar(100) 
   className   String   @db.VarChar(50)
   description String?  @db.Text
   category    String   @default("general") @db.VarChar(100)
