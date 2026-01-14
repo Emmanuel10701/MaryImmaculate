@@ -1125,12 +1125,27 @@ const ModernUniformRequirementsSection = ({ admissionFeeDistribution, admissionF
                 <div className="p-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
                   <FiDollarSign className="text-white text-xl" />
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Uniform Cost</h4>
-                  <div className="text-xl md:text-3xl font-bold text-slate-900">
-                    KSh {Object.values(uniformItems).reduce((sum, cost) => sum + parseInt(cost), 0).toLocaleString()}
-                  </div>
-                </div>
+          <div>
+  <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">
+    Total Uniform Cost Estimate
+  </h4>
+
+  <p className="text-xs text-slate-500 mb-1">
+    This is an approximate cost covering both boys’ and girls’ uniforms.
+  </p>
+
+  <p className="text-xs text-slate-500 mb-3">
+    Actual expenses may be lower depending on whether the student is a boy or a girl.
+  </p>
+
+  <div className="text-xl md:text-3xl font-bold text-slate-900">
+    KSh{" "}
+    {Object.values(uniformItems)
+      .reduce((sum, cost) => sum + parseInt(cost), 0)
+      .toLocaleString()}
+  </div>
+</div>
+
               </div>
               
               <div className="flex items-center gap-4 text-sm text-slate-500">
@@ -2696,25 +2711,24 @@ export default function ComprehensiveAdmissions() {
               Join a community dedicated to nurturing future leaders through personalized attention and holistic development.
             </p>
 
-            {/* 3. Mobile-First Action Stack */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-              
-              {/* Primary Button */}
-              <button
-                onClick={() => router.push('/pages/apply-for-admissions')}
-                className="w-full sm:w-auto px-4 py-3 md:px-6 md:py-3.5 bg-white text-slate-900 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center gap-2 active:scale-95 transition-transform"
-              >
-                Apply Online Now
-                <FiArrowRight size={14} />
-              </button>
+          {/* Action Buttons – always flex row, no wrap */}
+<div className="flex flex-row flex-nowrap items-center gap-2 sm:gap-3 w-full overflow-x-auto">
+  
+  {/* Primary Button */}
+  <button
+    onClick={() => router.push('/pages/apply-for-admissions')}
+    className="flex-shrink-0 px-3 py-2.5 sm:px-4 sm:py-3 md:px-6 md:py-3.5 
+               bg-white text-slate-900 rounded-xl font-bold text-xs sm:text-sm 
+               tracking-wide flex items-center justify-center gap-2 
+               active:scale-95 transition-transform"
+  >
+    Apply Online
+    <FiArrowRight size={14} />
+  </button>
 
-              {/* Secondary Button */}
-              <button className="w-full sm:w-auto px-4 py-3 md:px-6 md:py-3.5 bg-white/5 text-white border border-white/10 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center gap-2 active:scale-95 transition-all">
-                <FiDownload size={14} />
-                Download Prospectus
-              </button>
-              
-            </div>
+
+</div>
+
 
             {/* 4. Trust Indicator */}
             <p className="mt-4 md:mt-6 text-[10px] uppercase tracking-widest text-slate-500 font-bold opacity-60">

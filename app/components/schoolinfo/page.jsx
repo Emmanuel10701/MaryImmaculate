@@ -4359,7 +4359,7 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                         
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-2">
-                            Admission Fee and Uniform Breakdown (KES)
+                            Admission Uniform Breakdown (KES)
                           </label>
                           <TextField 
                             fullWidth 
@@ -4429,7 +4429,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                     </div>
 
 
-                    // Add this in the academic step or create a new contact info section
 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
   <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
     <FaPhone className="text-blue-600" />

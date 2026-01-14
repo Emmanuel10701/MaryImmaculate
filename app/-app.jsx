@@ -1,24 +1,25 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import Footer from "./components/Foooter/page"; 
 import ModernNavbar from "./components/Navbar/page";
 
 export default function ClientLayoutWrapper({ children }) {
   const pathname = usePathname();
+
   const isMainDashboard = pathname === "/MainDashboard";
-  const isStudentportal = pathname === "/pages/StudentPortal";
-  const isMain = pathname === "/pages/main";
+  const isStudentPortal = pathname === "/pages/StudentPortal";
+  const isAdminLogin = pathname === "/pages/adminLogin";
 
   return (
     <>
-      {!isMainDashboard && !isStudentportal && !isMain && <ModernNavbar />}
-
+      {/* Navbar is shown on all pages except MainDashboard or StudentPortal */}
+      {!isMainDashboard && !isStudentPortal && <ModernNavbar />}
 
       <main className="min-h-screen">{children}</main>
 
-      {!isMainDashboard && !isStudentportal && !isMain && <Footer />}
+      {/* Footer is hidden only on MainDashboard, StudentPortal, and AdminLogin */}
+      {!isMainDashboard && !isStudentPortal && !isAdminLogin && <Footer />}
     </>
   );
 }

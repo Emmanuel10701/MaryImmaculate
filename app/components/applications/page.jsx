@@ -133,6 +133,114 @@ const ModernModal = ({ children, open, onClose, maxWidth = '800px' }) => {
   )
 }
 
+// Delete Confirmation Modal Component
+const DeleteConfirmationModal = ({ 
+  open, 
+  onClose, 
+  onConfirm, 
+  type = 'bulk',
+  count = 1,
+  loading = false 
+}) => {
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden"
+           style={{ 
+             width: '90%',
+             maxWidth: '500px',
+             background: 'linear-gradient(135deg, #fef3f7 0%, #f8fafc 100%)'
+           }}>
+        
+        {/* Header */}
+        <div className="bg-gradient-to-r from-red-600 to-orange-600 p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-white bg-opacity-20 rounded-2xl">
+                <AlertTriangle className="text-xl" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Confirm Deletion</h2>
+                <p className="text-red-100 opacity-90 mt-1">
+                  This action cannot be undone
+                </p>
+              </div>
+            </div>
+            {!loading && (
+              <button onClick={onClose} className="p-2 hover:bg-white hover:bg-opacity-20 rounded-xl cursor-pointer">
+                <X className="text-xl" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="p-3 bg-red-100 text-red-600 rounded-2xl">
+              <AlertTriangle className="text-2xl" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                {type === 'bulk' 
+                  ? `Delete ${count} Application${count === 1 ? '' : 's'}?`
+                  : 'Delete Application?'
+                }
+              </h3>
+              <p className="text-gray-600">
+                {type === 'bulk'
+                  ? `You are about to delete ${count} application${count === 1 ? '' : 's'}. All associated data will be permanently removed.`
+                  : 'This application will be permanently deleted. All associated data will be removed.'
+                }
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="text-red-600 mt-0.5 flex-shrink-0" />
+              <p className="text-red-700 text-sm">
+                <span className="font-bold">Warning:</span> This action cannot be undone. All application data will be permanently deleted from the system.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button 
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="w-full sm:w-auto bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg disabled:opacity-50 cursor-pointer"
+            >
+              Cancel
+            </button>
+            
+            <button 
+              type="button"
+              onClick={onConfirm}
+              disabled={loading}
+              className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  {type === 'bulk' ? `Delete ${count} Application${count === 1 ? '' : 's'}` : 'Delete Application'}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Date Group Header Component
 const DateGroupHeader = ({ dateLabel }) => {
   return (
@@ -387,7 +495,8 @@ export default function ModernApplicationsDashboard() {
   const [selectedApplication, setSelectedApplication] = useState(null)
   const [showDecisionModal, setShowDecisionModal] = useState(false)
   const [showBulkModal, setShowBulkModal] = useState(false)
-  const [showDetailModal, setShowDetailModal] = useState(false) // New state for detail modal
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false) // New state for delete modal
   
   // Filter States
   const [searchTerm, setSearchTerm] = useState('')
@@ -427,7 +536,8 @@ export default function ModernApplicationsDashboard() {
   const [loadingStates, setLoadingStates] = useState({
     detail: false,
     decision: false,
-    bulk: false
+    bulk: false,
+    delete: false
   })
   
   // Stats
@@ -817,6 +927,16 @@ export default function ModernApplicationsDashboard() {
     setShowBulkModal(true)
   }
   
+  // Open delete confirmation modal
+  const openDeleteModal = () => {
+    if (selectedApplications.size === 0) {
+      toast.error('Please select applications first')
+      return
+    }
+    
+    setShowDeleteModal(true)
+  }
+  
   // Update single application status
   const updateApplicationStatus = async () => {
     if (!selectedApplication || !decisionType) return
@@ -943,16 +1063,9 @@ export default function ModernApplicationsDashboard() {
   
   // Delete applications
   const deleteApplications = async () => {
-    if (selectedApplications.size === 0) {
-      toast.error('Please select applications to delete')
-      return
-    }
-    
-    if (!confirm(`Are you sure you want to delete ${selectedApplications.size} application(s)? This action cannot be undone.`)) {
-      return
-    }
-    
     try {
+      setLoadingStates(prev => ({ ...prev, delete: true }))
+      
       const deletes = Array.from(selectedApplications).map(async (applicationId) => {
         return fetch(`/api/applyadmission/${applicationId}`, {
           method: 'DELETE'
@@ -965,19 +1078,22 @@ export default function ModernApplicationsDashboard() {
       const allSuccess = results.every(result => result.success)
       
       if (allSuccess) {
-        toast.success(`Deleted ${selectedApplications.size} application(s)`)
+        toast.success(`Deleted ${selectedApplications.size} application${selectedApplications.size === 1 ? '' : 's'}`)
         
         // Update local state
         const updatedApplications = applications.filter(app => !selectedApplications.has(app.id))
         setApplications(updatedApplications)
         updateStats(updatedApplications)
         setSelectedApplications(new Set())
+        setShowDeleteModal(false)
       } else {
         toast.error('Some deletions failed')
       }
     } catch (error) {
       console.error('Error:', error)
       toast.error('Network error. Please try again.')
+    } finally {
+      setLoadingStates(prev => ({ ...prev, delete: false }))
     }
   }
   
@@ -1295,12 +1411,13 @@ export default function ModernApplicationsDashboard() {
           Reject
         </button>
 
+        {/* Delete button now opens confirmation modal */}
         <button
-          onClick={deleteApplications}
+          onClick={openDeleteModal}
           className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-rose-600 border border-slate-200 rounded-xl transition-all duration-200 text-sm font-semibold"
         >
           <Trash2 className="w-4 h-4" />
-          Delete
+          Delete Selected
         </button>
       </div>
     </div>
@@ -1713,6 +1830,16 @@ export default function ModernApplicationsDashboard() {
         application={selectedApplication} 
         open={showDetailModal} 
         onClose={() => setShowDetailModal(false)} 
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal 
+        open={showDeleteModal}
+        onClose={() => !loadingStates.delete && setShowDeleteModal(false)}
+        onConfirm={deleteApplications}
+        type="bulk"
+        count={selectedApplications.size}
+        loading={loadingStates.delete}
       />
 
       {/* Decision Modal - Modern Design */}
