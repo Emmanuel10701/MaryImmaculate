@@ -3,7 +3,7 @@ import { prisma } from '../../../libs/prisma';
 import { hashPassword, generateToken, sanitizeUser } from '../../../libs/auth';
 
 // Constants
-const SCHOOL_NAME = 'Nyaribu  Secondary school';
+const SCHOOL_NAME = 'Mary Immaculate Girls Secondary School';
 
 // Helpers
 const validateEnvironment = () => {

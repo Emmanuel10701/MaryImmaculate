@@ -472,7 +472,7 @@ const ApplicationDetailModal = ({ application, open, onClose }) => {
                 // You can add print functionality here
                 window.print()
               }}
-              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg transition-all duration-200 font-medium hover:opacity-90"
+              className="px-4 py-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-lg transition-all duration-200 font-medium hover:opacity-90"
             >
               Print Application
             </button>
@@ -1190,7 +1190,7 @@ const EmptyState = () => (
       <p className="text-gray-500 mb-6">Try adjusting your filters or search terms</p>
       <button
         onClick={resetFilters}
-        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
+        className="px-6 py-3 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
       >
         Clear All Filters
       </button>
@@ -1864,7 +1864,7 @@ const EmptyState = () => (
       />
 
       {/* Decision Modal - Modern Design */}
-      <ModernModal open={showDecisionModal} onClose={() => setShowDecisionModal(false)} maxWidth="700px">
+      <ModernModal open={showDecisionModal} onClose={() => setShowDecisionModal(false)} maxWidth="860px">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-4 text-white">
           <div className="flex items-center justify-between">
@@ -1886,7 +1886,7 @@ const EmptyState = () => (
         </div>
 
 {/* Content */}
-<div className="max-h-[calc(85vh-150px)] overflow-y-auto custom-scrollbar">
+<div className="max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar">
   <div className="p-6 space-y-8">
     
     {/* Decision Type Selection */}
@@ -1943,7 +1943,7 @@ const EmptyState = () => (
                   value={decisionData.admissionClass}
                   onChange={(e) => setDecisionData({...decisionData, admissionClass: e.target.value})}
                   placeholder="e.g. Form 1A"
-                  className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-base shadow-sm placeholder:text-slate-400"
+                  className="w-full text-md font-semibold px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-base shadow-sm placeholder:text-slate-400"
                 />
               </div>
               
@@ -1968,8 +1968,8 @@ const EmptyState = () => (
                 value={decisionData.rejectionReason}
                 onChange={(e) => setDecisionData({...decisionData, rejectionReason: e.target.value})}
                 placeholder="Briefly explain the decision..."
-                className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base shadow-sm min-h-[120px]"
-                rows={4}
+                className="w-full px-4 py-3.5 text-md font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base shadow-sm min-h-[120px]"
+                rows={12}
               />
             </div>
           )}
@@ -1981,8 +1981,8 @@ const EmptyState = () => (
               value={decisionData.notes}
               onChange={(e) => setDecisionData({...decisionData, notes: e.target.value})}
               placeholder="Private notes for the administration team..."
-              className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base shadow-sm min-h-[100px]"
-              rows={3}
+              className="w-full px-4 py-3.5 text-md font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base shadow-sm min-h-[100px]"
+              rows={12}
             />
           </div>
           
@@ -2122,8 +2122,8 @@ const EmptyState = () => (
                 value={bulkDecisionData.notes}
                 onChange={(e) => setBulkDecisionData({...bulkDecisionData, notes: e.target.value})}
                 placeholder="Ex: Approved based on Q3 entrance exam results..."
-                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base transition-all min-h-[120px]"
-                rows={4}
+                className="w-full px-5 py-4 text-md font-semibold bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base transition-all min-h-[120px]"
+                rows={12}
               />
             </div>
 

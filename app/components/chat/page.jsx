@@ -73,7 +73,7 @@ const staticCategories = {
   general: {
     name: "Overview",
     icon: 'school',
-    content: `🏫 NYARIBU SECONDARY SCHOOL
+    content: `MARY IMMACULATE
 
 **A Public Day School**
 
@@ -294,7 +294,7 @@ Contacts:
 • Admissions: admissions@nyaribusecondary.sc.ke
 
 Address:
-Nyaribu Secondary School
+Mary Immaculate girls School
 Kiganjo, Nyeri County
 P.O. Box 123-10100
 
@@ -764,7 +764,7 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-105 active:scale-95"
+          className="bg-gradient-to-r from-orange-600 via-amber-700 to-red-800  text-white rounded-full p-4 shadow-lg transition-all hover:scale-105 active:scale-95"
           aria-label="Open chat assistant"
           style={{
             transform: 'translateZ(0)',
@@ -788,13 +788,13 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
             willChange: 'transform'
           }}
         >
-          {/* Header with logo */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 flex-shrink-0">
+            {/* Header with logo */}
+            <div className="bg-gradient-to-r from-orange-600 via-amber-700 to-red-800 text-white p-4 flex-shrink-0">
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white flex-shrink-0">
                   <img 
-                    src="/logo.jpg" 
+                    src="/ll.png" 
                     alt="Nyaribu Secondary School Logo" 
                     className="w-full h-full object-cover"
                     style={{ imageRendering: 'auto' }}

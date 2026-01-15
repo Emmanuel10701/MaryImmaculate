@@ -746,7 +746,7 @@ export default function ModernGallery() {
   // Share functions
   const shareOnWhatsApp = () => {
     if (!selectedMedia) return;
-    const text = `Check out "${selectedMedia.title}" from Nyaribu Secondary School Gallery!`;
+    const text = `Check out "${selectedMedia.title}" fromMary Immaculate GirlsSchool Gallery!`;
     const url = window.location.href;
     window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
   };
@@ -758,7 +758,7 @@ export default function ModernGallery() {
 
   const shareOnTwitter = () => {
     if (!selectedMedia) return;
-    const text = `Check out "${selectedMedia.title}" from Nyaribu Secondary School Gallery!`;
+    const text = `Check out "${selectedMedia.title}" fromMary Immaculate GirlsSchool Gallery!`;
     const url = window.location.href;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
   };
@@ -1063,7 +1063,7 @@ const LoadingSpinner = () => (
       </div>
       
       <div className="text-gray-800 text-lg font-semibold mb-2">
-        Nyaribu Secondary School
+       Mary Immaculate GirlsSchool
       </div>
       <div className="text-gray-600">
         Loading Gallery...
@@ -1297,7 +1297,7 @@ const LoadingSpinner = () => (
                     <div className="flex items-start justify-between lg:block">
                       <div>
                         <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-                          Nyaribu Secondary School Gallery
+                         Mary Immaculate GirlsSchool Gallery
                         </h1>
                         <p className="text-lg opacity-90 mb-3">
                           <span className="font-bold">{schoolInfo.motto}</span> • {schoolInfo.motto2}
@@ -1757,7 +1757,7 @@ const LoadingSpinner = () => (
               </div>
               
               <p className="text-slate-600 mb-6 text-center text-sm">
-                Share "{selectedMedia.title}" from Nyaribu Secondary School Gallery
+                Share "{selectedMedia.title}" fromMary Immaculate GirlsSchool Gallery
               </p>
       
 <div className="grid grid-cols-2 gap-3">

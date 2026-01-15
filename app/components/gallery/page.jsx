@@ -658,7 +658,7 @@ export default function ModernGalleryManager() {
 
       {/* Bulk Actions */}
       {selectedItems.size > 0 && (
-        <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl p-4 shadow-lg">
+        <div className="bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-2xl p-4 shadow-lg">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg">
@@ -950,7 +950,7 @@ const ModernGalleryItem = ({
         <div className="flex items-center gap-2">
           <button
             onClick={onPreview}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full text-xs sm:text-sm font-medium"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-full text-xs sm:text-sm font-medium"
           >
             <span className="hidden sm:inline">View</span>
             <FiEye className="sm:hidden" />
@@ -1050,7 +1050,7 @@ const ModernGalleryItem = ({
         <div className="flex gap-2 mb-3">
           <button
             onClick={onPreview}
-            className="flex-1 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full text-xs font-medium"
+            className="flex-1 py-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-full text-xs font-medium"
           >
             <span className="hidden sm:inline">View</span>
             <FiEye className="sm:hidden mx-auto" />
@@ -1674,7 +1674,7 @@ const copyUrl = () => {
                   </button>
                   <button
                     onClick={copyUrl}
-                    className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full text-sm font-medium flex items-center justify-center gap-2"
+                    className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-full text-sm font-medium flex items-center justify-center gap-2"
                     title="Copy URL"
                   >
                     <FiCopy className="text-sm" />

@@ -779,7 +779,7 @@ const getImageUrl = (imagePath) => {
                 {staff.expertise.slice(0, 2).map((exp, index) => (
                   <span 
                     key={index} 
-                    className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-1 rounded-lg text-xs font-bold"
+                    className="bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white px-2 py-1 rounded-lg text-xs font-bold"
                   >
                     {exp}
                   </span>
@@ -1512,7 +1512,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                         {formData.expertise.slice(0, 3).map((exp, index) => (
                           <span 
                             key={index} 
-                            className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-1 rounded-lg text-xs font-bold"
+                            className="bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white px-2 py-1 rounded-lg text-xs font-bold"
                           >
                             {exp}
                           </span>

@@ -171,7 +171,7 @@ const ModernStaffLeadership = () => {
     if (!role) return 'bg-gradient-to-r from-indigo-500 to-purple-500';
     
     const roleLower = role.toLowerCase();
-    if (roleLower.includes('principal')) return 'bg-gradient-to-r from-blue-500 to-cyan-500';
+    if (roleLower.includes('principal')) return 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900';
     if (roleLower.includes('deputy')) return 'bg-gradient-to-r from-purple-500 to-pink-500';
     if (roleLower.includes('teacher') || roleLower.includes('teaching')) return 'bg-gradient-to-r from-green-500 to-emerald-500';
     if (roleLower.includes('bom')) return 'bg-gradient-to-r from-amber-500 to-orange-500';

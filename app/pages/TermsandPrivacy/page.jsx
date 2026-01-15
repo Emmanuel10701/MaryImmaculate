@@ -2,22 +2,22 @@
 
 import React, { useState } from "react";
 
-// Data for all terms and conditions with detailed descriptions for Katwanyaa High School
+// Data for all terms and conditions with detailed descriptions for Mary Immaculate Girls Secondary School
 const allTerms = [
   { 
     id: 1,
     title: "1. School Registration and Enrollment",
-    intro: "Katwanyaa High School maintains rigorous standards for student enrollment to ensure academic excellence and maintain our reputation as a leading educational institution.",
+    intro: "Mary Immaculate Girls Secondary School maintains rigorous standards for student enrollment to ensure academic excellence and maintain our reputation as a leading educational institution for girls.",
     subSections: [
-      { subTitle: "1.1. Eligibility Criteria:", content: "Admission is open to students who have completed primary education (Class 8) and attained the minimum required KCPE score as determined by the school board annually." },
-      { subTitle: "1.2. Documentation Required:", content: "Original birth certificate, KCPE result slip, transfer letter (if applicable), medical records, and four passport-sized photographs must be submitted during registration." },
+      { subTitle: "1.1. Eligibility Criteria:", content: "Admission is open to female students who have completed primary education (Class 8) and attained the minimum required KCPE score as determined by the school board annually." },
+      { subTitle: "1.2. Documentation Required:", content: "Original birth certificate, KCPE result slip, transfer letter (if applicable), medical records, baptism certificate (if Catholic), and four passport-sized photographs must be submitted during registration." },
       { subTitle: "1.3. Age Requirement:", content: "Students must be between 13-15 years at the time of admission to Form 1. Special consideration may be given for exceptional circumstances upon board review." }
     ]
   },
   { 
     id: 2,
     title: "2. Academic Requirements and Expectations",
-    intro: "Katwanyaa High School is committed to academic excellence and expects students to maintain high standards of academic performance and conduct.",
+    intro: "Mary Immaculate Girls Secondary School is committed to academic excellence and expects students to maintain high standards of academic performance and conduct.",
     subSections: [
       { subTitle: "2.1. Minimum Attendance:", content: "Students must maintain at least 85% attendance in all subjects. Medical certificates must be provided for any absence exceeding two days." },
       { subTitle: "2.2. Academic Performance:", content: "Students must maintain a minimum grade of C- in all subjects. Those failing two or more subjects will be placed on academic probation with mandatory remedial classes." },
@@ -37,17 +37,17 @@ const allTerms = [
   { 
     id: 4,
     title: "4. Code of Conduct and Discipline",
-    intro: "Katwanyaa High School maintains high standards of discipline to create a conducive learning environment for all students.",
+    intro: "Mary Immaculate Girls Secondary School maintains high standards of discipline to create a conducive learning environment for all students.",
     subSections: [
-      { subTitle: "4.1. School Uniform:", content: "Complete school uniform must be worn at all times during school hours. Uniform includes prescribed shoes, socks, tie, and badge. No alterations allowed." },
-      { subTitle: "4.2. Prohibited Items:", content: "Mobile phones, electronic devices, drugs, alcohol, tobacco products, weapons, and inappropriate literature are strictly prohibited on school premises." },
+      { subTitle: "4.1. School Uniform:", content: "Complete school uniform must be worn at all times during school hours. Uniform includes prescribed shoes, socks, tie, badge, and veil for Mass. No alterations allowed." },
+      { subTitle: "4.2. Prohibited Items:", content: "Mobile phones, electronic devices, drugs, alcohol, tobacco products, weapons, makeup, and inappropriate literature are strictly prohibited on school premises." },
       { subTitle: "4.3. Disciplinary Actions:", content: "Minor offenses: Detention. Moderate offenses: Manual work. Serious offenses: Suspension or expulsion depending on severity and frequency." }
     ]
   },
   { 
     id: 5,
     title: "5. Boarding School Regulations",
-    intro: "As a boarding school, we provide structured residential facilities with specific rules to ensure safety and proper development.",
+    intro: "As a boarding school, we provide structured residential facilities with specific rules to ensure safety and proper development of our girls.",
     subSections: [
       { subTitle: "5.1. Dormitory Rules:", content: "Lights out at 9:30 PM. Morning wake-up at 5:00 AM. Dormitory inspection daily at 7:00 AM. No visitors in dormitories without permission." },
       { subTitle: "5.2. Weekend Passes:", content: "Students may go home on weekends with written permission from parents/guardians. Must sign out and return by Sunday 6:00 PM." },
@@ -70,7 +70,7 @@ const allTerms = [
     intro: "Participation in extracurricular activities is encouraged for holistic development of students.",
     subSections: [
       { subTitle: "7.1. Sports and Games:", content: "Mandatory participation in at least one sport. Training sessions Monday, Wednesday, Friday 4:00-6:00 PM. Inter-school competitions monthly." },
-      { subTitle: "7.2. Clubs and Societies:", content: "Each student must join at least two clubs. Club meetings every Tuesday and Thursday 4:00-5:30 PM." },
+      { subTitle: "7.2. Clubs and Societies:", content: "Each student must join at least two clubs. Club meetings every Tuesday and Thursday 4:00-5:30 PM. Catholic Action Club mandatory for all." },
       { subTitle: "7.3. Cultural Activities:", content: "Music, drama, and art competitions held each term. Participation in annual music festival mandatory." }
     ]
   },
@@ -79,7 +79,7 @@ const allTerms = [
     title: "8. Health and Safety Regulations",
     intro: "Student health and safety are our top priorities with comprehensive policies in place.",
     subSections: [
-      { subTitle: "8.1. Medical Care:", content: "School nurse available 24/7. Serious cases referred to Katwanyaa Health Center. Parents notified immediately of any serious illness." },
+      { subTitle: "8.1. Medical Care:", content: "School nurse available 24/7. Serious cases referred to Mweiga Health Center. Parents notified immediately of any serious illness." },
       { subTitle: "8.2. Emergency Procedures:", content: "Fire drills conducted monthly. Emergency evacuation plans displayed in all rooms. First aid kits in every classroom and dormitory." },
       { subTitle: "8.3. COVID-19 Protocols:", content: "Masks mandatory in crowded areas. Hand sanitizers at all entrances. Temperature checks daily. Isolation room for suspected cases." }
     ]
@@ -109,8 +109,8 @@ const allTerms = [
     title: "11. Dress Code and Appearance",
     intro: "Maintaining proper appearance is part of instilling discipline and pride in the school.",
     subSections: [
-      { subTitle: "11.1. Hair Regulations:", content: "Boys: Hair clean, neat, above collar. Girls: Hair tied back, no elaborate hairstyles. No coloring or styling products allowed." },
-      { subTitle: "11.2. Accessories:", content: "Simple watches allowed. No jewelry except small stud earrings for girls. No visible tattoos or body piercings." },
+      { subTitle: "11.1. Hair Regulations:", content: "Hair must be neat, clean, and tied back. No elaborate hairstyles, braids, or extensions. Hair must not touch the collar. No coloring or styling products allowed." },
+      { subTitle: "11.2. Accessories:", content: "Simple watches and small stud earrings allowed (one per ear). No jewelry except religious medals worn inside uniform. No visible tattoos or body piercings." },
       { subTitle: "11.3. Sports Attire:", content: "Prescribed sports uniform for games. No personal sports gear allowed during school activities." }
     ]
   },
@@ -185,31 +185,31 @@ export default function TermsAndConditions() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-slate-50 p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-amber-50 p-4 sm:p-6 md:p-8">
       {/* Modern Header */}
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 sm:mb-12 md:mb-16">
           {/* School Logo and Info */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <div className="text-center md:text-left">
-              <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl border border-blue-200 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">KH</span>
+              <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl border border-orange-200 mb-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">MI</span>
                 </div>
-                <span className="text-sm font-bold text-blue-900 uppercase tracking-wider">Katwanyaa High School</span>
+                <span className="text-sm font-bold text-orange-900 uppercase tracking-wider">Mary Immaculate Girls Secondary</span>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 mb-2 leading-tight">
                 School Rules & Regulations
               </h1>
               <p className="text-sm sm:text-base text-slate-600 max-w-2xl">
-                Official policies and guidelines governing student conduct, academics, and school operations at Katwanyaa High School
+                Official policies and guidelines governing student conduct, academics, and school operations at Mary Immaculate Girls Secondary School
               </p>
             </div>
             
             {/* Stats */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm text-center">
-                <div className="text-xl sm:text-2xl font-bold text-blue-700">{allTerms.length}</div>
+                <div className="text-xl sm:text-2xl font-bold text-orange-700">{allTerms.length}</div>
                 <div className="text-xs font-medium text-slate-500">Total Sections</div>
               </div>
               <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm text-center">
@@ -230,7 +230,7 @@ export default function TermsAndConditions() {
                   setCurrentPage(1);
                 }}
                 placeholder="Search rules and regulations..."
-                className="w-full px-4 py-3 pl-12 text-base sm:text-lg border-2 border-slate-300 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 bg-white shadow-sm"
+                className="w-full px-4 py-3 pl-12 text-base sm:text-lg border-2 border-slate-300 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 bg-white shadow-sm"
                 style={{ fontSize: '16px' }}
               />
               <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,11 +253,11 @@ export default function TermsAndConditions() {
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6 px-2">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                <div className="w-2 h-2 rounded-full bg-orange-500"></div>
                 <span className="text-xs font-medium text-slate-600">Showing {currentTerms.length} of {filteredTerms.length} rules</span>
               </div>
               {searchTerm && (
-                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
                   Search: "{searchTerm}"
                 </span>
               )}
@@ -277,7 +277,7 @@ export default function TermsAndConditions() {
                 className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
               >
                 {/* Term Header with Gradient */}
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 sm:p-6 text-white">
+                <div className="bg-gradient-to-r from-orange-600 to-amber-600 p-4 sm:p-6 text-white">
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
@@ -314,7 +314,7 @@ export default function TermsAndConditions() {
                       >
                         <div className="flex items-start gap-3">
                           <div className="flex-shrink-0">
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
                               <span className="text-xs font-bold">{index + 1}</span>
                             </div>
                           </div>
@@ -341,7 +341,7 @@ export default function TermsAndConditions() {
                 <p className="text-slate-600 mb-4">Try searching with different keywords or browse all sections</p>
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-lg font-bold hover:opacity-90 transition-opacity"
                 >
                   Show All Rules
                 </button>
@@ -392,7 +392,7 @@ export default function TermsAndConditions() {
                           onClick={() => handlePageChange(pageNum)}
                           className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-bold transition-all ${
                             currentPage === pageNum
-                              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
+                              ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg'
                               : 'text-slate-700 hover:bg-slate-100'
                           }`}
                         >
@@ -434,24 +434,24 @@ export default function TermsAndConditions() {
         {/* Footer */}
         <div className="mt-12 pt-8 border-t border-slate-200">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100">
-              <h4 className="font-bold text-blue-900 mb-2">Important Notice</h4>
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-4 border border-orange-100">
+              <h4 className="font-bold text-orange-900 mb-2">Important Notice</h4>
               <p className="text-sm text-slate-700">These rules are binding for all students. Parents/guardians must ensure students understand and comply.</p>
             </div>
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100">
               <h4 className="font-bold text-emerald-900 mb-2">Last Updated</h4>
               <p className="text-sm text-slate-700">January 6, {new Date().getFullYear()}. Rules are reviewed annually and may be updated.</p>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-4 border border-purple-100">
-              <h4 className="font-bold text-purple-900 mb-2">Enforcement</h4>
+            <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-4 border border-red-100">
+              <h4 className="font-bold text-red-900 mb-2">Enforcement</h4>
               <p className="text-sm text-slate-700">Rules enforced by school administration. Appeals to be made in writing to Principal's office.</p>
             </div>
           </div>
           
           <div className="text-center mt-8">
             <p className="text-xs text-slate-500">
-              © 2024 Katwanyaa High School. All rights reserved. 
-              <span className="block mt-1">For queries, contact: principal@katwanyaa.sc.ke | Tel: +254 712 345 678</span>
+              © {new Date().getFullYear()} Mary Immaculate Girls Secondary School. All rights reserved. 
+              <span className="block mt-1">For queries, contact: principal@maryimmaculate.sc.ke | Tel: +254 712 345 678 | Mweiga, Nyeri</span>
             </p>
           </div>
         </div>

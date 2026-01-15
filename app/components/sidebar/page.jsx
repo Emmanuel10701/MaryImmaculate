@@ -650,7 +650,7 @@ id: 'careers',
               <div className="relative">
                 <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30">
                   <img 
-                    src="/llil.png" 
+                    src="/ll.png" 
                     alt="School Logo" 
                     className="w-full h-full object-contain p-2"
                   />
@@ -659,7 +659,8 @@ id: 'careers',
               </div>
               <div className="min-w-0">
                 <h1 className="text-sm lg:text-lg font-bold text-gray-800 truncate">
-                  Nyaribu Secondary School
+
+Mary Immaculate Girls
                 </h1>
                 <p className="text-gray-600 text-xs lg:text-sm font-medium truncate">Admin Portal</p>
               </div>
@@ -841,7 +842,7 @@ id: 'careers',
               onClick={handleLogout}
               className="w-full flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 text-red-600 hover:text-red-700 rounded-xl transition-all duration-200 border border-red-200 hover:border-red-300 hover:bg-red-50 group"
             >
-              <div className="group-hover:rotate-180 transition-transform duration-300">
+              <div className="">
                 <FiLogOut className="text-sm lg:text-lg" />
               </div>
               <span className="font-semibold text-xs lg:text-sm truncate">Sign Out</span>
@@ -850,7 +851,7 @@ id: 'careers',
             {/* Version Info */}
             <div className="text-center mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-gray-200">
               <p className="text-gray-400 text-[10px] lg:text-xs">
-                v2.1.0 • Nyaribu Secondary School
+                v2.1.0 • Mary Immaculate Girls Secondary School
               </p>
             </div>
           </div>

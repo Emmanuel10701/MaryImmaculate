@@ -53,46 +53,44 @@ export default function ContactPage() {
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [isMapZoomed, setIsMapZoomed] = useState(false);
 
- 
-
   const departments = [
     {
       id: 'admissions',
       name: 'Admissions Office',
-      email: 'admissions@nyaribusecondary.sc.ke',
+      email: 'admissions@maryimmaculate.sc.ke',
       phone: '+254 720 123 456',
       description: 'For enrollment, applications, and admission inquiries. We guide students through the admission process.',
       icon: <User className="w-4 h-4" />,
       head: 'Mrs. Sarah Johnson',
       hours: 'Mon-Fri: 8:00 AM - 4:00 PM',
-      color: 'blue'
+      color: 'orange'
     },
     {
       id: 'academics',
       name: 'Academic Office',
-      email: 'academics@nyaribusecondary.sc.ke',
+      email: 'academics@maryimmaculate.sc.ke',
       phone: '+254 720 123 457',
       description: 'Curriculum, academic programs, examinations, and teacher coordination. Ensuring academic excellence.',
       icon: <Book className="w-4 h-4" />,
       head: 'Dr. Michael Chen',
       hours: 'Mon-Fri: 7:30 AM - 3:30 PM',
-      color: 'purple'
+      color: 'amber'
     },
     {
       id: 'student-affairs',
       name: 'Student Affairs',
-      email: 'affairs@nyaribusecondary.sc.ke',
+      email: 'affairs@maryimmaculate.sc.ke',
       phone: '+254 720 123 458',
       description: 'Student welfare, discipline, counseling, and extracurricular activities. Building holistic students.',
       icon: <Users className="w-4 h-4" />,
       head: 'Mr. David Wilson',
       hours: 'Mon-Fri: 8:00 AM - 4:30 PM',
-      color: 'green'
+      color: 'red'
     },
     {
       id: 'sports',
       name: 'Sports Department',
-      email: 'sports@nyaribusecondary.sc.ke',
+      email: 'sports@maryimmaculate.sc.ke',
       phone: '+254 720 123 459',
       description: 'Athletics, sports programs, competitions, and physical education. Developing champions.',
       icon: <Award className="w-4 h-4" />,
@@ -108,21 +106,21 @@ export default function ContactPage() {
       title: 'Apply for Admission',
       description: 'Start your application process',
       link: '/apply-for-admissions',
-      color: 'blue'
+      color: 'orange'
     },
     {
       icon: <Calendar className="w-4 h-4" />,
       title: 'View Events Calendar',
       description: 'See upcoming school events',
       link: '/eventsandnews',
-      color: 'purple'
+      color: 'amber'
     },
     {
       icon: <Book className="w-4 h-4" />,
       title: 'Explore Programs',
       description: 'Discover academic offerings',
       link: '/admissions',
-      color: 'green'
+      color: 'red'
     },
     {
       icon: <Video className="w-4 h-4" />,
@@ -242,48 +240,49 @@ export default function ContactPage() {
   return (
     <div className="bg-white text-slate-900 min-h-screen relative">
 
-      {/* Cinematic Hero with Optimized Background */}
-      <section className="relative min-h-[60vh] sm:min-h-[70vh] flex items-center justify-center overflow-hidden bg-slate-950 px-4 sm:px-6">
+      {/* Cinematic Hero with Optimized Background - Updated to orange gradient */}
+      <section className="relative min-h-[60vh] sm:min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-orange-950 via-amber-950 to-red-950 px-4 sm:px-6">
         {/* Optimized Background Engine */}
         <div className="absolute inset-0 z-0">
           {/* Background Image with reduced file size */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-slate-900/95 to-purple-900/90">
-  <Image
-    src="/ii.jpg"
-    alt="Campus"
-    fill
-    priority
-    className="object-cover opacity-50 transition-transform duration-[10s] ease-out group-hover:scale-110"
-  />          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/90 via-amber-900/95 to-red-900/90">
+            <Image
+              src="/ii.jpg"
+              alt="Campus"
+              fill
+              priority
+              className="object-cover opacity-50 transition-transform duration-[10s] ease-out group-hover:scale-110"
+            />
+          </div>
           
           {/* Optimized Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/80 to-slate-950 z-10" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_10%,#020617_80%)] opacity-60 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-orange-950/40 via-amber-950/80 to-red-950 z-10" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_10%,#1a0f0a_80%)] opacity-60 z-10" />
         </div>
 
         <div className="relative z-20 max-w-6xl mx-auto text-center px-4">
           {/* Micro-Interaction Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8 animate-fade-in">
-            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            <span className="text-xs font-bold tracking-[0.2em] text-blue-200 uppercase">
-              Academic Excellence 1987
+            <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+            <span className="text-xs font-bold tracking-[0.2em] text-orange-200 uppercase">
+              Academic Excellence Since 1998
             </span>
           </div>
 
           {/* Modern High-Density Headline */}
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white mb-8 tracking-tight leading-[0.95]">
-            Nyaribu <span className="text-transparent bg-clip-text bg-gradient-to-br from-blue-400 via-indigo-300 to-white/70">Secondary.</span>
+            Mary Immaculate <span className="text-transparent bg-clip-text bg-gradient-to-br from-amber-400 via-orange-300 to-white/70">Girls Secondary.</span>
           </h1>
 
           {/* Rich Narrative Description */}
           <div className="max-w-3xl mx-auto space-y-6 px-4">
             <p className="text-base md:text-lg text-slate-200 font-medium leading-relaxed">
-              Where <span className="text-blue-400">excellence meets opportunity</span> in the heart of Nyeri County.
+              Where <span className="text-amber-400">excellence meets opportunity</span> in the heart of Mweiga, Nyeri.
             </p>
             
             <p className="hidden md:block text-sm text-slate-300 leading-relaxed">
-              A premier institution committed to holistic education through innovative teaching, modern facilities, 
-              and a nurturing environment that empowers students for the 21st century.
+              A premier girls' institution committed to holistic education through innovative teaching, modern facilities, 
+              and a nurturing environment that empowers future women leaders.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-6 border-t border-white/10">
@@ -314,11 +313,11 @@ export default function ContactPage() {
           <div className="lg:col-span-8">
             <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-2xl shadow-slate-200/50 border border-slate-100">
               <div className="mb-10">
-                <span className="inline-block px-4 py-2 mb-5 text-xs font-bold tracking-[0.1em] text-blue-700 uppercase bg-blue-50 rounded-full">
+                <span className="inline-block px-4 py-2 mb-5 text-xs font-bold tracking-[0.1em] text-orange-700 uppercase bg-orange-50 rounded-full">
                   Contact Support
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4 tracking-tight">
-                  Get in Touch <span className="text-blue-600">Directly</span>
+                  Get in Touch <span className="text-orange-600">Directly</span>
                 </h2>
                 <p className="text-slate-500 text-lg leading-relaxed max-w-xl">
                   Have a question or need assistance? Fill out the form and our team will respond within 24 hours.
@@ -365,7 +364,7 @@ export default function ContactPage() {
                       required
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-5 font-semibold py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent transition-all outline-none"
+                      className="w-full px-5 font-semibold py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
                       placeholder="John Doe"
                     />
                   </div>
@@ -379,7 +378,7 @@ export default function ContactPage() {
                       required
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-5 font-semibold py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent transition-all outline-none"
+                      className="w-full px-5 font-semibold py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
                       placeholder="john@example.com"
                     />
                   </div>
@@ -397,7 +396,7 @@ export default function ContactPage() {
                       required
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-5 py-4 font-semibold bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent transition-all outline-none"
+                      className="w-full px-5 py-4 font-semibold bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
                       placeholder="0712 345 678"
                       pattern="(07|01)\d{8}"
                       title="Use 07XXXXXXXX or 01XXXXXXXX format"
@@ -412,7 +411,7 @@ export default function ContactPage() {
                       name="studentGrade"
                       value={formData.studentGrade}
                       onChange={handleInputChange}
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none appearance-none"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none appearance-none"
                     >
                       <option value="">Select Grade</option>
                       <option value="Form 1">Form 1</option>
@@ -434,7 +433,7 @@ export default function ContactPage() {
                       required
                       value={formData.inquiryType}
                       onChange={handleInputChange}
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none appearance-none"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none appearance-none"
                     >
                       <option value="general">General Inquiry</option>
                       <option value="admissions">Admissions</option>
@@ -453,7 +452,7 @@ export default function ContactPage() {
                       name="contactMethod"
                       value={formData.contactMethod}
                       onChange={handleInputChange}
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none appearance-none"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none appearance-none"
                     >
                       <option value="email">Email</option>
                       <option value="phone">Phone Call</option>
@@ -473,7 +472,7 @@ export default function ContactPage() {
                     required
                     value={formData.subject}
                     onChange={handleInputChange}
-                    className="w-full px-5 font-semibold py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent transition-all outline-none"
+                    className="w-full px-5 font-semibold py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
                     placeholder="What is this regarding?"
                   />
                 </div>
@@ -489,7 +488,7 @@ export default function ContactPage() {
                     rows={10}
                     value={formData.message}
                     onChange={handleInputChange}
-                    className="w-full px-5 py-4 font-semibold bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none resize-none"
+                    className="w-full px-5 py-4 font-semibold bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none resize-none"
                     placeholder="How can we help you today?"
                   />
                 </div>
@@ -508,7 +507,7 @@ export default function ContactPage() {
                   ) : (
                     <>
                       Send Message
-                      <Send size={18} className="text-blue-400" />
+                      <Send size={18} className="text-orange-400" />
                     </>
                   )}
                 </button>
@@ -519,10 +518,10 @@ export default function ContactPage() {
           {/* Right Column: Information & Actions */}
           <div className="lg:col-span-4 space-y-8">
             {/* Departments Card */}
-            <div className="bg-slate-900 rounded-3xl p-8 text-white">
+            <div className="bg-gradient-to-br from-orange-900 to-amber-900 rounded-3xl p-8 text-white">
               <div className="flex items-center gap-3 mb-8">
                 <div className="p-2 bg-white/10 rounded-xl">
-                  <Users className="w-5 h-5 text-blue-400" />
+                  <Users className="w-5 h-5 text-amber-400" />
                 </div>
                 <h3 className="text-xl font-bold">Departments</h3>
               </div>
@@ -536,10 +535,10 @@ export default function ContactPage() {
                   >
                     <h4 className="font-bold text-white text-base mb-1">{dept.name}</h4>
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs text-slate-400 flex items-center gap-2">
+                      <span className="text-xs text-orange-200 flex items-center gap-2">
                         <Mail size={12} /> {dept.email}
                       </span>
-                      <span className="text-xs text-slate-400 flex items-center gap-2">
+                      <span className="text-xs text-orange-200 flex items-center gap-2">
                         <Phone size={12} /> {dept.phone}
                       </span>
                     </div>
@@ -549,7 +548,7 @@ export default function ContactPage() {
             </div>
 
             {/* Quick Actions Card */}
-            <div className="bg-blue-600 rounded-3xl p-8 text-white relative overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-3xl p-8 text-white relative overflow-hidden">
               {/* Subtle decorative circle */}
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
               
@@ -572,8 +571,6 @@ export default function ContactPage() {
                 </div>
               </div>
             </div>
-
-    
           </div>
         </div>
       </section>
@@ -583,7 +580,7 @@ export default function ContactPage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           {/* High-quality Backdrop blur */}
           <div 
-            className="absolute inset-0 bg-slate-950/60 backdrop-blur-md"
+            className="absolute inset-0 bg-orange-950/60 backdrop-blur-md"
             onClick={closeDepartmentModal}
           />
 
@@ -592,9 +589,9 @@ export default function ContactPage() {
             
             {/* Decorative Header Background */}
             <div className={`absolute top-0 left-0 right-0 h-32 opacity-10 -z-10 ${
-              selectedDepartment.color === 'blue' ? 'bg-blue-600' : 
-              selectedDepartment.color === 'purple' ? 'bg-purple-600' :
-              selectedDepartment.color === 'green' ? 'bg-green-600' : 'bg-orange-600'
+              selectedDepartment.color === 'orange' ? 'bg-orange-600' : 
+              selectedDepartment.color === 'amber' ? 'bg-amber-600' :
+              selectedDepartment.color === 'red' ? 'bg-red-600' : 'bg-orange-600'
             }`} />
 
             <div className="p-8 sm:p-10">
@@ -602,9 +599,9 @@ export default function ContactPage() {
               <div className="flex items-start justify-between mb-8">
                 <div className="flex items-center gap-5">
                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${
-                    selectedDepartment.color === 'blue' ? 'bg-blue-600 text-white' : 
-                    selectedDepartment.color === 'purple' ? 'bg-purple-600 text-white' :
-                    selectedDepartment.color === 'green' ? 'bg-green-600 text-white' : 'bg-orange-600 text-white'
+                    selectedDepartment.color === 'orange' ? 'bg-orange-600 text-white' : 
+                    selectedDepartment.color === 'amber' ? 'bg-amber-600 text-white' :
+                    selectedDepartment.color === 'red' ? 'bg-red-600 text-white' : 'bg-orange-600 text-white'
                   }`}>
                     {React.cloneElement(selectedDepartment.icon, { size: 28 })}
                   </div>
@@ -659,12 +656,12 @@ export default function ContactPage() {
                     href={`mailto:${selectedDepartment.email}`}
                     className="flex items-center justify-center gap-3 w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg shadow-slate-900/10 hover:shadow-slate-900/20 transition-all"
                   >
-                    <Mail className="w-4 h-4 text-blue-400" />
+                    <Mail className="w-4 h-4 text-orange-400" />
                     Email Us
                   </a>
                   <a
                     href={`tel:${selectedDepartment.phone.replace(/\s+/g, '')}`}
-                    className="flex items-center justify-center gap-3 w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-600/10 hover:shadow-blue-600/20 transition-all"
+                    className="flex items-center justify-center gap-3 w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-orange-600/10 hover:shadow-orange-600/20 transition-all"
                   >
                     <Phone className="w-4 h-4" />
                     Call Office
@@ -679,22 +676,22 @@ export default function ContactPage() {
       {/* Mobile Navigation Footer */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 shadow-lg">
         <div className="flex justify-around p-2">
-          <a href="/" className="flex flex-col items-center text-slate-600 hover:text-blue-600 transition-colors p-2">
+          <a href="/" className="flex flex-col items-center text-slate-600 hover:text-orange-600 transition-colors p-2">
             <Home className="w-6 h-6" />
             <span className="text-xs mt-1 font-medium">Home</span>
           </a>
-          <a href="tel:+254720123456" className="flex flex-col items-center text-slate-600 hover:text-blue-600 transition-colors p-2">
+          <a href="tel:+254720123456" className="flex flex-col items-center text-slate-600 hover:text-orange-600 transition-colors p-2">
             <Phone className="w-6 h-6" />
             <span className="text-xs mt-1 font-medium">Call</span>
           </a>
           <button 
             onClick={() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex flex-col items-center text-slate-600 hover:text-blue-600 transition-colors p-2"
+            className="flex flex-col items-center text-slate-600 hover:text-orange-600 transition-colors p-2"
           >
             <MessageSquare className="w-6 h-6" />
             <span className="text-xs mt-1 font-medium">Message</span>
           </button>
-          <a href="mailto:admissions@nyaribusecondary.sc.ke" className="flex flex-col items-center text-slate-600 hover:text-blue-600 transition-colors p-2">
+          <a href="mailto:admissions@maryimmaculate.sc.ke" className="flex flex-col items-center text-slate-600 hover:text-orange-600 transition-colors p-2">
             <Mail className="w-6 h-6" />
             <span className="text-xs mt-1 font-medium">Email</span>
           </a>

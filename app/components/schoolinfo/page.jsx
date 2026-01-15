@@ -4796,7 +4796,7 @@ const handleUpdateExamResults = async (formData) => {
             <FaShieldAlt className="text-blue-300 text-[10px]" />
           </div>
           <h1 className="text-3xl md:text-4xl font-black text-white tracking-tighter drop-shadow-sm">
-            Nyaribu Secondary School
+            Mary Immaculate
           </h1>
         </div>
       </div>

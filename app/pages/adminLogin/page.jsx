@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isForgotMode, setIsForgotMode] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-const [rememberDevice, setRememberDevice] = useState(false);
+  const [rememberDevice, setRememberDevice] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -97,102 +97,101 @@ const [rememberDevice, setRememberDevice] = useState(false);
       duration: Infinity,
     });
 
-try {
-  const response = await fetch('/api/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData),
-  });
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-  const data = await response.json();
+      const data = await response.json();
 
-  // Dismiss loading toast
-  toast.dismiss(loadingToast);
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
 
-  if (response.ok && data.success) {
-    // Store token in localStorage or cookies
-    if (data.token) {
-      localStorage.setItem('admin_token', data.token);
-      localStorage.setItem('admin_user', JSON.stringify(data.user));
+      if (response.ok && data.success) {
+        // Store token in localStorage or cookies
+        if (data.token) {
+          localStorage.setItem('admin_token', data.token);
+          localStorage.setItem('admin_user', JSON.stringify(data.user));
+        }
+
+        // Success toast - modernized
+        toast.success(`Welcome back, ${data.user.name || 'Admin'}! 🎉`, {
+          duration: 3000,
+          icon: '✅',
+          style: {
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '14px',
+            padding: '18px 22px',
+            fontSize: '15px',
+            fontWeight: '600',
+            boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)',
+          },
+          iconTheme: {
+            primary: 'white',
+            secondary: '#059669',
+          },
+        });
+
+        // Delay redirect to show success message
+        setTimeout(() => {
+          router.push('/MainDashboard');
+        }, 1500);
+      } else {
+        // Error toast - modernized
+        toast.error(data.error || 'Login failed. Please try again.', {
+          duration: 4000,
+          icon: '⚠️',
+          style: {
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '14px',
+            padding: '18px 22px',
+            fontSize: '15px',
+            fontWeight: '600',
+            boxShadow: '0 10px 25px rgba(239, 68, 68, 0.3)',
+          },
+          iconTheme: {
+            primary: 'white',
+            secondary: '#dc2626',
+          },
+        });
+      }
+    } catch (error) {
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+      
+      // Network error toast - modernized
+      toast.error('Network error. Please check your connection.', {
+        duration: 4000,
+        icon: '📡',
+        style: {
+          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+          color: 'white',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: '14px',
+          padding: '18px 22px',
+          fontSize: '15px',
+          fontWeight: '600',
+          boxShadow: '0 10px 25px rgba(245, 158, 11, 0.3)',
+        },
+        iconTheme: {
+          primary: 'white',
+          secondary: '#d97706',
+        },
+      });
+      console.error('Login error:', error);
+    } finally {
+      setIsLoading(false);
     }
-
-    // Success toast - modernized
-    toast.success(`Welcome back, ${data.user.name || 'Admin'}! 🎉`, {
-      duration: 3000,
-      icon: '✅',
-      style: {
-        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        color: 'white',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        borderRadius: '14px',
-        padding: '18px 22px',
-        fontSize: '15px',
-        fontWeight: '600',
-        boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)',
-      },
-      iconTheme: {
-        primary: 'white',
-        secondary: '#059669',
-      },
-    });
-
-    // Delay redirect to show success message
-    setTimeout(() => {
-      router.push('/MainDashboard');
-    }, 1500);
-  } else {
-    // Error toast - modernized
-    toast.error(data.error || 'Login failed. Please try again.', {
-      duration: 4000,
-      icon: '⚠️',
-      style: {
-        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-        color: 'white',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        borderRadius: '14px',
-        padding: '18px 22px',
-        fontSize: '15px',
-        fontWeight: '600',
-        boxShadow: '0 10px 25px rgba(239, 68, 68, 0.3)',
-      },
-      iconTheme: {
-        primary: 'white',
-        secondary: '#dc2626',
-      },
-    });
-  }
-} catch (error) {
-  // Dismiss loading toast
-  toast.dismiss(loadingToast);
-  
-  // Network error toast - modernized
-  toast.error('Network error. Please check your connection.', {
-    duration: 4000,
-    icon: '📡',
-    style: {
-      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-      color: 'white',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      borderRadius: '14px',
-      padding: '18px 22px',
-      fontSize: '15px',
-      fontWeight: '600',
-      boxShadow: '0 10px 25px rgba(245, 158, 11, 0.3)',
-    },
-    iconTheme: {
-      primary: 'white',
-      secondary: '#d97706',
-    },
-  });
-  console.error('Login error:', error);
-} finally {
-  setIsLoading(false);
-};
-
-
   };
+
   const securityFeatures = [
     { icon: <Shield className="w-4 h-4" />, label: "Military-Grade Encryption", color: "emerald" },
     { icon: <Cpu className="w-4 h-4" />, label: "AI Threat Detection", color: "blue" },
@@ -272,9 +271,9 @@ try {
             }}></div>
 
             <div className="relative z-10">
-              {/* Title */}
+              {/* Title - School name updated */}
               <h1 className="text-5xl lg:text-6xl font-black text-white mb-8 tracking-tighter leading-[0.95]">
-                Nyaribu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-white">Admin Portal</span>
+                Mary Immaculate <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-white">Admin Portal</span>
               </h1>
 
               {/* Security Features Grid */}
@@ -340,7 +339,8 @@ try {
                   <Key className="w-3 h-3 text-white" />
                 </div>
               </div>
-              <h2 className="text-2xl font-black text-slate-900">Nyaribu Admin Portal</h2>
+              {/* Mobile title updated */}
+              <h2 className="text-2xl font-black text-slate-900">Mary Immaculate Admin Portal</h2>
               <p className="text-sm text-slate-500 mt-2">Secure Admin Access</p>
             </div>
 
@@ -377,7 +377,7 @@ try {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      placeholder="admin@nyaribusecondary.sc.ke"
+                      placeholder="admin@maryimmaculategirls.sc.ke"
                       className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:bg-white transition-all duration-300 font-medium text-slate-900 placeholder-slate-400"
                     />
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -435,19 +435,17 @@ try {
                     <div className="p-5 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-100">
                       <label className="flex items-start gap-4 cursor-pointer group">
                         <div className="relative flex-shrink-0">
-                       <input 
-  type="checkbox" 
-  checked={agreedToTerms}
-  onChange={(e) => setAgreedToTerms(e.target.checked)}
-  className="h-5 w-5 cursor-pointer rounded border-2 border-blue-300 bg-white checked:border-blue-600 checked:bg-blue-600 focus:outline-none transition-all"
-/>
-
+                          <input 
+                            type="checkbox" 
+                            checked={agreedToTerms}
+                            onChange={(e) => setAgreedToTerms(e.target.checked)}
+                            className="h-5 w-5 cursor-pointer rounded border-2 border-blue-300 bg-white checked:border-blue-600 checked:bg-blue-600 focus:outline-none transition-all"
+                          />
                         </div>
                         <div>
-                        <p className="text-sm font-bold text-slate-800 mb-1">
-  Terms and Agreement
-</p>
-
+                          <p className="text-sm font-bold text-slate-800 mb-1">
+                            Terms and Agreement
+                          </p>
                           <p className="text-xs text-slate-600 leading-relaxed">
                             I understand this session is monitored, encrypted, and recorded for security auditing in compliance with institutional policies.
                           </p>
@@ -455,29 +453,29 @@ try {
                       </label>
                     </div>
 
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-  <div className="flex items-center gap-3">
-    <Smartphone className="w-5 h-5 text-blue-500" />
-    <div>
-      <p className="text-sm font-bold text-slate-800">Remember me on this device</p>
-      <p className="text-xs text-slate-500">Stay signed in without entering a code</p>
-    </div>
-  </div>
-  <button
-    type="button"
-    onClick={() => setRememberDevice(!rememberDevice)}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-      rememberDevice ? 'bg-blue-600' : 'bg-slate-300'
-    }`}
-  >
-    <span
-      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-        rememberDevice ? 'translate-x-6' : 'translate-x-1'
-      }`}
-    />
-  </button>
-</div>
-
+                    {/* Remember Device */}
+                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                      <div className="flex items-center gap-3">
+                        <Smartphone className="w-5 h-5 text-blue-500" />
+                        <div>
+                          <p className="text-sm font-bold text-slate-800">Remember me on this device</p>
+                          <p className="text-xs text-slate-500">Stay signed in without entering a code</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setRememberDevice(!rememberDevice)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          rememberDevice ? 'bg-blue-600' : 'bg-slate-300'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            rememberDevice ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -487,26 +485,24 @@ try {
                   disabled={isLoading}
                   className="group relative w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-blue-500/30 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-cyan-600 opacity-0  t"></div>
-            <div className="relative flex items-center justify-center gap-3">
-  {agreedToTerms ? (
-    isLoading ? (
-      <>
-        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-        <span>Authenticating...</span>
-      </>
-    ) : (
-      <>
-        <span>{isForgotMode ? "Request Login Access" : "Access Dashboard"}</span>
-        <ArrowRight className="w-5 h-5" />
-      </>
-    )
-  ) : (
-    // Optionally show nothing or a disabled message
-    <span className="text-slate-400">Please agree to Terms</span>
-  )}
-</div>
-
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative flex items-center justify-center gap-3">
+                    {agreedToTerms ? (
+                      isLoading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Authenticating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{isForgotMode ? "Request Login Access" : "Access Dashboard"}</span>
+                          <ArrowRight className="w-5 h-5" />
+                        </>
+                      )
+                    ) : (
+                      <span className="text-slate-400">Please agree to Terms</span>
+                    )}
+                  </div>
                 </button>
 
                 {/* Back to Login */}
@@ -527,7 +523,7 @@ try {
                   <div className="flex items-center gap-3">
                     <Globe className="w-4 h-4 text-slate-400" />
                     <p className="text-xs text-slate-500 font-medium">
-                      Data Center: • CDN: Global
+                      Data Center: Mweiga, Nyeri • CDN: Global
                     </p>
                   </div>
                   <div className="flex gap-6">

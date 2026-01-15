@@ -39,11 +39,11 @@ export default function NavigationSidebar({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">NS</span>
+                <span className="text-white font-bold text-lg">MIG</span>
               </div>
               <div>
                 <h2 className="font-bold text-gray-900 text-xl">Student Portal</h2>
-                <p className="text-sm text-gray-500">Nyaribu Secondary</p>
+                <p className="text-sm text-gray-500">Mary Immaculate</p>
               </div>
             </div>
             

@@ -56,28 +56,28 @@ export default function SubscriberManager() {
   const emailTemplates = {
     admission: {
       name: 'Admission Tips & Updates',
-      subject: '🎓 Important Admission Updates & Tips for {schoolYear} - Nyaribu Secondary School',
+      subject: '🎓 Important Admission Updates & Tips for {schoolYear} -Mary Immaculate GirlsSchool',
       description: 'Send admission tips, deadlines, and important updates',
       color: 'bg-blue-50 border-blue-200',
       icon: '🎯'
     },
     newsletter: {
       name: 'Monthly Newsletter',
-      subject: '📰 {month} Newsletter - Nyaribu Secondary School Updates',
+      subject: '📰 {month} Newsletter -Mary Immaculate GirlsSchool Updates',
       description: 'Share monthly news, achievements, and announcements',
       color: 'bg-purple-50 border-purple-200',
       icon: '📬'
     },
     event: {
       name: 'Event Announcement',
-      subject: '🎉 Event Invitation: {eventName} - Nyaribu Secondary School',
+      subject: '🎉 Event Invitation: {eventName} -Mary Immaculate GirlsSchool',
       description: 'Announce school events and activities',
       color: 'bg-green-50 border-green-200',
       icon: '📅'
     },
     reminder: {
       name: 'Important Reminder',
-      subject: '⏰ Important Reminder - Nyaribu Secondary School',
+      subject: '⏰ Important Reminder -Mary Immaculate GirlsSchool',
       description: 'Send important reminders and notifications',
       color: 'bg-amber-50 border-amber-200',
       icon: '🔔'

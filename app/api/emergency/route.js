@@ -12,11 +12,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const SCHOOL_NAME = 'Nyaribu Secondary School';
-const SCHOOL_LOCATION = 'Kiganjo, Nyeri County';
+const SCHOOL_NAME = 'Mary Immaculate Girls Secondary School';
+const SCHOOL_LOCATION = 'Mweiga, Nyeri County';
 const SCHOOL_MOTTO = 'Soaring for Excellence';
 const CONTACT_PHONE = '+254720123456';
-const CONTACT_EMAIL = 'info@nyaribusecondary.sc.ke';
+const CONTACT_EMAIL = 'admissions@maryimmaculategirls.sc.ke';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || CONTACT_EMAIL;
 const COUNSELOR_EMAIL = process.env.COUNSELOR_EMAIL || 'guidance@school.edu';
 

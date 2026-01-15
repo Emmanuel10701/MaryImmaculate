@@ -78,7 +78,7 @@ const SearchButton = ({ onClick, loading = false }) => (
   <button
     onClick={onClick}
     disabled={loading}
-    className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-5 py-3 rounded-xl transition-all duration-200 shadow-lg font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed"
+    className="inline-flex items-center gap-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 hover:from-blue-600 hover:to-cyan-600 text-white px-5 py-3 rounded-xl transition-all duration-200 shadow-lg font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed"
   >
     {loading ? (
       <CircularProgress size={20} color="inherit" />
@@ -1466,7 +1466,7 @@ const StudentCouncil = () => {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-5 py-3 rounded-xl transition-all duration-200 font-medium text-base shadow-md hover:shadow-lg"
+                      className="inline-flex items-center gap-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 hover:from-blue-600 hover:to-cyan-600 text-white px-5 py-3 rounded-xl transition-all duration-200 font-medium text-base shadow-md hover:shadow-lg"
                     >
                       <FiUpload className="w-4 h-4" />
                       {imagePreview || editingMember?.image ? 'Change Photo' : 'Upload Photo'}

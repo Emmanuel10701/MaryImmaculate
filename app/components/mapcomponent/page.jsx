@@ -31,16 +31,17 @@ const Circle = dynamic(
   { ssr: false }
 );
 
-// School location
-const schoolLocation = [-0.417, 36.949];
+// School location - Mary Immaculate Girls Secondary in Mweiga, Nyeri
+const schoolLocation = [-0.352, 36.923];
 
-// Nearby landmarks
+// Nearby landmarks in Mweiga area
 const nearbyLandmarks = [
-  { position: [-0.418, 36.95], name: 'Kiganjo Town Center', type: 'commercial' },
-  { position: [-0.416, 36.951], name: 'Kiganjo Primary School', type: 'education' },
-  { position: [-0.419, 36.948], name: 'Kiganjo Health Center', type: 'health' },
-  { position: [-0.415, 36.947], name: 'Nyeri–Kiganjo Road', type: 'transport' },
-  { position: [-0.42, 36.952], name: 'Kiganjo Market', type: 'market' },
+  { position: [-0.351, 36.924], name: 'Mweiga Town Center', type: 'commercial' },
+  { position: [-0.353, 36.922], name: 'Mweiga Police Station', type: 'security' },
+  { position: [-0.350, 36.921], name: 'Mweiga Health Center', type: 'health' },
+  { position: [-0.349, 36.925], name: 'Mweiga-Nyeri Road', type: 'transport' },
+  { position: [-0.354, 36.926], name: 'Mweiga Market', type: 'market' },
+  { position: [-0.355, 36.920], name: 'St. Mary\'s Catholic Church', type: 'religious' },
 ];
 
 // LegendItem component
@@ -49,7 +50,7 @@ function LegendItem({ color, border, label }) {
     <div className="flex items-center gap-1.5">
       <span
         className={`w-3 h-3 rounded-full ${
-          border ? 'border-2 border-blue-600' : color
+          border ? 'border-2 border-orange-600' : color
         }`}
       ></span>
       <span>{label}</span>
@@ -83,6 +84,10 @@ function getMarkerIcon(type) {
       return 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png';
     case 'commercial':
       return 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png';
+    case 'religious':
+      return 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png';
+    case 'security':
+      return 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png';
     default:
       return 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png';
   }
@@ -114,10 +119,10 @@ export default function MapComponent() {
   // Show loading state on server
   if (!isClient || !L) {
     return (
-      <div className="relative h-96 rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-gray-100 flex items-center justify-center">
+      <div className="relative h-96 rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-gradient-to-r from-orange-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading map...</p>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mb-4"></div>
+          <p className="text-gray-600">Loading map of Mweiga...</p>
         </div>
       </div>
     );
@@ -138,11 +143,13 @@ export default function MapComponent() {
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000]">
         <div className="bg-white rounded-xl shadow-xl border border-gray-200 px-4 py-3 flex flex-wrap gap-3 items-center text-xs">
           <span className="font-semibold text-gray-700">Map Legend:</span>
-          <LegendItem color="bg-blue-600" label="School" />
-          <LegendItem border label="150m Radius" />
+          <LegendItem color="bg-orange-600" label="School" />
+          <LegendItem border label="200m Radius" />
           <LegendItem color="bg-green-500" label="Education" />
           <LegendItem color="bg-red-500" label="Health" />
           <LegendItem color="bg-yellow-500" label="Transport" />
+          <LegendItem color="bg-violet-500" label="Religious" />
+          <LegendItem color="bg-orange-500" label="Security" />
         </div>
       </div>
 
@@ -162,16 +169,19 @@ export default function MapComponent() {
           <Popup>
             <div className="p-3 min-w-[240px]">
               <h3 className="font-bold text-gray-800 text-lg">
-                🏫 Nyaribu Secondary School
+                🏫 Mary Immaculate Girls Secondary School
               </h3>
               <p className="text-sm text-gray-600 mb-3">
-                Kiganjo, Nyeri County
+                Mweiga, Nyeri County
+              </p>
+              <p className="text-xs text-gray-500 mb-3">
+                Along Mweiga-Nyeri Road, Mweiga Township
               </p>
               <a
-                href="https://maps.google.com/?q=Nyaribu+Secondary+School,Kiganjo+Nyeri"
+                href="https://maps.google.com/?q=Mary+Immaculate+Girls+Secondary+School,Mweiga+Nyeri"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition"
               >
                 <FiNavigation />
                 Get Directions
@@ -183,9 +193,9 @@ export default function MapComponent() {
         {/* Radius */}
         <Circle
           center={schoolLocation}
-          radius={150}
+          radius={200}
           pathOptions={{
-            color: '#2563eb',
+            color: '#ea580c',
             fillOpacity: 0.1,
             weight: 2,
             dashArray: '6,6',
@@ -216,6 +226,18 @@ export default function MapComponent() {
           </Marker>
         ))}
       </MapContainer>
+
+      {/* Bottom Info Bar */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000]">
+        <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 px-4 py-2 flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span className="text-xs font-medium text-gray-700">Located in Mweiga</span>
+          </div>
+          <div className="w-px h-4 bg-gray-300"></div>
+          <span className="text-xs text-gray-600">Coordinates: -0.352, 36.923</span>
+        </div>
+      </div>
     </div>
   );
 }

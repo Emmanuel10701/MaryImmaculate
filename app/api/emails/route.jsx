@@ -25,29 +25,29 @@ const transporter = nodemailer.createTransport({
 });
 
 // School Information
-const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Nyaribu Secondary School';
-const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Kiganjo, Nyeri County';
+const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Mary Immaculate Girls Secondary School';
+const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Mweiga, Nyeri County';
 const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Soaring for Excellence';
 const CONTACT_PHONE = process.env.CONTACT_PHONE || '+254720123456';
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@nyaribusecondary.sc.ke';
-const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://nyaribusecondary.sc.ke';
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@maryimmaculategirls.sc.ke';
+const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://maryimmaculategirls.sc.ke';
 
 // Social Media Configuration (Removed TikTok and Instagram as requested)
 const SOCIAL_MEDIA = {
   facebook: {
-    url: process.env.SCHOOL_FACEBOOK || 'https://facebook.com/nyaribusecondary',
+    url: process.env.SCHOOL_FACEBOOK || 'https://facebook.com/maryimmaculategirls',
     color: '#1877F2',
   },
   youtube: {
-    url: process.env.SCHOOL_YOUTUBE || 'https://youtube.com/c/nyaribusecondary',
+    url: process.env.SCHOOL_YOUTUBE || 'https://youtube.com/c/maryimmaculategirls',
     color: '#FF0000',
   },
   linkedin: {
-    url: process.env.SCHOOL_LINKEDIN || 'https://linkedin.com/school/nyaribu-secondary',
+    url: process.env.SCHOOL_LINKEDIN || 'https://linkedin.com/school/maryimmaculategirls',
     color: '#0A66C2',
   },
   twitter: {
-    url: process.env.SCHOOL_TWITTER || 'https://twitter.com/nyaribusecondary',
+    url: process.env.SCHOOL_TWITTER || 'https://twitter.com/maryimmaculategirls',
     color: '#1DA1F2',
   }
 };

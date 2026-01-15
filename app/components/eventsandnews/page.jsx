@@ -1433,7 +1433,7 @@ export default function NewsEventsManager() {
                   currentPage === page
                     ? activeSection === 'news'
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                      : 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white shadow-lg'
                     : 'text-gray-700'
                 }`}
               >
@@ -1608,7 +1608,7 @@ export default function NewsEventsManager() {
                   isActive
                     ? tab.id === 'news'
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                      : 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white shadow-lg'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >

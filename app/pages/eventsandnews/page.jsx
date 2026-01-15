@@ -960,7 +960,7 @@ export default function ModernEventsNewsPage() {
 
   // Categories
   const categories = [
-    { id: 'all', name: 'All Events', icon: IoCalendarClearOutline, color: 'bg-gradient-to-r from-blue-500 to-cyan-500' },
+    { id: 'all', name: 'All Events', icon: IoCalendarClearOutline, color: 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900' },
     { id: 'academic', name: 'Academic', icon: IoNewspaperOutline, color: 'bg-gradient-to-r from-blue-500 to-purple-500' },
     { id: 'cultural', name: 'Cultural', icon: FiMusic, color: 'bg-gradient-to-r from-purple-500 to-pink-500' },
     { id: 'sports', name: 'Sports', icon: FiTrendingUp, color: 'bg-gradient-to-r from-emerald-500 to-green-500' },

@@ -1829,7 +1829,7 @@ export default function ResourcesManager() {
                 onClick={() => paginate(page)}
                 className={`px-3 py-2 rounded-xl font-bold ${
                   currentPage === page
-                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                    ? 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white shadow-lg'
                     : 'text-gray-700'
                 }`}
               >
@@ -1980,7 +1980,7 @@ export default function ResourcesManager() {
         <button
           onClick={handleCreate}
           className="group relative overflow-hidden px-4 sm:px-5 py-2.5 sm:py-3
-                     bg-gradient-to-r from-blue-500 to-cyan-500
+                     bg-gradient-to-br from-amber-900 via-orange-900 to-red-900
                      text-white rounded-xl sm:rounded-2xl font-semibold
                      hover:shadow-xl hover:shadow-cyan-500/30
                      active:scale-95 transition-all w-full xs:w-auto"

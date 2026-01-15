@@ -172,7 +172,7 @@ const UploadAttachments = ({ open, onClose, onFilesSelected, existingAttachments
             </div>
             <h3 className="text-lg font-bold text-gray-800 mb-2">Drop files here or click to upload</h3>
             <p className="text-gray-600 mb-4">Maximum file size: 10MB per file</p>
-            <button className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-medium">
+            <button className="px-4 py-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-lg font-medium">
               Select Files
             </button>
             <input
@@ -253,7 +253,7 @@ const UploadAttachments = ({ open, onClose, onFilesSelected, existingAttachments
             <button
               onClick={handleSave}
               disabled={uploading}
-              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-xl font-medium disabled:opacity-50"
             >
               {uploading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -906,7 +906,7 @@ const recipientGroups = useMemo(() => {
       count: calculateTotalRecipients(),
       color: 'from-blue-500 to-cyan-500',
       icon: Users,
-      gradient: 'bg-gradient-to-r from-blue-500 to-cyan-500'
+      gradient: 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900'
     },
     { 
       value: 'parents', 
@@ -1825,7 +1825,7 @@ const handleCreateOrUpdateCampaign = async () => {
               onClick={openCreateModal}
               className="
                 inline-flex items-center gap-2
-                bg-gradient-to-r from-blue-500 to-cyan-500
+                bg-gradient-to-br from-amber-900 via-orange-900 to-red-900
                 text-white px-4 py-2.5 rounded-xl
                 transition-all duration-300 font-medium
                 hover:scale-101
@@ -2102,7 +2102,7 @@ const handleCreateOrUpdateCampaign = async () => {
                     }}
                     className="
                       flex-1
-                      bg-gradient-to-r from-blue-500 to-cyan-500
+                      bg-gradient-to-br from-amber-900 via-orange-900 to-red-900
                       text-white py-2.5 rounded-lg
                       transition-all duration-300
                       font-medium shadow-lg
@@ -2553,7 +2553,7 @@ const handleCreateOrUpdateCampaign = async () => {
           <div className="bg-gradient-to-br from-blue-50 via-white to-cyan-50 rounded-xl p-5 border border-blue-200 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
+                <div className="p-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 rounded-lg">
                   <Info className="w-4 h-4 text-white" />
                 </div>
                 Campaign Information
@@ -2757,7 +2757,7 @@ const handleCreateOrUpdateCampaign = async () => {
                   text-sm
                   font-bold
                   text-white
-                  bg-gradient-to-r from-blue-500 to-cyan-500
+                  bg-gradient-to-br from-amber-900 via-orange-900 to-red-900
                   hover:from-blue-600 hover:to-cyan-600
                   transition-all duration-200
                   shadow-lg

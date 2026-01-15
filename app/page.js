@@ -41,6 +41,7 @@ import {
   FiLoader 
 } from 'react-icons/fi';
 import { FiAlertCircle, FiPhoneCall } from 'react-icons/fi';
+import Hero from "./components/hero/page";
 
 import { 
   IoRocketOutline, 
@@ -111,7 +112,7 @@ const [error, setError] = useState(null);
   // Modern Marketing Descriptions with Enhanced Content
   const marketingDescriptions = {
     hero: {
-      main: "Nyaribu Secondary School",
+      main: "Mary Immaculate Girls Secondary School",
       sub: "Where Academic Excellence Meets Character Development",
       highlights: [
         "94% KCSE Success Rate",
@@ -167,7 +168,7 @@ const [error, setError] = useState(null);
       title: "Academic Excellence",
       subtitle: "Redefined Through Innovation",
       gradient: "from-blue-500 via-cyan-400 to-purple-600",
-      description: "At Nyaribu Secondary School, we're pioneering a new era of education. With a 94% KCSE success rate and state-of-the-art STEM facilities, we're not just teaching—we're inspiring the next generation of leaders and innovators.",
+      description: "At Mary Immaculate Girls Secondary School, we're pioneering a new era of education. With a 94% KCSE success rate and state-of-the-art STEM facilities, we're not just teaching—we're inspiring the next generation of leaders and innovators.",
       background: "bg-gradient-to-br from-blue-900/90 via-indigo-900/80 to-purple-900/70",
       image: "/student.jpg",
       stats: { 
@@ -607,20 +608,20 @@ const useSchoolVideo = () => {
         ))}
       </div>
 
-      {/* Main Loader */}
+ {/* Main Loader */}
 <div className="relative z-10 flex flex-col items-center justify-center">
   {/* Animated Rings */}
   <div className="relative w-32 h-32 mb-8">
-    <div className="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
-    <div className="absolute inset-4 border-4 border-cyan-500/30 rounded-full animate-ping"></div>
+    <div className="absolute inset-0 border-4 border-orange-500/20 rounded-full"></div>
+    <div className="absolute inset-4 border-4 border-amber-500/30 rounded-full animate-ping"></div>
     <div className="absolute inset-8 border-4 border-white/40 rounded-full animate-spin"></div>
     
     {/* Center Logo */}
     <div className="absolute inset-0 flex items-center justify-center">
-      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center overflow-hidden">
+      <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center overflow-hidden">
         <img 
-          src="/llil.png" 
-          alt="School Logo" 
+          src="/ll.png" 
+          alt="Mary Immaculate Girls Secondary Logo" 
           className="w-full h-full object-contain p-2"
         />
       </div>
@@ -632,7 +633,7 @@ const useSchoolVideo = () => {
     {/* School Name with Gradient */}
     <div>
       <h2 className="text-3xl font-bold text-white mb-2">
-        Nyaribu Secondary School
+        Mary Immaculate Girls Secondary School
       </h2>
       <div className="h-1 w-48 mx-auto bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
     </div>
@@ -646,7 +647,7 @@ const useSchoolVideo = () => {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="w-3 h-3 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full animate-bounce"
+            className="w-3 h-3 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full animate-bounce"
             style={{ animationDelay: `${i * 0.2}s` }}
           />
         ))}
@@ -654,10 +655,10 @@ const useSchoolVideo = () => {
       
       {/* Progress Bar */}
       <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden mx-auto">
-        <div className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 animate-gradient-loading"></div>
+        <div className="h-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 animate-gradient-loading"></div>
       </div>
       
-      <p className="text-white/60 text-sm">Loading resources...</p>
+      <p className="text-white/60 text-sm">Loading the School website...</p>
     </div>
   </div>
 </div>
@@ -670,386 +671,10 @@ const useSchoolVideo = () => {
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
-{/* Modern Hero Section - Optimized */}
-<section className="relative min-h-screen  flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900">
-  {/* Animated Background Gradient */}
-  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-cyan-900/20" />
-  
-  {/* Background Images */}
-  <div className="absolute inset-0">
-    {heroSlides.map((slide, index) => (
-      <div
-        key={index}
-        className={`absolute inset-0 transition-opacity duration-500 ${
-          currentSlide === index ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <Image
-          src={slide.image || "/im2.jpeg"}
-          alt={slide.title}
-          fill
-          className="object-cover"
-          priority={index === 0}
-          sizes="100vw"
-          quality={70}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/70 to-transparent" />
-      </div>
-    ))}
-  </div>
-  
-  {/* Reduced Floating Elements */}
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {[...Array(4)].map((_, i) => (
-      <div
-        key={i}
-        className="absolute w-1 h-1 bg-white/5 rounded-full"
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-        }}
-      />
-    ))}
-  </div>
-  
-  {/* Main Content */}
-  <div className="relative z-10 w-full px-3 py-8 sm:py-12 md:py-16">
-    <div className="max-w-6xl mx-auto">
-      <div className="grid lg:grid-cols-2 gap-6 md:gap-8 items-center">
-        
-        {/* Left Content */}
-        <div className="text-white space-y-4 md:space-y-6">
-          {/* Premium Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 text-xs font-medium text-white">
-            <div className="flex gap-0.5">
-              {[...Array(2)].map((_, i) => (
-                <FiStar key={i} className="text-amber-400 text-xs" />
-              ))}
-            </div>
-            <span>Excellence in Education</span>
-          </div>
 
-          {/* Main Heading */}
-          <div className="space-y-2">
-<h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white/90">
-  Welcome to 
-  <span className="bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-300 bg-clip-text text-transparent">
-    {" "}Nyaribu Secondary School 
-  </span>
-</h2>
-            
-            <h1 className="text-3xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white">
-              {heroSlides[currentSlide]?.title}
-            </h1>
-            
-            <p className="text-md sm:text-xl text-white">
-              {heroSlides[currentSlide]?.subtitle}
-            </p>
-          </div>
 
-          {/* Description */}
-          <p className="text-sm text-white leading-relaxed max-w-lg bg-white/5 rounded-xl p-3 border border-white/5">
-            {heroSlides[currentSlide]?.description}
-          </p>
+<Hero />
 
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {heroSlides[currentSlide]?.features?.slice(0, 4).map((feature, idx) => (
-              <div 
-                key={idx}
-                className="bg-white/5 rounded-lg p-2 border border-white/5"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                    <FiCheckCircle className="text-blue-300 text-xs" />
-                  </div>
-                  <span className="text-white text-xs">{feature}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Stats */}
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(heroSlides[currentSlide]?.stats || {}).slice(0, 3).map(([key, value]) => (
-              <div 
-                key={key}
-                className="bg-white/5 rounded-lg px-3 py-2 border border-white/5"
-              >
-                <div className="text-center">
-                  <div className="text-lg font-bold text-blue-300 mb-0.5">
-                    {value}
-                  </div>
-                  <div className="text-[9px] text-white/50 uppercase tracking-wider">
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 pt-4">
-            <button
-              onClick={handleAdmissionsClick}
-              className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg text-md"
-            >
-              <span className="flex items-center justify-center gap-2">
-                {heroSlides[currentSlide]?.cta}
-                <FiArrowRight className="text-xs" />
-              </span>
-            </button>
-
-            <button
-              onClick={handleWatchTour}
-              className="px-4 py-2 bg-white/5 text-white font-medium rounded-lg border border-white/10 text-md"
-            >
-              <span className="flex items-center justify-center gap-2">
-                <FiPlay className="text-xs" />
-                Virtual Tour
-              </span>
-            </button>
-          </div>
-        </div>
-
-    {/* Right Content - Modern Layout */}
-<div className="relative mt-6 lg:mt-0">
-  {/* Modern Glass Card with Gradient Border */}
-  <div className="relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] rounded-3xl p-6 border border-white/10 shadow-2xl shadow-blue-900/20 backdrop-blur-xl">
-    
-    {/* Background Glow Effect */}
-    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 rounded-3xl"></div>
-    
-    {/* Floating Elements */}
-    <div className="absolute -top-2 -right-2 w-16 h-16 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
-    <div className="absolute -bottom-2 -left-2 w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-full blur-xl"></div>
-    
-    <div className="relative z-10">
-      {/* Card Header with Icon Badge */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="relative">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <FiTarget className="text-white text-lg" />
-          </div>
-          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-white/90"></div>
-        </div>
-        <div>
-          <h3 className="text-xl font-bold text-white tracking-tight">School Overview</h3>
-          <p className="text-white/60 text-sm">Real-time metrics & insights</p>
-        </div>
-      </div>
-      
-      {/* Stats Grid - Modern Layout */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl blur-md group-hover:blur-xl transition-all duration-300"></div>
-          <div className="relative bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-sm hover:border-blue-400/30 transition-all duration-300">
-            <div className="flex items-center justify-center mb-3">
-              <div className="relative">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/30 to-blue-600/30 flex items-center justify-center">
-                  <FiUsers className="text-blue-300 text-xl" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center border-2 border-white/5">
-                  <span className="text-[10px] font-bold text-white">+</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">1,400+</div>
-              <div className="text-xs font-medium text-white/70 uppercase tracking-wider">Active Students</div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl blur-md group-hover:blur-xl transition-all duration-300"></div>
-          <div className="relative bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-sm hover:border-emerald-400/30 transition-all duration-300">
-            <div className="flex items-center justify-center mb-3">
-              <div className="relative">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/30 to-green-600/30 flex items-center justify-center">
-                  <FaChalkboardTeacher className="text-emerald-300 text-xl" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-white/5">
-                  <span className="text-[10px] font-bold text-white">★</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1 bg-gradient-to-r from-white to-emerald-100 bg-clip-text text-transparent">15+</div>
-              <div className="text-xs font-medium text-white/70 uppercase tracking-wider">Expert Staff</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Admission Status - Modern Card */}
-      <div className="relative mb-8 group">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-purple-500/10 rounded-2xl blur-md group-hover:blur-xl transition-all duration-300"></div>
-        <div className="relative bg-gradient-to-r from-purple-500/15 to-pink-500/15 rounded-2xl p-5 border border-purple-500/20 backdrop-blur-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <div className="text-white font-semibold text-sm mb-0.5">{new Date().getFullYear()} Admissions</div>
-              <div className="text-white text-xs">spots  are ready available</div>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-md"></div>
-              <div className="relative px-4 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs font-bold text-white shadow-lg shadow-purple-500/30">
-                Open Now
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FiCalendar className="text-white text-sm" />
-              <span className="text-white text-xs">Deadline:</span>
-            </div>
-       <div className="text-white font-medium text-xs px-3 py-1 bg-white/10 rounded-full">
-  Apply for {new Date().getFullYear()}
-</div>
-
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Links - Modern Design */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-white font-semibold text-sm">Quick Access</div>
-          <div className="text-[10px] text-white uppercase tracking-wider">Instant Navigation</div>
-        </div>
-        
-        <div className="space-y-3">
-          {[
-            { 
-              icon: FiCalendar, 
-              label: "Academic Calendar", 
-              gradient: "from-blue-500/20 to-cyan-500/20",
-              hoverGradient: "from-blue-500/30 to-cyan-500/30",
-              iconColor: "text-blue-300",
-              action: handleEventClick 
-            },
-            { 
-              icon: FiUsers, 
-              label: "Meet Our Staff", 
-              gradient: "from-emerald-500/20 to-green-500/20",
-              hoverGradient: "from-emerald-500/30 to-green-500/30",
-              iconColor: "text-emerald-300",
-              action: handleStaffClick 
-            },
-            { 
-              icon: FiBookOpen, 
-              label: "Admissions Info",
-              gradient: "from-purple-500/20 to-pink-500/20",
-              hoverGradient: "from-purple-500/30 to-pink-500/30",
-              iconColor: "text-purple-300",
-              action: handleAdmissionsClick 
-            },
-            { 
-              icon: FiPhoneCall, 
-              label: "Contact Us", 
-              gradient: "from-orange-500/20 to-yellow-500/20",
-              hoverGradient: "from-orange-500/30 to-yellow-500/30",
-              iconColor: "text-orange-300",
-              action: handleContactClick 
-            }
-          ].map((link, idx) => (
-            <button
-              key={idx}
-              onClick={link.action}
-              className="relative group w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {/* Background gradient on hover */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${link.gradient} rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-              
-              <div className="relative z-10 flex items-center gap-3 w-full">
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${link.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                  <link.icon className={`${link.iconColor} text-base`} />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="text-white font-medium text-sm">{link.label}</div>
-                  <div className="text-white text-xs">Click to explore →</div>
-                </div>
-                <FiArrowRight className="text-white group-hover:text-white transition-colors duration-300" />
-              </div>
-            </button>
-          ))}
-        </div>
-        
-        {/* Status Indicator */}
-        <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-            <span className="text-xs text-white">System Status:</span>
-          </div>
-          <span className="text-xs font-medium text-emerald-300 bg-emerald-500/10 px-2 py-1 rounded-full">
-            All Systems Operational
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-      </div>
-    </div>
-  </div>
-
-  {/* Navigation Controls */}
-  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-    <div className="flex items-center gap-2">
-      <button
-        onClick={prevSlide}
-        className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white text-xs"
-        aria-label="Previous slide"
-      >
-        <FiChevronLeft />
-      </button>
-      
-      {/* Progress Dots */}
-      <div className="flex gap-1">
-        {heroSlides.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setCurrentSlide(idx)}
-            className="w-1.5 h-1.5 rounded-full bg-white/20 data-[active=true]:bg-white"
-            data-active={currentSlide === idx}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
-        ))}
-      </div>
-      
-      <button
-        onClick={nextSlide}
-        className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white text-xs"
-        aria-label="Next slide"
-      >
-        <FiChevronRight />
-      </button>
-    </div>
-  </div>
-
-  {/* Bottom Section */}
-  <div className="absolute bottom-0 left-0 right-0 z-10 overflow-hidden pointer-events-none">
-    <svg 
-      className="w-full h-12" 
-      viewBox="0 0 1440 60" 
-      fill="none" 
-      preserveAspectRatio="none"
-    >
-      <path 
-        d="M0,60 L1440,60 L1440,0 C1200,30 960,20 720,40 C480,60 240,30 0,50 Z" 
-        className="fill-white/5"
-      />
-    </svg>
-  </div>
-
-  {/* Slide Counter */}
-  <div className="absolute bottom-4 right-4 z-20">
-    <div className="text-white/60 text-xs">
-      <span className="text-white font-bold">{currentSlide + 1}</span>
-      <span className="text-white/40">/{heroSlides.length}</span>
-    </div>
-  </div>
-</section>
 
      {/* Modern Value Proposition Section */}
 <section className="py-16 md:py-20 lg:py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50/20">
@@ -1189,7 +814,7 @@ const useSchoolVideo = () => {
         <div className={`absolute inset-0 bg-gradient-to-r ${value.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-lg`} />
         
         {/* Icon */}
-        <div className="absolute -left-1.5 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute -left-1.5 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {/* Text */}
         <span className="relative z-10">{feature}</span>
@@ -1305,7 +930,7 @@ const useSchoolVideo = () => {
     <div className="mb-12 md:mb-16">
       <div className="text-center mb-8">
         <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3">
-          Why Parents Choose Nyaribu Secondary school
+          Why Parents Choose Mary Immaculate Girls Secondary School
         </h3>
         <p className="text-sm text-gray-600 max-w-xl mx-auto">
           Discover what makes us the preferred choice for quality education
@@ -1651,7 +1276,7 @@ const useSchoolVideo = () => {
           </div>
           <button
             onClick={handleContactClick}
-            className="px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium rounded-lg hover:opacity-90 transition-all duration-300"
+            className="px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white font-medium rounded-lg hover:opacity-90 transition-all duration-300"
           >
             Get To Know Us More
           </button>

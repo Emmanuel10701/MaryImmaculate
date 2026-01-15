@@ -7,9 +7,7 @@ import {
   FiLogIn, FiEdit2, FiCheckCircle
 } from 'react-icons/fi';
 import { IoSchool } from 'react-icons/io5';
-
 import CircularProgress from "@mui/material/CircularProgress";
-
 
 export default function StudentLoginModal({ 
   isOpen, 
@@ -99,26 +97,26 @@ export default function StudentLoginModal({
     }
   };
 
-  // Updated with Kamba names
+  // Updated with Kikuyu girls names from Central Province
   const studentExamples = [
-    { name: "Musau Mwanzia Mutuku", admission: "2903" },
-    { name: "Mwende Mumbua Kalondu", admission: "2902" },
-    { name: "Mwikali Kasimu", admission: "1234" },
-    { name: "Mutinda Kitheka", admission: "5678" },
-    { name: "Kalondu Mutua", admission: "9012" }
+    { name: "Wanjiru Nyambura Muthoni", admission: "2901" },
+    { name: "Wambui Wanjiku Njeri", admission: "2902" },
+    { name: "Nyokabi Wangari Karimi", admission: "1234" },
+    { name: "Muthoni Wairimu Gathoni", admission: "5678" },
+    { name: "Njeri Wangui Wambui", admission: "9012" }
   ];
 
   const nameFormats = [
-    "Musau Mutuku",
-    "Musau Mwanzia Mutuku", 
-    "MUSAU MUTUKU",
-    "musau mutuku",
-    "M. Mutuku",
-    "Mutuku Musau",
-    "Mwanzia Mutuku",
-    "Mwende Mumbua",
-    "Mumbua Kalondu",
-    "Mwikali Kasimu"
+    "Wanjiru Muthoni",
+    "Wanjiru Nyambura Muthoni", 
+    "WANJIRU MUTHONI",
+    "wanjiru muthoni",
+    "W. Muthoni",
+    "Muthoni Wanjiru",
+    "Nyambura Muthoni",
+    "Wambui Wanjiku",
+    "Wanjiku Njeri",
+    "Nyokabi Wangari"
   ];
 
   return (
@@ -138,8 +136,8 @@ export default function StudentLoginModal({
                 <IoSchool className="text-lg sm:text-xl" aria-hidden="true" />
               </figure>
               <div>
-                <h1 id="login-modal-title" className="text-lg sm:text-xl font-bold">Student Login Portal</h1>
-                <p id="login-modal-description" className="text-blue-100/90 text-xs mt-0.5">Access Katwanyaa Portal learning resources</p>
+                <h1 id="login-modal-title" className="text-lg sm:text-xl font-bold">Mweiga Girls Student Portal</h1>
+                <p id="login-modal-description" className="text-blue-100/90 text-xs mt-0.5">Access Mweiga Girls learning resources</p>
               </div>
             </div>
             <button 
@@ -242,7 +240,7 @@ export default function StudentLoginModal({
 
               <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg p-2.5 sm:p-3 border border-blue-200">
                 <p className="text-blue-700 text-xs">
-                  <strong>Note:</strong> Use official admission number. Names in any format to access Katwanyaa Portal.
+                  <strong>Note:</strong> Use official admission number. Names in any format to access Mweiga Girls Portal.
                 </p>
               </div>
             </div>
@@ -263,7 +261,7 @@ export default function StudentLoginModal({
                   type="text"
                   value={formData.fullName}
                   onChange={(e) => handleInputChange('fullName', e.target.value)}
-                  placeholder="Examples: Musau Mutuku, MUSAU MUTUKU, M. Mutuku, Mutuku Musau"
+                  placeholder="Examples: Wanjiru Muthoni, WANJIRU MUTHONI, W. Muthoni, Muthoni Wanjiru"
                   className={`
                     w-full px-3 py-2.5 sm:px-4 sm:py-3 
                     border-[3px] rounded-xl
@@ -364,7 +362,7 @@ export default function StudentLoginModal({
                 <div className="mt-1.5">
                   <p className="text-gray-500 text-[10px] mb-1">Format: 2-10 letters/numbers</p>
                   <div className="flex flex-wrap gap-1">
-                    {['1234', 'AB12', '2023001', 'STU456', 'KM001'].map((example, idx) => (
+                    {['1234', 'MG001', '2023001', 'STU456', 'MW001'].map((example, idx) => (
                       <button
                         key={idx}
                         type="button"
@@ -449,7 +447,7 @@ export default function StudentLoginModal({
                     active:scale-[0.98]
                     transform hover:-translate-y-0.5
                   "
-                  aria-label="Login to Katwanyaa Portal"
+                  aria-label="Login to Mweiga Girls Portal"
                 >
                   {isLoading ? (
                     <span className="flex items-center gap-2">
@@ -459,7 +457,7 @@ export default function StudentLoginModal({
                   ) : (
                     <span className="flex items-center gap-2">
                       <FiLogIn className="text-sm" aria-hidden="true" />
-                      <span>Login  o Portal</span>
+                      <span>Login to Portal</span>
                     </span>
                   )}
                 </button>
@@ -468,7 +466,7 @@ export default function StudentLoginModal({
 
             {/* Features - Compact */}
             <section className="mt-3 sm:mt-4 pt-3 border-t border-gray-200">
-              <h3 className="sr-only">Katwanyaa Portal Features</h3>
+              <h3 className="sr-only">Mweiga Girls Portal Features</h3>
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <div className="text-center p-1.5 sm:p-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
                   <FiBook className="text-blue-600 text-xs sm:text-sm mx-auto mb-1" aria-hidden="true" />
@@ -490,7 +488,7 @@ export default function StudentLoginModal({
         {/* Footer - Compact */}
         <footer className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 flex-shrink-0">
           <p className="text-center text-gray-600 text-[10px] sm:text-xs">
-            For assistance with Katwanyaa Portal: Contact class teacher or school office
+            For assistance with Mweiga Girls Portal: Contact class teacher or school office
           </p>
         </footer>
       </main>

@@ -15,7 +15,7 @@ import Header from "../../components/apply/page.jsx";
 // Kenya administrative data
 import kenyaData from '../../../public/data.json';
 
-const NyaribuAdmission = () => {
+const MarryImmaculate = () => {
   const [formData, setFormData] = useState({
     // Personal Information
     firstName: '',
@@ -290,8 +290,8 @@ const NyaribuAdmission = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Nyaribu Secondary School Admission - ${applicationNumber}`,
-          text: `I've submitted my admission application to Nyaribu Secondary School. Application Number: ${applicationNumber}`,
+          title: `Mary Immaculate Girls' high School Admission - ${applicationNumber}`,
+          text: `I've submitted my admission application to Mary Immaculate Girls' high School. Application Number: ${applicationNumber}`,
           url: window.location.href,
         });
       } catch (error) {
@@ -664,7 +664,7 @@ const NyaribuAdmission = () => {
                       </h4>
                       <div className="text-sm text-gray-600 space-y-2 font-medium">
                         <p>Admissions Office: <strong>0712 345 678</strong></p>
-                        <p>Email: <strong>admissions@nyaribu.ac.ke</strong></p>
+                        <p>Email: <strong>admissions@maryImaculate.ac.ke</strong></p>
                         <p>Office Hours: Mon-Fri, 8:00 AM - 5:00 PM</p>
                       </div>
                     </div>
@@ -1550,7 +1550,7 @@ const NyaribuAdmission = () => {
                             className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 mt-1"
                           />
                           <span className="text-gray-800 font-semibold">
-                            I agree to the terms and conditions of Nyaribu Secondary School's admission process and understand that providing false information may lead to disqualification.
+                            I agree to the terms and conditions of Mary Immaculate Girls' high School's admission process and understand that providing false information may lead to disqualification.
                           </span>
                         </label>
                         <label className="flex items-start space-x-3 cursor-pointer">
@@ -1642,7 +1642,7 @@ const NyaribuAdmission = () => {
               </div>
               <div className="flex items-center">
                 <FiMail className="mr-2 text-green-600" />
-                <span>Email: <strong className="text-gray-900">admissions@nyaribu.ac.ke</strong></span>
+                <span>Email: <strong className="text-gray-900">admissions@maryImaculate.ac.ke</strong></span>
               </div>
               <div className="flex items-center">
                 <FiHome className="mr-2 text-purple-600" />
@@ -1652,7 +1652,7 @@ const NyaribuAdmission = () => {
           </div>
           
           <p className="text-gray-600 text-sm font-semibold">
-            © {new Date().getFullYear()} Nyaribu Secondary School. Excellence Through Discipline and Diligence.
+            © {new Date().getFullYear()} Mary Immaculate Girls' High School. Excellence Through Discipline and Diligence.
           </p>
           <p className="text-gray-500 text-xs mt-2 font-medium">
             All applications are processed in accordance with our privacy policy and data protection regulations.
@@ -1663,4 +1663,4 @@ const NyaribuAdmission = () => {
   );
 };
 
-export default NyaribuAdmission;
+export default MarryImmaculate;

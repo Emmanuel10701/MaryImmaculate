@@ -707,7 +707,7 @@ const SubjectCard = ({ subject, index }) => {
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-4 transition-all duration-300">
       <div className="flex items-center gap-3 mb-3">
-        <div className="p-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-sm">
+        <div className="p-2.5 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 rounded-xl shadow-sm">
           <SubjectIcon className="text-white text-lg" />
         </div>
         <div>
@@ -883,7 +883,7 @@ const VideoTourSection = ({ videoTour, videoType, videoThumbnail }) => {
   return (
     <div className="bg-gradient-to-br from-white to-slate-50/50 rounded-2xl md:rounded-3xl border border-slate-100/80 shadow-lg overflow-hidden">
       {/* Header Section */}
-      <div className="relative p-4 md:p-8 bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+      <div className="relative p-4 md:p-8 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 blur-[60px] rounded-full -mr-24 -mt-24"></div>
         
         <div className="relative z-10 flex items-center justify-between">
@@ -1041,7 +1041,7 @@ const ModernUniformRequirementsSection = ({ admissionFeeDistribution, admissionF
   return (
     <div className="bg-gradient-to-br from-white to-slate-50/50 rounded-2xl md:rounded-3xl border border-slate-100/80 shadow-lg overflow-hidden">
       {/* Header Section */}
-      <div className={`relative p-4 md:p-8 bg-gradient-to-r from-blue-500 to-cyan-500 text-white`}>
+      <div className={`relative p-4 md:p-8 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white`}>
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full -mr-32 -mt-32"></div>
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
@@ -1122,7 +1122,7 @@ const ModernUniformRequirementsSection = ({ admissionFeeDistribution, admissionF
           <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-slate-100">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
+                <div className="p-2.5 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 rounded-lg">
                   <FiDollarSign className="text-white text-xl" />
                 </div>
           <div>
@@ -1934,7 +1934,7 @@ export default function ComprehensiveAdmissions() {
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 md:mb-10 pb-6 md:pb-8 border-b border-slate-200/60">
                   <div className="flex-1">
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-full border border-blue-100/80 mb-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-900 via-orange-900 to-red-900"></div>
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-700">
                         Our Advantages
                       </span>
@@ -2048,7 +2048,7 @@ export default function ComprehensiveAdmissions() {
                       Academic <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Programs</span>
                     </h2>
                     <p className="text-slate-500 text-base md:text-xl font-medium leading-relaxed">
-                      Nyaribu Secondary offers a future-ready curriculum designed to cultivate critical thinking, 
+                     Mary Immaculate Girlsoffers a future-ready curriculum designed to cultivate critical thinking, 
                       innovation, and global leadership.
                     </p>
                   </div>
@@ -2331,7 +2331,7 @@ export default function ComprehensiveAdmissions() {
                 <div className="flex items-center justify-between mb-6 md:mb-8">
                   <div>
                     <div className="flex items-center gap-2 md:gap-3 mb-2">
-                      <div className="p-2 md:p-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-sm">
+                      <div className="p-2 md:p-2.5 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 rounded-xl shadow-sm">
                         <IoDocumentTextOutline className="text-white text-lg md:text-xl" />
                       </div>
                       <h3 className="text-xl md:text-2xl font-bold text-slate-900">Required Documents</h3>
@@ -2353,7 +2353,7 @@ export default function ComprehensiveAdmissions() {
                       <div className="flex items-center gap-3 md:gap-4">
                         <div className="relative">
                           <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center">
-                            <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                            <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 flex items-center justify-center">
                               <IoDocumentTextOutline className="text-white text-xs md:text-sm" />
                             </div>
                           </div>
@@ -2400,7 +2400,7 @@ export default function ComprehensiveAdmissions() {
                       className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-6 transition-all duration-300"
                     >
                       {/* Step Number */}
-                      <div className="absolute -top-2 -left-2 md:-top-3 md:-left-3 w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-base md:text-lg shadow-lg">
+                      <div className="absolute -top-2 -left-2 md:-top-3 md:-left-3 w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 flex items-center justify-center text-white font-bold text-base md:text-lg shadow-lg">
                         {step.step}
                       </div>
                       
@@ -2432,8 +2432,8 @@ export default function ComprehensiveAdmissions() {
 
                       {/* Connector Line for Desktop */}
                       {index < transferProcess.length - 1 && (
-                        <div className="hidden lg:block absolute -right-3 top-1/2 w-6 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 transform translate-x-full -translate-y-1/2">
-                          <div className="absolute -right-2 top-1/2 w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transform -translate-y-1/2 animate-pulse"></div>
+                        <div className="hidden lg:block absolute -right-3 top-1/2 w-6 h-0.5 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 transform translate-x-full -translate-y-1/2">
+                          <div className="absolute -right-2 top-1/2 w-4 h-4 rounded-full bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 transform -translate-y-1/2 animate-pulse"></div>
                         </div>
                       )}
                     </div>
@@ -2454,7 +2454,7 @@ export default function ComprehensiveAdmissions() {
                     </div>
                     <button 
                       onClick={() => router.push('/pages/apply-for-admissions')}
-                      className="px-4 py-3 md:px-6 md:py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-bold transition-all duration-200 shadow-lg"
+                      className="px-4 py-3 md:px-6 md:py-3 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-xl font-bold transition-all duration-200 shadow-lg"
                     >
                       Start Transfer Process
                     </button>
@@ -2601,7 +2601,7 @@ export default function ComprehensiveAdmissions() {
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 md:gap-8">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 md:gap-4 mb-4">
-                      <div className="p-2 md:p-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl md:rounded-2xl">
+                      <div className="p-2 md:p-3 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 rounded-xl md:rounded-2xl">
                         <FiMessageCircle className="text-white text-lg md:text-xl" />
                       </div>
                       <div>
