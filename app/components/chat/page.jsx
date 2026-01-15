@@ -73,31 +73,30 @@ const staticCategories = {
   general: {
     name: "Overview",
     icon: 'school',
-    content: `MARY IMMACULATE
+    content: `MWEIGA GIRLS HIGH SCHOOL
 
-**A Public Day School**
+**A Public Girls Boarding School**
 
 Quick Facts:
-• Established: 1985
-• Location: Kiganjo, Nyeri
-• Students: 400+
-• Staff: 30+
+• Established: 1978
+• Location: Mweiga, Nyeri County
+• Students: 1100+ (Boarding)
+• Staff: 80+
+• Motto: "Striving for Excellence"
 
 School Type:
-• Public Day School
-• Mixed (Boys & Girls)
-• 8-4-4 Curriculum
+• Public Girls Boarding School
+• 8-4-4 & CBC Curriculum
+• Girls only institution
 
 Contact:
-• Phone: +254 720 123 456
-• Email: info@nyaribusecondary.sc.ke
-• Address: P.O. Box 123-10100
+• Phone: +254 724 567 890
+• Email: info@mweigagirlshigh.sc.ke
+• Address: P.O. Box 456-10100, Mweiga, Nyeri
 
 Hours:
-• Mon-Fri: 7:30 AM - 5:00 PM
-• Sat: 8:00 AM - 1:00 PM
-
-Learn more by selecting other categories!`,
+• Administrative: Mon-Fri: 8:00 AM - 5:00 PM
+• School: Full boarding (Term Time)`,
     links: [
       { label: 'About', path: '/pages/AboutUs', icon: 'info' },
       { label: 'Overview', path: '/pages/overview', icon: 'grid' }
@@ -108,29 +107,30 @@ Learn more by selecting other categories!`,
     icon: 'file',
     content: `📋 ADMISSIONS
 
+**Boarding School Admissions**
+
 Requirements:
-• KCPE: 250+ Marks
+• KCPE: 280+ Marks
 • Age: 13-16 years
-• Good conduct
+• Good conduct and discipline
+• Medical fitness for boarding
 
 Documents:
-1. KCPE certificate
+1. KCPE certificate (Original & Copy)
 2. Birth certificate
-3. School reports
-4. Passport photos
+3. School leaving certificate
+4. 4 passport photos
 5. Medical report
+6. Parents/Guardian ID copies
 
-Steps:
-1. Get form
-2. Submit docs
-3. Assessment
-4. Interview
-5. Admission
+**Admission Process:**
+1. Application form collection
+2. Document submission
+3. Entrance assessment
+4. Interview with parents
+5. Admission confirmation
 
-Transfer Students:
-• Forms 2 & 3
-• Good record
-• Limited spaces`,
+**Limited vacancies available for Forms 2 & 3 transfers based on performance.**`,
     links: [
       { label: 'Admissions', path: '/pages/admissions', icon: 'file' },
       { label: 'Apply Now', path: '/pages/applyadmission', icon: 'user' }
@@ -139,29 +139,28 @@ Transfer Students:
   fees: {
     name: "Fees",
     icon: 'dollar',
-    content: `💰 FEES 2024
+    content: `💰 BOARDING SCHOOL FEES 2024
 
-Day School Fees (Term):
-• Tuition: KES 12,000
-• Activities: KES 2,000
-• Total: KES 14,000
+**Boarding Fees (Per Term):**
+• Tuition: KES 18,000
+• Boarding: KES 22,000
+• Activities: KES 3,500
+• **Total: KES 43,500**
 
-Optional:
-• Lunch: KES 4,500
-• Transport: Varies
+**Inclusive of:**
+• Full boarding accommodation
+• Three balanced meals daily
+• Academic materials
+• Sports facilities
+• Medical care (basic)
 
-Payment:
-• Bank Transfer
-• M-Pesa: 123456
-• Cash
-• Installment plans
+**Payment Options:**
+• Bank Transfer: Mweiga Girls High School
+• M-Pesa Paybill: 123456
+• Installment plans available
+• Government scholarships for needy students
 
-Scholarships:
-• Academic
-• Sports
-• Needy
-
-Affordable quality education!`,
+**Note:** Fees are payable at the beginning of each term.`,
     links: [
       { label: 'Student Portal', path: '/pages/StudentPortal', icon: 'book' }
     ]
@@ -171,32 +170,29 @@ Affordable quality education!`,
     icon: 'book',
     content: `📚 ACADEMICS
 
-Curriculum: 8-4-4 System
+**Dual Curriculum System:**
+• 8-4-4 Curriculum (Forms 1-4)
+• CBC Implementation (Junior Secondary)
 
-Form 1 & 2 (Core):
-• English • Kiswahili
-• Mathematics • Sciences
-• Humanities • Business
-• Computer Studies
-• Life Skills
+**Subjects Offered:**
+• Core: English, Kiswahili, Mathematics
+• Sciences: Biology, Chemistry, Physics
+• Humanities: History, Geography, CRE
+• Business: Business Studies, Computer Studies
+• Technical: Home Science, Agriculture
 
-Streams (Form 3/4):
-1. Sciences
-2. Humanities
-3. Business
+**Academic Streams (Form 3/4):**
+1. Sciences (Biology & Chemistry)
+2. Humanities (History & Geography)
+3. Business/Technical
 
-Features:
-• Computer Lab
-• Science Labs
-• Library
-• Career Guidance
-• Remedial Classes
-
-Exams:
-• CATs • Term
-• Mock • KCSE
-
-Quality education for all!`,
+**Special Features:**
+• Modern Science Laboratories
+• Computer Lab with 40+ computers
+• Well-stocked Library
+• Career Guidance Center
+• Remedial & Tuition Program
+• CBC Competency-Based Assessment`,
     links: [
       { label: 'Academics', path: '/pages/academics', icon: 'book' },
       { label: 'Guidance & Counselling', path: '/pages/Guidance-and-Councelling', icon: 'users' }
@@ -214,33 +210,37 @@ Quality education for all!`,
   activities: {
     name: "Activities",
     icon: 'activity',
-    content: `⚽ ACTIVITIES
+    content: `⚽ CO-CURRICULAR ACTIVITIES
 
-Sports:
-• Football
-• Basketball
+**Sports Program:**
+• Netball (County Champions)
 • Volleyball
 • Athletics
+• Handball
 • Table Tennis
+• Badminton
 
-Clubs:
-1. Science Club
-2. Drama Club
-3. Music Club
-4. Environmental Club
-5. Debate Club
+**Clubs & Societies:**
+1. Science & Mathematics Club
+2. Drama & Music Club
+3. Environmental Club
+4. Debate & Public Speaking
+5. Young Farmers Club
+6. Christian Union
+7. Journalism Club
 
-Competitions:
-• Music Festivals
-• Sports Days
-• Science Fairs
-• Academic Contests
+**Competitions:**
+• National Music Festivals
+• Science & Engineering Fair
+• Drama Festivals
+• Sports Championships
+• Academic Olympiads
 
-Leadership:
-• Student Council
-• Class Prefects
-• Club Leaders
-• Peer Counselors`,
+**Leadership Development:**
+• Prefectorial Board
+• Club Leadership
+• Peer Counseling
+• Mentorship Programs`,
     links: [
       { label: 'News & Events', path: '/pages/eventsandnews', icon: 'calendar' },
       { label: 'Sports', path: '/pages/sports', icon: 'activity' }
@@ -249,29 +249,29 @@ Leadership:
   achievements: {
     name: "Achievements",
     icon: 'award',
-    content: `🏆 ACHIEVEMENTS
+    content: `🏆 SCHOOL ACHIEVEMENTS
 
-Academic:
-• 2023 KCSE: B-
-• 85% University placement
-• Consistent improvement
-• Subject awards
+**Academic Excellence:**
+• 2023 KCSE Mean Grade: B+
+• 92% University Qualification Rate
+• 15 Straight A's in 2023 KCSE
+• Consistent Top 10 in Nyeri County
 
-Sports:
-• County champions (Football)
-• Regional athletics medals
-• Basketball trophies
-• Sportsmanship awards
+**Sports Achievements:**
+• County Netball Champions 2022, 2023
+• Regional Athletics Gold Medalists
+• National Volleyball Finalists
+• Sportsmanship Awards
 
-Talent:
-• Music festival winners
-• Drama competition finalists
-• Art exhibition participants
+**Talent Development:**
+• National Music Festival Winners
+• Drama Festivals County Champions
+• Art & Design Exhibition Awards
 
-Community:
-• Cleanest school award
-• Environmental champions
-• Community service awards`,
+**School Recognition:**
+• Best Managed Boarding School Award
+• Environmental Conservation Award
+• Academic Improvement Award 2023`,
     links: [
       { label: 'News & Events', path: '/pages/eventsandnews', icon: 'calendar' },
       { label: 'Results', path: '/results', icon: 'award' }
@@ -282,25 +282,29 @@ Community:
     icon: 'phone',
     content: `📞 CONTACT US
 
-Administration:
-• Principal: Mr. Mwangi
-• Deputy Principal (Academics)
-• Deputy Principal (Administration)
-• Bursar: Mrs. Njeri
+**School Administration:**
+• Principal: Mrs. Jane Wanjiku
+• Deputy Principal (Academics): Mr. James Kariuki
+• Deputy Principal (Administration): Mrs. Sarah Muthoni
+• Boarding Mistress: Mrs. Grace Nyambura
 
-Contacts:
-• Phone: +254 720 123 456
-• Email: info@nyaribusecondary.sc.ke
-• Admissions: admissions@nyaribusecondary.sc.ke
+**Contact Information:**
+• School Phone: +254 724 567 890
+• Principal's Office: +254 723 456 789
+• Email: info@mweigagirlshigh.sc.ke
+• Admissions: admissions@mweigagirlshigh.sc.ke
+• Bursar: bursar@mweigagirlshigh.sc.ke
 
-Address:
-Mary Immaculate girls School
-Kiganjo, Nyeri County
-P.O. Box 123-10100
+**Physical Address:**
+Mweiga Girls High School
+Along Nyeri-Nyahururu Road
+Mweiga Township, Nyeri County
+P.O. Box 456-10100, Mweiga
 
-Office Hours:
+**Office Hours:**
 • Monday-Friday: 8:00 AM - 5:00 PM
-• Saturday: 8:00 AM - 1:00 PM`,
+• Saturday: 9:00 AM - 1:00 PM
+• School Visits by Appointment`,
     links: [
       { label: 'Contact', path: '/pages/contact', icon: 'phone' },
       { label: 'Staff Directory', path: '/pages/staff', icon: 'users' },
@@ -370,24 +374,20 @@ ${schoolData.admissionRequirements || 'Please contact admissions office for spec
     fees: {
       name: "Fees",
       icon: 'dollar',
-      content: `💰 FEE STRUCTURE
+      content: `💰 BOARDING SCHOOL FEE STRUCTURE
 
-**Day School Fees (Per Term):** KES ${schoolData.feesDay.toLocaleString()}
-
-**Day Fee Distribution:**
-${Object.entries(schoolData.feesDayDistribution || {}).map(([key, value]) => `• ${key}: KES ${value.toLocaleString()}`).join('\n')}
-
-**Boarding School Fees (Per Term):** KES ${schoolData.feesBoarding.toLocaleString()}
+**Boarding School Fees (Per Term):** KES ${schoolData.feesBoarding ? schoolData.feesBoarding.toLocaleString() : '43,500'}
 
 **Boarding Fee Distribution:**
-${Object.entries(schoolData.feesBoardingDistribution || {}).map(([key, value]) => `• ${key}: KES ${value.toLocaleString()}`).join('\n')}
+${schoolData.feesBoardingDistribution ? Object.entries(schoolData.feesBoardingDistribution).map(([key, value]) => `• ${key}: KES ${value.toLocaleString()}`).join('\n') : `• Tuition: KES 18,000\n• Boarding: KES 22,000\n• Activities: KES 3,500`}
 
 **Payment Information:**
 • Detailed fee structure available for download
 • Multiple payment options available
-• Contact bursar for payment plans
+• Installment plans upon request
+• Contact bursar for payment arrangements
 
-**Note:** All fees are subject to review as per school policies.`,
+**Note:** All fees are payable at the beginning of each term.`,
       links: staticCategories.fees.links
     },
     academics: {
@@ -395,25 +395,31 @@ ${Object.entries(schoolData.feesBoardingDistribution || {}).map(([key, value]) =
       icon: 'book',
       content: `📚 ACADEMIC PROGRAM
 
+**Dual Curriculum:**
+• 8-4-4 System (Forms 1-4)
+• CBC Implementation (Junior Secondary)
+
 **Subjects Offered:**
-${schoolData.subjects.map(subject => `• ${subject}`).join('\n')}
+${schoolData.subjects ? schoolData.subjects.map(subject => `• ${subject}`).join('\n') : `• English • Kiswahili • Mathematics\n• Biology • Chemistry • Physics\n• History • Geography • CRE\n• Business Studies • Computer Studies\n• Home Science • Agriculture`}
 
 **Academic Departments:**
-${schoolData.departments.map(dept => `• ${dept}`).join('\n')}
+${schoolData.departments ? schoolData.departments.map(dept => `• ${dept}`).join('\n') : `• Languages Department\n• Mathematics Department\n• Sciences Department\n• Humanities Department\n• Technical Department`}
 
 **Curriculum:**
 • Comprehensive 8-4-4 curriculum
-• Download curriculum details: ${schoolData.curriculumPdfName}
+• CBC competency-based education
+• Download curriculum details: ${schoolData.curriculumPdfName || 'mweiga-girls-curriculum.pdf'}
 
 **Examination Results:**
-• KCSE ${schoolData.examResults?.kcse?.year} results available
+• KCSE ${schoolData.examResults?.kcse?.year || '2023'} results available
 • Download performance reports
 • Continuous assessment and monitoring
 
 **Academic Support:**
 • Regular assessments and evaluations
 • Remedial classes
-• Career guidance programs`,
+• Career guidance programs
+• CBC competency tracking`,
       links: staticCategories.academics.links
     },
     facilities: {
@@ -429,23 +435,26 @@ ${schoolData.departments.map(dept => `• ${dept}`).join('\n')}
       content: `🏆 SCHOOL ACHIEVEMENTS
 
 **Academic Excellence:**
-• KCSE ${schoolData.examResults?.kcse?.year} results documented
+• KCSE ${schoolData.examResults?.kcse?.year || '2023'} results documented
 • Consistent academic improvement
 • Subject specialization achievements
+• University placement success
 
 **Examination Results:**
-• Download KCSE results: ${schoolData.examResults?.kcse?.name}
+• Download KCSE results: ${schoolData.examResults?.kcse?.name || 'mweiga-girls-kcse-2023.pdf'}
 • Additional performance reports available
 
 **Student Success:**
 • Holistic development focus
 • Talent nurturing programs
 • Leadership development initiatives
+• Sports and co-curricular achievements
 
 **Quality Assurance:**
 • Regular academic reviews
 • Performance tracking systems
-• Continuous improvement programs`,
+• Continuous improvement programs
+• Boarding school excellence standards`,
       links: staticCategories.achievements.links
     },
     contact: {
@@ -454,13 +463,13 @@ ${schoolData.departments.map(dept => `• ${dept}`).join('\n')}
       content: `📞 CONTACT INFORMATION
 
 **School Contacts:**
-• Phone: ${schoolData.admissionContactPhone}
-• Email: ${schoolData.admissionContactEmail}
-• Location: ${schoolData.admissionLocation}
-• Website: ${schoolData.admissionWebsite}
+• Phone: ${schoolData.admissionContactPhone || '+254 724 567 890'}
+• Email: ${schoolData.admissionContactEmail || 'info@mweigagirlshigh.sc.ke'}
+• Location: ${schoolData.admissionLocation || 'Mweiga Township, Nyeri County'}
+• Website: ${schoolData.admissionWebsite || 'www.mweigagirlshigh.sc.ke'}
 
 **Office Hours:**
-${schoolData.admissionOfficeHours}
+${schoolData.admissionOfficeHours || 'Monday-Friday: 8:00 AM - 5:00 PM | Saturday: 9:00 AM - 1:00 PM'}
 
 **Administration:**
 • Comprehensive administrative support
@@ -615,7 +624,7 @@ export default function ChatBot() {
   }, []);
 
   useEffect(() => {
-    const chatData = localStorage.getItem('nyaribu_chat');
+    const chatData = localStorage.getItem('mweigagirls_chat');
     if (chatData) {
       const { messages: savedMessages, timestamp } = JSON.parse(chatData);
       const fourHoursAgo = Date.now() - (4 * 60 * 60 * 1000);
@@ -623,7 +632,7 @@ export default function ChatBot() {
       if (timestamp > fourHoursAgo) {
         setMessages(savedMessages);
       } else {
-        localStorage.removeItem('nyaribu_chat');
+        localStorage.removeItem('mweigagirls_chat');
         setMessages([getWelcomeMessage()]);
       }
     } else {
@@ -632,24 +641,24 @@ export default function ChatBot() {
   }, []);
 
   const getWelcomeMessage = () => {
-    const schoolName = schoolData?.name || 'NYARIBU SECONDARY SCHOOL';
-    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**SOARING FOR EXCELLENCE** ✨';
-    const studentCount = schoolData?.studentCount || '400+';
-    const staffCount = schoolData?.staffCount || '30+';
+    const schoolName = schoolData?.name || 'MWEIGA GIRLS HIGH SCHOOL';
+    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**STRIVING FOR EXCELLENCE** ✨';
+    const studentCount = schoolData?.studentCount || '1100+';
+    const staffCount = schoolData?.staffCount || '80+';
     
     return {
       id: 1,
       role: 'assistant',
       content: `🎓 WELCOME TO ${schoolName.toUpperCase()}!${motto}
 
-Hello! I'm Nyari, your assistant.
+Hello! I'm the Mweiga Girls Assistant.
 
 About Our School:
-• Public Day School (Mixed)
-• Established: 1985
-• Location: Kiganjo, Nyeri
-• Students: ${studentCount} | Teachers: ${staffCount}
-• 8-4-4 Curriculum System
+• Public Girls Boarding School
+• Established: 1978
+• Location: Mweiga, Nyeri County
+• Students: ${studentCount} (Boarding) | Staff: ${staffCount}
+• Dual Curriculum: 8-4-4 & CBC System
 
 ${schoolData ? 'For the most current information, choose a category below! 👇' : 'Choose a category below to learn more! 👇'}`,
       links: [
@@ -667,7 +676,7 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
         messages: messages,
         timestamp: Date.now()
       };
-      localStorage.setItem('nyaribu_chat', JSON.stringify(chatData));
+      localStorage.setItem('mweigagirls_chat', JSON.stringify(chatData));
     }
   }, [messages]);
 
@@ -742,7 +751,7 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
   };
 
   const clearChat = () => {
-    localStorage.removeItem('nyaribu_chat');
+    localStorage.removeItem('mweigagirls_chat');
     setMessages([getWelcomeMessage()]);
     setShowCategories(true);
   };
@@ -795,17 +804,17 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white flex-shrink-0">
                   <img 
                     src="/ll.png" 
-                    alt="Nyaribu Secondary School Logo" 
+                    alt="Mweiga Girls High School Logo" 
                     className="w-full h-full object-cover"
                     style={{ imageRendering: 'auto' }}
                   />
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-lg sm:text-xl font-bold text-white truncate">
-                    {schoolData?.name || 'Nyaribu Secondary School'}
+                    {schoolData?.name || 'Mweiga Girls High School'}
                   </h3>
                   <p className="text-blue-200 text-xs sm:text-sm truncate">
-                    {schoolData?.motto || 'Soaring for Excellence'}
+                    {schoolData?.motto || 'Striving for Excellence'}
                   </p>
                 </div>
               </div>

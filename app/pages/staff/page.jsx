@@ -486,7 +486,7 @@ export default function StaffDirectory() {
           bio: staff.bio,
           responsibilities: staff.responsibilities || [],
           achievements: staff.achievements || [],
-          location: 'Nyaribu School',
+          location: 'Mary ImmaculateSchool',
           joinDate: '2020'
         }));
         
@@ -626,7 +626,7 @@ export default function StaffDirectory() {
               </div>
               <div className="hidden sm:block">
                 <span className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-blue-600 bg-clip-text text-transparent">
-                  Nyaribu Staff
+                  Mary ImmaculateStaff
                 </span>
                 <p className="text-xs text-gray-500 mt-0.5">Soaring in Education</p>
               </div>

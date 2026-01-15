@@ -105,21 +105,21 @@ export default function ContactPage() {
       icon: <User className="w-4 h-4" />,
       title: 'Apply for Admission',
       description: 'Start your application process',
-      link: '/apply-for-admissions',
+      link: '/pages/apply-for-admissions',
       color: 'orange'
     },
     {
       icon: <Calendar className="w-4 h-4" />,
       title: 'View Events Calendar',
       description: 'See upcoming school events',
-      link: '/eventsandnews',
+      link: '/pages/eventsandnews',
       color: 'amber'
     },
     {
       icon: <Book className="w-4 h-4" />,
       title: 'Explore Programs',
       description: 'Discover academic offerings',
-      link: '/admissions',
+      link: '/pages/admissions',
       color: 'red'
     },
     {

@@ -125,7 +125,7 @@ export default function ModernGallery() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [favorites, setFavorites] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('Nyaribu-gallery-favorites');
+      const saved = localStorage.getItem('Mary-Immaculate-gallery-favorites');
       return saved ? new Set(JSON.parse(saved)) : new Set();
     }
     return new Set();
@@ -150,7 +150,7 @@ export default function ModernGallery() {
 
   // School Information
   const schoolInfo = {
-    name: "Nyaribu Secondary School",
+    name: "Mary ImmaculateSecondary School",
     motto: "Discipline, Diligence, Excellence",
     established: 1982,
     students: 1450,
@@ -162,7 +162,7 @@ export default function ModernGallery() {
   // Save favorites to localStorage whenever they change
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('Nyaribu-gallery-favorites', JSON.stringify(Array.from(favorites)));
+      localStorage.setItem('Mary-Immaculate-gallery-favorites', JSON.stringify(Array.from(favorites)));
     }
   }, [favorites]);
 
@@ -746,7 +746,7 @@ export default function ModernGallery() {
   // Share functions
   const shareOnWhatsApp = () => {
     if (!selectedMedia) return;
-    const text = `Check out "${selectedMedia.title}" fromMary Immaculate GirlsSchool Gallery!`;
+    const text = `Check out "${selectedMedia.title}" from Mary Immaculate GirlsSchool Gallery!`;
     const url = window.location.href;
     window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
   };
@@ -758,7 +758,7 @@ export default function ModernGallery() {
 
   const shareOnTwitter = () => {
     if (!selectedMedia) return;
-    const text = `Check out "${selectedMedia.title}" fromMary Immaculate GirlsSchool Gallery!`;
+    const text = `Check out "${selectedMedia.title}" from Mary Immaculate GirlsSchool Gallery!`;
     const url = window.location.href;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
   };
@@ -1757,7 +1757,7 @@ const LoadingSpinner = () => (
               </div>
               
               <p className="text-slate-600 mb-6 text-center text-sm">
-                Share "{selectedMedia.title}" fromMary Immaculate GirlsSchool Gallery
+                Share "{selectedMedia.title}" from Mary Immaculate Girls School Gallery
               </p>
       
 <div className="grid grid-cols-2 gap-3">
