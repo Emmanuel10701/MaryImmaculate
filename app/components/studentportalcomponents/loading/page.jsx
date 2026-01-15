@@ -1,4 +1,8 @@
 // Modern Loading Screen with Enhanced Design
+"use client"; // Add this line if it's missing
+
+import React from 'react';
+
 export default function LoadingScreen() {
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-orange-900 via-amber-900 to-red-900 z-50 flex flex-col items-center justify-center">

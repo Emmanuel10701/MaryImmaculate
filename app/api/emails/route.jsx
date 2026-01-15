@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
 // School Information
 const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Mary Immaculate Girls Secondary School';
 const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Mweiga, Nyeri County';
-const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Soaring for Excellence';
+const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Prayer, Discipline and Hardwork';
 const CONTACT_PHONE = process.env.CONTACT_PHONE || '+254720123456';
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@maryimmaculategirls.sc.ke';
 const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://maryimmaculategirls.sc.ke';

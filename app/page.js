@@ -41,7 +41,7 @@ import {
   FiLoader 
 } from 'react-icons/fi';
 import { FiAlertCircle, FiPhoneCall } from 'react-icons/fi';
-import Hero from "./components/hero/page";
+import Hero from "./components/Hero/page";
 
 import { 
   IoRocketOutline, 

@@ -1216,7 +1216,7 @@ return (
                     © {new Date().getFullYear()} Mary Immaculate Girls School
                   </p>
                   <p className="text-gray-500 text-xs mt-1 sm:mt-2">
-                    Student Portal v3.0 • Soaring for Excellence in Education
+                    Student Portal v3.0 • Prayer, Discipline and Hardwork in Education
                   </p>
                   <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
                     <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>

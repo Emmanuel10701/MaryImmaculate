@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 // School information
 const SCHOOL_NAME = 'Mary Immaculate Girls Secondary School';
 const SCHOOL_LOCATION = 'Mweiga, Nyeri County';
-const SCHOOL_MOTTO = 'Soaring for Excellence';
+const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork';
 
 // Email templates
 const emailTemplates = {

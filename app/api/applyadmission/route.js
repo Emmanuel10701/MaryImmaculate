@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 
 const SCHOOL_NAME = 'Mary Immaculate Girls Secondary School';
 const SCHOOL_LOCATION = 'Kiganjo, Nyeri County';
-const SCHOOL_MOTTO = 'Soaring for Excellence';
+const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork';
 const CONTACT_PHONE = '+254720123456';
 const CONTACT_EMAIL = 'admissions@maryimmaculategirls.sc.ke';
 // ====================================================================
