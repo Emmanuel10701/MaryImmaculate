@@ -12,15 +12,14 @@ const ensureDir = (dir) => {
 const videoDir = path.join(process.cwd(), "public/infomation/videos");
 const pdfDir = path.join(process.cwd(), "public/infomation/pdfs");
 const thumbnailDir = path.join(process.cwd(), "public/infomation/thumbnails");
-const dayFeesDir = path.join(pdfDir, "day-fees");
 const boardingFeesDir = path.join(pdfDir, "boarding-fees");
 const curriculumDir = path.join(pdfDir, "curriculum");
 const admissionDir = path.join(pdfDir, "admission");
 const examResultsDir = path.join(pdfDir, "exam-results");
 const additionalResultsDir = path.join(pdfDir, "additional-results");
 
-// Create all directories
-[pdfDir, videoDir, thumbnailDir, dayFeesDir, boardingFeesDir, curriculumDir, admissionDir, examResultsDir, additionalResultsDir].forEach(dir => ensureDir(dir));
+// Create all directories (removed day-fees directory)
+[pdfDir, videoDir, thumbnailDir, boardingFeesDir, curriculumDir, admissionDir, examResultsDir, additionalResultsDir].forEach(dir => ensureDir(dir));
 
 // Helper function to validate required fields
 const validateRequiredFields = (formData) => {
@@ -466,7 +465,7 @@ export async function POST(req) {
       const youtubeLink = formData.get("youtubeLink");
       const videoTour = formData.get("videoTour");
       const thumbnail = formData.get("videoThumbnail");
-      const videoResult = await handleVideoUpload(youtubeLink, videoTour, thumbnail, null, null, false); // false = create operation
+      const videoResult = await handleVideoUpload(youtubeLink, videoTour, thumbnail, null, null, false);
       videoPath = videoResult.videoPath;
       videoType = videoResult.videoType;
       thumbnailPath = videoResult.thumbnailPath;
@@ -478,7 +477,7 @@ export async function POST(req) {
       );
     }
 
-    // Handle ALL PDF uploads
+    // Handle ALL PDF uploads (removed day-fees)
     let pdfUploads = {};
     
     try {
@@ -488,13 +487,7 @@ export async function POST(req) {
         pdfUploads.curriculum = await handlePdfUpload(curriculumPDF, "curriculum", "curriculum");
       }
 
-      // Day fees PDF
-      const feesDayDistributionPdf = formData.get("feesDayDistributionPdf");
-      if (feesDayDistributionPdf) {
-        pdfUploads.dayFees = await handlePdfUpload(feesDayDistributionPdf, "day-fees", "day_fees");
-      }
-
-      // Boarding fees PDF
+      // Boarding fees PDF ONLY
       const feesBoardingDistributionPdf = formData.get("feesBoardingDistributionPdf");
       if (feesBoardingDistributionPdf) {
         pdfUploads.boardingFees = await handlePdfUpload(feesBoardingDistributionPdf, "boarding-fees", "boarding_fees");
@@ -536,13 +529,6 @@ export async function POST(req) {
     let additionalResultsFiles = [];
 
     try {
-      // 1) Start with existing additional files (POST has none; PUT will override below)
-      // For POST this will just build a fresh array from uploads
-      // For PUT we will use existing where appropriate (handled further down)
-      // Support two client patterns:
-      //  - multiple files under 'additionalFiles' (getAll)
-      //  - indexed pattern 'additionalResultsFile_{i}' with 'additionalResultsYear_{i}', 'additionalResultsDesc_{i}'
-      
       // Helper to push uploaded file object into array
       const pushUploadedAdditional = (arr, uploadResult, year = '', description = '') => {
         if (!uploadResult || !uploadResult.path) return;
@@ -556,7 +542,7 @@ export async function POST(req) {
         });
       };
 
-      // 2) First handle "modal" style multiple files: formData.getAll('additionalFiles')
+      // Handle "modal" style multiple files
       const modalFiles = formData.getAll('additionalFiles') || [];
       for (let i = 0; i < modalFiles.length; i++) {
         const file = modalFiles[i];
@@ -570,7 +556,7 @@ export async function POST(req) {
         }
       }
 
-      // 3) Then handle indexed pattern additionalResultsFile_{i} (with year/desc)
+      // Handle indexed pattern additionalResultsFile_{i}
       const newFileEntries = [];
       for (const [key, value] of formData.entries()) {
         if (key.startsWith('additionalResultsFile_')) {
@@ -587,9 +573,6 @@ export async function POST(req) {
       for (const entry of newFileEntries) {
         if (entry.file && entry.file.size > 0) {
           try {
-            // If a corresponding existing filepath was provided (replacement scenario),
-            // the client may supply existingAdditionalFilepath_{index}. We pass it to handler
-            // so the old file is removed and replaced.
             const existingFilePathField = formData.get(`existingAdditionalFilepath_${entry.index}`) || formData.get(`replaceAdditionalFilepath_${entry.index}`) || null;
             const uploadResult = await handleAdditionalFileUpload(entry.file, existingFilePathField || null);
             pushUploadedAdditional(additionalResultsFiles, uploadResult, entry.year, entry.description);
@@ -599,7 +582,7 @@ export async function POST(req) {
         }
       }
 
-      // 4) Deduplicate by filepath (keep first seen)
+      // Deduplicate by filepath
       const unique = [];
       const seenPaths = new Set();
       for (const f of additionalResultsFiles) {
@@ -619,7 +602,7 @@ export async function POST(req) {
 
     // Parse JSON fields
     let subjects, departments, admissionDocumentsRequired;
-    let feesDayDistributionJson, feesBoardingDistributionJson, admissionFeeDistribution;
+    let feesBoardingDistributionJson, admissionFeeDistribution;
     
     try {
       // Parse academic JSON fields
@@ -629,15 +612,16 @@ export async function POST(req) {
       const admissionDocsStr = formData.get("admissionDocumentsRequired");
       admissionDocumentsRequired = admissionDocsStr ? parseJsonField(admissionDocsStr, "admissionDocumentsRequired") : [];
       
-      // Parse fee distribution JSON fields
-      const dayDistributionStr = formData.get("feesDayDistributionJson");
-      if (dayDistributionStr) {
-        feesDayDistributionJson = parseFeeDistributionJson(dayDistributionStr, "feesDayDistributionJson");
-      }
-      
+      // Parse fee distribution JSON fields - BOARDING ONLY
       const boardingDistributionStr = formData.get("feesBoardingDistributionJson");
       if (boardingDistributionStr) {
         feesBoardingDistributionJson = parseFeeDistributionJson(boardingDistributionStr, "feesBoardingDistributionJson");
+      } else {
+        // Default distribution for all-girls boarding school
+        feesBoardingDistributionJson = {
+          boarding: 100,
+          description: "All-inclusive boarding fees for all-girls boarding school"
+        };
       }
       
       const admissionFeeDistributionStr = formData.get("admissionFeeDistribution");
@@ -666,15 +650,7 @@ export async function POST(req) {
         studentCount: parseIntField(formData.get("studentCount")) || 0,
         staffCount: parseIntField(formData.get("staffCount")) || 0,
         
-        // Day School Fees - BOTH JSON AND PDF
-        feesDay: parseNumber(formData.get("feesDay")),
-        feesDayDistributionJson: feesDayDistributionJson || {},
-        feesDayDistributionPdf: pdfUploads.dayFees?.path || null,
-        feesDayPdfName: pdfUploads.dayFees?.name || null,
-        feesDayPdfSize: pdfUploads.dayFees?.size || null,
-        feesDayPdfUploadDate: pdfUploads.dayFees?.path ? new Date() : null,
-        
-        // Boarding School Fees - BOTH JSON AND PDF
+        // BOARDING SCHOOL FEES ONLY
         feesBoarding: parseNumber(formData.get("feesBoarding")),
         feesBoardingDistributionJson: feesBoardingDistributionJson || {},
         feesBoardingDistributionPdf: pdfUploads.boardingFees?.path || null,
@@ -695,7 +671,7 @@ export async function POST(req) {
         curriculumPdfName: pdfUploads.curriculum?.name || null,
         curriculumPdfSize: pdfUploads.curriculum?.size || null,
         
-        // Admission Information - BOTH JSON AND PDF
+        // Admission Information
         admissionOpenDate: parseDate(formData.get("admissionOpenDate")),
         admissionCloseDate: parseDate(formData.get("admissionCloseDate")),
         admissionRequirements: formData.get("admissionRequirements") || null,
@@ -790,18 +766,16 @@ const cleanSchoolResponse = (school) => {
   // Parse JSON fields
   const subjects = typeof school.subjects === 'object' ? school.subjects : JSON.parse(school.subjects || '[]');
   const departments = typeof school.departments === 'object' ? school.departments : JSON.parse(school.departments || '[]');
-  const feesDayDistributionJson = typeof school.feesDayDistributionJson === 'object' ? school.feesDayDistributionJson : JSON.parse(school.feesDayDistributionJson || '{}');
   const feesBoardingDistributionJson = typeof school.feesBoardingDistributionJson === 'object' ? school.feesBoardingDistributionJson : JSON.parse(school.feesBoardingDistributionJson || '{}');
   const admissionFeeDistribution = typeof school.admissionFeeDistribution === 'object' ? school.admissionFeeDistribution : JSON.parse(school.admissionFeeDistribution || '{}');
   const admissionDocumentsRequired = typeof school.admissionDocumentsRequired === 'object' ? school.admissionDocumentsRequired : JSON.parse(school.admissionDocumentsRequired || '[]');
   
-  // Parse additional results files - handle both array and JSON string
+  // Parse additional results files
   let additionalResultsFiles = [];
   try {
     if (school.additionalResultsFiles) {
       if (typeof school.additionalResultsFiles === 'string') {
         const parsed = JSON.parse(school.additionalResultsFiles || '[]');
-        // Normalize the structure
         additionalResultsFiles = Array.isArray(parsed) ? parsed.map(file => ({
           filename: file.filename || file.name || 'Document',
           filepath: file.filepath || file.pdf || file.path || '',
@@ -826,7 +800,7 @@ const cleanSchoolResponse = (school) => {
     additionalResultsFiles = [];
   }
 
-  // Build clean response
+  // Build clean response for ALL-GIRLS BOARDING SCHOOL
   const response = {
     id: school.id,
     name: school.name,
@@ -836,18 +810,12 @@ const cleanSchoolResponse = (school) => {
     mission: school.mission,
     videoTour: school.videoTour,
     videoType: school.videoType,
-    videoThumbnail: school.videoThumbnail, // Make sure this is included
-    videoThumbnailType: school.videoThumbnailType, // Include thumbnail type
+    videoThumbnail: school.videoThumbnail,
+    videoThumbnailType: school.videoThumbnailType,
     studentCount: school.studentCount,
     staffCount: school.staffCount,
     
-    // Day School Fees - BOTH JSON AND PDF
-    feesDay: school.feesDay,
-    feesDayDistribution: feesDayDistributionJson,
-    ...(school.feesDayDistributionPdf && { feesDayDistributionPdf: school.feesDayDistributionPdf }),
-    ...(school.feesDayPdfName && { feesDayPdfName: school.feesDayPdfName }),
-    
-    // Boarding School Fees - BOTH JSON AND PDF
+    // BOARDING SCHOOL FEES ONLY
     feesBoarding: school.feesBoarding,
     feesBoardingDistribution: feesBoardingDistributionJson,
     ...(school.feesBoardingDistributionPdf && { feesBoardingDistributionPdf: school.feesBoardingDistributionPdf }),
@@ -865,7 +833,7 @@ const cleanSchoolResponse = (school) => {
     ...(school.curriculumPDF && { curriculumPDF: school.curriculumPDF }),
     ...(school.curriculumPdfName && { curriculumPdfName: school.curriculumPdfName }),
     
-    // Admission Information - BOTH JSON AND PDF
+    // Admission Information
     admissionOpenDate: school.admissionOpenDate,
     admissionCloseDate: school.admissionCloseDate,
     admissionRequirements: school.admissionRequirements,
@@ -949,7 +917,7 @@ const cleanSchoolResponse = (school) => {
   return response;
 };
 
-// 🟠 PUT update existing info - COMPLETE VERSION WITH MULTIPLE FILE SUPPORT
+// 🟠 PUT update existing info
 export async function PUT(req) {
   try {
     const existing = await prisma.schoolInfo.findFirst();
@@ -962,7 +930,7 @@ export async function PUT(req) {
 
     const formData = await req.formData();
     
-    // Handle video upload with thumbnail - PRESERVE existing thumbnail by default
+    // Handle video upload with thumbnail
     let videoPath = existing.videoTour;
     let videoType = existing.videoType;
     let thumbnailPath = existing.videoThumbnail;
@@ -973,17 +941,13 @@ export async function PUT(req) {
       const videoTour = formData.get("videoTour");
       const thumbnail = formData.get("videoThumbnail");
       
-      // Check if video is being modified
-      const isVideoModified = (youtubeLink && youtubeLink.trim() !== '' && youtubeLink !== existing.videoTour) || 
-                              (videoTour && videoTour.size > 0);
-      
       const videoResult = await handleVideoUpload(
         youtubeLink, 
         videoTour, 
         thumbnail, 
         existing,
         { path: existing.videoThumbnail, type: existing.videoThumbnailType },
-        true // true = update operation (preserve by default)
+        true
       );
       
       // Only update if we have new values
@@ -998,7 +962,7 @@ export async function PUT(req) {
       );
     }
 
-    // Handle ALL PDF uploads
+    // Handle ALL PDF uploads (removed day-fees)
     let pdfUploads = {};
     
     try {
@@ -1008,13 +972,7 @@ export async function PUT(req) {
         pdfUploads.curriculum = await handlePdfUpload(curriculumPDF, "curriculum", "curriculum", existing.curriculumPDF);
       }
 
-      // Day fees PDF
-      const feesDayDistributionPdf = formData.get("feesDayDistributionPdf");
-      if (feesDayDistributionPdf) {
-        pdfUploads.dayFees = await handlePdfUpload(feesDayDistributionPdf, "day-fees", "day_fees", existing.feesDayDistributionPdf);
-      }
-
-      // Boarding fees PDF
+      // Boarding fees PDF ONLY
       const feesBoardingDistributionPdf = formData.get("feesBoardingDistributionPdf");
       if (feesBoardingDistributionPdf) {
         pdfUploads.boardingFees = await handlePdfUpload(feesBoardingDistributionPdf, "boarding-fees", "boarding_fees", existing.feesBoardingDistributionPdf);
@@ -1052,170 +1010,159 @@ export async function PUT(req) {
       );
     }
 
-  
-  
-  
-    
-// 🔴 FIXED: Handle additional results files from form data - SUPPORTING MULTIPLE NEW FILES
-let additionalResultsFiles = [];
-try {
-  let existingAdditionalFiles = parseExistingAdditionalFiles(existing.additionalResultsFiles);
-
-  const removedAdditionalFilesJson = formData.get('removedAdditionalFiles');
-  let removedFiles = [];
-  
-  if (removedAdditionalFilesJson && removedAdditionalFilesJson.trim() !== '') {
+    // Handle additional results files
+    let additionalResultsFiles = [];
     try {
-      removedFiles = JSON.parse(removedAdditionalFilesJson);
-      if (!Array.isArray(removedFiles)) {
-        removedFiles = [];
-      }
-    } catch (e) {
-      console.warn('Failed to parse removedAdditionalFiles:', e.message);
-      removedFiles = [];
-    }
-  }
+      let existingAdditionalFiles = parseExistingAdditionalFiles(existing.additionalResultsFiles);
 
-  // Step 3: Parse replaced files from form data
-  const cancelledAdditionalFilesJson = formData.get('cancelledAdditionalFiles');
-  let replacedFiles = [];
-  
-  if (cancelledAdditionalFilesJson && cancelledAdditionalFilesJson.trim() !== '') {
-    try {
-      replacedFiles = JSON.parse(cancelledAdditionalFilesJson);
-      if (!Array.isArray(replacedFiles)) {
-        replacedFiles = [];
-      }
-    } catch (e) {
-      console.warn('Failed to parse cancelledAdditionalFiles:', e.message);
-      replacedFiles = [];
-    }
-  }
-
-  // Step 4: Start with existing files, remove marked ones
-  let finalFiles = existingAdditionalFiles.filter(file => {
-    const filepath = file.filepath || file.filename || '';
-    const shouldRemove = removedFiles.some(removedFile => 
-      (removedFile.filepath || removedFile.filename) === filepath
-    );
-    const shouldReplace = replacedFiles.some(replacedFile => 
-      (replacedFile.filepath || replacedFile.filename) === filepath
-    );
-    return !shouldRemove && !shouldReplace; // Keep if not removed or replaced
-  });
-
-  // Step 5: Process metadata updates for existing files
-  const existingUpdateEntries = [];
-  for (const [key, value] of formData.entries()) {
-    if (key.startsWith('existingAdditionalFilepath_')) {
-      const index = key.replace('existingAdditionalFilepath_', '');
-      existingUpdateEntries.push({
-        index,
-        filepath: value,
-        year: formData.get(`existingAdditionalYear_${index}`) || '',
-        description: formData.get(`existingAdditionalDesc_${index}`) || ''
-      });
-    }
-  }
-
-  // Apply updates to existing files
-  for (const update of existingUpdateEntries) {
-    if (update.filepath) {
-      const existingFileIndex = finalFiles.findIndex(file => 
-        (file.filepath === update.filepath || file.filename === update.filepath)
-      );
+      const removedAdditionalFilesJson = formData.get('removedAdditionalFiles');
+      let removedFiles = [];
       
-      if (existingFileIndex !== -1) {
-        // Update metadata
-        if (update.year !== null && update.year !== undefined && update.year.trim() !== '') {
-          finalFiles[existingFileIndex].year = update.year.trim();
-        }
-        if (update.description !== null && update.description !== undefined && update.description.trim() !== '') {
-          finalFiles[existingFileIndex].description = update.description.trim();
+      if (removedAdditionalFilesJson && removedAdditionalFilesJson.trim() !== '') {
+        try {
+          removedFiles = JSON.parse(removedAdditionalFilesJson);
+          if (!Array.isArray(removedFiles)) {
+            removedFiles = [];
+          }
+        } catch (e) {
+          console.warn('Failed to parse removedAdditionalFiles:', e.message);
+          removedFiles = [];
         }
       }
-    }
-  }
 
-  // Step 6: Process NEW additional files (including replacements)
-  // Find all files with pattern additionalResultsFile_{index}
-  const newFileEntries = [];
-  
-  // Collect all indexed file entries
-  for (let i = 0; i < 100; i++) { // Assume max 100 files
-    const fileField = `additionalResultsFile_${i}`;
-    const file = formData.get(fileField);
-    
-    if (!file) break;
-    
-    newFileEntries.push({
-      index: i,
-      file: file,
-      year: formData.get(`additionalResultsYear_${i}`) || '',
-      description: formData.get(`additionalResultsDesc_${i}`) || '',
-      // Check if this replaces an existing file
-      replacesFilepath: formData.get(`replacesAdditionalFilepath_${i}`) || null
-    });
-  }
-
-  // Process each new file entry
-  for (const entry of newFileEntries) {
-    if (entry.file && entry.file.size > 0) {
-      try {
-        // Check if this is a replacement
-        let oldFilePath = null;
-        if (entry.replacesFilepath) {
-          oldFilePath = entry.replacesFilepath;
-          // Remove the old file from finalFiles if it exists
-          finalFiles = finalFiles.filter(f => 
-            (f.filepath || f.filename) !== oldFilePath
-          );
+      const cancelledAdditionalFilesJson = formData.get('cancelledAdditionalFiles');
+      let replacedFiles = [];
+      
+      if (cancelledAdditionalFilesJson && cancelledAdditionalFilesJson.trim() !== '') {
+        try {
+          replacedFiles = JSON.parse(cancelledAdditionalFilesJson);
+          if (!Array.isArray(replacedFiles)) {
+            replacedFiles = [];
+          }
+        } catch (e) {
+          console.warn('Failed to parse cancelledAdditionalFiles:', e.message);
+          replacedFiles = [];
         }
+      }
 
-        const uploadResult = await handleAdditionalFileUpload(entry.file, oldFilePath);
-        
-        if (uploadResult && uploadResult.path) {
-          finalFiles.push({
-            filename: uploadResult.name,
-            filepath: uploadResult.path,
-            filetype: uploadResult.type,
-            year: entry.year ? entry.year.trim() : null,
-            description: entry.description ? entry.description.trim() : null,
-            filesize: uploadResult.size
+      // Start with existing files, remove marked ones
+      let finalFiles = existingAdditionalFiles.filter(file => {
+        const filepath = file.filepath || file.filename || '';
+        const shouldRemove = removedFiles.some(removedFile => 
+          (removedFile.filepath || removedFile.filename) === filepath
+        );
+        const shouldReplace = replacedFiles.some(replacedFile => 
+          (replacedFile.filepath || replacedFile.filename) === filepath
+        );
+        return !shouldRemove && !shouldReplace;
+      });
+
+      // Process metadata updates for existing files
+      const existingUpdateEntries = [];
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith('existingAdditionalFilepath_')) {
+          const index = key.replace('existingAdditionalFilepath_', '');
+          existingUpdateEntries.push({
+            index,
+            filepath: value,
+            year: formData.get(`existingAdditionalYear_${index}`) || '',
+            description: formData.get(`existingAdditionalDesc_${index}`) || ''
           });
         }
-      } catch (uploadError) {
-        console.warn(`Failed to upload additional file ${entry.index}:`, uploadError.message);
-        // Continue with other files
       }
-    }
-  }
 
-  // Step 7: Remove duplicates
-  const uniqueFiles = [];
-  const seenFilepaths = new Set();
-  
-  for (const file of finalFiles) {
-    const filepath = file.filepath;
-    if (filepath && !seenFilepaths.has(filepath)) {
-      seenFilepaths.add(filepath);
-      uniqueFiles.push(file);
-    }
-  }
-  
-  additionalResultsFiles = uniqueFiles;
+      // Apply updates to existing files
+      for (const update of existingUpdateEntries) {
+        if (update.filepath) {
+          const existingFileIndex = finalFiles.findIndex(file => 
+            (file.filepath === update.filepath || file.filename === update.filepath)
+          );
+          
+          if (existingFileIndex !== -1) {
+            // Update metadata
+            if (update.year !== null && update.year !== undefined && update.year.trim() !== '') {
+              finalFiles[existingFileIndex].year = update.year.trim();
+            }
+            if (update.description !== null && update.description !== undefined && update.description.trim() !== '') {
+              finalFiles[existingFileIndex].description = update.description.trim();
+            }
+          }
+        }
+      }
 
-} catch (additionalError) {
-  console.error('❌ Additional files processing error:', additionalError);
-  // In case of error, keep existing files from database
-  additionalResultsFiles = parseExistingAdditionalFiles(existing.additionalResultsFiles);
-}
+      // Process NEW additional files
+      const newFileEntries = [];
+      
+      // Collect all indexed file entries
+      for (let i = 0; i < 100; i++) {
+        const fileField = `additionalResultsFile_${i}`;
+        const file = formData.get(fileField);
+        
+        if (!file) break;
+        
+        newFileEntries.push({
+          index: i,
+          file: file,
+          year: formData.get(`additionalResultsYear_${i}`) || '',
+          description: formData.get(`additionalResultsDesc_${i}`) || '',
+          replacesFilepath: formData.get(`replacesAdditionalFilepath_${i}`) || null
+        });
+      }
+
+      // Process each new file entry
+      for (const entry of newFileEntries) {
+        if (entry.file && entry.file.size > 0) {
+          try {
+            let oldFilePath = null;
+            if (entry.replacesFilepath) {
+              oldFilePath = entry.replacesFilepath;
+              // Remove the old file from finalFiles if it exists
+              finalFiles = finalFiles.filter(f => 
+                (f.filepath || f.filename) !== oldFilePath
+              );
+            }
+
+            const uploadResult = await handleAdditionalFileUpload(entry.file, oldFilePath);
+            
+            if (uploadResult && uploadResult.path) {
+              finalFiles.push({
+                filename: uploadResult.name,
+                filepath: uploadResult.path,
+                filetype: uploadResult.type,
+                year: entry.year ? entry.year.trim() : null,
+                description: entry.description ? entry.description.trim() : null,
+                filesize: uploadResult.size
+              });
+            }
+          } catch (uploadError) {
+            console.warn(`Failed to upload additional file ${entry.index}:`, uploadError.message);
+          }
+        }
+      }
+
+      // Remove duplicates
+      const uniqueFiles = [];
+      const seenFilepaths = new Set();
+      
+      for (const file of finalFiles) {
+        const filepath = file.filepath;
+        if (filepath && !seenFilepaths.has(filepath)) {
+          seenFilepaths.add(filepath);
+          uniqueFiles.push(file);
+        }
+      }
+      
+      additionalResultsFiles = uniqueFiles;
+
+    } catch (additionalError) {
+      console.error('❌ Additional files processing error:', additionalError);
+      additionalResultsFiles = parseExistingAdditionalFiles(existing.additionalResultsFiles);
+    }
 
     // Parse JSON fields
     let subjects = existing.subjects;
     let departments = existing.departments;
     let admissionDocumentsRequired = existing.admissionDocumentsRequired;
-    let feesDayDistributionJson = existing.feesDayDistributionJson;
     let feesBoardingDistributionJson = existing.feesBoardingDistributionJson;
     let admissionFeeDistribution = existing.admissionFeeDistribution;
 
@@ -1255,12 +1202,8 @@ try {
       }
     }
 
-    // Parse fee distribution JSON fields
+    // Parse fee distribution JSON fields - BOARDING ONLY
     try {
-      if (formData.get("feesDayDistributionJson")) {
-        feesDayDistributionJson = parseFeeDistributionJson(formData.get("feesDayDistributionJson"), "feesDayDistributionJson");
-      }
-      
       if (formData.get("feesBoardingDistributionJson")) {
         feesBoardingDistributionJson = parseFeeDistributionJson(formData.get("feesBoardingDistributionJson"), "feesBoardingDistributionJson");
       }
@@ -1275,7 +1218,7 @@ try {
       );
     }
 
-    // Update school with all fields - WITH JSON DISTRIBUTIONS
+    // Update school with all fields
     const updated = await prisma.schoolInfo.update({
       where: { id: existing.id },
       data: {
@@ -1291,15 +1234,7 @@ try {
         studentCount: formData.get("studentCount") ? parseIntField(formData.get("studentCount")) : existing.studentCount,
         staffCount: formData.get("staffCount") ? parseIntField(formData.get("staffCount")) : existing.staffCount,
         
-        // Day School Fees - WITH JSON DISTRIBUTION
-        feesDay: formData.get("feesDay") ? parseNumber(formData.get("feesDay")) : existing.feesDay,
-        feesDayDistributionJson: feesDayDistributionJson !== undefined ? feesDayDistributionJson : existing.feesDayDistributionJson,
-        feesDayDistributionPdf: pdfUploads.dayFees?.path || existing.feesDayDistributionPdf,
-        feesDayPdfName: pdfUploads.dayFees?.name || existing.feesDayPdfName,
-        feesDayPdfSize: pdfUploads.dayFees?.size || existing.feesDayPdfSize,
-        feesDayPdfUploadDate: pdfUploads.dayFees?.path ? new Date() : existing.feesDayPdfUploadDate,
-        
-        // Boarding School Fees - WITH JSON DISTRIBUTION
+        // BOARDING SCHOOL FEES ONLY
         feesBoarding: formData.get("feesBoarding") ? parseNumber(formData.get("feesBoarding")) : existing.feesBoarding,
         feesBoardingDistributionJson: feesBoardingDistributionJson !== undefined ? feesBoardingDistributionJson : existing.feesBoardingDistributionJson,
         feesBoardingDistributionPdf: pdfUploads.boardingFees?.path || existing.feesBoardingDistributionPdf,
@@ -1320,7 +1255,7 @@ try {
         curriculumPdfName: pdfUploads.curriculum?.name || existing.curriculumPdfName,
         curriculumPdfSize: pdfUploads.curriculum?.size || existing.curriculumPdfSize,
         
-        // Admission Information - WITH JSON DISTRIBUTION
+        // Admission Information
         admissionOpenDate: formData.get("admissionOpenDate") ? parseDate(formData.get("admissionOpenDate")) : existing.admissionOpenDate,
         admissionCloseDate: formData.get("admissionCloseDate") ? parseDate(formData.get("admissionCloseDate")) : existing.admissionCloseDate,
         admissionRequirements: formData.get("admissionRequirements") !== null ? formData.get("admissionRequirements") : existing.admissionRequirements,
@@ -1367,7 +1302,7 @@ try {
         kcsePdfSize: pdfUploads.kcse?.pdfData.size || existing.kcsePdfSize,
         kcseYear: pdfUploads.kcse?.year !== undefined ? pdfUploads.kcse?.year : existing.kcseYear,
         
-        // Additional Results - FIXED: Properly stringify the array
+        // Additional Results
         additionalResultsFiles: additionalResultsFiles.length > 0 ? JSON.stringify(additionalResultsFiles) : '[]',
         
         // Update timestamp
@@ -1403,9 +1338,8 @@ export async function DELETE() {
     // Delete all associated files including thumbnails
     const filesToDelete = [
       existing.videoType === 'file' ? existing.videoTour : null,
-      existing.videoThumbnail, // Add thumbnail to deletion list
+      existing.videoThumbnail,
       existing.curriculumPDF,
-      existing.feesDayDistributionPdf,
       existing.feesBoardingDistributionPdf,
       existing.admissionFeePdf,
       existing.form1ResultsPdf,

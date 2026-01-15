@@ -1682,143 +1682,7 @@ return (
 );
 }
 
-// Modern Day School Fee Component
-function ModernDaySchoolFeeView({ 
-  feesDay, 
-  feesDayDistribution, 
-  feesDayDistributionPdf, 
-  feesDayPdfName 
-}) {
-  if (!feesDay && !feesDayDistributionPdf) return null;
 
-
-return (
-  <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-2xl shadow-slate-200/40 relative overflow-hidden transition-all duration-500 hover:shadow-blue-100/50">
-    {/* Decorative Soft-UI Accent */}
-    <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full blur-3xl opacity-60" />
-
-    {/* Header & Total Summary Section */}
-    <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between pb-8 mb-8 border-b border-slate-100/80 gap-6">
-      <div className="flex items-start gap-5">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-blue-500 to-cyan-400 flex items-center justify-center shadow-xl shadow-blue-200 ring-4 ring-blue-50">
-          <FaMoneyBillWave className="text-white text-2xl" />
-        </div>
-        <div>
-          <h3 className="text-xl font-black text-slate-900 tracking-tight leading-none mb-2">
-            Day School Fees
-          </h3>
-          <p className="text-sm font-medium text-slate-500 max-w-sm leading-relaxed">
-            Annual cost breakdown for day scholars, structured by institutional service requirements.
-          </p>
-        </div>
-      </div>
-      
-      {feesDay && (
-        <div className="flex flex-col items-start lg:items-end">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 ml-1 lg:ml-0">Aggregate Annual Total</span>
-          <div className="inline-flex items-baseline gap-1.5 bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl shadow-blue-900/20">
-            <span className="text-xs font-bold text-blue-400 uppercase">KES</span>
-            <span className="text-2xl font-black tabular-nums tracking-tighter">
-              {feesDay.toLocaleString()}
-            </span>
-          </div>
-        </div>
-      )}
-    </div>
-
-    {/* High-Visibility Fee Distribution Grid */}
-    {feesDayDistribution && Object.keys(feesDayDistribution).length > 0 && (
-      <div className="mb-10 relative z-10">
-        <div className="flex items-center gap-3 mb-6">
-          <FaChartPie className="text-slate-400 text-sm" />
-          <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Expense Distribution</h4>
-          <div className="h-px flex-1 bg-slate-100" />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.entries(feesDayDistribution).map(([key, value]) => {
-            const percentage = Math.round((parseFloat(value) / feesDay) * 100);
-            return (
-              <div 
-                key={key} 
-                className="group bg-white hover:bg-slate-50 rounded-2xl p-4 border border-slate-100 hover:border-blue-300 hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <FaCheckCircle className="text-blue-100 group-hover:text-blue-500 transition-colors text-sm" />
-                    <span className="text-sm font-bold text-slate-700 capitalize">
-                      {key.replace(/([A-Z])/g, ' $1').trim()}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
-                    {percentage}%
-                  </span>
-                </div>
-                
-                <div className="flex items-end justify-between">
-                  <div className="w-full max-w-[120px] h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="bg-gradient-to-r from-blue-400 to-blue-600 h-full rounded-full transition-all duration-1000" 
-                      style={{ width: `${percentage}%` }} 
-                    />
-                  </div>
-                  <span className="text-base font-black text-slate-900">
-                    <span className="text-[10px] font-bold text-slate-400 mr-1 font-sans">KES</span>
-                    {parseFloat(value).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    )}
-
-    {/* Premium PDF Control Section */}
-    {feesDayDistributionPdf && (
-      <div className="relative group/pdf">
-        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-[2rem] blur opacity-10 group-hover/pdf:opacity-20 transition duration-500" />
-        <div className="relative bg-slate-50 rounded-[1.75rem] border border-slate-200 p-5 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all">
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-sm border border-slate-100 shrink-0">
-              <FaFilePdf className="text-red-500 text-3xl" />
-            </div>
-            <div>
-              <p className="text-sm font-black text-slate-900 mb-1">
-                {feesDayPdfName || 'Day School Fee Ledger.pdf'}
-              </p>
-              <div className="flex gap-2">
-                <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-bold text-slate-500">Official Release</span>
-                <span className="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-100 text-[10px] font-bold text-emerald-600 uppercase tracking-tighter">Verified Assets</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <a
-              href={feesDayDistributionPdf}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-900 hover:text-white text-slate-700 border border-slate-200 px-6 py-3 rounded-xl text-xs font-black transition-all duration-300 shadow-sm"
-            >
-              <FaEye className="text-blue-500 group-hover:text-white" />
-              Preview Document
-            </a>
-            <a
-              href={feesDayDistributionPdf}
-              download={feesDayPdfName || 'day-school-fees.pdf'}
-              className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-xs font-black shadow-xl shadow-blue-200 transition-all duration-300"
-            >
-              <FaDownload />
-              Get PDF
-            </a>
-          </div>
-        </div>
-      </div>
-    )}
-  </div>
-);
-}
 
 // Modern Exam Mapping Section - UPDATED with proper file handling
 function ModernExamMappingView({ 
@@ -3201,8 +3065,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
     subjects: school?.subjects || [],
     departments: school?.departments || [],
     youtubeLink: school?.videoType === 'youtube' ? school.videoTour : '',
-    feesDay: school?.feesDay?.toString() || '',
-    feesDayDistributionJson: school?.feesDayDistribution ? JSON.stringify(school.feesDayDistribution) : '[]',
     feesBoarding: school?.feesBoarding?.toString() || '',
     feesBoardingDistributionJson: school?.feesBoardingDistribution ? JSON.stringify(school.feesBoardingDistribution) : '[]',
     admissionOpenDate: school?.admissionOpenDate ? new Date(school.admissionOpenDate).toISOString().split('T')[0] : '',
@@ -3222,7 +3084,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
   const [files, setFiles] = useState({
     videoFile: null,
     curriculumPDF: null,
-    feesDayDistributionPdf: null,
     feesBoardingDistributionPdf: null,
     admissionFeePdf: null,
     form1ResultsPdf: null,
@@ -3508,7 +3369,6 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
 
       const pdfFields = [
         'curriculumPDF',
-        'feesDayDistributionPdf',
         'feesBoardingDistributionPdf',
         'admissionFeePdf',
         'form1ResultsPdf',
@@ -4109,153 +3969,8 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-6">
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 md:p-6 border border-green-200">
-                      <h3 className="text-base md:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <FaDollarSign className="text-green-600" />
-                        Day School Fee Structure
-                      </h3>
-                      
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2">
-                            Total Day School Fees (KES)
-                          </label>
-                          <TextField 
-                            fullWidth 
-                            size="small"
-                            type="number"
-                            min="0"
-                            value={formData.feesDay} 
-                            onChange={(e) => handleChange('feesDay', e.target.value)}
-                            placeholder="Enter total day school fees"
-                            sx={{
-                              '& .MuiOutlinedInput-root': {
-                                borderRadius: '10px',
-                                backgroundColor: 'white',
-                                fontSize: '0.875rem',
-                                fontWeight: 'bold'
-                              }
-                            }}
-                          />
-                        </div>
-
-                        <CustomFeeBreakdown
-                          title="Day School Fee"
-                          color="from-green-50 to-green-100"
-                          fees={dayFees}
-                          onFeesChange={setDayFees}
-                          totalField={formData.feesDay}
-                          onTotalChange={(value) => handleChange('feesDay', value)}
-                        />
-
-                        <div className="mt-4">
-                          <ModernPdfUpload 
-                            pdfFile={files.feesDayDistributionPdf}
-                            onPdfChange={(file) => handleFileChange('feesDayDistributionPdf', file)}
-                            onRemove={() => handleFileRemove('feesDayDistributionPdf')}
-                            label="Day Fees Breakdown PDF"
-                            existingPdf={getExistingPdfData('feesDayDistributionPdf')}
-                            onCancelExisting={() => handleCancelExistingPdf('feesDayDistributionPdf')}
-                            onRemoveExisting={() => handleRemoveExistingPdf('feesDayDistributionPdf')}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 md:p-6 border border-purple-200">
-                      <h3 className="text-base md:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <FaAward className="text-purple-600" />
-                        Form 1 & 2 Results
-                      </h3>
-                      
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                            <label className="text-sm font-bold text-gray-700">Form 1 Results</label>
-                            <div className="w-full sm:w-28">
-                              <TextField 
-                                fullWidth 
-                                size="small"
-                                type="number"
-                                min="2000"
-                                max="2100"
-                                value={examYears.form1ResultsYear} 
-                                onChange={(e) => handleExamYearChange('form1ResultsYear', e.target.value)}
-                                placeholder="Year"
-                                sx={{
-                                  '& .MuiOutlinedInput-root': {
-                                    borderRadius: '8px',
-                                    backgroundColor: 'white',
-                                    fontSize: '0.875rem'
-                                  }
-                                }}
-                              />
-                            </div>
-                          </div>
-                          <ModernPdfUpload 
-                            pdfFile={files.form1ResultsPdf}
-                            onPdfChange={(file) => handleFileChange('form1ResultsPdf', file)}
-                            onRemove={() => handleFileRemove('form1ResultsPdf')}
-                            label="Form 1 Results PDF"
-                            existingPdf={getExistingPdfData('form1ResultsPdf')}
-                            onCancelExisting={() => handleCancelExistingPdf('form1ResultsPdf')}
-                            onRemoveExisting={() => handleRemoveExistingPdf('form1ResultsPdf')}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                            <label className="text-sm font-bold text-gray-700">Form 2 Results</label>
-                            <div className="w-full sm:w-28">
-                              <TextField 
-                                fullWidth 
-                                size="small"
-                                type="number"
-                                min="2000"
-                                max="2100"
-                                value={examYears.form2ResultsYear} 
-                                onChange={(e) => handleExamYearChange('form2ResultsYear', e.target.value)}
-                                placeholder="Year"
-                                sx={{
-                                  '& .MuiOutlinedInput-root': {
-                                    borderRadius: '8px',
-                                    backgroundColor: 'white',
-                                    fontSize: '0.875rem'
-                                  }
-                                }}
-                              />
-                            </div>
-                          </div>
-                          <ModernPdfUpload 
-                            pdfFile={files.form2ResultsPdf}
-                            onPdfChange={(file) => handleFileChange('form2ResultsPdf', file)}
-                            onRemove={() => handleFileRemove('form2ResultsPdf')}
-                            label="Form 2 Results PDF"
-                            existingPdf={getExistingPdfData('form2ResultsPdf')}
-                            onCancelExisting={() => handleCancelExistingPdf('form2ResultsPdf')}
-                            onRemoveExisting={() => handleRemoveExistingPdf('form2ResultsPdf')}
-                          />
-                        </div>
-
-                        <div className="pt-4 border-t border-purple-200">
-                          <AdditionalResultsUpload
-                            files={additionalFiles.filter(f => f.isNew)}
-                            onFilesChange={(newFiles) => {
-                              const existingFiles = additionalFiles.filter(f => f.isExisting);
-                              setAdditionalFiles([...existingFiles, ...newFiles]);
-                            }}
-                            label="Additional Files (Form 1 & 2)"
-                            existingFiles={school?.additionalResultsFiles || []}
-                            onCancelExisting={handleCancelExistingAdditionalFile}
-                            onRemoveExisting={handleRemoveExistingAdditionalFile}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 md:p-6 border border-blue-200">
+                 
+    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 md:p-6 border border-blue-200">
                       <h3 className="text-base md:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <FaUniversity className="text-blue-600" />
                         Boarding Fee Structure
@@ -4428,6 +4143,100 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       </div>
                     </div>
 
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 md:p-6 border border-purple-200">
+                      <h3 className="text-base md:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <FaAward className="text-purple-600" />
+                        Form 1 & 2 Results
+                      </h3>
+                      
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <label className="text-sm font-bold text-gray-700">Form 1 Results</label>
+                            <div className="w-full sm:w-28">
+                              <TextField 
+                                fullWidth 
+                                size="small"
+                                type="number"
+                                min="2000"
+                                max="2100"
+                                value={examYears.form1ResultsYear} 
+                                onChange={(e) => handleExamYearChange('form1ResultsYear', e.target.value)}
+                                placeholder="Year"
+                                sx={{
+                                  '& .MuiOutlinedInput-root': {
+                                    borderRadius: '8px',
+                                    backgroundColor: 'white',
+                                    fontSize: '0.875rem'
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <ModernPdfUpload 
+                            pdfFile={files.form1ResultsPdf}
+                            onPdfChange={(file) => handleFileChange('form1ResultsPdf', file)}
+                            onRemove={() => handleFileRemove('form1ResultsPdf')}
+                            label="Form 1 Results PDF"
+                            existingPdf={getExistingPdfData('form1ResultsPdf')}
+                            onCancelExisting={() => handleCancelExistingPdf('form1ResultsPdf')}
+                            onRemoveExisting={() => handleRemoveExistingPdf('form1ResultsPdf')}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <label className="text-sm font-bold text-gray-700">Form 2 Results</label>
+                            <div className="w-full sm:w-28">
+                              <TextField 
+                                fullWidth 
+                                size="small"
+                                type="number"
+                                min="2000"
+                                max="2100"
+                                value={examYears.form2ResultsYear} 
+                                onChange={(e) => handleExamYearChange('form2ResultsYear', e.target.value)}
+                                placeholder="Year"
+                                sx={{
+                                  '& .MuiOutlinedInput-root': {
+                                    borderRadius: '8px',
+                                    backgroundColor: 'white',
+                                    fontSize: '0.875rem'
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <ModernPdfUpload 
+                            pdfFile={files.form2ResultsPdf}
+                            onPdfChange={(file) => handleFileChange('form2ResultsPdf', file)}
+                            onRemove={() => handleFileRemove('form2ResultsPdf')}
+                            label="Form 2 Results PDF"
+                            existingPdf={getExistingPdfData('form2ResultsPdf')}
+                            onCancelExisting={() => handleCancelExistingPdf('form2ResultsPdf')}
+                            onRemoveExisting={() => handleRemoveExistingPdf('form2ResultsPdf')}
+                          />
+                        </div>
+
+                        <div className="pt-4 border-t border-purple-200">
+                          <AdditionalResultsUpload
+                            files={additionalFiles.filter(f => f.isNew)}
+                            onFilesChange={(newFiles) => {
+                              const existingFiles = additionalFiles.filter(f => f.isExisting);
+                              setAdditionalFiles([...existingFiles, ...newFiles]);
+                            }}
+                            label="Additional Files (Form 1 & 2)"
+                            existingFiles={school?.additionalResultsFiles || []}
+                            onCancelExisting={handleCancelExistingAdditionalFile}
+                            onRemoveExisting={handleRemoveExistingAdditionalFile}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                
 
 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
   <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
@@ -5013,14 +4822,7 @@ const handleUpdateExamResults = async (formData) => {
               />
             </div>
 
-            <div className="mb-6">
-              <ModernDaySchoolFeeView 
-                feesDay={schoolInfo.feesDay}
-                feesDayDistribution={schoolInfo.feesDayDistribution}
-                feesDayDistributionPdf={schoolInfo.feesDayDistributionPdf}
-                feesDayPdfName={schoolInfo.feesDayPdfName}
-              />
-            </div>
+
 
             {schoolInfo.examResults && (
               <div className="mb-6">

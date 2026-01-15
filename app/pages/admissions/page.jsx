@@ -1502,58 +1502,56 @@ export default function ComprehensiveAdmissions() {
     },
   ];
 
-  // Admission paths - Updated based on your school's focus
-  const admissionPaths = [
-    {
-      title: 'Form 1 Entry',
-      icon: FiBookOpen,
-      description: 'Join our Form 1 program with comprehensive academic curriculum and extracurricular activities',
-      features: ['Academic Excellence', 'Extra-curricular Activities', 'Digital Literacy', 'Talent Development'],
-      deadline: schoolData?.admissionCloseDate ? new Date(schoolData.admissionCloseDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'May 30, 2024',
-      color: 'from-blue-500 to-cyan-500',
-      type: 'grade7'
-    },
-    {
-      title: 'Transfer Students',
-      icon: FiArrowRight,
-      description: 'Seamless transfer from other schools with credit recognition and orientation support',
-      features: ['Credit Transfer', 'Placement Assessment', 'Records Review', 'Orientation Program'],
-      deadline: 'Rolling Admission',
-      color: 'from-purple-500 to-pink-500',
-      type: 'transfer'
-    }
-  ];
+const admissionPaths = [
+  {
+    title: 'Form 1 Boarding Entry',
+    icon: FiBookOpen,
+    description: 'Join our Form 1 residential boarding program with comprehensive academic curriculum, full boarding facilities, and extracurricular activities',
+    features: ['Full Boarding', 'Academic Excellence', 'Residential Life', 'Extracurricular Activities', 'Talent Development'],
+    deadline: schoolData?.admissionCloseDate ? new Date(schoolData.admissionCloseDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'May 30, 2024',
+    color: 'from-blue-500 to-cyan-500',
+    type: 'grade7'
+  },
+  {
+    title: 'Transfer to Boarding',
+    icon: FiArrowRight,
+    description: 'Seamless transfer to our residential boarding program with credit recognition, boarding placement, and orientation support',
+    features: ['Credit Transfer', 'Boarding Placement', 'Records Review', 'Residential Orientation', 'Support Integration'],
+    deadline: 'Rolling Admission',
+    color: 'from-purple-500 to-pink-500',
+    type: 'transfer'
+  }
+];
 
-  // Academic Features
-  const innovativeFeatures = [
-    {
-      icon: IoRocketOutline,
-      title: 'Academic Excellence',
-      description: 'Comprehensive curriculum with focus on core subjects and practical skills development',
-      features: ['Quality Teaching', 'Regular Assessments', 'Exam Preparation', 'Academic Support'],
-      badge: 'Advanced',
-      color: 'from-blue-500 to-cyan-500',
-      stats: { students: '500+', success: '95%' }
-    },
-    {
-      icon: IoAccessibilityOutline,
-      title: 'Holistic Development',
-      description: 'Focus on academic, social, emotional, and physical growth through various programs',
-      features: ['Sports Programs', 'Clubs & Societies', 'Leadership Training', 'Character Building'],
-      badge: 'Comprehensive',
-      color: 'from-purple-500 to-pink-500',
-      stats: { students: '100%', success: '98%' }
-    },
-    {
-      icon: IoBuildOutline,
-      title: 'Practical Skills',
-      description: 'Emphasis on practical competencies and real-world application of knowledge',
-      features: ['Laboratory Work', 'Field Trips', 'Project Work', 'Skill Development'],
-      badge: 'Practical',
-      color: 'from-green-500 to-emerald-500',
-      stats: { students: '300+', success: '90%' }
-    }
-  ];
+const innovativeFeatures = [
+  {
+    icon: IoRocketOutline,
+    title: 'Academic Excellence',
+    description: 'Comprehensive residential curriculum with focus on core subjects and practical skills development',
+    features: ['Quality Teaching', 'Boarding Study Support', 'Exam Preparation', 'Academic Mentoring'],
+    badge: 'Advanced',
+    color: 'from-blue-500 to-cyan-500',
+    stats: { students: '500+', success: '95%' }
+  },
+  {
+    icon: IoAccessibilityOutline,
+    title: 'Holistic Development',
+    description: 'Focus on academic, social, emotional, and physical growth through residential programs',
+    features: ['Residential Life', 'Clubs & Societies', 'Leadership Training', 'Character Building'],
+    badge: 'Comprehensive',
+    color: 'from-purple-500 to-pink-500',
+    stats: { students: '100%', success: '98%' }
+  },
+  {
+    icon: IoBuildOutline,
+    title: 'Residential Facilities',
+    description: 'Safe, supportive boarding environment with 24/7 supervision and community living',
+    features: ['Secure Campus', '24/7 Supervision', 'Health Services', 'Community Activities'],
+    badge: 'Residential',
+    color: 'from-green-500 to-emerald-500',
+    stats: { students: '300+', success: '90%' }
+  }
+];
 
   // Updated tabs based on your academic page design
   const tabs = [
@@ -2477,12 +2475,12 @@ export default function ComprehensiveAdmissions() {
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Financial Transparency</span>
                 </div>
-                <h2 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
-                  Tuition <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Fee Structure</span>
-                </h2>
-                <p className="text-slate-500 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-                  Clear, comprehensive fee breakdown with flexible payment plans designed for accessibility.
-                </p>
+<h2 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
+  Boarding <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Fee Structure</span>
+</h2>
+<p className="text-slate-500 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+  Comprehensive boarding fee breakdown with transparent payment plans designed for residential education.
+</p>
               </div>
 
               {/* Fee Comparison Cards - Modern Grid */}
@@ -2499,18 +2497,7 @@ export default function ComprehensiveAdmissions() {
                   badge="Full Immersion"
                   features={['24/7 Supervision', 'Full Accommodation', 'All Meals Included', 'Study Support']}
                 />
-                <ModernFeeCard
-                  feeType="Day School"
-                  total={schoolData?.feesDay || 30200}
-                  distribution={schoolData?.feesDayDistribution}
-                  pdfPath={schoolData?.feesDayDistributionPdf}
-                  pdfName={schoolData?.feesDayPdfName}
-                  icon={FiHome}
-                  gradient="from-emerald-500 to-green-500"
-                  term="Annual"
-                  badge="Flexible"
-                  features={['Daily Transport', 'Lunch Provided', 'Evening Study', 'Parent Access']}
-                />
+  
               </div>
 
               {/* Admission Fee - Premium Banner */}

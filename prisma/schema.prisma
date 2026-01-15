@@ -266,78 +266,75 @@ model PromotionHistory {
 }
 
 model SchoolInfo {
-  id                           Int       @id @default(autoincrement())
-  name                         String
-  description                  String?   @db.Text
-  motto                        String?   @db.Text
-  vision                       String?   @db.Text
-  mission                      String?   @db.Text
-  videoTour                    String?
-  videoType                    String?
-  videoThumbnail               String?
-  videoThumbnailType           String?
-  studentCount                 Int
-  staffCount                   Int
-  feesDay                      Float?
-  feesDayDistributionJson      Json?
-  feesDayDistributionPdf       String?
-  feesDayPdfName               String?
-  feesDayPdfSize               Int?
-  feesDayPdfUploadDate         DateTime?
+  id                 Int     @id @default(autoincrement())
+  name               String
+  description        String? @db.Text
+  motto              String? @db.Text
+  vision             String? @db.Text
+  mission            String? @db.Text
+  videoTour          String?
+  videoType          String?
+  videoThumbnail     String?
+  videoThumbnailType String?
+  studentCount       Int
+  staffCount         Int
+
+  // BOARDING FEES ONLY (Day school fields removed)
   feesBoarding                 Float?
   feesBoardingDistributionJson Json?
   feesBoardingDistributionPdf  String?
   feesBoardingPdfName          String?
   feesBoardingPdfSize          Int?
   feesBoardingPdfUploadDate    DateTime?
-  openDate                     DateTime
-  closeDate                    DateTime
-  subjects                     Json
-  departments                  Json
-  curriculumPDF                String?
-  curriculumPdfName            String?
-  curriculumPdfSize            Int?
-  admissionOpenDate            DateTime?
-  admissionCloseDate           DateTime?
-  admissionRequirements        String?   @db.Text
-  admissionFee                 Float?
-  admissionFeeDistribution     Json?
-  admissionCapacity            Int?
-  admissionContactEmail        String?
-  admissionContactPhone        String?
-  admissionWebsite             String?
-  admissionLocation            String?
-  admissionOfficeHours         String?
-  admissionDocumentsRequired   Json?
-  admissionFeePdf              String?
-  admissionFeePdfName          String?
-  form1ResultsPdf              String?
-  form1ResultsPdfName          String?
-  form1ResultsPdfSize          Int?
-  form1ResultsYear             Int?
-  form2ResultsPdf              String?
-  form2ResultsPdfName          String?
-  form2ResultsPdfSize          Int?
-  form2ResultsYear             Int?
-  form3ResultsPdf              String?
-  form3ResultsPdfName          String?
-  form3ResultsPdfSize          Int?
-  form3ResultsYear             Int?
-  form4ResultsPdf              String?
-  form4ResultsPdfName          String?
-  form4ResultsPdfSize          Int?
-  form4ResultsYear             Int?
-  mockExamsResultsPdf          String?
-  mockExamsPdfName             String?
-  mockExamsPdfSize             Int?
-  mockExamsYear                Int?
-  kcseResultsPdf               String?
-  kcsePdfName                  String?
-  kcsePdfSize                  Int?
-  kcseYear                     Int?
-  additionalResultsFiles       Json?
-  createdAt                    DateTime  @default(now())
-  updatedAt                    DateTime  @updatedAt
+
+  openDate                   DateTime
+  closeDate                  DateTime
+  subjects                   Json
+  departments                Json
+  curriculumPDF              String?
+  curriculumPdfName          String?
+  curriculumPdfSize          Int?
+  admissionOpenDate          DateTime?
+  admissionCloseDate         DateTime?
+  admissionRequirements      String?   @db.Text
+  admissionFee               Float?
+  admissionFeeDistribution   Json?
+  admissionCapacity          Int?
+  admissionContactEmail      String?
+  admissionContactPhone      String?
+  admissionWebsite           String?
+  admissionLocation          String?
+  admissionOfficeHours       String?
+  admissionDocumentsRequired Json?
+  admissionFeePdf            String?
+  admissionFeePdfName        String?
+  form1ResultsPdf            String?
+  form1ResultsPdfName        String?
+  form1ResultsPdfSize        Int?
+  form1ResultsYear           Int?
+  form2ResultsPdf            String?
+  form2ResultsPdfName        String?
+  form2ResultsPdfSize        Int?
+  form2ResultsYear           Int?
+  form3ResultsPdf            String?
+  form3ResultsPdfName        String?
+  form3ResultsPdfSize        Int?
+  form3ResultsYear           Int?
+  form4ResultsPdf            String?
+  form4ResultsPdfName        String?
+  form4ResultsPdfSize        Int?
+  form4ResultsYear           Int?
+  mockExamsResultsPdf        String?
+  mockExamsPdfName           String?
+  mockExamsPdfSize           Int?
+  mockExamsYear              Int?
+  kcseResultsPdf             String?
+  kcsePdfName                String?
+  kcsePdfSize                Int?
+  kcseYear                   Int?
+  additionalResultsFiles     Json?
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
 
   @@index([name])
   @@index([admissionOpenDate, admissionCloseDate])
@@ -358,7 +355,7 @@ model AdmissionApplication {
   ward                   String
   village                String?
   email                  String    @unique
-  phone                  String?   // Changed to optional
+  phone                  String? // Changed to optional
   alternativePhone       String?
   postalAddress          String
   postalCode             String?
@@ -381,14 +378,14 @@ model AdmissionApplication {
   kcpeMarks              Int?
   meanGrade              String?
   // Removed preferredStream field
-  medicalCondition       String?  @db.Text
-  allergies              String? @db.Text
-  bloodGroup             String?   // Still kept but not in form
-  sportsInterests        String? @db.Text
-  clubsInterests         String? @db.Text
-  talents                String? @db.Text
+  medicalCondition       String?   @db.Text
+  allergies              String?   @db.Text
+  bloodGroup             String? // Still kept but not in form
+  sportsInterests        String?   @db.Text
+  clubsInterests         String?   @db.Text
+  talents                String?   @db.Text
   status                 String?   @default("PENDING")
-  decisionNotes          String? @db.Text
+  decisionNotes          String?   @db.Text
   admissionOfficer       String?
   decisionDate           DateTime?
   admissionDate          DateTime?
@@ -399,12 +396,12 @@ model AdmissionApplication {
   rejectionReason        String?
   alternativeSuggestions String?
   waitlistPosition       Int?
-  waitlistNotes          String? @db.Text
+  waitlistNotes          String?   @db.Text
   interviewDate          DateTime?
   interviewTime          String?
   interviewVenue         String?
-  interviewNotes         String? @db.Text
-  conditions             String? @db.Text
+  interviewNotes         String?   @db.Text
+  conditions             String?   @db.Text
   conditionDeadline      DateTime?
   houseAssigned          String?
   admissionClass         String?
