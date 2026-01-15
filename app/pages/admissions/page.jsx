@@ -748,120 +748,229 @@ const ModernFeeCard = ({
   badge,
   features = []
 }) => {
-  const baseColor = gradient.split('-')[1] || 'blue';
+  const baseColor = gradient.split('-')[1] || 'orange';
   
   return (
-    <div className="group relative bg-gradient-to-br from-white to-slate-50/50 rounded-2xl md:rounded-3xl border border-slate-100/80 overflow-hidden transition-all duration-500">
-      {/* Decorative Glow Effect */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 transition-opacity duration-500`}></div>
-      
-      {/* Header Section */}
-      <div className={`relative p-6 md:p-8 bg-gradient-to-r ${gradient} text-white`}>
-        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 blur-[60px] rounded-full -mr-24 -mt-24"></div>
+    <div className="relative w-full min-w-full bg-white rounded-xl md:rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden mx-auto">
+      {/* Header Section - Full Width with Responsive Padding */}
+      <div className={`relative w-full px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 lg:px-10 lg:py-12 bg-gradient-to-r ${gradient} text-white`}>
+        <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 bg-white/10 blur-[40px] sm:blur-[60px] md:blur-[80px] rounded-full -mr-16 sm:-mr-24 md:-mr-32 -mt-16 sm:-mt-24 md:-mt-32"></div>
         
-        <div className="relative z-10 flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3 md:gap-4">
-            <div className="p-2 md:p-3 bg-white/20 backdrop-blur-md rounded-xl md:rounded-2xl border border-white/30">
-              <Icon className="text-white text-xl md:text-2xl" />
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="p-2 sm:p-3 md:p-3 bg-white/20 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/30">
+              <Icon className="text-white text-xl sm:text-2xl md:text-2xl" />
             </div>
-            <div>
-              <h3 className="text-xl md:text-2xl font-bold">{feeType}</h3>
-              <p className="text-white/80 text-sm">{term} Fee Structure</p>
+            <div className="space-y-1">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold">{feeType}</h3>
+              <p className="text-white/90 text-sm sm:text-base">{term} Fee Structure</p>
             </div>
           </div>
           
           {badge && (
-            <span className="px-2 py-1 md:px-3 md:py-1.5 bg-white/20 backdrop-blur-md border border-white/30 rounded-full text-xs font-bold uppercase tracking-wider">
+            <span className="self-start sm:self-center px-3 py-1.5 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider">
               {badge}
             </span>
           )}
         </div>
         
-        {/* Total Fee Display */}
-        <div className="text-center py-4 border-t border-white/20">
-          <div className="text-sm font-medium text-white/90 mb-1">Total {term} Fees</div>
-          <div className="text-3xl md:text-5xl font-black">KSh {total?.toLocaleString() || '0'}</div>
-        </div>
+     {/* Total Fee Display - Condensed Modern Version */}
+<div className="text-center py-3 sm:py-5 border-t border-white/10 bg-white/5 backdrop-blur-sm rounded-b-2xl">
+  <div className="flex flex-col items-center gap-0 sm:gap-1">
+    <span className="text-[10px] sm:text-xs md:text-sm font-bold text-white/70 uppercase tracking-[0.2em]">
+      Total {term} Boarding Fees
+    </span>
+    
+    <div className="flex items-baseline gap-1 sm:gap-2 ">
+      <span className="text-lg sm:text-xl md:text-2xl font-light text-white/60">KSh</span>
+      <span className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+        {total?.toLocaleString() || '0'}
+      </span>
+    </div>
+    
+    {/* Subtle indicator for Boarding Only status */}
+    <div className="mt-1 px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/30 text-[9px] sm:text-[10px] text-orange-200 font-medium tracking-wide">
+      FULL BOARDING INCLUSIVE
+    </div>
+  </div>
+</div>
       </div>
       
-      {/* Content Section */}
-      <div className="p-4 md:p-6">
-        {/* Features List */}
-        {features.length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
-              <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Key Features</h4>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {features.slice(0, 4).map((feature, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm text-slate-600">
-                  <IoCheckmarkCircleOutline className={`text-${baseColor}-500 flex-shrink-0`} />
-                  <span className="truncate">{feature}</span>
-                </div>
-              ))}
-            </div>
+      {/* Content Section - Responsive Spacing */}
+      <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
+{/* Features List - Modernized for Boarding School */}
+{features.length > 0 && (
+  <div className="space-y-4 sm:space-y-6">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 animate-pulse"></div>
+      <h4 className="text-sm sm:text-base md:text-lg font-bold text-gray-800 uppercase tracking-widest">
+        Boarding Highlights
+      </h4>
+    </div>
+
+    {/* Responsive Grid: 1 column mobile, 2 columns tablet, 3 columns desktop */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      {features.slice(0, 6).map((feature, idx) => (
+        <div 
+          key={idx} 
+          className="group flex items-center gap-3 p-3 sm:p-4 bg-white rounded-xl border border-gray-100 
+                     shadow-sm hover:shadow-md hover:border-orange-200  
+                     transition-all duration-300 ease-out cursor-default"
+        >
+          {/* Icon with Zoom Effect */}
+          <div className="transform  transition-transform duration-300">
+            <IoCheckmarkCircleOutline className="text-orange-500 text-lg sm:text-xl -0" />
           </div>
-        )}
+
+          <span className="font-semibold text-gray-700 text-sm sm:text-base group-hover:text-orange-600 transition-colors">
+            {feature}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
         
-        {/* Fee Breakdown */}
-        {distribution && (
-          <div className="space-y-3 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
-              <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Fee Breakdown</h4>
+{/* Fee Breakdown - Modern Floating Cards */}
+{distribution && (
+  <div className="space-y-4 sm:space-y-6">
+    <div className="flex items-center justify-between px-2 sm:px-4">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-orange-500 to-amber-500"></div>
+        <h4 className="text-xs sm:text-sm font-black text-gray-500 uppercase tracking-[0.2em]">
+          Boarding Fee Breakdown
+        </h4>
+      </div>
+      <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md">
+        PER TERM
+      </span>
+    </div>
+    
+    <div className="grid grid-cols-1 gap-3 sm:gap-4">
+      {Object.entries(distribution).slice(0, 6).map(([category, amount], idx) => (
+        <div 
+          key={idx}
+          className="group relative flex items-center justify-between 
+                     px-6 sm:px-8 py-4 
+                     bg-white border border-gray-100 rounded-2xl
+                     transition-all duration-300 ease-out
+                     hover:shadow-xl hover:shadow-gray-200/50
+                     hover:border-orange-200 hover:z-10 cursor-default"
+        >
+          {/* Decorative hover background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-50/50 to-transparent opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-300"></div>
+
+          {/* Left section */}
+          <div className="relative flex items-center gap-5">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50 group-hover:bg-orange-100 group-hover:rotate-6 transition-all duration-300">
+              <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"></div>
             </div>
             
-            {Object.entries(distribution).slice(0, 5).map(([category, amount], idx) => (
-              <div 
-                key={idx}
-                className="flex items-center justify-between p-3 bg-white border border-slate-200/60 rounded-xl transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${gradient}`}></div>
-                  <span className="font-medium text-slate-700 text-sm capitalize">
-                    {category.replace(/([A-Z])/g, ' $1').trim()}
-                  </span>
-                </div>
-                <span className="font-bold text-slate-900">KSh {parseInt(amount).toLocaleString()}</span>
-              </div>
-            ))}
-            
-            {Object.keys(distribution).length > 5 && (
-              <div className="text-center pt-2">
-                <span className="text-xs text-slate-400 font-medium">
-                  +{Object.keys(distribution).length - 5} more items in PDF
-                </span>
-              </div>
-            )}
+            <div className="flex flex-col">
+              <span className="text-md font-bold text-slate-600 uppercase tracking-wider mb-0.5">
+                Category
+              </span>
+              <span className="font-bold text-gray-800 text-md sm:text-md capitalize group-hover:text-orange-700 transition-colors">
+                {category.replace(/([A-Z])/g, ' $1').trim()}
+              </span>
+            </div>
           </div>
-        )}
-        
-        {/* Action Section */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-100">
-          <div className="text-center sm:text-left">
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Complete Details</p>
-            {pdfPath && (
-              <a 
-                href={pdfPath} 
-                download={pdfName}
-                className="group inline-flex items-center gap-3 px-4 py-3 md:px-6 md:py-3 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-xl font-bold transition-all duration-200"
-              >
-                <div className="p-2 bg-white/10 rounded-lg transition-transform">
-                  <IoCloudDownloadOutline className="text-white" />
-                </div>
-                <span>Download PDF</span>
-              </a>
-            )}
-          </div>
-          
-          <div className="text-center">
-            <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Need Help?</div>
-            <button className="text-sm font-medium text-blue-600 transition-colors">
-              Calculate Payment Plan →
-            </button>
+
+          {/* Right section */}
+          <div className="relative text-right pr-1">
+            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">
+              Amount
+            </div>
+            <div className="flex items-baseline justify-end gap-1">
+              <span className="text-md font-medium text-slate-400">KSh</span>
+              <span className="font-black text-gray-900 text-md sm:text-xl group-hover:text-orange-600 transition-colors">
+                {parseInt(amount).toLocaleString()}
+              </span>
+            </div>
           </div>
         </div>
+      ))}
+    </div>
+
+    {Object.keys(distribution).length > 6 && (
+      <div className="relative flex justify-center py-2">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-100"></div>
+        </div>
+        <button className="relative px-4 bg-white text-[11px] font-bold text-gray-400 uppercase tracking-widest hover:text-orange-500 transition-colors">
+          +{Object.keys(distribution).length - 6} more details in PDF
+        </button>
+      </div>
+    )}
+  </div>
+)}
+
+        
+
+{/* Action Section - Compact & Modern */}
+<div className="flex flex-col md:flex-row items-end justify-between gap-6 pt-4 border-t border-gray-100">
+  
+  {/* Download Section */}
+  <div className="w-full md:w-auto space-y-2">
+    <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
+      Resources
+    </h5>
+
+    {pdfPath && (
+      <a 
+        href={pdfPath} 
+        download={pdfName}
+        className="group w-1/2 md:w-auto max-w-[220px]
+                   flex items-center justify-between gap-3
+                   px-4 py-2
+                   bg-gray-900/90 hover:bg-gray-900
+                   text-white rounded-xl
+                   transition-all duration-300
+                   shadow-sm hover:shadow-lg"
+      >
+        <div className="flex items-center gap-2">
+          <IoCloudDownloadOutline className="text-orange-400 text-sm transition-transform group-hover:-translate-y-0.5" />
+          <span className="text-md font-semibold whitespace-nowrap">
+            Download PDF
+          </span>
+        </div>
+
+        <span className="text-[10px] text-gray-400 font-mono hidden sm:block">
+          FILE
+        </span>
+      </a>
+    )}
+  </div>
+
+  {/* Help Section */}
+  <div className="w-full md:w-auto space-y-2">
+    <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
+      Support
+    </h5>
+
+    <button 
+      onClick={() => router.push('/pages/contact')}
+      className="group w-1/2 md:w-auto max-w-[220px]
+                 flex items-center justify-center gap-2
+                 px-4 py-2
+                 bg-white/80 backdrop-blur
+                 border border-gray-200
+                 text-gray-700 rounded-xl
+                 text-md font-bold
+                 transition-all duration-300
+                 hover:border-orange-400
+                 hover:text-orange-600
+                 hover:bg-orange-50/40"
+    >
+      <span>Contact Bursar</span>
+      <span className="text-orange-500 transition-transform group-hover:translate-x-1">
+        →
+      </span>
+    </button>
+  </div>
+</div>
+
+
       </div>
     </div>
   );
@@ -2484,7 +2593,7 @@ const innovativeFeatures = [
               </div>
 
               {/* Fee Comparison Cards - Modern Grid */}
-              <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+              <div>
                 <ModernFeeCard
                   feeType="Boarding School"
                   total={schoolData?.feesBoarding || 58700}
@@ -2495,7 +2604,18 @@ const innovativeFeatures = [
                   gradient="from-blue-500 to-cyan-500"
                   term="Annual"
                   badge="Full Immersion"
-                  features={['24/7 Supervision', 'Full Accommodation', 'All Meals Included', 'Study Support']}
+features={[
+  '24/7 Supervision',
+  'Full Accommodation',
+  'All Meals Included',
+  'Structured Study Support',
+  'Guidance and Counselling Services',
+  'Health & Wellness Support',
+  'Co-curricular & Talent Development',
+  'Spiritual & Moral Development',
+  'Safe & Secure Boarding Environment',
+  'Mentorship & Life Skills Training'
+]}
                 />
   
               </div>

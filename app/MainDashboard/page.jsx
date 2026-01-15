@@ -72,7 +72,7 @@ export default function AdminDashboard() {
 
   // Modern Loading Screen with Enhanced Design
   const LoadingScreen = () => (
-    <div className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 z-50 flex flex-col items-center justify-center">
+    <div className="fixed inset-0 bg-gradient-to-br from-orange-900 via-amber-900 to-red-900 z-50 flex flex-col items-center justify-center">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(15)].map((_, i) => (
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
           
           {/* Center Logo */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 rounded-2xl flex items-center justify-center overflow-hidden">
+      <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center overflow-hidden">
               <img 
                 src="/ll.png" 
                 alt="School Logo" 

@@ -2155,25 +2155,40 @@ function ModernExamMappingView({
                 </div>
               </div>
               
-              <p className="text-sm leading-relaxed text-slate-500 max-w-2xl">
+              <p className="text-md leading-relaxed text-slate-900 max-w-2xl">
                 Manage your academic portfolio by organizing supplementary transcripts and examination records. 
                 All files are stored securely and can be previewed or downloaded instantly.
               </p>
               
               {/* Edit Button - Mobile (below description) */}
-              <div className="sm:hidden pt-2">
-              <button
-  onClick={() => setIsEditing(prev => !prev)}
-  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-200
-    ${isEditing
-      ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-sm'
-      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}
-  `}
->
-  {isEditing ? 'Done' : 'Edit Files'}
-</button>
+       <div className="sm:hidden pt-2">
+  <button
+    onClick={() => setIsEditing(prev => !prev)}
+    className={`group inline-flex items-center gap-2
+      px-4 py-2 rounded-full
+      text-xs font-bold tracking-wide
+      transition-all duration-300 ease-out
+      ${
+        isEditing
+          ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-orange-200/40'
+          : 'bg-white/80 backdrop-blur border border-slate-200 text-slate-900 shadow-sm'
+      }
+    `}
+  >
+    <span className="transition-transform duration-300 group-hover:-translate-y-0.5">
+      {isEditing ? 'Done Editing' : 'Edit Files'}
+    </span>
 
-              </div>
+    <span
+      className={`text-[11px] transition-transform duration-300
+        ${isEditing ? 'group-hover:rotate-6' : 'group-hover:translate-x-0.5'}
+      `}
+    >
+      {isEditing ? '✓' : '✎'}
+    </span>
+  </button>
+</div>
+
             </div>
             
             <div className="flex items-center gap-2 self-start lg:self-center">
@@ -2181,144 +2196,139 @@ function ModernExamMappingView({
                 {/* Decorative file stack effect */}
                 {[...Array(Math.min(displayFiles.length, 3))].map((_, i) => (
                   <div key={i} className="w-8 h-8 rounded-lg border-2 border-white bg-slate-100 flex items-center justify-center shadow-sm">
-                    <FaFile className="text-[10px] text-slate-400" />
+                    <FaFile className="text-[10px] text-slate-900" />
                   </div>
                 ))}
               </div>
-              <span className="ml-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
+              <span className="ml-2 text-md font-bold text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
                 {displayFiles.length} {displayFiles.length === 1 ? 'Resource' : 'Resources'}
               </span>
             </div>
           </div>
 
-          {isEditing ? (
-            <div className="space-y-6">
-              {/* Upload Area for Edit Mode */}
-              <div 
-                className="border-2 border-dashed border-amber-300 rounded-3xl p-8 text-center transition-all duration-300 cursor-pointer bg-gradient-to-br from-amber-50/50 to-orange-50/30 hover:border-amber-400 hover:bg-amber-50"
-                onDrop={handleFileDrop}
-                onDragOver={(e) => { e.preventDefault(); }}
-                onDragLeave={(e) => { e.preventDefault(); }}
-                onClick={handleFileUploadClick}
-              >
-                <div className="relative">
-                  <FaUpload className="mx-auto text-3xl mb-3 text-amber-500" />
-                </div>
-                <p className="text-gray-700 mb-1 font-medium text-sm">
-                  Click to upload or drag & drop new files
-                </p>
-                <p className="text-xs text-gray-600">
-                  PDF, Images, Documents • Max 50MB each
-                </p>
-                <input 
-                  ref={fileInputRef}
-                  type="file" 
-                  multiple
-                  onChange={handleFileInputChange}
-                  className="hidden"
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
-                />
-              </div>
+     {isEditing ? (
+  <div className="space-y-6">
+    {/* Upload Area */}
+    <div 
+      className="border-2 border-dashed border-gray-200 rounded-3xl p-8 text-center bg-gray-50 cursor-pointer"
+      onDrop={handleFileDrop}
+      onDragOver={(e) => { e.preventDefault(); }}
+      onDragLeave={(e) => { e.preventDefault(); }}
+      onClick={handleFileUploadClick}
+    >
+      <div className="relative">
+        <FaUpload className="mx-auto text-2xl mb-3 text-gray-400" />
+      </div>
+      <p className="text-gray-900 mb-1 font-semibold text-md">
+        Click to upload or drag & drop new files
+      </p>
+      <p className="text-md text-gray-900">
+        PDF, Images, Documents • Max 50MB each
+      </p>
+      <input 
+        ref={fileInputRef}
+        type="file" 
+        multiple
+        onChange={handleFileInputChange}
+        className="hidden"
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+      />
+    </div>
 
-              {/* Files List in Edit Mode */}
-              {displayFiles.length > 0 && (
-                <div className="space-y-4">
-                  <h5 className="text-sm font-bold text-gray-700">
-                    Files to be saved ({displayFiles.length} files):
-                    {filesToRemove.length > 0 && <span className="ml-2 text-red-600">({filesToRemove.length} marked for deletion)</span>}
-                  </h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {displayFiles.map((file) => (
-                      <div 
-                        key={file.id} 
-                        className={`bg-white rounded-xl p-4 border ${file.isReplaced ? 'border-yellow-200 bg-yellow-50' : file.isNew ? 'border-green-200 bg-green-50' : 'border-gray-200'}`}
+    {/* Files List */}
+    {displayFiles.length > 0 && (
+      <div className="space-y-4">
+        <h5 className="text-md font-bold text-slate-900 uppercase tracking-wider">
+          Files to be saved ({displayFiles.length}):
+          {filesToRemove.length > 0 && <span className="ml-2 text-red-500">({filesToRemove.length} marked for deletion)</span>}
+        </h5>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {displayFiles.map((file) => (
+            <div 
+              key={file.id} 
+              className={`bg-white rounded-2xl p-4 border shadow-sm ${file.isReplaced ? 'border-amber-100 bg-amber-50/30' : file.isNew ? 'border-emerald-100 bg-emerald-50/30' : 'border-gray-100'}`}
+            >
+              <div className="flex items-start gap-3 mb-4">
+                <div className="p-2.5 bg-gray-50 border border-gray-100 rounded-xl">
+                  {getFileIcon(file.filetype)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-gray-900 text-md truncate">
+                    {file.filename || file.name || 'Document'}
+                    {file.isReplaced && <span className="ml-2 text-md text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded font-bold uppercase">Replaced</span>}
+                    {file.isNew && !file.isReplacement && <span className="ml-2 text-md text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded font-bold uppercase">New</span>}
+                  </p>
+                  <p className="text-md text-gray-500 mt-0.5">
+                    {formatFileSize(file.filesize || file.size)} • 
+                    {file.isExisting ? ' Existing' : ' New'}
+                  </p>
+                </div>
+                <div className="flex gap-1.5">
+                  {file.isExisting && !file.isReplaced ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => handleReplaceFile(file.id)}
+                        className="p-2 text-blue-600 bg-blue-50 rounded-lg"
+                        title="Replace file"
                       >
-                        <div className="flex items-start gap-3 mb-3">
-                          <div className="p-2 bg-gray-100 rounded-lg">
-                            {getFileIcon(file.filetype)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-gray-900 text-sm truncate">
-                              {file.filename || file.name || 'Document'}
-                              {file.isReplaced && <span className="ml-2 text-xs text-yellow-600 bg-yellow-100 px-2 py-0.5 rounded">(Replaced)</span>}
-                              {file.isNew && !file.isReplacement && <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded">(New)</span>}
-                              {file.isNew && file.isReplacement && <span className="ml-2 text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded">(Replacement)</span>}
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              {formatFileSize(file.filesize || file.size)} • 
-                              {file.isExisting ? ' Existing' : ' New'} • 
-                              {file.isModified && ' Modified'}
-                            </p>
-                          </div>
-                          <div className="flex gap-2">
-                            {file.isExisting && !file.isReplaced ? (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => handleReplaceFile(file.id)}
-                                  className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1"
-                                  title="Replace file"
-                                >
-                                  <FaUpload className="text-xs" /> Replace
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveLocalFile(file.id)}
-                                  className="px-3 py-1.5 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1"
-                                  title="Remove file"
-                                >
-                                  <FaTrash className="text-xs" /> Delete
-                                </button>
-                              </>
-                            ) : file.isNew ? (
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveLocalFile(file.id)}
-                                className="px-3 py-1.5 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1"
-                                title="Remove file"
-                              >
-                                <FaTimes className="text-xs" /> Remove
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1">
-                              Year
-                            </label>
-                            <input
-                              type="number"
-                              min="2000"
-                              max="2100"
-                              value={file.year || ''}
-                              onChange={(e) => handleFileYearChange(file.id, e.target.value)}
-                              placeholder="YYYY"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1">
-                              Description
-                            </label>
-                            <input
-                              type="text"
-                              value={file.description || ''}
-                              onChange={(e) => handleFileDescriptionChange(file.id, e.target.value)}
-                              placeholder="Brief description..."
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                        <FaUpload size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveLocalFile(file.id)}
+                        className="p-2 text-red-600 bg-red-50 rounded-lg"
+                        title="Delete file"
+                      >
+                        <FaTrash size={12} />
+                      </button>
+                    </>
+                  ) : file.isNew ? (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveLocalFile(file.id)}
+                      className="p-2 text-gray-400 bg-gray-100 rounded-lg"
+                      title="Remove file"
+                    >
+                      <FaTimes size={12} />
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="col-span-1">
+                    <label className="block text-md font-bold text-slate-900 uppercase mb-1">Year</label>
+                    <input
+                      type="number"
+                      min="2000"
+                      max="2100"
+                      value={file.year || ''}
+                      onChange={(e) => handleFileYearChange(file.id, e.target.value)}
+                      placeholder="Enter Year"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none text-md"
+                    />
+                  </div>
+                  <div className="col-span-3">
+                    <label className="block text-md font-bold text-slate-900 uppercase mb-1">Description</label>
+                    <input
+                      type="text"
+                      value={file.description || ''}
+                      onChange={(e) => handleFileDescriptionChange(file.id, e.target.value)}
+                      placeholder="Brief description..."
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none text-md"
+                    />
                   </div>
                 </div>
-              )}
+              </div>
             </div>
-          ) : (
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+) : (
             <div className="space-y-4">
               {displayFiles.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -2530,18 +2540,18 @@ function CustomFeeBreakdown({
   };
 
   return (
-    <div className={`bg-gradient-to-br ${color} rounded-lg p-4 border ${color.includes('green') ? 'border-green-200' : color.includes('blue') ? 'border-blue-200' : 'border-orange-200'}`}>
+    <div className={`bg-gradient-to-br ${color} rounded-lg p-5 border ${color.includes('green') ? 'border-green-200' : color.includes('blue') ? 'border-blue-200' : 'border-orange-200'}`}>
       <div className="flex justify-between items-center mb-4">
-        <h4 className="font-bold text-gray-900 text-sm">{title} Breakdown</h4>
-        <div className="text-sm font-bold text-gray-700">
+        <h4 className="font-bold text-gray-900 text-base">{title} Breakdown</h4>
+        <div className="text-base font-bold text-gray-700">
           Total: KES {calculatedTotal.toLocaleString()}
         </div>
       </div>
       
-      <div className="bg-white rounded-lg p-3 mb-4 border border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-bold text-gray-600 mb-1.5">
+            <label className="block text-sm font-bold text-gray-600 mb-1.5">
               Fee Name
             </label>
             <input
@@ -2549,13 +2559,13 @@ function CustomFeeBreakdown({
               value={newFeeName}
               onChange={(e) => setNewFeeName(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="e.g., Tuition, Activity, Library"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              placeholder="e.g., Tuition, Activity"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-base"
             />
           </div>
           
           <div>
-            <label className="block text-xs font-bold text-gray-600 mb-1.5">
+            <label className="block text-sm font-bold text-gray-600 mb-1.5">
               Amount (KES)
             </label>
             <input
@@ -2565,7 +2575,7 @@ function CustomFeeBreakdown({
               onChange={(e) => setNewFeeAmount(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Enter amount"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-base"
             />
           </div>
           
@@ -2574,29 +2584,29 @@ function CustomFeeBreakdown({
               type="button"
               onClick={handleAddFee}
               disabled={!newFeeName.trim() || !newFeeAmount}
-              className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition duration-200 font-bold disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg font-bold disabled:opacity-50 text-sm"
             >
-              <FaPlus className="inline mr-1" /> Add Fee
+              <FaPlus className="inline mr-1" /> Add 
             </button>
           </div>
         </div>
       </div>
 
-      <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+      <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
         {fees.length === 0 ? (
-          <div className="text-center py-4 text-gray-500 text-sm">
-            No fees added yet. Add your first fee item above.
+          <div className="text-center py-6 text-gray-500 text-base">
+            No fees added yet.
           </div>
         ) : (
           fees.map((fee, index) => (
             <div key={index} className="bg-white rounded-lg p-3 border border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                 <div>
                   <input
                     type="text"
                     value={fee.name}
                     onChange={(e) => updateFeeName(index, e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base font-medium"
                   />
                 </div>
                 
@@ -2606,21 +2616,21 @@ function CustomFeeBreakdown({
                     min="0"
                     value={fee.amount || ''}
                     onChange={(e) => updateFeeAmount(index, e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base font-medium"
                   />
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-gray-700">
+                  <span className="text-base font-bold text-gray-700">
                     KES {(parseFloat(fee.amount) || 0).toLocaleString()}
                   </span>
                   <button
                     type="button"
                     onClick={() => handleRemoveFee(index)}
-                    className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
+                    className="text-red-500 p-2 rounded"
                     title="Remove fee"
                   >
-                    <FaTimes className="text-sm" />
+                    <FaTimes size={18} />
                   </button>
                 </div>
               </div>
@@ -3869,45 +3879,59 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       
                       <div className="space-y-3">
                         <div>
-                          <label className="block text-xs font-bold text-gray-600 mb-1.5">
+                          <label className="block text-md font-bold text-gray-900 mb-1.5">
                             Opening Date <span className="text-red-500">*</span>
                           </label>
-                          <TextField 
-                            fullWidth 
-                            size="small"
-                            type="date"
-                            value={formData.openDate} 
-                            onChange={(e) => handleChange('openDate', e.target.value)}
-                            required
-                            sx={{
-                              '& .MuiOutlinedInput-root': {
-                                borderRadius: '8px',
-                                backgroundColor: 'white',
-                                fontSize: '0.875rem'
-                              }
-                            }}
-                          />
+                         <TextField 
+  fullWidth 
+  // size="small" <- Removed this to allow it to be larger
+  type="date"
+  value={formData.openDate} 
+  onChange={(e) => handleChange('openDate', e.target.value)}
+  required
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '12px', // Slightly rounder for the larger size
+      backgroundColor: 'white',
+      fontSize: '1rem', // Increased font size (from 0.875rem to 1rem)
+      '& input': {
+        padding: '12px 14px', // Increases the internal height/width feel
+      },
+      '& fieldset': {
+        borderWidth: '1px', // Keeps it clean
+      },
+    },
+    // This ensures the input takes up the full container width effectively
+    width: '100%', 
+  }}
+/>
                         </div>
                         
                         <div>
-                          <label className="block text-xs font-bold text-gray-600 mb-1.5">
+                          <label className="block text-md font-bold text-gray-900 mb-1.5">
                             Closing Date <span className="text-red-500">*</span>
                           </label>
-                          <TextField 
-                            fullWidth 
-                            size="small"
-                            type="date"
-                            value={formData.closeDate} 
-                            onChange={(e) => handleChange('closeDate', e.target.value)}
-                            required
-                            sx={{
-                              '& .MuiOutlinedInput-root': {
-                                borderRadius: '8px',
-                                backgroundColor: 'white',
-                                fontSize: '0.875rem'
-                              }
-                            }}
-                          />
+                       <TextField 
+  fullWidth 
+  // size="small" <- Removed for larger appearance
+  type="date"
+  value={formData.closeDate} 
+  onChange={(e) => handleChange('closeDate', e.target.value)}
+  required
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '12px',
+      backgroundColor: 'white',
+      fontSize: '1rem', // Increased font
+      '& input': {
+        padding: '12px 14px', // Increased height/vertical space
+      },
+    },
+    // Added width control
+    maxWidth: '100%',
+    minWidth: '200px', 
+  }}
+/>
                         </div>
                       </div>
                     </div>
@@ -4032,43 +4056,56 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                            <label className="block text-md font-bold text-gray-900 mb-2">
                               Admission Opens
                             </label>
-                            <TextField 
-                              fullWidth 
-                              size="small"
-                              type="date"
-                              value={formData.admissionOpenDate} 
-                              onChange={(e) => handleChange('admissionOpenDate', e.target.value)}
-                              sx={{
-                                '& .MuiOutlinedInput-root': {
-                                  borderRadius: '8px',
-                                  backgroundColor: 'white',
-                                  fontSize: '0.875rem'
-                                }
-                              }}
-                            />
+                           <TextField 
+  fullWidth 
+  // size="small" <- Removed for increased height and width
+  type="date"
+  value={formData.admissionOpenDate} 
+  onChange={(e) => handleChange('admissionOpenDate', e.target.value)}
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '12px', // Increased from 8px for a more modern look
+      backgroundColor: 'white',
+      fontSize: '1rem', // Increased font size for better readability
+      '& input': {
+        padding: '12px 14px', // Increases the internal width and height
+      },
+    },
+    // Ensures the input container feels substantial
+    width: '100%',
+  }}
+/>
                           </div>
                           
                           <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                            <label className="block text-mc font-bold text-gray-900 mb-2">
                               Admission Closes
                             </label>
-                            <TextField 
-                              fullWidth 
-                              size="small"
-                              type="date"
-                              value={formData.admissionCloseDate} 
-                              onChange={(e) => handleChange('admissionCloseDate', e.target.value)}
-                              sx={{
-                                '& .MuiOutlinedInput-root': {
-                                  borderRadius: '8px',
-                                  backgroundColor: 'white',
-                                  fontSize: '0.875rem'
-                                }
-                              }}
-                            />
+                         <TextField 
+  fullWidth 
+  // size="small" <- Removed to match the larger 'Admission Open Date'
+  type="date"
+  value={formData.admissionCloseDate} 
+  onChange={(e) => handleChange('admissionCloseDate', e.target.value)}
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '12px',
+      backgroundColor: 'white',
+      fontSize: '1rem', // Increased font for readability
+      '& input': {
+        padding: '12px 14px', // Increased vertical and horizontal breathing room
+      },
+      // Optional: adds a subtle border color to distinguish it from the background
+      '& fieldset': {
+        borderColor: '#e2e8f0', 
+      },
+    },
+    width: '100%',
+  }}
+/>
                           </div>
                         </div>
                         
@@ -4119,27 +4156,30 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                           />
                         </div>
 
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2">
-                            Admission Capacity
-                          </label>
-                          <TextField 
-                            fullWidth 
-                            size="small"
-                            type="number"
-                            min="1"
-                            value={formData.admissionCapacity} 
-                            onChange={(e) => handleChange('admissionCapacity', e.target.value)}
-                            placeholder="Enter admission capacity"
-                            sx={{
-                              '& .MuiOutlinedInput-root': {
-                                borderRadius: '10px',
-                                backgroundColor: 'white',
-                                fontSize: '0.875rem'
-                              }
-                            }}
-                          />
-                        </div>
+                    <div>
+  <label className="block text-md font-bold text-gray-900 mb-2">
+    Admission Capacity
+  </label>
+  <TextField 
+    fullWidth 
+    // size="small" <- Removed to allow for a larger, modern height
+    type="number"
+    slotProps={{ htmlInput: { min: 1 } }} // Correct way to pass min in newer MUI
+    value={formData.admissionCapacity} 
+    onChange={(e) => handleChange('admissionCapacity', e.target.value)}
+    placeholder="Enter admission capacity"
+    sx={{
+      '& .MuiOutlinedInput-root': {
+        borderRadius: '12px', // Matched to 12px for consistency
+        backgroundColor: 'white',
+        fontSize: '1rem', // Increased font size
+        '& input': {
+          padding: '12px 14px', // Increased internal space/width feel
+        }
+      }
+    }}
+  />
+</div>
                       </div>
                     </div>
 
@@ -4163,13 +4203,16 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                                 value={examYears.form1ResultsYear} 
                                 onChange={(e) => handleExamYearChange('form1ResultsYear', e.target.value)}
                                 placeholder="Year"
-                                sx={{
-                                  '& .MuiOutlinedInput-root': {
-                                    borderRadius: '8px',
-                                    backgroundColor: 'white',
-                                    fontSize: '0.875rem'
-                                  }
-                                }}
+                            sx={{
+      '& .MuiOutlinedInput-root': {
+        borderRadius: '12px', // Matched to 12px for consistency
+        backgroundColor: 'white',
+        fontSize: '1rem', // Increased font size
+        '& input': {
+          padding: '12px 14px', // Increased internal space/width feel
+        }
+      }
+    }}
                               />
                             </div>
                           </div>
@@ -4199,9 +4242,12 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                                 placeholder="Year"
                                 sx={{
                                   '& .MuiOutlinedInput-root': {
-                                    borderRadius: '8px',
+                                    borderRadius: '12px', // Matched to 12px for consistency
                                     backgroundColor: 'white',
-                                    fontSize: '0.875rem'
+                                    fontSize: '1rem', // Increased font size
+                                    '& input': {
+                                      padding: '12px 14px', // Increased internal space/width feel
+                                    }
                                   }
                                 }}
                               />
@@ -4239,14 +4285,14 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                 
 
 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+  <h3 className="text-md font-bold text-gray-900 mb-3 flex items-center gap-2">
     <FaPhone className="text-blue-600" />
     Admission Contact Information
   </h3>
   
   <div className="space-y-3">
     <div>
-      <label className="block text-xs font-bold text-gray-600 mb-1.5">
+      <label className="block text-md font-bold text-gray-900 mb-1.5">
         Admission Contact Email
       </label>
       <TextField 
@@ -4258,16 +4304,19 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
         placeholder="admissions@school.edu"
         sx={{
           '& .MuiOutlinedInput-root': {
-            borderRadius: '8px',
+            borderRadius: '12px', // Matched to 12px for consistency
             backgroundColor: 'white',
-            fontSize: '0.875rem'
+            fontSize: '1rem', // Increased font size
+            '& input': {
+              padding: '12px 14px', // Increased internal space/width feel
+            }
           }
         }}
       />
     </div>
     
     <div>
-      <label className="block text-xs font-bold text-gray-600 mb-1.5">
+      <label className="block text-md font-bold text-gray-900 mb-1.5">
         Admission Contact Phone
       </label>
       <TextField 
@@ -4277,13 +4326,16 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
         value={formData.admissionContactPhone} 
         onChange={(e) => handleChange('admissionContactPhone', e.target.value)}
         placeholder="+254 123 456 789"
-        sx={{
-          '& .MuiOutlinedInput-root': {
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            fontSize: '0.875rem'
-          }
-        }}
+         sx={{
+      '& .MuiOutlinedInput-root': {
+        borderRadius: '12px', // Matched to 12px for consistency
+        backgroundColor: 'white',
+        fontSize: '1rem', // Increased font size
+        '& input': {
+          padding: '12px 14px', // Increased internal space/width feel
+        }
+      }
+    }}
       />
     </div>
     
@@ -4299,17 +4351,20 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
         onChange={(e) => handleChange('admissionWebsite', e.target.value)}
         placeholder="https://school.edu/admissions"
         sx={{
-          '& .MuiOutlinedInput-root': {
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            fontSize: '0.875rem'
-          }
-        }}
+          '&  .MuiOutlinedInput-root': {
+        borderRadius: '12px', // Matched to 12px for consistency
+        backgroundColor: 'white',
+        fontSize: '1rem', // Increased font size
+        '& input': {
+          padding: '12px 14px', // Increased internal space/width feel
+        }
+      }
+    }}
       />
     </div>
     
     <div>
-      <label className="block text-xs font-bold text-gray-600 mb-1.5">
+      <label className="block text-md font-bold text-gray-900 mb-1.5">
         Admission Location
       </label>
       <TextField 
@@ -4320,16 +4375,19 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
         placeholder="School Campus, Room 101"
         sx={{
           '& .MuiOutlinedInput-root': {
-            borderRadius: '8px',
+            borderRadius: '12px', // Matched to 12px for consistency
             backgroundColor: 'white',
-            fontSize: '0.875rem'
+            fontSize: '1rem', // Increased font size
+            '& input': {
+              padding: '12px 14px', // Increased internal space/width feel
+            }
           }
         }}
       />
     </div>
     
     <div>
-      <label className="block text-xs font-bold text-gray-600 mb-1.5">
+      <label className="block text-md font-bold text-gray-900 mb-1.5">
         Admission Office Hours
       </label>
       <TextField 
@@ -4339,12 +4397,15 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
         onChange={(e) => handleChange('admissionOfficeHours', e.target.value)}
         placeholder="Mon-Fri: 8:00 AM - 4:00 PM"
         sx={{
-          '& .MuiOutlinedInput-root': {
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            fontSize: '0.875rem'
-          }
-        }}
+          '&  .MuiOutlinedInput-root': {
+        borderRadius: '12px', // Matched to 12px for consistency
+        backgroundColor: 'white',
+        fontSize: '1rem', // Increased font size
+        '& input': {
+          padding: '12px 14px', // Increased internal space/width feel
+        }
+      }
+    }}
       />
     </div>
   </div>
@@ -4365,7 +4426,7 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                         ].map((exam) => (
                           <div key={exam.key} className="space-y-2">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                              <label className="text-sm font-bold text-gray-700">{exam.label}</label>
+                              <label className="text-md font-bold text-gray-900">{exam.label}</label>
                               <div className="w-full sm:w-28">
                                 <TextField 
                                   fullWidth 
@@ -4377,12 +4438,15 @@ function ModernSchoolModal({ onClose, onSave, school, loading }) {
                                   onChange={(e) => handleExamYearChange(exam.yearKey, e.target.value)}
                                   placeholder="Year"
                                   sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                      borderRadius: '8px',
-                                      backgroundColor: 'white',
-                                      fontSize: '0.875rem'
-                                    }
-                                  }}
+                                    '&  .MuiOutlinedInput-root': {
+        borderRadius: '12px', // Matched to 12px for consistency
+        backgroundColor: 'white',
+        fontSize: '1rem', // Increased font size
+        '& input': {
+          padding: '12px 14px', // Increased internal space/width feel
+        }
+      }
+    }}
                                 />
                               </div>
                             </div>
