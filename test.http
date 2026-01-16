@@ -1,6 +1,155 @@
-   <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-lg">
-                <h3 className="text-2xl font-bold text-slate-900 mb-4">Our Location</h3>
-                <div className="h-[400px] rounded-xl overflow-hidden">
-                  <MapComponent />
-                </div>
-              </div>
+### Create News 1: School Achieves Top KCSE Results
+POST http://localhost:3001/api/news
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+School Celebrates Record-Breaking KCSE 2023 Results
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="excerpt"
+
+Our school achieves historic 85% mean score in 2023 KCSE examinations, ranking among top 10 schools nationally.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="fullContent"
+
+We are thrilled to announce that our school has achieved outstanding results in the 2023 Kenya Certificate of Secondary Education (KCSE) examinations. With a mean score of 85%, we have set a new school record and ranked among the top 10 schools nationally.
+
+**Key Highlights:**
+- 92% of students attained university entry grades (C+ and above)
+- 15 students achieved straight A grades
+- 45% of students scored A- and above in Mathematics and Sciences
+- 100% transition to university for all eligible candidates
+
+These exceptional results reflect the dedication of our teaching staff, the hard work of our students, and the unwavering support from parents and guardians. Our STEM program, introduced three years ago, has shown remarkable success with students excelling in Physics, Chemistry, and Biology.
+
+The Principal, Dr. Elizabeth Muthoni, commended the students and staff: "This achievement is a testament to our holistic approach to education, combining academic excellence with character development. We are proud to nurture not just academically gifted students, but well-rounded individuals ready to contribute to society."
+
+Celebrations will be held on Friday, 15th March 2024, at the school auditorium. All parents, alumni, and well-wishers are invited to join us in celebrating this remarkable achievement.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="date"
+
+2024-03-10
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
+
+achievement
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="author"
+
+School Administration
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"
+
+< ./news1.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Create News 2: New Science Laboratory Opening
+POST http://localhost:3001/api/news
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+State-of-the-Art Science Laboratory Officially Opened
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="excerpt"
+
+Modern science facility equipped with cutting-edge technology to enhance STEM education and research capabilities.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="fullContent"
+
+A major milestone in our school's development was reached today with the official opening of the new state-of-the-art Science Laboratory. Funded through the school's development fund and donations from alumni, this Ksh 25 million facility represents our commitment to providing world-class STEM education.
+
+**Laboratory Features:**
+- Fully equipped Chemistry, Physics, and Biology sections
+- Digital microscopes with projection capabilities
+- Computerized data collection and analysis systems
+- Safety-first design with modern ventilation and emergency systems
+- Capacity for 40 students per session
+- Dedicated research area for advanced projects
+
+The laboratory was officially opened by the County Director of Education, Mrs. Jane Wambui, who praised the school's initiative: "This facility sets a new standard for science education in the county. It demonstrates what can be achieved when schools, parents, and alumni work together for educational excellence."
+
+Our Head of Sciences Department, Mrs. Sarah Achieng, expressed her excitement: "This laboratory will revolutionize how we teach science. Students can now conduct experiments that were previously only possible at university level. It will particularly benefit our STEM club members who are working on innovative projects."
+
+**Future Plans:**
+The new laboratory will host:
+- Annual Science Fair starting June 2024
+- Saturday science workshops for local primary schools
+- Teacher training programs for neighboring schools
+- Research partnerships with local universities
+
+The facility is already in use, with Form 4 students conducting their practical examinations this term.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="date"
+
+2024-02-28
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
+
+infrastructure
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="author"
+
+Science Department
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"
+
+< ./news2.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Create News 3: Basketball Team Wins Regional Championship
+POST http://localhost:3001/api/news
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+School Basketball Team Crowned Regional Champions
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="excerpt"
+
+Undefeated basketball team wins regional championship, qualifies for national finals after thrilling tournament.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="fullContent"
+
+History was made today as our school's basketball team emerged victorious in the Regional Secondary Schools Basketball Championship. After three days of intense competition, our team remained undefeated, clinching the championship title and securing a spot in the national finals.
+
+**Tournament Highlights:**
+- **Quarterfinal:** School 72 - 45 St. Mary's High
+- **Semifinal:** School 68 - 52 Kitale Boys
+- **Championship Final:** School 75 - 70 Moi High (Overtime)
+
+The final match was a nail-biting affair that went into overtime, with our team showing remarkable resilience and teamwork. Team Captain, John Otieno (Form 4), scored the winning basket with only 3 seconds remaining on the clock.
+
+Coach Samuel Kiptoo expressed his pride: "These boys have trained relentlessly for this moment. Their discipline, teamwork, and never-give-up attitude paid off. We're now focused on preparing for the national finals in April."
+
+**Individual Awards:**
+- MVP of the Tournament: Michael Omondi (Form 3)
+- Best Defender: David Kimani (Form 4)
+- Most Improved Player: Brian Mwangi (Form 2)
+
+The team will now represent our region at the National Secondary Schools Basketball Finals scheduled for April 15-20, 2024, in Nairobi. This is the first time our school has qualified for the national basketball finals.
+
+**Celebration Parade:**
+The team will be welcomed back with a victory parade through the school on Monday, 11th March 2024, at 10:00 AM. All students, staff, and parents are invited to join the celebration.
+
+The Principal announced a special assembly to honor the team: "This victory demonstrates the importance of balancing academics with extracurricular activities. We are proud of these young athletes who have brought glory to our school."
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="date"
+
+2024-03-08
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category"
+
+sports
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="author"
+
+Sports Department
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"
+
+< ./news3.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

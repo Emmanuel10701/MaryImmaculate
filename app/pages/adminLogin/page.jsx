@@ -191,19 +191,18 @@ export default function AdminLoginPage() {
       setIsLoading(false);
     }
   };
+const securityFeatures = [
+  { icon: <Shield className="w-4 h-4" />, label: "Secure Student Data", color: "emerald" },
+  { icon: <Cpu className="w-4 h-4" />, label: "Automated Fee Tracking", color: "blue" },
+  { icon: <Database className="w-4 h-4" />, label: "Daily Cloud Backups", color: "purple" },
+  { icon: <Network className="w-4 h-4" />, label: "Portal Access Control", color: "orange" },
+];
 
-  const securityFeatures = [
-    { icon: <Shield className="w-4 h-4" />, label: "Military-Grade Encryption", color: "emerald" },
-    { icon: <Cpu className="w-4 h-4" />, label: "AI Threat Detection", color: "blue" },
-    { icon: <Database className="w-4 h-4" />, label: "Zero-Knowledge Proof", color: "purple" },
-    { icon: <Network className="w-4 h-4" />, label: "Distributed Authentication", color: "orange" },
-  ];
-
-  const systemMetrics = [
-    { label: "Active Sessions", value: "342", icon: <Users className="w-4 h-4" /> },
-    { label: "Server Uptime", value: "99.98%", icon: <Server className="w-4 h-4" /> },
-    { label: "Threats Blocked", value: "1.2K", icon: <Shield className="w-4 h-4" /> },
-  ];
+const systemMetrics = [
+  { label: "Manage Students", value: "1000+", icon: <Users className="w-4 h-4" /> },
+  { label: "School Status", value: "Online", icon: <Server className="w-4 h-4" /> },
+  { label: "Manage Events", value: "12", icon: <Shield className="w-4 h-4" /> },
+];
 
   return (
     <>
@@ -356,7 +355,7 @@ export default function AdminLoginPage() {
                 <p className="text-slate-600 font-medium text-base leading-relaxed">
                   {isForgotMode 
                     ? "Provide your registered email to receive a quantum-encrypted recovery token." 
-                    : "Authenticate with your administrative credentials to access the control nexus."}
+                    : "Authenticate with your administrative credentials to access the control School dashboard."}
                 </p>
               </div>
 
@@ -483,7 +482,7 @@ export default function AdminLoginPage() {
                 <button 
                   type="submit"
                   disabled={isLoading}
-                  className="group relative w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-blue-500/30 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-blue-500/30     overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center gap-3">
@@ -548,7 +547,7 @@ export default function AdminLoginPage() {
         <div className="fixed bottom-4 right-4 z-50">
           <div className="flex items-center gap-2 px-3 py-2 bg-slate-900/90 backdrop-blur-md rounded-full border border-white/10">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs font-bold text-white">Security: Maximum</span>
+            <span className="text-xs font-bold text-white">Prayer, Discipline and Hardwork</span>
           </div>
         </div>
       </div>

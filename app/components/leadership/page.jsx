@@ -15,7 +15,8 @@ import {
   FiUser,
   FiCheck,
   FiMenu,
-  FiX
+  FiX,
+  FiArrowLeft
 } from 'react-icons/fi';
 import { IoPeopleOutline, IoRibbonOutline } from 'react-icons/io5';
 import { GiGraduateCap } from 'react-icons/gi';
@@ -24,13 +25,15 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 const ModernStaffLeadership = () => {
   const [staff, setStaff] = useState([]);
-  const [featuredStaff, setFeaturedStaff] = useState(null);
+  const [principal, setPrincipal] = useState(null); // Always principal
+  const [featuredStaff, setFeaturedStaff] = useState(null); // Currently displayed (could be principal or other)
   const [deputyPrincipal, setDeputyPrincipal] = useState(null);
   const [randomStaff, setRandomStaff] = useState(null);
   const [randomBOM, setRandomBOM] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [viewMode, setViewMode] = useState('principal'); // 'principal' or 'other'
 
   // Check for mobile screen size
   useEffect(() => {
@@ -55,12 +58,13 @@ const ModernStaffLeadership = () => {
           setStaff(data.staff);
           
           // Find Principal (look for role or position containing "Principal")
-          const principal = data.staff.find(s => 
+          const foundPrincipal = data.staff.find(s => 
             (s.role && s.role.toLowerCase().includes('principal')) ||
             (s.position && s.position.toLowerCase().includes('principal'))
           ) || data.staff[0];
           
-          setFeaturedStaff(principal);
+          setPrincipal(foundPrincipal);
+          setFeaturedStaff(foundPrincipal); // Start with principal displayed
           
           // Find Deputy Principal
           const deputy = data.staff.find(s => 
@@ -68,7 +72,7 @@ const ModernStaffLeadership = () => {
             (s.position && s.position.toLowerCase().includes('deputy'))
           ) || data.staff.find(s => 
             s.role && s.role.toLowerCase().includes('administration') && 
-            s.id !== principal?.id
+            s.id !== foundPrincipal?.id
           );
           
           setDeputyPrincipal(deputy);
@@ -77,7 +81,7 @@ const ModernStaffLeadership = () => {
           const teachingStaff = data.staff.filter(s => 
             (s.role && (s.role.toLowerCase().includes('teacher') || 
                        s.role.toLowerCase().includes('teaching'))) &&
-            s.id !== principal?.id && 
+            s.id !== foundPrincipal?.id && 
             s.id !== deputy?.id
           );
           
@@ -88,7 +92,7 @@ const ModernStaffLeadership = () => {
           } else {
             // Fallback to any staff member (excluding principal and deputy)
             const otherStaff = data.staff.filter(s => 
-              s.id !== principal?.id && 
+              s.id !== foundPrincipal?.id && 
               s.id !== deputy?.id
             );
             if (otherStaff.length > 0) {
@@ -105,7 +109,7 @@ const ModernStaffLeadership = () => {
           
           // Random BOM Member (excluding principal and deputy)
           const availableBOM = bomMembers.filter(s => 
-            s.id !== principal?.id && 
+            s.id !== foundPrincipal?.id && 
             s.id !== deputy?.id
           );
           
@@ -116,7 +120,7 @@ const ModernStaffLeadership = () => {
             // If no BOM members, use Support Staff or any other staff
             const supportStaff = data.staff.filter(s => 
               s.role && s.role.toLowerCase().includes('support') &&
-              s.id !== principal?.id && 
+              s.id !== foundPrincipal?.id && 
               s.id !== deputy?.id &&
               s.id !== randomStaff?.id
             );
@@ -127,7 +131,7 @@ const ModernStaffLeadership = () => {
             } else {
               // Fallback to any remaining staff
               const remainingStaff = data.staff.filter(s => 
-                s.id !== principal?.id && 
+                s.id !== foundPrincipal?.id && 
                 s.id !== deputy?.id &&
                 s.id !== randomStaff?.id
               );
@@ -153,11 +157,22 @@ const ModernStaffLeadership = () => {
     fetchStaff();
   }, []);
 
-  // Handle subcard click
+  // Handle subcard click - principal always stays as main
   const handleStaffClick = (staffMember) => {
-    if (staffMember) {
-      setFeaturedStaff(staffMember);
+    // If clicking on the principal, do nothing (already showing)
+    if (principal?.id === staffMember.id) {
+      return;
     }
+    
+    // Show the clicked staff member in the main card temporarily
+    setFeaturedStaff(staffMember);
+    setViewMode('other');
+  };
+
+  // Function to return to principal view
+  const returnToPrincipal = () => {
+    setFeaturedStaff(principal);
+    setViewMode('principal');
   };
 
   // Format phone number
@@ -186,34 +201,35 @@ const ModernStaffLeadership = () => {
     if (staffMember.role) return staffMember.role;
     return 'Staff Member';
   };
-if (loading) {
-  return (
-    <div className="min-h-[600px] w-full max-w-6xl mx-auto px-4 py-12">
-      {/* Optional Header Skeleton */}
-      <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-12 mx-auto" />
-      
-      {/* Grid of Team Skeletons */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="flex flex-col items-center p-6 space-y-4 rounded-2xl border border-gray-100 bg-white shadow-sm">
-            {/* Avatar Circle */}
-            <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse" />
-            
-            {/* Text Blocks */}
-            <div className="h-5 w-3/4 bg-gray-200 rounded-md animate-pulse" />
-            <div className="h-4 w-1/2 bg-gray-100 rounded-md animate-pulse" />
-            
-            {/* Social Icons Placeholder */}
-            <div className="flex gap-2 pt-2">
-              <div className="w-6 h-6 rounded-md bg-gray-100 animate-pulse" />
-              <div className="w-6 h-6 rounded-md bg-gray-100 animate-pulse" />
+
+  if (loading) {
+    return (
+      <div className="min-h-[600px] w-full max-w-6xl mx-auto px-4 py-12">
+        {/* Optional Header Skeleton */}
+        <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-12 mx-auto" />
+        
+        {/* Grid of Team Skeletons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center p-6 space-y-4 rounded-2xl border border-gray-100 bg-white shadow-sm">
+              {/* Avatar Circle */}
+              <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse" />
+              
+              {/* Text Blocks */}
+              <div className="h-5 w-3/4 bg-gray-200 rounded-md animate-pulse" />
+              <div className="h-4 w-1/2 bg-gray-100 rounded-md animate-pulse" />
+              
+              {/* Social Icons Placeholder */}
+              <div className="flex gap-2 pt-2">
+                <div className="w-6 h-6 rounded-md bg-gray-100 animate-pulse" />
+                <div className="w-6 h-6 rounded-md bg-gray-100 animate-pulse" />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   if (error && !featuredStaff) {
     return (
@@ -265,64 +281,75 @@ if (loading) {
         {/* Main Grid - Mobile: Stack, Desktop: Side-by-side */}
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-start">
           
-          {/* Featured Hero Card (Principal) - Reduced width but taller image */}
+          {/* Featured Hero Card (Principal by default) */}
           <div className="lg:col-span-8 flex flex-col bg-white rounded-2xl md:rounded-3xl shadow-xl border border-slate-100 overflow-hidden min-h-[600px] lg:min-h-[720px]">
             
-            {/* Image Section - 50% taller */}
-       {/* Image Section - Set to fill and anchor to top */}
-<div className="relative h-80 md:h-96 lg:h-[40rem] overflow-hidden">
-  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent z-10"></div>
-  
-  {featuredStaff.image ? (
-    <img
-      src={featuredStaff.image.startsWith('/') ? featuredStaff.image : `/${featuredStaff.image}`}
-      alt={featuredStaff.name}
-      /* object-cover makes it fill the space, object-top ensures we see the head/shoulders */
-      className="w-full h-full object-cover object-top"
-    />
-  ) : (
-    <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center">
-      <div className="text-white text-center p-6 md:p-8">
-        <GiGraduateCap className="text-6xl md:text-8xl mx-auto opacity-40" />
-        <p className="mt-4 text-xl md:text-2xl font-black tracking-tight">{featuredStaff.name}</p>
-        <p className="mt-2 text-sm md:text-base font-medium opacity-80 uppercase tracking-widest">{getRoleTitle(featuredStaff)}</p>
-      </div>
-    </div>
-  )}
-  
-  {/* Modernized Overlay: Darker bottom for text legibility, fading to transparent quickly */}
-  <div className="absolute inset-0 z-20 flex flex-col justify-end p-6 md:p-10 lg:p-12 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
-    <div className="transform transition-transform duration-500 hover:translate-x-2">
-      <span className={`px-4 py-1.5 ${getRoleColor(featuredStaff.role)} text-white text-[10px] md:text-xs font-black uppercase tracking-[0.2em] rounded-sm inline-block mb-3 shadow-lg`}>
-        {getRoleTitle(featuredStaff)}
-      </span>
-      
-      {/* Modern Gradient Title */}
-      <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-none tracking-tighter">
-        {featuredStaff.name.split(' ')[0]} 
-        <span className="block bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-          {featuredStaff.name.split(' ').slice(1).join(' ')}
-        </span>
-      </h2>
+            {/* Header with Back Button (when viewing other staff) */}
+            {viewMode === 'other' && (
+              <div className="absolute top-4 left-4 z-50">
+                <button
+                  onClick={returnToPrincipal}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-xl text-slate-700 font-bold text-sm hover:bg-white transition-all shadow-lg border border-slate-200"
+                >
+                  <FiArrowLeft /> Back to Principal
+                </button>
+              </div>
+            )}
 
-      <div className="flex flex-wrap items-center gap-4 mt-4 text-white/80 font-medium">
-        <span className="flex items-center gap-2 text-sm md:text-base">
-          <FiMapPin className="text-blue-400" />
-          {featuredStaff.department || 'Administration'}
-        </span>
-        {featuredStaff.phone && (
-          <>
-            <span className="hidden md:inline w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-            <a href={`tel:${featuredStaff.phone}`} className="flex items-center gap-2 text-sm md:text-base hover:text-white transition-colors">
-              <FiPhone className="text-blue-400" />
-              {formatPhone(featuredStaff.phone)}
-            </a>
-          </>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
+            {/* Image Section */}
+            <div className="relative h-80 md:h-96 lg:h-[40rem] overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent z-10"></div>
+              
+              {featuredStaff.image ? (
+                <img
+                  src={featuredStaff.image.startsWith('/') ? featuredStaff.image : `/${featuredStaff.image}`}
+                  alt={featuredStaff.name}
+                  className="w-full h-full object-cover object-top"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center">
+                  <div className="text-white text-center p-6 md:p-8">
+                    <GiGraduateCap className="text-6xl md:text-8xl mx-auto opacity-40" />
+                    <p className="mt-4 text-xl md:text-2xl font-black tracking-tight">{featuredStaff.name}</p>
+                    <p className="mt-2 text-sm md:text-base font-medium opacity-80 uppercase tracking-widest">{getRoleTitle(featuredStaff)}</p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Overlay */}
+              <div className="absolute inset-0 z-20 flex flex-col justify-end p-6 md:p-10 lg:p-12 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
+                <div className="transform transition-transform duration-500 hover:translate-x-2">
+                  <span className={`px-4 py-1.5 ${getRoleColor(featuredStaff.role)} text-white text-[10px] md:text-xs font-black uppercase tracking-[0.2em] rounded-sm inline-block mb-3 shadow-lg`}>
+                    {getRoleTitle(featuredStaff)}
+                    {viewMode === 'other' && ' (Viewing)'}
+                  </span>
+                  
+                  {/* Name */}
+                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-none tracking-tighter">
+                    {featuredStaff.name.split(' ')[0]} 
+                    <span className="block bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+                      {featuredStaff.name.split(' ').slice(1).join(' ')}
+                    </span>
+                  </h2>
+
+                  <div className="flex flex-wrap items-center gap-4 mt-4 text-white/80 font-medium">
+                    <span className="flex items-center gap-2 text-sm md:text-base">
+                      <FiMapPin className="text-blue-400" />
+                      {featuredStaff.department || 'Administration'}
+                    </span>
+                    {featuredStaff.phone && (
+                      <>
+                        <span className="hidden md:inline w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                        <a href={`tel:${featuredStaff.phone}`} className="flex items-center gap-2 text-sm md:text-base hover:text-white transition-colors">
+                          <FiPhone className="text-blue-400" />
+                          {formatPhone(featuredStaff.phone)}
+                        </a>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Content Section */}
             <div className="flex-grow p-4 md:p-6 lg:p-8 -mt-4 bg-white relative rounded-t-2xl md:rounded-t-3xl shadow-[0_-20px_40px_rgba(0,0,0,0.03)] z-30">
@@ -452,13 +479,66 @@ if (loading) {
 
           {/* Sub-Card Sidebar */}
           <div className="lg:col-span-4 space-y-4 md:space-y-6 mt-6 lg:mt-0">
-            {/* Deputy Principal Card - Always included */}
+            {/* Principal Card - Always shown and highlighted */}
+            {principal && (
+              <button
+                onClick={() => {
+                  setFeaturedStaff(principal);
+                  setViewMode('principal');
+                }}
+                className={`w-full group relative bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border-2 ${
+                  viewMode === 'principal' 
+                    ? 'border-amber-900 shadow-xl scale-[1.02]' 
+                    : 'border-slate-100 hover:border-amber-300 hover:shadow-xl'
+                } transition-all duration-300 text-left overflow-hidden`}
+              >
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="relative w-12 h-12 md:w-16 md:h-16 flex-shrink-0 rounded-lg md:rounded-xl overflow-hidden">
+                    {principal.image ? (
+                      <img
+                        src={principal.image.startsWith('/') ? principal.image : `/${principal.image}`}
+                        alt={principal.name}
+                        className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 flex items-center justify-center">
+                        <FiUser className="text-white text-lg md:text-2xl" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-grow min-w-0">
+                    <div className="flex items-center justify-between mb-1 md:mb-2">
+                      <span className="px-2 md:px-3 py-1 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full">
+                        Principal
+                      </span>
+                      {viewMode === 'principal' && (
+                        <span className="flex items-center gap-1 text-amber-600 text-[10px] md:text-xs font-bold">
+                          <FiCheck className="text-xs" /> Currently Viewing
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-bold text-slate-900 group-hover:text-amber-700 transition-colors truncate text-base md:text-lg">
+                      {principal.name}
+                    </h3>
+                    <p className="text-slate-500 text-xs md:text-sm mt-1 truncate">
+                      {principal.department || 'Administration'}
+                    </p>
+                    <div className="flex items-center gap-1 text-[10px] md:text-xs text-amber-600 mt-2 md:mt-3 font-bold tracking-tighter">
+                      {viewMode === 'principal' ? '✓ Current View' : 'View Full Profile'} 
+                      {viewMode !== 'principal' && <FiChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" />}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            )}
+
+            {/* Deputy Principal Card */}
             {deputyPrincipal && (
               <button
                 onClick={() => handleStaffClick(deputyPrincipal)}
                 className={`w-full group relative bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border-2 ${
-                  featuredStaff?.id === deputyPrincipal.id ? 'border-blue-500' : 'border-slate-100'
-                } hover:border-blue-300 hover:shadow-xl transition-all duration-300 text-left overflow-hidden`}
+                  featuredStaff?.id === deputyPrincipal.id ? 'border-purple-500' : 'border-slate-100'
+                } hover:border-purple-300 hover:shadow-xl transition-all duration-300 text-left overflow-hidden`}
               >
                 <div className="flex items-start gap-3 md:gap-4">
                   <div className="relative w-12 h-12 md:w-16 md:h-16 flex-shrink-0 rounded-lg md:rounded-xl overflow-hidden">
@@ -470,8 +550,7 @@ if (loading) {
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                        <FiUser
-                         className="text-white text-lg md:text-2xl" />
+                        <FiUser className="text-white text-lg md:text-2xl" />
                       </div>
                     )}
                   </div>
@@ -481,19 +560,19 @@ if (loading) {
                         Deputy Principal
                       </span>
                       {featuredStaff?.id === deputyPrincipal.id && (
-                        <span className="flex items-center gap-1 text-blue-600 text-[10px] md:text-xs font-bold">
-                          <FiCheck className="text-xs" /> Featured
+                        <span className="flex items-center gap-1 text-purple-600 text-[10px] md:text-xs font-bold">
+                          <FiCheck className="text-xs" /> Viewing
                         </span>
                       )}
                     </div>
-                    <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate text-base md:text-lg">
+                    <h3 className="font-bold text-slate-900 group-hover:text-purple-600 transition-colors truncate text-base md:text-lg">
                       {deputyPrincipal.name}
                     </h3>
                     <p className="text-slate-500 text-xs md:text-sm mt-1 truncate">
                       {deputyPrincipal.department || 'Administration'}
                     </p>
-                    <div className="flex items-center gap-1 text-[10px] md:text-xs text-blue-600 mt-2 md:mt-3 font-bold tracking-tighter">
-                      View Full Profile <FiChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
+                    <div className="flex items-center gap-1 text-[10px] md:text-xs text-purple-600 mt-2 md:mt-3 font-bold tracking-tighter">
+                      View Profile <FiChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </div>
                 </div>
@@ -529,7 +608,7 @@ if (loading) {
                       </span>
                       {featuredStaff?.id === randomStaff.id && (
                         <span className="flex items-center gap-1 text-green-600 text-[10px] md:text-xs font-bold">
-                          <FiCheck className="text-xs" /> Featured
+                          <FiCheck className="text-xs" /> Viewing
                         </span>
                       )}
                     </div>
@@ -576,7 +655,7 @@ if (loading) {
                       </span>
                       {featuredStaff?.id === randomBOM.id && (
                         <span className="flex items-center gap-1 text-amber-600 text-[10px] md:text-xs font-bold">
-                          <FiCheck className="text-xs" /> Featured
+                          <FiCheck className="text-xs" /> Viewing
                         </span>
                       )}
                     </div>
@@ -652,7 +731,7 @@ if (loading) {
         {isMobile && (
           <div className="mt-8 text-center">
             <p className="text-sm text-slate-500">
-              Tap on any staff card to view their full profile above
+              Tap on any staff card to view their profile. Tap "Back to Principal" to return to principal view.
             </p>
           </div>
         )}

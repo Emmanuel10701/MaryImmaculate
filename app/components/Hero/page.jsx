@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   ChevronLeft, ChevronRight, ArrowRight, ShieldCheck, 
   Globe, Rocket, Trophy, BookOpen, Clock, Users, 
@@ -10,6 +10,7 @@ import {
   GiTrophyCup 
 } from 'react-icons/gi';
 import { IoRocketOutline } from 'react-icons/io5';
+import { useRouter } from 'next/navigation';
 
 // Enhanced Hero Slides with Modern Design
 const heroSlides = [
@@ -19,14 +20,15 @@ const heroSlides = [
     gradient: "from-blue-500 via-cyan-400 to-purple-600",
     description: "At Mary Immaculate Girls School, we're pioneering a new era of education. With a 94% KCSE success rate and state-of-the-art STEM facilities, we're not just teaching—we're inspiring the next generation of leaders and innovators.",
     background: "bg-gradient-to-br from-blue-900/90 via-indigo-900/80 to-purple-900/70",
-    image: "https://unsplash.com/photos/woman-carrying-white-and-green-textbook-iQPr1XkF5F0",
+    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1000",
     stats: { 
       students: "400+ Active Learners", 
       excellence: "94% KCSE Success", 
       years: "10+ Years Excellence" 
     },
     features: ["Modern STEM Labs", "Digital Library", "Expert Faculty", "Research Programs"],
-    cta: "Explore Our Programs",
+    cta: "Admissions",
+    link: "/pages/admissions",
     highlightColor: "blue",
     testimonial: "\"The academic rigor combined with innovative teaching transformed my child's approach to learning.\" - Parent of 2023 Graduate",
     icon: GiGraduateCap
@@ -44,7 +46,8 @@ const heroSlides = [
       success: "National Awards" 
     },
     features: ["Sports Excellence", "Creative Arts", "Leadership Training", "Community Service"],
-    cta: "View Our Facilities",
+    cta: "About Us",
+    link: "/pages/AboutUs",
     highlightColor: "green",
     testimonial: "\"The extracurricular programs helped my child discover their passion for drama and develop crucial leadership skills.\" - Current Parent",
     icon: GiTrophyCup
@@ -63,39 +66,16 @@ const heroSlides = [
     },
     features: ["Computer Studies", "Science Innovation", "Career Guidance", "Coding Classes"],
     cta: "Apply Now",
+    link: "/pages/apply-for-admissions",
     highlightColor: "cyan",
     testimonial: "\"The advanced computer labs gave me skills that directly contributed to securing my university scholarship in Computer Science.\" - 2022 Alumni",
     icon: IoRocketOutline
   }
 ];
 
-// School Video API Service - Separate function
-const fetchSchoolVideo = async () => {
-  try {
-    const response = await fetch('/api/school');
-    
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
-    const data = await response.json();
-    
-    if (data.success && data.school) {
-      console.log('Video data loaded:', {
-        name: data.school.name,
-        videoType: data.school.videoType,
-        videoTour: data.school.videoTour
-      });
-      return data.school;
-    } else {
-      throw new Error(data.message || 'No school data found');
-    }
-  } catch (err) {
-    console.error('Error fetching school video:', err);
-    throw err;
-  }
-};
-
 // Extract YouTube ID from URL
 const extractYouTubeId = (url) => {
+  if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url?.match(regExp);
   return (match && match[2].length === 11) ? match[2] : null;
@@ -108,64 +88,186 @@ const ModernHero = () => {
   const [schoolData, setSchoolData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [navigationBlocked, setNavigationBlocked] = useState(true);
 
-  const handleSlideChange = (index) => {
+  const router = useRouter();
+
+  // DEBUG: Add this to track automatic navigation
+  useEffect(() => {
+    console.log('=== DEBUG: ModernHero Component Mounted ===');
+    console.log('Initial state - showVideoModal:', showVideoModal);
+    console.log('Initial state - currentSlide:', currentSlide);
+    console.log('Initial slide link:', heroSlides[currentSlide].link);
+    
+    // Check if there's any automatic navigation attempt on mount
+    if (typeof window !== 'undefined') {
+      console.log('Current URL:', window.location.href);
+      
+      // Clear any hash that might trigger navigation
+      if (window.location.hash) {
+        console.log('Found hash, clearing:', window.location.hash);
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    }
+  }, []);
+
+  // Block automatic navigation for first 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setNavigationBlocked(false);
+      console.log('Navigation is now allowed');
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // REMOVED: router.events code - causing error
+  // Next.js App Router doesn't have router.events
+
+  const handleSlideChange = useCallback((index) => {
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentSlide(index);
       setIsTransitioning(false);
     }, 400);
-  };
+  }, []);
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     handleSlideChange(currentSlide === heroSlides.length - 1 ? 0 : currentSlide + 1);
-  };
+  }, [currentSlide, handleSlideChange]);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     handleSlideChange(currentSlide === 0 ? heroSlides.length - 1 : currentSlide - 1);
-  };
+  }, [currentSlide, handleSlideChange]);
 
-  const openVideoModal = () => {
+  const openVideoModal = useCallback(() => {
+    console.log('DEBUG: Opening video modal');
     setShowVideoModal(true);
-  };
+  }, []);
 
-  const closeVideoModal = () => {
+  const closeVideoModal = useCallback(() => {
+    console.log('DEBUG: Closing video modal');
     setShowVideoModal(false);
     setSchoolData(null);
     setError(null);
-  };
+  }, []);
 
-  const handleContactClick = () => {
+  // Safe navigation handler for slide buttons
+  const handleSlideButtonClick = useCallback(() => {
+    if (navigationBlocked) {
+      console.log('DEBUG: Navigation blocked (cooling period)');
+      return;
+    }
+    
+    const link = heroSlides[currentSlide].link;
+    console.log('DEBUG: Navigating to slide link:', link);
+    console.log('DEBUG: From slide index:', currentSlide);
+    
+    // Add a small delay to prevent accidental clicks
+    setTimeout(() => {
+      router.push(link);
+    }, 100);
+  }, [currentSlide, router, navigationBlocked]);
+
+  // Safe contact handler for modal button
+  const handleContactClick = useCallback(() => {
+    console.log('DEBUG: Contact button clicked');
     closeVideoModal();
-    // You can add navigation logic here
-    console.log("Redirect to contact page");
-  };
+    
+    if (navigationBlocked) {
+      console.log('DEBUG: Navigation blocked (cooling period)');
+      return;
+    }
+    
+    // Navigate to About Us page with delay
+    setTimeout(() => {
+      router.push('/pages/AboutUs');
+    }, 100);
+  }, [closeVideoModal, router, navigationBlocked]);
 
-  // Fetch video data when modal opens
+  // Fetch video data when modal opens - USING .then() instead of async/await
   useEffect(() => {
-    const loadVideoData = async () => {
-      if (showVideoModal) {
-        setLoading(true);
-        setError(null);
-        try {
-          console.log('Fetching video data...');
-          const data = await fetchSchoolVideo();
-          setSchoolData(data);
-        } catch (err) {
+    if (showVideoModal) {
+      console.log('Fetching video data...');
+      setLoading(true);
+      setError(null);
+      
+      // Use .then() syntax instead of async/await
+      fetch('/api/school')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success && data.school) {
+            console.log('Video data loaded:', {
+              name: data.school.name,
+              videoType: data.school.videoType,
+              videoTour: data.school.videoTour
+            });
+            setSchoolData(data.school);
+            setError(null);
+          } else {
+            throw new Error(data.message || 'No school data found');
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching school video:', err);
           setError(err.message);
-        } finally {
+          setSchoolData(null);
+        })
+        .finally(() => {
           setLoading(false);
-        }
-      }
-    };
-
-    loadVideoData();
+        });
+    }
   }, [showVideoModal]);
 
+  // Auto-slide effect with safety check
   useEffect(() => {
-    const timer = setInterval(nextSlide, 8000);
+    // Don't auto-slide if modal is open
+    if (showVideoModal) {
+      console.log('DEBUG: Auto-slide paused (modal open)');
+      return;
+    }
+    
+    const timer = setInterval(() => {
+      nextSlide();
+    }, 8000);
+    
     return () => clearInterval(timer);
-  }, [currentSlide]);
+  }, [currentSlide, nextSlide, showVideoModal]);
+
+  // Retry function for video loading
+  const retryVideoLoad = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    
+    fetch('/api/school')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success && data.school) {
+          setSchoolData(data.school);
+          setError(null);
+        } else {
+          throw new Error(data.message || 'No school data found');
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching school video:', err);
+        setError(err.message);
+        setSchoolData(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   const slide = heroSlides[currentSlide];
   const IconComponent = slide.icon;
@@ -191,29 +293,28 @@ const ModernHero = () => {
         </div>
       ))}
 
-   {/* Welcome Banner */}
-<div className="absolute top-6 left-0 right-0 z-30 flex justify-center px-4">
-  <div className="relative inline-flex items-center gap-4 px-8 py-4 
-    bg-gradient-to-r from-indigo-500/30 via-purple-500/30 to-pink-500/30
-    backdrop-blur-xl rounded-full border border-white/30 shadow-2xl">
+      {/* Welcome Banner */}
+      <div className="absolute top-6 left-0 right-0 z-30 flex justify-center px-4">
+        <div className="relative inline-flex items-center gap-4 px-8 py-4 
+          bg-gradient-to-r from-indigo-500/30 via-purple-500/30 to-pink-500/30
+          backdrop-blur-xl rounded-full border border-white/30 shadow-2xl">
 
-    {/* Glow */}
-    <div className="absolute inset-0 rounded-full bg-white/10 blur-xl -z-10" />
+          {/* Glow */}
+          <div className="absolute inset-0 rounded-full bg-white/10 blur-xl -z-10" />
 
-    {/* Text */}
-    <span className="text-white text-base sm:text-lg md:text-xl 
-      font-semibold italic tracking-wide">
-      Welcome to <span className="font-bold">Mary Immaculate Girls</span>
-    </span>
+          {/* Text */}
+          <span className="text-white text-base sm:text-lg md:text-xl 
+            font-semibold italic tracking-wide">
+            Welcome to <span className="font-bold">Mary Immaculate Girls</span>
+          </span>
 
-    {/* Live Indicator */}
-    <div className="flex items-center gap-1">
-      <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse" />
-      <span className="w-2.5 h-2.5 bg-emerald-400/50 rounded-full animate-ping" />
-    </div>
-  </div>
-</div>
-
+          {/* Live Indicator */}
+          <div className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse" />
+            <span className="w-2.5 h-2.5 bg-emerald-400/50 rounded-full animate-ping" />
+          </div>
+        </div>
+      </div>
 
       {/* Main Content Area - Centered alignment */}
       <div className="relative z-20 h-full flex flex-col items-center justify-center px-6 md:px-12 text-center">
@@ -275,10 +376,15 @@ const ModernHero = () => {
 
           {/* Action Buttons - Centered Flex */}
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <button className="px-8 py-3.5 bg-white text-black rounded-full font-bold text-sm hover:bg-gray-200 transition-all flex items-center group shadow-xl hover:shadow-2xl hover:scale-105 duration-300">
+            <button 
+              onClick={handleSlideButtonClick} 
+              className="px-8 py-3.5 bg-white text-black rounded-full font-bold text-sm hover:bg-gray-200 transition-all flex items-center group shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={navigationBlocked}
+            >
               {slide.cta}
               <ArrowRight className="ml-1.5 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
+
             <button 
               onClick={openVideoModal}
               className="px-8 py-3.5 bg-transparent border border-white/30 text-white rounded-full font-bold text-sm hover:bg-white/10 transition-colors backdrop-blur-sm flex items-center gap-2 hover:border-white/50 duration-300 group"
@@ -360,7 +466,7 @@ const ModernHero = () => {
                   <Play className="text-white" />
                 </div>
                 <div>
-                  <h4 className="text-white font-bold">Virtual Campus Tour</h4>
+                  <h4 className="text-white font-bold">Virtual School Tour</h4>
                   <p className="text-white/60 text-sm">
                     {schoolData?.name || 'Mary Immaculate Girls School'}
                   </p>
@@ -389,13 +495,7 @@ const ModernHero = () => {
                   <div className="text-5xl text-red-500 mb-4">!</div>
                   <p className="text-white text-center mb-4">{error}</p>
                   <button
-                    onClick={() => {
-                      setError(null);
-                      setLoading(true);
-                      setTimeout(() => {
-                        fetchSchoolVideo().then(setSchoolData).catch(setError).finally(() => setLoading(false));
-                      }, 500);
-                    }}
+                    onClick={retryVideoLoad}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                   >
                     Retry Loading
@@ -421,24 +521,6 @@ const ModernHero = () => {
                     title={`${schoolData.name} Virtual Tour`}
                     poster={schoolData?.videoThumbnail}
                     onLoadedData={() => console.log('Video loaded successfully')}
-                    onError={(e) => {
-                      console.error('Video loading error:', e);
-                      const video = e.target;
-                      if (video.error) {
-                        console.error('Video error details:', video.error);
-                        video.style.display = 'none';
-                        const parent = video.parentElement;
-                        parent.innerHTML = `
-                          <div class="w-full h-full flex flex-col items-center justify-center p-8">
-                            <div class="w-12 h-12 text-red-500 mb-4">!</div>
-                            <p class="text-white text-center mb-2">Unable to load video file</p>
-                            <p class="text-white/60 text-sm text-center">
-                              The video file may be corrupted or in an unsupported format
-                            </p>
-                          </div>
-                        `;
-                      }
-                    }}
                   >
                     {/* Fallback message */}
                     <div className="w-full h-full flex flex-col items-center justify-center p-8">
@@ -448,13 +530,6 @@ const ModernHero = () => {
                       </p>
                     </div>
                   </video>
-                  
-                  {/* Loading overlay */}
-                  {loading && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-                    </div>
-                  )}
                 </div>
               ) : (
                 // No video available or no schoolData yet
@@ -477,16 +552,26 @@ const ModernHero = () => {
             <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-r from-transparent to-black/80 p-4">
               <div className="flex items-center justify-between">
                 <div className="text-white/80 text-sm hidden sm:block">
-                  {schoolData?.description?.substring(0, 100) + '...' || 'Experience our campus from anywhere in the world'}
+                  {schoolData?.description?.substring(0, 100) + '...' || 'Experience our school from anywhere in the world'}
                 </div>
                 <button
                   onClick={handleContactClick}
-                  className="px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white font-medium rounded-lg hover:opacity-90 transition-all duration-300 hover:scale-105"
+                  className="px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white font-medium rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={navigationBlocked}
                 >
                   Get To Know Us More
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation Blocker Overlay (temporary) */}
+      {navigationBlocked && (
+        <div className="absolute inset-0 z-40 pointer-events-none">
+          <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-black/70 text-white text-xs px-4 py-2 rounded-full backdrop-blur-sm">
+            Navigation cooling period... {new Date().getSeconds() % 2 === 0 ? '▰▰▰▰▰' : '▰▰▱▱▱'}
           </div>
         </div>
       )}

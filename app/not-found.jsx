@@ -84,7 +84,7 @@ const Modern404 = () => {
                   {errorMessages[currentMessage]}
                 </h2>
                 <p className="text-base md:text-lg text-slate-600 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                  Even top students lose their way. This page seems to have wandered off-campus. 
+                  Even top students lose their way. This page seems to have wandered off-school. 
                   Let's guide you back to your studies with the options below.
                 </p>
               </div>
@@ -117,7 +117,7 @@ const Modern404 = () => {
                   <div className="flex items-center justify-between mb-6 md:mb-8">
                     <h3 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2 bg-gradient-to-r from-rose-700 to-indigo-700 bg-clip-text text-transparent">
                       <FiMapPin className="text-rose-600" />
-                      Campus Directory
+                      School Directory
                     </h3>
                     <div className="flex gap-1">
                       <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-rose-400 animate-pulse"></div>

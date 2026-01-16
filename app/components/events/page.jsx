@@ -824,8 +824,8 @@ const ModernEventsNewsSection = () => {
               </div>
               <div className="bg-slate-50 rounded-lg p-3 text-sm text-slate-600 font-mono truncate">
                 {selectedTab === 'events' 
-                  ? (currentEvent ? `${window.location.origin}/events/${currentEvent.id}` : '')
-                  : (currentNews ? `${window.location.origin}/news/${currentNews.id}` : '')
+                  ? (currentEvent ? `${window.location.origin}/pages/eventsandnews` : '')
+                  : (currentNews ? `${window.location.origin}/pages/eventsandnews` : '')
                 }
               </div>
             </div>
