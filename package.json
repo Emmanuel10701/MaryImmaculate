@@ -4,8 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001 -H 0.0.0.0",
-    "build": "next build",
-    "start": "next startR"
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "prisma:generate": "prisma generate",
+    "prisma:db-push": "prisma db push",
+    "dev:full": "npm run prisma:generate && npm run prisma:db-push && npm run dev"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
