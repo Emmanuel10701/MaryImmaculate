@@ -198,10 +198,8 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
         resultsRes,
         studentRes
       ] = await Promise.allSettled([
-        fetch('/api/student'),
         fetch('/api/staff'),
         fetch('/api/subscriber'),
-        fetch('/api/studentCouncil'),
         fetch('/api/events'),
         fetch('/api/news'),
         fetch('/api/assignment'),
@@ -216,10 +214,8 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
       ]);
 
       // Process responses and get actual counts
-      const students = studentsRes.status === 'fulfilled' ? await studentsRes.value.json() : { students: [] };
       const staff = staffRes.status === 'fulfilled' ? await staffRes.value.json() : { staff: [] };
       const subscribers = subscribersRes.status === 'fulfilled' ? await subscribersRes.value.json() : { subscribers: [] };
-      const council = councilRes.status === 'fulfilled' ? await councilRes.value.json() : { councilMembers: [] };
       const events = eventsRes.status === 'fulfilled' ? await eventsRes.value.json() : { events: [] };
       const news = newsRes.status === 'fulfilled' ? await newsRes.value.json() : { news: [] };
       const assignments = assignmentsRes.status === 'fulfilled' ? await assignmentsRes.value.json() : { assignments: [] };
@@ -348,13 +344,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
 
   // Enhanced quick stats with real data including resources
   const quickStats = [
-    { 
-      label: 'Students', 
-      value: realStats.totalStudents?.toLocaleString() || '0', 
-      icon: FiUser, 
-      color: 'blue', 
-      change: `${realStats.activeStudents || 0} active` 
-    },
+
     { 
       label: 'Resources', 
       value: realStats.totalResources?.toLocaleString() || '0', 
@@ -368,13 +358,6 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
       icon: FiFileText, 
       color: 'purple', 
       change: realStats.pendingApplications > 0 ? `${realStats.pendingApplications} pending` : '+8%' 
-    },
-    { 
-      label: 'Staff', 
-      value: realStats.totalStaff?.toLocaleString() || '0', 
-      icon: IoStatsChart, 
-      color: 'green', 
-      change: '+5%' 
     }
   ];
 
@@ -426,23 +409,12 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
       icon: FiMessageCircle,
       badge: 'purple'
     },
-    { 
-      id: 'students', 
-      label: 'Student Management', 
-      icon: FiUsers,
-      badge: 'blue'
-    },
+ 
     {
       id: 'results',
       label: 'Exam Results',
       icon: FiClipboard,
       badge: 'teal'
-    },
-    { 
-      id: 'student-council', 
-      label: 'Student Council', 
-      icon: FiUsers,
-      badge: 'green'
     },
     { 
       id: 'staff', 
@@ -462,6 +434,13 @@ id: 'careers',
       icon: FiCalendar,
       badge: 'lime'
 },
+    {
+      id: 'student',
+      label: 'Student Records',
+      icon: FiInfo,
+      badge: 'cyan'
+}
+,
     { 
       id: 'resources', 
       label: 'Learning Resources', 
@@ -474,13 +453,7 @@ id: 'careers',
       icon: FiDollarSign,
       badge: 'yellow'
     },
-    {
-      id: 'student',
-      label: 'Student Records',
-      icon: FiInfo,
-      badge: 'cyan'
-}
-,
+
     { 
       id: 'admissions', 
       label: 'Admission Applications', 
@@ -650,7 +623,7 @@ id: 'careers',
               <div className="relative">
                 <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30">
                   <img 
-                    src="/ll.png" 
+                    src="/katz.png" 
                     alt="School Logo" 
                     className="w-full h-full object-contain p-2"
                   />
@@ -659,8 +632,7 @@ id: 'careers',
               </div>
               <div className="min-w-0">
                 <h1 className="text-sm lg:text-lg font-bold text-gray-800 truncate">
-
-Mary Immaculate Girls
+                  Katwanyaa High School
                 </h1>
                 <p className="text-gray-600 text-xs lg:text-sm font-medium truncate">Admin Portal</p>
               </div>
@@ -842,7 +814,7 @@ Mary Immaculate Girls
               onClick={handleLogout}
               className="w-full flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 text-red-600 hover:text-red-700 rounded-xl transition-all duration-200 border border-red-200 hover:border-red-300 hover:bg-red-50 group"
             >
-              <div className="">
+              <div className="group-hover:rotate-180 transition-transform duration-300">
                 <FiLogOut className="text-sm lg:text-lg" />
               </div>
               <span className="font-semibold text-xs lg:text-sm truncate">Sign Out</span>
@@ -851,7 +823,7 @@ Mary Immaculate Girls
             {/* Version Info */}
             <div className="text-center mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-gray-200">
               <p className="text-gray-400 text-[10px] lg:text-xs">
-                v2.1.0 • Mary Immaculate Girls Secondary School
+                v2.1.0 • Katwanyaa High  School
               </p>
             </div>
           </div>

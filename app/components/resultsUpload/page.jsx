@@ -1906,7 +1906,7 @@ function ResultsStatisticsCard({ title, value, icon: Icon, color, trend = 0, pre
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+    <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl hover:shadow-2xl transition-all duration-300 ">
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-xl bg-gradient-to-r ${color} shadow-lg`}>
           <Icon className="text-white text-2xl" />
