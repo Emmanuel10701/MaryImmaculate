@@ -46,6 +46,7 @@ import Careers from "../components/career/page";
 import Student from "../components/student/page";
 import Fees from "../components/fees/page";
 import Results from "../components/resultsUpload/page";
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -72,7 +73,7 @@ export default function AdminDashboard() {
 
   // Modern Loading Screen with Enhanced Design
   const LoadingScreen = () => (
-    <div className="fixed inset-0 bg-gradient-to-br from-orange-900 via-amber-900 to-red-900 z-50 flex flex-col items-center justify-center">
+    <div className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 z-50 flex flex-col items-center justify-center">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(15)].map((_, i) => (
@@ -99,9 +100,9 @@ export default function AdminDashboard() {
           
           {/* Center Logo */}
           <div className="absolute inset-0 flex items-center justify-center">
-      <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center overflow-hidden">
               <img 
-                src="/ll.png" 
+                src="/katz.png" 
                 alt="School Logo" 
                 className="w-full h-full object-contain p-2"
               />
@@ -109,48 +110,90 @@ export default function AdminDashboard() {
           </div>
         </div>
         
-     {/* Loading Content */}
-<div className="text-center space-y-6">
-  {/* School Name with Gradient */}
-  <div>
-    <h2 className="text-3xl font-bold text-white mb-2">
-      Mary Immaculate Girls Secondary School
-    </h2>
-    <div className="h-1 w-48 mx-auto bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
-  </div>
-  
-  {/* Loading Text */}
-  <div className="space-y-4">
-    <p className="text-white/80 text-lg">Preparing an exceptional learning experience</p>
-    
-    {/* Animated Dots */}
-    <div className="flex items-center justify-center gap-2">
-      {[...Array(3)].map((_, i) => (
-        <div
-          key={i}
-          className="w-3 h-3 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full animate-bounce"
-          style={{ animationDelay: `${i * 0.2}s` }}
-        />
-      ))}
-    </div>
-    
-    {/* Progress Bar */}
-    <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden mx-auto">
-      <div className="h-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 animate-gradient-loading"></div>
-    </div>
-    
-    <p className="text-white/60 text-sm">Loading resources...</p>
-  </div>
-</div>
+        {/* Loading Content */}
+        <div className="text-center space-y-6">
+          {/* School Name with Gradient */}
+          <div>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Katwanyaa High  School
+            </h2>
+            <div className="h-1 w-48 mx-auto bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
+          </div>
+          
+          {/* Loading Text */}
+          <div className="space-y-4">
+            <p className="text-white/80 text-lg">Preparing an exceptional learning experience</p>
+            
+            {/* Animated Dots */}
+            <div className="flex items-center justify-center gap-2">
+              {[...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="w-3 h-3 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full animate-bounce"
+                  style={{ animationDelay: `${i * 0.2}s` }}
+                />
+              ))}
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden mx-auto">
+              <div className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 animate-gradient-loading"></div>
+            </div>
+            
+            <p className="text-white/60 text-sm">Loading resources...</p>
+          </div>
+        </div>
       </div>
     </div>
   );
 
+  // Fetch student count from the new API
+  const fetchStudentCount = async () => {
+    try {
+      const response = await fetch('/api/studentupload?action=stats');
+      if (!response.ok) {
+        console.error('Failed to fetch student stats');
+        return 0;
+      }
+      
+      const data = await response.json();
+      
+      // Extract student count from different possible response structures
+      if (data.success) {
+        if (data.data?.stats?.totalStudents) {
+          return data.data.stats.totalStudents;
+        } else if (data.stats?.totalStudents) {
+          return data.stats.totalStudents;
+        } else if (data.totalStudents) {
+          return data.totalStudents;
+        }
+      }
+      
+      // Fallback: Fetch all students and count them
+      const allStudentsRes = await fetch('/api/studentupload');
+      if (allStudentsRes.ok) {
+        const allStudentsData = await allStudentsRes.json();
+        if (allStudentsData.success) {
+          const students = allStudentsData.data?.students || allStudentsData.students || [];
+          return students.length;
+        }
+      }
+      
+      return 0;
+    } catch (error) {
+      console.error('Error fetching student count:', error);
+      return 0;
+    }
+  };
+
   // Fetch real counts from all APIs
   const fetchRealCounts = async () => {
     try {
+      // Get student count first
+      const studentCount = await fetchStudentCount();
+      
+      // Then fetch other data in parallel
       const [
-        studentsRes,
         staffRes,
         subscribersRes,
         councilRes,
@@ -166,7 +209,6 @@ export default function AdminDashboard() {
         feesRes,
         resultsRes
       ] = await Promise.allSettled([
-        fetch('/api/student'),
         fetch('/api/staff'),
         fetch('/api/subscriber'),
         fetch('/api/studentCouncil'),
@@ -184,7 +226,6 @@ export default function AdminDashboard() {
       ]);
 
       // Process responses and get actual counts
-      const students = studentsRes.status === 'fulfilled' ? await studentsRes.value.json() : { students: [] };
       const staff = staffRes.status === 'fulfilled' ? await staffRes.value.json() : { staff: [] };
       const subscribers = subscribersRes.status === 'fulfilled' ? await subscribersRes.value.json() : { subscribers: [] };
       const council = councilRes.status === 'fulfilled' ? await councilRes.value.json() : { councilMembers: [] };
@@ -201,9 +242,12 @@ export default function AdminDashboard() {
       const results = resultsRes.status === 'fulfilled' ? await resultsRes.value.json() : { results: [] };
 
       // Calculate real counts
-      const activeStudents = students.students?.filter(s => s.status === 'Active').length || 0;
       const activeCouncil = council.councilMembers?.filter(c => c.status === 'Active').length || 0;
-      const upcomingEvents = events.events?.filter(e => new Date(e.date) > new Date()).length || 0;
+      const upcomingEvents = events.events?.filter(e => {
+        if (!e.date) return false;
+        return new Date(e.date) > new Date();
+      }).length || 0;
+      
       const activeAssignments = assignments.assignments?.filter(a => a.status === 'assigned').length || 0;
       
       // Admission statistics
@@ -211,8 +255,7 @@ export default function AdminDashboard() {
       const pendingApps = admissionsData.filter(app => app.status === 'PENDING').length || 0;
 
       setRealStats({
-        totalStudents: students.students?.length || 0,
-        activeStudents,
+        totalStudents: studentCount, // Using the new student count
         totalStaff: staff.staff?.length || 0,
         totalSubscribers: subscribers.subscribers?.length || 0,
         studentCouncil: activeCouncil,
@@ -228,6 +271,12 @@ export default function AdminDashboard() {
         totalStudent: student.students?.length || 0,
         totalFees: fees.feebalances?.length || 0,
         totalResults: results.results?.length || 0
+      });
+
+      console.log('✅ Updated real stats:', {
+        totalStudents: studentCount,
+        totalStaff: staff.staff?.length || 0,
+        // ... other stats
       });
 
     } catch (error) {
@@ -507,26 +556,44 @@ export default function AdminDashboard() {
   ];
 
   // Header stats component with simple hover effect
-  const HeaderStat = ({ icon: Icon, value, label, color = 'blue', trend = 'up' }) => (
-    <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors duration-200">
-      <div className={`p-2 rounded-lg bg-${color}-100`}>
-        <Icon className={`text-lg text-${color}-600`} />
-      </div>
-      <div className="text-right">
-        <p className="text-lg font-bold text-gray-900">{value?.toLocaleString() || '0'}</p>
-        <p className="text-xs text-gray-500 capitalize">{label}</p>
-      </div>
-      {trend && (
-        <div className={`p-1 rounded ${trend === 'up' ? 'bg-green-100' : 'bg-red-100'}`}>
-          {trend === 'up' ? (
-            <FiTrendingUp className="text-green-600 text-sm" />
-          ) : (
-            <FiTrendingUp className="text-red-600 text-sm transform rotate-180" />
-          )}
+  const HeaderStat = ({ icon: Icon, value, label, color = 'blue', trend = 'up' }) => {
+    // Define color classes
+    const colorClasses = {
+      blue: 'bg-blue-100 text-blue-600',
+      green: 'bg-green-100 text-green-600',
+      red: 'bg-red-100 text-red-600',
+      yellow: 'bg-yellow-100 text-yellow-600',
+      purple: 'bg-purple-100 text-purple-600',
+      pink: 'bg-pink-100 text-pink-600',
+      indigo: 'bg-indigo-100 text-indigo-600',
+      teal: 'bg-teal-100 text-teal-600',
+      orange: 'bg-orange-100 text-orange-600',
+      cyan: 'bg-cyan-100 text-cyan-600',
+      lime: 'bg-lime-100 text-lime-600',
+      gray: 'bg-gray-100 text-gray-600'
+    };
+
+    return (
+      <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors duration-200">
+        <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
+          <Icon className="text-lg" />
         </div>
-      )}
-    </div>
-  );
+        <div className="text-right">
+          <p className="text-lg font-bold text-gray-900">{value?.toLocaleString() || '0'}</p>
+          <p className="text-xs text-gray-500 capitalize">{label}</p>
+        </div>
+        {trend && (
+          <div className={`p-1 rounded ${trend === 'up' ? 'bg-green-100' : 'bg-red-100'}`}>
+            {trend === 'up' ? (
+              <FiTrendingUp className="text-green-600 text-sm" />
+            ) : (
+              <FiTrendingUp className="text-red-600 text-sm transform rotate-180" />
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Show loading screen
   if (loading) {
@@ -566,8 +633,6 @@ export default function AdminDashboard() {
                 <div className="hidden lg:flex w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl items-center justify-center shadow-lg">
                   <FiAward className="text-xl text-white" />
                 </div>
-                <div>
-                </div>
               </div>
             </div>
 
@@ -576,7 +641,7 @@ export default function AdminDashboard() {
               <div className="hidden xl:flex items-center gap-3">
                 <HeaderStat 
                   icon={FiUsers} 
-                  value={realStats.totalStudent} 
+                  value={realStats.totalStudents} 
                   label="Students" 
                   color="blue"
                   trend="up"
@@ -588,38 +653,35 @@ export default function AdminDashboard() {
                   color="green"
                   trend="up"
                 />
-               
                 <HeaderStat 
                   icon={FiUserPlus} 
-                  value={realStats.studentCouncil} 
-                  label="Council" 
-                  color="orange"
+                  value={realStats.totalSubscribers} 
+                  label="Subscribers" 
+                  color="purple"
                   trend="up"
                 />
               </div>
 
               {/* User Menu */}
               <div className="flex items-center gap-3">
-            <div className="hidden lg:flex flex-col items-end justify-center">
-  {/* Modernized First Name: Bold, darker, and tight tracking */}
-  <span className="text-sm font-bold text-slate-900 tracking-tight leading-none mb-1">
-    {user?.name?.split(' ')[0]}
-  </span>
+                <div className="hidden lg:flex flex-col items-end justify-center">
+                  <span className="text-sm font-bold text-slate-900 tracking-tight leading-none mb-1">
+                    {user?.name?.split(' ')[0]}
+                  </span>
 
-  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-100 shadow-sm">
-    <IoSparkles className="text-amber-500 text-[10px] animate-pulse" />
-    <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700">
-      {user?.role?.replace('_', ' ')}
-    </span>
-  </div>
-</div>
+                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-100 shadow-sm">
+                    <IoSparkles className="text-amber-500 text-[10px] animate-pulse" />
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700">
+                      {user?.role?.replace('_', ' ')}
+                    </span>
+                  </div>
+                </div>
                 
-   <div className="relative group">
-  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg cursor-pointer hover:opacity-90 transition-opacity duration-200">
-    {user?.name?.charAt(0) || 'A'}
-  </div>
-</div>
-
+                <div className="relative group">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg cursor-pointer hover:opacity-90 transition-opacity duration-200">
+                    {user?.name?.charAt(0) || 'A'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

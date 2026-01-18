@@ -172,7 +172,7 @@ const UploadAttachments = ({ open, onClose, onFilesSelected, existingAttachments
             </div>
             <h3 className="text-lg font-bold text-gray-800 mb-2">Drop files here or click to upload</h3>
             <p className="text-gray-600 mb-4">Maximum file size: 10MB per file</p>
-            <button className="px-4 py-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-lg font-medium">
+            <button className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-medium">
               Select Files
             </button>
             <input
@@ -253,7 +253,7 @@ const UploadAttachments = ({ open, onClose, onFilesSelected, existingAttachments
             <button
               onClick={handleSave}
               disabled={uploading}
-              className="flex-1 px-4 py-2.5 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-xl font-medium disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium disabled:opacity-50"
             >
               {uploading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -906,7 +906,7 @@ const recipientGroups = useMemo(() => {
       count: calculateTotalRecipients(),
       color: 'from-blue-500 to-cyan-500',
       icon: Users,
-      gradient: 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900'
+      gradient: 'bg-gradient-to-r from-blue-500 to-cyan-500'
     },
     { 
       value: 'parents', 
@@ -1628,7 +1628,7 @@ const handleCreateOrUpdateCampaign = async () => {
           {/* Icon with Soft Glow */}
           <div className="relative">
             <div className="absolute inset-0 bg-current opacity-10 blur-xl rounded-full group-hover:opacity-20 transition-opacity" />
-            <div className="relative text-3xl sm:text-4xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+            <div className="relative text-3xl sm:text-4xl transition-transform duration-500 group-hover:scale-100 group-hover:rotate-3">
               {stat.icon}
             </div>
           </div>
@@ -1825,7 +1825,7 @@ const handleCreateOrUpdateCampaign = async () => {
               onClick={openCreateModal}
               className="
                 inline-flex items-center gap-2
-                bg-gradient-to-br from-amber-900 via-orange-900 to-red-900
+                bg-gradient-to-r from-blue-500 to-cyan-500
                 text-white px-4 py-2.5 rounded-xl
                 transition-all duration-300 font-medium
                 hover:scale-101
@@ -2102,7 +2102,7 @@ const handleCreateOrUpdateCampaign = async () => {
                     }}
                     className="
                       flex-1
-                      bg-gradient-to-br from-amber-900 via-orange-900 to-red-900
+                      bg-gradient-to-r from-blue-500 to-cyan-500
                       text-white py-2.5 rounded-lg
                       transition-all duration-300
                       font-medium shadow-lg
@@ -2161,7 +2161,7 @@ const handleCreateOrUpdateCampaign = async () => {
         </div>
         <button 
           onClick={() => setShowCreateModal(false)} 
-          className="p-2.5 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all hover:scale-105"
+          className="p-2.5 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all hover:scale-100"
         >
           <X className="w-5 h-5" />
         </button>
@@ -2429,12 +2429,9 @@ const handleCreateOrUpdateCampaign = async () => {
           }`}>
             {campaignForm.status === 'draft' ? 'DRAFT MODE' : 'PUBLISH MODE'}
           </div>
+          
         </div>
-      </div>
-    </div>
-  </div>
-
-  {/* Footer - Enhanced */}
+          {/* Footer - Enhanced */}
   <div className="p-5 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -2483,7 +2480,7 @@ const handleCreateOrUpdateCampaign = async () => {
             hover:shadow-xl
             transition-all duration-200
             min-w-[120px]
-            hover:scale-105
+            hover:scale-100
           "
         >
           {loadingStates.create ? (
@@ -2515,6 +2512,11 @@ const handleCreateOrUpdateCampaign = async () => {
       </div>
     </div>
   </div>
+      </div>
+    </div>
+  </div>
+
+
 </ModernModal>
 <ModernModal open={showDetailModal} onClose={() => setShowDetailModal(false)} maxWidth="700px">
   {selectedCampaign && (
@@ -2538,7 +2540,7 @@ const handleCreateOrUpdateCampaign = async () => {
             </div>
             <button 
               onClick={() => setShowDetailModal(false)} 
-              className="p-2.5 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all hover:scale-105"
+              className="p-2.5 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all hover:scale-100"
             >
               <X className="w-5 h-5" />
             </button>
@@ -2553,7 +2555,7 @@ const handleCreateOrUpdateCampaign = async () => {
           <div className="bg-gradient-to-br from-blue-50 via-white to-cyan-50 rounded-xl p-5 border border-blue-200 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-                <div className="p-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 rounded-lg">
+                <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
                   <Info className="w-4 h-4 text-white" />
                 </div>
                 Campaign Information
@@ -2757,7 +2759,7 @@ const handleCreateOrUpdateCampaign = async () => {
                   text-sm
                   font-bold
                   text-white
-                  bg-gradient-to-br from-amber-900 via-orange-900 to-red-900
+                  bg-gradient-to-r from-blue-500 to-cyan-500
                   hover:from-blue-600 hover:to-cyan-600
                   transition-all duration-200
                   shadow-lg

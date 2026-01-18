@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   FiUsers, 
   FiBook, 
@@ -22,6 +22,7 @@ import {
   FiAward,
   FiTarget,
   FiActivity,
+  FiRefreshCw,
   // Admission icons
   FiClipboard,
   FiCheckCircle,
@@ -36,7 +37,10 @@ import {
   FiMapPin,
   FiBookOpen,
   FiHeart,
-  FiCpu
+  FiCpu,
+  FiTrendingUp as FiTrendingUpSolid,
+  FiTrendingDown as FiTrendingDownSolid,
+  FiActivity as FiActivitySolid
 } from 'react-icons/fi';
 import { 
   IoPeopleCircle,
@@ -48,8 +52,8 @@ import {
   IoSchool,
   IoDocumentText
 } from 'react-icons/io5';
-import { Modal, Box, CircularProgress } from '@mui/material';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { CircularProgress } from '@mui/material';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 
 // Decode JWT token
 const decodeToken = () => {
@@ -71,7 +75,595 @@ const decodeToken = () => {
   }
 };
 
-// Helper function to calculate month-over-month growth
+// ========== ENGAGEMENT CALCULATION LOGIC ==========
+const calculateStudentEngagement = (student, allResults) => {
+  // Get results for this specific student
+  const studentResults = allResults.filter(result => 
+    result.admissionNumber === student.admissionNumber
+  );
+  
+  if (studentResults.length === 0) {
+    return {
+      score: 0,
+      level: 'No Data',
+      reasons: ['No results data available'],
+      trend: 'stable',
+      resultsCount: 0,
+      lastActivity: student.updatedAt || student.createdAt,
+      subjects: []
+    };
+  }
+  
+  let engagementScore = 0;
+  const reasons = [];
+  const recentSubjects = new Set();
+  
+  // 1. Recency of results (max 30 points)
+  const latestResult = studentResults.sort((a, b) => 
+    new Date(b.updatedAt) - new Date(a.updatedAt)
+  )[0];
+  
+  const daysSinceLastResult = Math.floor(
+    (new Date() - new Date(latestResult.updatedAt)) / (1000 * 60 * 60 * 24)
+  );
+  
+  if (daysSinceLastResult <= 7) {
+    engagementScore += 30;
+    reasons.push('Active in last week');
+  } else if (daysSinceLastResult <= 30) {
+    engagementScore += 20;
+    reasons.push('Active in last month');
+  } else if (daysSinceLastResult <= 90) {
+    engagementScore += 10;
+    reasons.push('Active in last quarter');
+  }
+  
+  // 2. Frequency of results (max 30 points)
+  const resultsLast90Days = studentResults.filter(result => {
+    const resultDate = new Date(result.updatedAt);
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    return resultDate >= ninetyDaysAgo;
+  }).length;
+  
+  if (resultsLast90Days >= 3) {
+    engagementScore += 30;
+    reasons.push(`Consistent performance (${resultsLast90Days} results in 90 days)`);
+  } else if (resultsLast90Days >= 2) {
+    engagementScore += 20;
+    reasons.push(`Regular activity (${resultsLast90Days} results in 90 days)`);
+  } else if (resultsLast90Days >= 1) {
+    engagementScore += 10;
+    reasons.push(`Some activity (${resultsLast90Days} result in 90 days)`);
+  }
+  
+  // 3. Academic performance (max 40 points)
+  let totalAvgScore = 0;
+  let totalResultsWithScores = 0;
+  let subjectScores = {};
+  
+  studentResults.forEach(result => {
+    try {
+      let subjects = [];
+      if (typeof result.subjects === 'string') {
+        subjects = JSON.parse(result.subjects);
+      } else if (Array.isArray(result.subjects)) {
+        subjects = result.subjects;
+      }
+      
+      subjects.forEach(subject => {
+        const score = subject.score || 0;
+        if (score > 0) {
+          recentSubjects.add(subject.subject);
+          
+          if (!subjectScores[subject.subject]) {
+            subjectScores[subject.subject] = { total: 0, count: 0 };
+          }
+          subjectScores[subject.subject].total += score;
+          subjectScores[subject.subject].count++;
+        }
+      });
+      
+      if (subjects.length > 0) {
+        const resultAvg = subjects.reduce((sum, s) => sum + (s.score || 0), 0) / subjects.length;
+        totalAvgScore += resultAvg;
+        totalResultsWithScores++;
+      }
+    } catch (error) {
+      console.error('Error parsing subjects:', error);
+    }
+  });
+  
+  if (totalResultsWithScores > 0) {
+    const overallAvg = totalAvgScore / totalResultsWithScores;
+    
+    if (overallAvg >= 80) {
+      engagementScore += 40;
+      reasons.push(`Excellent performance (${overallAvg.toFixed(1)}% avg)`);
+    } else if (overallAvg >= 70) {
+      engagementScore += 30;
+      reasons.push(`Good performance (${overallAvg.toFixed(1)}% avg)`);
+    } else if (overallAvg >= 60) {
+      engagementScore += 20;
+      reasons.push(`Average performance (${overallAvg.toFixed(1)}% avg)`);
+    } else if (overallAvg >= 50) {
+      engagementScore += 10;
+      reasons.push(`Passing performance (${overallAvg.toFixed(1)}% avg)`);
+    }
+  }
+  
+  // Calculate subject performance metrics
+  const subjectPerformance = Object.keys(subjectScores).map(subjectName => ({
+    subject: subjectName,
+    average: subjectScores[subjectName].total / subjectScores[subjectName].count,
+    count: subjectScores[subjectName].count
+  }));
+  
+  // Determine engagement level
+  let engagementLevel = 'Low';
+  if (engagementScore >= 80) engagementLevel = 'Excellent';
+  else if (engagementScore >= 70) engagementLevel = 'High';
+  else if (engagementScore >= 50) engagementLevel = 'Medium';
+  else if (engagementScore >= 30) engagementLevel = 'Fair';
+  
+  // Calculate trend (simplified - compare last two results)
+  let trend = 'stable';
+  if (studentResults.length >= 2) {
+    const sortedResults = [...studentResults].sort((a, b) => 
+      new Date(a.updatedAt) - new Date(b.updatedAt)
+    );
+    const secondLastResult = sortedResults[sortedResults.length - 2];
+    
+    try {
+      let currentSubjects = [];
+      let previousSubjects = [];
+      
+      if (typeof latestResult.subjects === 'string') {
+        currentSubjects = JSON.parse(latestResult.subjects);
+      } else if (Array.isArray(latestResult.subjects)) {
+        currentSubjects = latestResult.subjects;
+      }
+      
+      if (typeof secondLastResult.subjects === 'string') {
+        previousSubjects = JSON.parse(secondLastResult.subjects);
+      } else if (Array.isArray(secondLastResult.subjects)) {
+        previousSubjects = secondLastResult.subjects;
+      }
+      
+      const currentAvg = currentSubjects.length > 0 
+        ? currentSubjects.reduce((sum, s) => sum + (s.score || 0), 0) / currentSubjects.length 
+        : 0;
+      
+      const previousAvg = previousSubjects.length > 0 
+        ? previousSubjects.reduce((sum, s) => sum + (s.score || 0), 0) / previousSubjects.length 
+        : 0;
+      
+      if (currentAvg > previousAvg) trend = 'up';
+      else if (currentAvg < previousAvg) trend = 'down';
+    } catch (error) {
+      console.error('Error calculating trend:', error);
+    }
+  }
+  
+  return {
+    score: Math.min(Math.round(engagementScore), 100),
+    level: engagementLevel,
+    reasons: reasons.slice(0, 3), // Top 3 reasons
+    trend,
+    resultsCount: studentResults.length,
+    lastActivity: latestResult.updatedAt,
+    subjectPerformance,
+    recentSubjects: Array.from(recentSubjects).slice(0, 5)
+  };
+};
+
+// Calculate overall engagement statistics
+const calculateEngagementStats = (students, allResults) => {
+  if (!students || students.length === 0 || !allResults) {
+    return {
+      totalStudents: 0,
+      engagedStudents: 0,
+      averageEngagement: 0,
+      engagementRate: 0,
+      distribution: { excellent: 0, high: 0, medium: 0, fair: 0, low: 0 },
+      topPerformingSubjects: [],
+      recentActivityCount: 0
+    };
+  }
+  
+  // Calculate engagement for each student
+  const engagements = students.map(student => 
+    calculateStudentEngagement(student, allResults)
+  );
+  
+  // Count engaged students (score >= 50)
+  const engagedStudents = engagements.filter(e => e.score >= 50).length;
+  const excellentEngagement = engagements.filter(e => e.level === 'Excellent').length;
+  const highEngagement = engagements.filter(e => e.level === 'High').length;
+  const mediumEngagement = engagements.filter(e => e.level === 'Medium').length;
+  const fairEngagement = engagements.filter(e => e.level === 'Fair').length;
+  const lowEngagement = engagements.filter(e => e.level === 'Low').length;
+  
+  // Calculate average engagement
+  const averageEngagement = engagements.reduce((sum, e) => sum + e.score, 0) / engagements.length;
+  
+  // Count recent activity (last 7 days)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const recentActivityCount = allResults.filter(result => 
+    new Date(result.updatedAt) >= sevenDaysAgo
+  ).length;
+  
+  // Find top performing subjects across all students
+  const subjectPerformanceMap = {};
+  allResults.forEach(result => {
+    try {
+      let subjects = [];
+      if (typeof result.subjects === 'string') {
+        subjects = JSON.parse(result.subjects);
+      } else if (Array.isArray(result.subjects)) {
+        subjects = result.subjects;
+      }
+      
+      subjects.forEach(subject => {
+        const score = subject.score || 0;
+        if (score > 0) {
+          if (!subjectPerformanceMap[subject.subject]) {
+            subjectPerformanceMap[subject.subject] = { total: 0, count: 0 };
+          }
+          subjectPerformanceMap[subject.subject].total += score;
+          subjectPerformanceMap[subject.subject].count++;
+        }
+      });
+    } catch (error) {
+      console.error('Error processing subject performance:', error);
+    }
+  });
+  
+  const topPerformingSubjects = Object.keys(subjectPerformanceMap)
+    .map(subject => ({
+      subject,
+      average: subjectPerformanceMap[subject].total / subjectPerformanceMap[subject].count,
+      count: subjectPerformanceMap[subject].count
+    }))
+    .sort((a, b) => b.average - a.average)
+    .slice(0, 5);
+  
+  return {
+    totalStudents: students.length,
+    engagedStudents,
+    averageEngagement: Math.round(averageEngagement),
+    engagementRate: Math.round((engagedStudents / students.length) * 100),
+    distribution: {
+      excellent: excellentEngagement,
+      high: highEngagement,
+      medium: mediumEngagement,
+      fair: fairEngagement,
+      low: lowEngagement
+    },
+    topPerformingSubjects,
+    recentActivityCount,
+    totalResults: allResults.length
+  };
+};
+
+const listenForRecentActivity = async () => {
+  try {
+    console.log('📊 Fetching recent activity data...');
+    
+    // Poll for recent activity from all APIs with better error handling
+    const [studentsRes, resultsRes, uploadsRes, guidanceRes] = await Promise.allSettled([
+      fetch('/api/studentupload?limit=5&sortBy=updatedAt&sortOrder=desc', {
+        headers: { 'Cache-Control': 'no-cache' }
+      }),
+      fetch('/api/results?limit=5&sortBy=updatedAt&sortOrder=desc', {
+        headers: { 'Cache-Control': 'no-cache' }
+      }),
+      fetch('/api/studentupload?action=uploads&limit=3', {
+        headers: { 'Cache-Control': 'no-cache' }
+      }),
+      fetch('/api/guidance?limit=3&sortBy=createdAt&sortOrder=desc', {
+        headers: { 'Cache-Control': 'no-cache' }
+      })
+    ]);
+
+    const activities = [];
+    const now = new Date();
+
+    // Helper function to validate and format date
+    const formatActivityDate = (dateString) => {
+      if (!dateString) return 'Unknown date';
+      
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Invalid date';
+        
+        // Show "Today", "Yesterday", or date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        date.setHours(0, 0, 0, 0);
+        
+        if (date.getTime() === today.getTime()) {
+          return 'Today';
+        } else if (date.getTime() === yesterday.getTime()) {
+          return 'Yesterday';
+        } else {
+          return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          });
+        }
+      } catch (e) {
+        return 'Unknown date';
+      }
+    };
+
+    // Helper function to get relative time
+    const getRelativeTime = (dateString) => {
+      if (!dateString) return 'Recently';
+      
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Recently';
+        
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+        
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        });
+      } catch (e) {
+        return 'Recently';
+      }
+    };
+
+    // Process recent students with improved validation
+    if (studentsRes.status === 'fulfilled' && studentsRes.value.ok) {
+      try {
+        const studentsData = await studentsRes.value.json();
+        console.log('📋 Students API response:', studentsData);
+        
+        const students = studentsData.data?.students || studentsData.students || [];
+        
+        students.slice(0, 2).forEach(student => {
+          if (!student?.id) return;
+          
+          const isNew = student.createdAt && student.updatedAt && 
+                       new Date(student.createdAt).getTime() === new Date(student.updatedAt).getTime();
+          
+          const studentName = student.firstName || student.lastName ? 
+            `${student.firstName || ''} ${student.lastName || ''}`.trim() : 
+            `Student #${student.admissionNumber || student.id}`;
+          
+          const form = student.form || student.Form || 'Unknown Form';
+          
+          activities.push({
+            id: `student-${student.id}-${Date.now()}`,
+            action: isNew ? 'New student registered' : 'Student profile updated',
+            target: `${studentName} - ${form}`,
+            time: getRelativeTime(student.updatedAt || student.createdAt),
+            formattedDate: formatActivityDate(student.updatedAt || student.createdAt),
+            type: 'student',
+            icon: isNew ? FiUserPlus : FiUser,
+            color: isNew ? 'emerald' : 'blue',
+            timestamp: new Date(student.updatedAt || student.createdAt || now),
+            admissionNumber: student.admissionNumber,
+            details: {
+              name: studentName,
+              form: form,
+              isNew: isNew
+            }
+          });
+        });
+      } catch (error) {
+        console.error('❌ Error processing students data:', error);
+      }
+    } else {
+      console.warn('⚠️ Students API request failed:', studentsRes.reason);
+    }
+
+    // Process recent results with improved validation
+    if (resultsRes.status === 'fulfilled' && resultsRes.value.ok) {
+      try {
+        const resultsData = await resultsRes.value.json();
+        console.log('📊 Results API response:', resultsData);
+        
+        const results = resultsData.data?.results || resultsData.results || [];
+        
+        results.slice(0, 2).forEach(result => {
+          if (!result?.id) return;
+          
+          const hasSubjects = result.subjects && 
+            (Array.isArray(result.subjects) || 
+             (typeof result.subjects === 'string' && result.subjects.length > 0));
+          
+          const subjectCount = hasSubjects ? 
+            (Array.isArray(result.subjects) ? result.subjects.length : 
+             JSON.parse(result.subjects).length) : 0;
+          
+          const term = result.term || result.Term || 'Unknown Term';
+          const form = result.form || result.Form || 'Unknown Form';
+          
+          activities.push({
+            id: `result-${result.id}-${Date.now()}`,
+            action: 'Academic results updated',
+            target: `${result.admissionNumber} - ${form} ${term}`,
+            time: getRelativeTime(result.updatedAt || result.createdAt),
+            formattedDate: formatActivityDate(result.updatedAt || result.createdAt),
+            type: 'result',
+            icon: FiAward,
+            color: 'purple',
+            timestamp: new Date(result.updatedAt || result.createdAt || now),
+            admissionNumber: result.admissionNumber,
+            details: {
+              term: term,
+              form: form,
+              subjectCount: subjectCount,
+              academicYear: result.academicYear || result.year || 'N/A'
+            }
+          });
+        });
+      } catch (error) {
+        console.error('❌ Error processing results data:', error);
+      }
+    } else {
+      console.warn('⚠️ Results API request failed:', resultsRes.reason);
+    }
+
+    // Process recent uploads with improved validation
+    if (uploadsRes.status === 'fulfilled' && uploadsRes.value.ok) {
+      try {
+        const uploadsData = await uploadsRes.value.json();
+        console.log('📤 Uploads API response:', uploadsData);
+        
+        const uploads = uploadsData.uploads || uploadsData.data?.uploads || [];
+        
+        uploads.slice(0, 2).forEach(upload => {
+          if (!upload?.id) return;
+          
+          const uploadDate = upload.processedDate || upload.uploadDate || upload.createdAt;
+          const fileName = upload.fileName || upload.originalName || 'Unknown file';
+          const fileExt = fileName.split('.').pop().toUpperCase();
+          
+          const statusColors = {
+            'completed': 'green',
+            'processing': 'blue',
+            'failed': 'red',
+            'pending': 'yellow',
+            'partial': 'orange'
+          };
+          
+          activities.push({
+            id: `upload-${upload.id}-${Date.now()}`,
+            action: 'Bulk upload processed',
+            target: `${fileName} (${fileExt})`,
+            time: getRelativeTime(uploadDate),
+            formattedDate: formatActivityDate(uploadDate),
+            type: 'upload',
+            icon: FiDownload,
+            color: statusColors[upload.status?.toLowerCase()] || 'gray',
+            timestamp: new Date(uploadDate || now),
+            details: {
+              fileName: fileName,
+              fileType: fileExt,
+              status: upload.status || 'unknown',
+              rows: upload.totalRows || upload.validRows || 0,
+              type: upload.uploadType || upload.type || 'unknown'
+            }
+          });
+        });
+      } catch (error) {
+        console.error('❌ Error processing uploads data:', error);
+      }
+    } else {
+      console.warn('⚠️ Uploads API request failed:', uploadsRes.reason);
+    }
+
+    // Process recent guidance sessions with improved validation
+    if (guidanceRes.status === 'fulfilled' && guidanceRes.value.ok) {
+      try {
+        const guidanceData = await guidanceRes.value.json();
+        console.log('💬 Guidance API response:', guidanceData);
+        
+        const sessions = guidanceData.events || guidanceData.sessions || guidanceData.data?.events || [];
+        
+        sessions.slice(0, 2).forEach(session => {
+          if (!session?.id) return;
+          
+          const counselor = session.counselor || session.teacher || session.staffName || 'Counselor';
+          const category = session.category || session.type || session.reason || 'Session';
+          const studentName = session.studentName || 
+            (session.student ? `${session.student.firstName || ''} ${session.student.lastName || ''}`.trim() : '');
+          
+          const displayTarget = studentName ? 
+            `${counselor} with ${studentName}` : 
+            `${counselor} - ${category}`;
+          
+          activities.push({
+            id: `guidance-${session.id}-${Date.now()}`,
+            action: 'Guidance session conducted',
+            target: displayTarget,
+            time: getRelativeTime(session.date || session.createdAt),
+            formattedDate: formatActivityDate(session.date || session.createdAt),
+            type: 'guidance',
+            icon: FiMessageCircle,
+            color: 'teal',
+            timestamp: new Date(session.date || session.createdAt || now),
+            details: {
+              counselor: counselor,
+              category: category,
+              studentName: studentName,
+              duration: session.duration || session.length || 'N/A',
+              status: session.status || 'completed'
+            }
+          });
+        });
+      } catch (error) {
+        console.error('❌ Error processing guidance data:', error);
+      }
+    } else {
+      console.warn('⚠️ Guidance API request failed:', guidanceRes.reason);
+    }
+
+    // Sort by timestamp (most recent first) and remove duplicates
+    const uniqueActivities = Array.from(
+      new Map(activities.map(activity => [activity.id, activity])).values()
+    );
+
+    const sortedActivities = uniqueActivities
+      .filter(activity => activity.timestamp && !isNaN(activity.timestamp.getTime()))
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 8);
+
+    console.log(`✅ Loaded ${sortedActivities.length} recent activities`);
+    
+    // Add activity summary for debugging
+    if (sortedActivities.length > 0) {
+      console.table(sortedActivities.map(act => ({
+        Type: act.type,
+        Action: act.action,
+        Time: act.time,
+        Target: act.target
+      })));
+    }
+
+    return sortedActivities;
+
+  } catch (error) {
+    console.error('🚨 Critical error in listenForRecentActivity:', error);
+    
+    // Return fallback activities if everything fails
+    return [{
+      id: 'fallback-activity',
+      action: 'System online',
+      target: 'Dashboard is monitoring activities',
+      time: 'Just now',
+      formattedDate: 'Today',
+      type: 'system',
+      icon: FiActivity,
+      color: 'blue',
+      timestamp: new Date(),
+      details: {
+        note: 'Activities will appear here as they occur'
+      }
+    }];
+  }
+};
+
+// ========== HELPER FUNCTIONS ==========
 const calculateMonthOverMonthGrowth = (currentCount, previousCount) => {
   if (!previousCount || previousCount === 0) {
     return currentCount > 0 ? 100 : 0;
@@ -79,7 +671,6 @@ const calculateMonthOverMonthGrowth = (currentCount, previousCount) => {
   return ((currentCount - previousCount) / previousCount) * 100;
 };
 
-// Helper function to count records by month
 const countRecordsByMonth = (dataArray, monthOffset = 0) => {
   const now = new Date();
   const targetMonth = new Date(now.getFullYear(), now.getMonth() - monthOffset, 1);
@@ -92,6 +683,7 @@ const countRecordsByMonth = (dataArray, monthOffset = 0) => {
   }).length;
 };
 
+// ========== DASHBOARD COMPONENT ==========
 function ModernLoadingSpinner({ message = "Loading sessions from the database…", size = "medium" }) {
   const sizes = {
     small: { outer: 48, inner: 24 },
@@ -143,38 +735,37 @@ function ModernLoadingSpinner({ message = "Loading sessions from the database…
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-// Chart component for percentage-based displays
-const PercentageChart = ({ data, colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'] }) => {
-  return (
-    <ResponsiveContainer width="100%" height={200}>
-      <PieChart>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-          outerRadius={80}
-          fill="#8884d8"
-          dataKey="value"
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-          ))}
-        </Pie>
-        <Tooltip formatter={(value) => [`${value}%`, 'Percentage']} />
-      </PieChart>
-    </ResponsiveContainer>
-  );
+// Add this helper function to decode JWT tokens
+const decodeJWTToken = (token) => {
+  if (!token) return null;
+  
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Error decoding JWT token:', error);
+    return null;
+  }
 };
 
+// ========== MAIN DASHBOARD COMPONENT ==========
 export default function DashboardOverview() {
-  const [user, setUser] = useState({ name: 'Admin', role: 'admin' });
+  const [user, setUser] = useState(null);
   const [stats, setStats] = useState({
-    // School Management Stats
     totalStudents: 0,
     totalStaff: 0,
     totalSubscribers: 0,
@@ -182,11 +773,10 @@ export default function DashboardOverview() {
     activeAssignments: 0,
     upcomingEvents: 0,
     galleryItems: 0,
-    studentCouncil: 0,
     guidanceSessions: 0,
     totalNews: 0,
     
-    // Admission Application Stats
+    // Admission stats
     totalApplications: 0,
     pendingApplications: 0,
     acceptedApplications: 0,
@@ -201,7 +791,7 @@ export default function DashboardOverview() {
     applicationConversionRate: 0,
     averageProcessingTime: 0,
     
-    // Admission Analytics
+    // Admission analytics
     scienceApplications: 0,
     artsApplications: 0,
     businessApplications: 0,
@@ -218,9 +808,9 @@ export default function DashboardOverview() {
   const [quickStats, setQuickStats] = useState([]);
   const [admissionStats, setAdmissionStats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [growthMetrics, setGrowthMetrics] = useState({});
   const [admissionGrowth, setAdmissionGrowth] = useState({});
-  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
   const [showQuickTour, setShowQuickTour] = useState(false);
   const [schoolVideo, setSchoolVideo] = useState(null);
   
@@ -231,13 +821,30 @@ export default function DashboardOverview() {
   const [careers, setCareers] = useState([]);
   const [emailCampaigns, setEmailCampaigns] = useState([]);
   
-  // Get user from token on component mount
-  useEffect(() => {
-    const userData = decodeToken();
-    if (userData) {
-      setUser(userData);
-    }
-  }, []);
+  // NEW: Engagement and performance state
+  const [engagementStats, setEngagementStats] = useState({
+    totalStudents: 0,
+    engagedStudents: 0,
+    averageEngagement: 0,
+    engagementRate: 0,
+    distribution: { excellent: 0, high: 0, medium: 0, fair: 0, low: 0 },
+    topPerformingSubjects: [],
+    recentActivityCount: 0,
+    totalResults: 0
+  });
+  
+  const [studentEngagements, setStudentEngagements] = useState([]);
+  
+  // NEW: Student Population & Distribution state
+  const [studentPopulation, setStudentPopulation] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+    byForm: { 'Form 1': 0, 'Form 2': 0, 'Form 3': 0, 'Form 4': 0 },
+    byGender: { male: 0, female: 0, other: 0 },
+    byStream: {},
+    byStatus: { active: 0, inactive: 0 }
+  });
   
   // Calculate percentages for charts
   const calculatePercentages = (data, key) => {
@@ -253,868 +860,671 @@ export default function DashboardOverview() {
       value: Math.round((count / total) * 100)
     }));
   };
-
-  // Fetch all data from APIs including admissions
-  useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch data from all endpoints
-        const [
-          studentsRes,
-          staffRes,
-          subscribersRes,
-          assignmentsRes,
-          eventsRes,
-          galleryRes,
-          councilRes,
-          guidanceRes,
-          newsRes,
-          schoolInfoRes,
-          adminsRes,
-          admissionsRes,
-          resourcesRes,
-          careersRes,
-          emailCampaignsRes
-        ] = await Promise.allSettled([
-          fetch('/api/student'),
-          fetch('/api/staff'),
-          fetch('/api/subscriber'),
-          fetch('/api/assignment'),
-          fetch('/api/events'),
-          fetch('/api/gallery'),
-          fetch('/api/studentCouncil'),
-          fetch('/api/guidance'),
-          fetch('/api/news'),
-          fetch('/api/school'),
-          fetch('/api/register'),
-          fetch('/api/applyadmission'),
-          fetch('/api/resources'),
-          fetch('/api/career'),
-          fetch('/api/emails')
-        ]);
-
-        // Process responses
-        const students = studentsRes.status === 'fulfilled' ? await studentsRes.value.json() : { students: [] };
-        const staff = staffRes.status === 'fulfilled' ? await staffRes.value.json() : { staff: [] };
-        const subscribers = subscribersRes.status === 'fulfilled' ? await subscribersRes.value.json() : { subscribers: [] };
-        const assignments = assignmentsRes.status === 'fulfilled' ? await assignmentsRes.value.json() : { assignments: [] };
-        const events = eventsRes.status === 'fulfilled' ? await eventsRes.value.json() : { events: [] };
-        const gallery = galleryRes.status === 'fulfilled' ? await galleryRes.value.json() : { galleries: [] };
-        const council = councilRes.status === 'fulfilled' ? await councilRes.value.json() : { councilMembers: [] };
-        const guidance = guidanceRes.status === 'fulfilled' ? await guidanceRes.value.json() : { events: [] };
-        const news = newsRes.status === 'fulfilled' ? await newsRes.value.json() : { news: [] };
-        const schoolInfo = schoolInfoRes.status === 'fulfilled' ? await schoolInfoRes.value.json() : { school: {} };
-        const admins = adminsRes.status === 'fulfilled' ? await adminsRes.value.json() : { users: [] };
-        const admissions = admissionsRes.status === 'fulfilled' ? await admissionsRes.value.json() : { applications: [] };
-        const resources = resourcesRes.status === 'fulfilled' ? await resourcesRes.value.json() : { resources: [] };
-        const careersData = careersRes.status === 'fulfilled' ? await careersRes.value.json() : { jobs: [] };
-        const emailCampaignsData = emailCampaignsRes.status === 'fulfilled' ? await emailCampaignsRes.value.json() : { campaigns: [] };
-
-        // Store school video for quick tour
-        if (schoolInfo.school?.videoTour) {
-          setSchoolVideo({
-            url: schoolInfo.school.videoTour,
-            type: schoolInfo.school.videoType // 'youtube' or 'file'
-          });
-        }
-
-        // Calculate staff distribution percentages
-        if (staff.staff && staff.staff.length > 0) {
-          const staffDist = calculatePercentages(staff.staff, 'department');
-          setStaffDistribution(staffDist);
-        }
-
-        // Calculate assignments distribution
-        if (assignments.assignments && assignments.assignments.length > 0) {
-          const assignDist = calculatePercentages(assignments.assignments, 'status');
-          setAssignmentsDistribution(assignDist);
-        }
-
-        // Calculate resources distribution
-        if (resources.resources && resources.resources.length > 0) {
-          const resourcesDist = calculatePercentages(resources.resources, 'category');
-          setResourcesDistribution(resourcesDist);
-        }
-
-        // Set careers data
-        if (careersData.jobs && careersData.jobs.length > 0) {
-          setCareers(careersData.jobs.slice(0, 3)); // Show only 3 latest careers
-        }
-
-        // Set email campaigns
-        if (emailCampaignsData.campaigns && emailCampaignsData.campaigns.length > 0) {
-          setEmailCampaigns(emailCampaignsData.campaigns.slice(0, 2)); // Show only 2 active campaigns
-        }
-
-        // Calculate school management stats
-        const activeStudents = students.students?.filter(s => s.status === 'Active').length || 0;
-        const inactiveStudents = students.students?.filter(s => s.status !== 'Active').length || 0;
-        const activeAssignments = assignments.assignments?.filter(a => a.status === 'assigned').length || 0;
-        const upcomingEvents = events.events?.filter(e => new Date(e.date) > new Date()).length || 0;
-        const activeCouncil = council.councilMembers?.filter(c => c.status === 'Active').length || 0;
-        const completedAssignments = assignments.assignments?.filter(a => a.status === 'completed').length || 0;
-        const totalAssignments = assignments.assignments?.length || 1;
-
-        // Calculate admission statistics
-        const applications = admissions.applications || [];
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        // Admission calculations
-        const monthlyApplications = applications.filter(app => {
-          const appDate = new Date(app.createdAt);
-          return appDate.getMonth() === today.getMonth() && appDate.getFullYear() === today.getFullYear();
-        }).length;
-
-        const dailyApplications = applications.filter(app => {
-          const appDate = new Date(app.createdAt);
-          return appDate.toDateString() === today.toDateString();
-        }).length;
-
-        const pendingApps = applications.filter(app => app.status === 'PENDING').length;
-        const acceptedApps = applications.filter(app => app.status === 'ACCEPTED').length;
-        const rejectedApps = applications.filter(app => app.status === 'REJECTED').length;
-        const underReviewApps = applications.filter(app => app.status === 'UNDER_REVIEW').length;
-        const interviewedApps = applications.filter(app => app.status === 'INTERVIEWED').length;
-        const waitlistedApps = applications.filter(app => app.status === 'WAITLISTED').length;
-        const conditionalApps = applications.filter(app => app.status === 'CONDITIONAL_ACCEPTANCE').length;
-        const withdrawnApps = applications.filter(app => app.status === 'WITHDRAWN').length;
-
-        // Calculate conversion rate
-        const conversionRate = applications.length > 0 ? 
-          Math.round((acceptedApps / applications.length) * 100) : 0;
-
-        // Calculate average processing time (in days)
-        const processedApps = applications.filter(app => 
-          ['ACCEPTED', 'REJECTED', 'WITHDRAWN'].includes(app.status)
-        );
-        
-        let totalProcessingTime = 0;
-        processedApps.forEach(app => {
-          const submittedDate = new Date(app.createdAt);
-          const processedDate = app.updatedAt ? new Date(app.updatedAt) : today;
-          const daysDiff = Math.ceil((processedDate - submittedDate) / (1000 * 60 * 60 * 24));
-          totalProcessingTime += daysDiff;
-        });
-        
-        const avgProcessingTime = processedApps.length > 0 ? 
-          Math.round(totalProcessingTime / processedApps.length) : 0;
-
-        // Calculate month-over-month growth for all metrics
-        const calculateGrowth = (dataArray) => {
-          const currentMonthCount = countRecordsByMonth(dataArray, 0);
-          const previousMonthCount = countRecordsByMonth(dataArray, 1);
-          return calculateMonthOverMonthGrowth(currentMonthCount, previousMonthCount);
-        };
-
-        // Calculate growth metrics using actual API data
-        const studentGrowth = calculateGrowth(students.students || []);
-        const staffGrowth = calculateGrowth(staff.staff || []);
-        const subscriberGrowth = calculateGrowth(subscribers.subscribers || []);
-        const assignmentGrowth = calculateGrowth(assignments.assignments || []);
-        const councilGrowth = calculateGrowth(council.councilMembers || []);
-        const eventGrowth = calculateGrowth(events.events || []);
-        const galleryGrowth = calculateGrowth(gallery.galleries || []);
-        const guidanceGrowth = calculateGrowth(guidance.events || []);
-        const newsGrowth = calculateGrowth(news.news || []);
-        const admissionMonthlyGrowth = calculateGrowth(applications);
-
-        // Update growth metrics with actual calculations
-        setGrowthMetrics({
-          studentGrowth: parseFloat(studentGrowth.toFixed(1)),
-          staffGrowth: parseFloat(staffGrowth.toFixed(1)),
-          subscriberGrowth: parseFloat(subscriberGrowth.toFixed(1)),
-          assignmentGrowth: parseFloat(assignmentGrowth.toFixed(1)),
-          councilGrowth: parseFloat(councilGrowth.toFixed(1)),
-          eventGrowth: parseFloat(eventGrowth.toFixed(1)),
-          galleryGrowth: parseFloat(galleryGrowth.toFixed(1)),
-          guidanceGrowth: parseFloat(guidanceGrowth.toFixed(1)),
-          newsGrowth: parseFloat(newsGrowth.toFixed(1))
-        });
-
-        // Admission analytics
-        const scienceApps = applications.filter(app => app.preferredStream === 'SCIENCE').length;
-        const artsApps = applications.filter(app => app.preferredStream === 'ARTS').length;
-        const businessApps = applications.filter(app => app.preferredStream === 'BUSINESS').length;
-        const technicalApps = applications.filter(app => app.preferredStream === 'TECHNICAL').length;
-        
-        const maleApps = applications.filter(app => app.gender === 'MALE').length;
-        const femaleApps = applications.filter(app => app.gender === 'FEMALE').length;
-        
-        // Find top county
-        const countyCounts = {};
-        applications.forEach(app => {
-          if (app.county) {
-            countyCounts[app.county] = (countyCounts[app.county] || 0) + 1;
-          }
-        });
-        const topCounty = Object.entries(countyCounts).sort((a, b) => b[1] - a[1])[0];
-        
-        // Calculate average KCPE score
-        const kcpeScores = applications
-          .filter(app => app.kcpeMarks && !isNaN(app.kcpeMarks))
-          .map(app => parseInt(app.kcpeMarks));
-        const avgKCPEScore = kcpeScores.length > 0 ? 
-          Math.round(kcpeScores.reduce((a, b) => a + b, 0) / kcpeScores.length) : 0;
-        
-        // Calculate average age
-        const ages = applications
-          .filter(app => app.dateOfBirth)
-          .map(app => {
-            const birthDate = new Date(app.dateOfBirth);
-            const age = today.getFullYear() - birthDate.getFullYear();
-            return age;
-          });
-        const avgAge = ages.length > 0 ? 
-          Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) : 0;
-
-        // Update stats with all data
-        setStats({
-          // School Management
-          totalStudents: students.students?.length || 0,
-          activeStudents,
-          inactiveStudents,
-          totalStaff: staff.staff?.length || 0,
-          totalSubscribers: subscribers.subscribers?.length || 0,
-          pendingEmails: 0,
-          activeAssignments,
-          upcomingEvents,
-          galleryItems: gallery.galleries?.length || 0,
-          studentCouncil: activeCouncil,
-          guidanceSessions: guidance.events?.length || 0,
-          totalNews: news.news?.length || 0,
-          completedAssignments,
-          totalAssignments,
-          
-          // Admission Applications
-          totalApplications: applications.length,
-          pendingApplications: pendingApps,
-          acceptedApplications: acceptedApps,
-          rejectedApplications: rejectedApps,
-          underReviewApplications: underReviewApps,
-          interviewedApplications: interviewedApps,
-          waitlistedApplications: waitlistedApps,
-          conditionalApplications: conditionalApps,
-          withdrawnApplications: withdrawnApps,
-          monthlyApplications,
-          dailyApplications,
-          applicationConversionRate: conversionRate,
-          averageProcessingTime: avgProcessingTime,
-          
-          // Admission Analytics
-          scienceApplications: scienceApps,
-          artsApplications: artsApps,
-          businessApplications: businessApps,
-          technicalApplications: technicalApps,
-          maleApplications: maleApps,
-          femaleApplications: femaleApps,
-          topCountyApplications: topCounty ? topCounty[0] : 'N/A',
-          averageKCPEScore: avgKCPEScore,
-          averageAge: avgAge
-        });
-
-        // Update admission growth with actual calculations
-        setAdmissionGrowth({
-          monthlyGrowth: parseFloat(admissionMonthlyGrowth.toFixed(1)),
-          dailyGrowth: dailyApplications,
-          acceptanceGrowth: conversionRate,
-          scienceGrowth: scienceApps > 0 ? Math.round((scienceApps / applications.length) * 100) : 0,
-          businessGrowth: businessApps > 0 ? Math.round((businessApps / applications.length) * 100) : 0,
-          processingEfficiency: avgProcessingTime > 0 ? 
-            Math.round((30 / avgProcessingTime) * 100) : 100
-        });
-
-        // Generate unified recent activity from all APIs
-        const generateRecentActivity = () => {
-          const thirtyDaysAgo = new Date();
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-          const activities = [];
-          
-          // Helper function to add recent activities
-          const addRecentActivities = (dataArray, type, actionPrefix, getTarget, icon, color, limit = 2) => {
-            if (!dataArray || dataArray.length === 0) return;
-            
-            const recent = dataArray
-              .filter(item => item.createdAt && new Date(item.createdAt) >= thirtyDaysAgo)
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .slice(0, limit);
-            
-            recent.forEach(item => {
-              activities.push({
-                id: `${type}-${item.id || item._id || Math.random()}`,
-                action: `${actionPrefix}`,
-                target: getTarget(item),
-                time: new Date(item.createdAt).toLocaleDateString(),
-                type,
-                icon,
-                color,
-                timestamp: new Date(item.createdAt)
-              });
-            });
-          };
-
-          // Students - 2 most recent
-          addRecentActivities(
-            students.students,
-            'student',
-            'New student registered',
-            (s) => `${s.name || 'New Student'} - ${s.form || 'Unknown Form'} ${s.stream || ''}`,
-            FiUserPlus,
-            'emerald',
-            2
-          );
-
-          // Admission applications - 2 most recent
-          const recentAdmissions = applications
-            .filter(app => app.createdAt && new Date(app.createdAt) >= thirtyDaysAgo)
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            .slice(0, 2);
-          
-          recentAdmissions.forEach(application => {
-            const statusIcon = {
-              'PENDING': FiClock,
-              'ACCEPTED': FiCheckCircle,
-              'REJECTED': FiX,
-              'UNDER_REVIEW': FiEye,
-              'INTERVIEWED': FiCalendar
-            }[application.status] || FiClipboard;
-
-            const statusColor = {
-              'PENDING': 'yellow',
-              'ACCEPTED': 'green',
-              'REJECTED': 'red',
-              'UNDER_REVIEW': 'blue',
-              'INTERVIEWED': 'purple'
-            }[application.status] || 'gray';
-
-            activities.push({
-              id: `admission-${application._id}`,
-              action: 'Admission application submitted',
-              target: `${application.firstName} ${application.lastName} - ${application.preferredStream || 'Unknown Stream'}`,
-              status: application.status,
-              time: new Date(application.createdAt).toLocaleDateString(),
-              type: 'admission',
-              icon: statusIcon,
-              color: statusColor,
-              timestamp: new Date(application.createdAt)
-            });
-          });
-
-          // Staff - 1 most recent
-          addRecentActivities(
-            staff.staff,
-            'staff',
-            'New staff added',
-            (s) => `${s.name || 'New Staff'} - ${s.department || 'Unknown Department'}`,
-            FiUsers,
-            'blue',
-            1
-          );
-
-          // Assignments - 1 most recent
-          addRecentActivities(
-            assignments.assignments,
-            'assignment',
-            'Assignment created',
-            (a) => `${a.title || 'New Assignment'} - ${a.className || 'Unknown Class'}`,
-            FiBook,
-            'indigo',
-            1
-          );
-
-          // Events - 1 most recent
-          addRecentActivities(
-            events.events,
-            'event',
-            'Event scheduled',
-            (e) => `${e.title || 'New Event'} - ${e.date ? new Date(e.date).toLocaleDateString() : 'Unknown Date'}`,
-            FiCalendar,
-            'red',
-            1
-          );
-
-          // News - 1 most recent
-          addRecentActivities(
-            news.news,
-            'news',
-            'News published',
-            (n) => n.title || 'New News Article',
-            IoNewspaper,
-            'amber',
-            1
-          );
-
-          // Resources - 1 most recent
-          addRecentActivities(
-            resources.resources,
-            'resource',
-            'Resource uploaded',
-            (r) => `${r.title || 'New Resource'} - ${r.category || 'Unknown Category'}`,
-            FiFileText,
-            'purple',
-            1
-          );
-
-          // Careers - 1 most recent
-          addRecentActivities(
-            careersData.jobs,
-            'career',
-            'Career posted',
-            (j) => `${j.jobTitle || 'New Job'} - ${j.department || 'Unknown Department'}`,
-            IoDocumentText,
-            'orange',
-            1
-          );
-
-          // Email campaigns - 1 most recent
-          addRecentActivities(
-            emailCampaignsData.campaigns,
-            'email',
-            'Email campaign sent',
-            (c) => c.title || 'New Email Campaign',
-            FiMail,
-            'red',
-            1
-          );
-
-          // Sort by timestamp and limit to 8 most recent
-          return activities
-            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-            .slice(0, 8);
-        };
-
-        setRecentActivity(generateRecentActivity());
-
-        // Performance metrics including admissions and calculated percentages
-        const calculatePerformanceMetrics = () => {
-          const totalStudents = students.students?.length || 1;
-          const activeStudents = students.students?.filter(s => s.status === 'Active').length || 0;
-          const assignmentCompletionRate = Math.round((completedAssignments / totalAssignments) * 100);
-          const councilEngagement = Math.round((activeCouncil / totalStudents) * 100);
-          
-          // Calculate staff distribution efficiency (based on department distribution)
-          const staffDistEfficiency = staffDistribution.length > 0 ? 
-            Math.min(100, Math.round((staffDistribution.length / 5) * 100)) : 0;
-          
-          // Calculate resource utilization
-          const totalResources = resources.resources?.length || 1;
-          const downloadedResources = resources.resources?.filter(r => r.downloads > 0).length || 0;
-          const resourceUtilization = Math.round((downloadedResources / totalResources) * 100);
-
-          return [
-            { 
-              label: 'Student Activity Rate', 
-              value: Math.round((activeStudents / totalStudents) * 100),
-              change: studentGrowth >= 0 ? studentGrowth : -studentGrowth,
-              color: studentGrowth >= 0 ? 'green' : 'red',
-              description: 'Percentage of active students'
-            },
-            { 
-              label: 'Admission Conversion Rate', 
-              value: conversionRate,
-              change: admissionMonthlyGrowth,
-              color: admissionMonthlyGrowth >= 0 ? 'purple' : 'red',
-              description: 'Applications to acceptances'
-            },
-            { 
-              label: 'Assignment Completion', 
-              value: assignmentCompletionRate,
-              change: assignmentGrowth,
-              color: assignmentGrowth >= 0 ? 'blue' : 'red',
-              description: 'Completed vs total assignments'
-            },
-            { 
-              label: 'Council Engagement', 
-              value: councilEngagement,
-              change: councilGrowth,
-              color: councilGrowth >= 0 ? 'indigo' : 'red',
-              description: 'Student participation in council'
-            },
-            { 
-              label: 'Resource Utilization', 
-              value: resourceUtilization,
-              change: 0, // No growth data for resource downloads
-              color: 'orange',
-              description: 'Resource downloads rate'
-            }
-          ];
-        };
-
-        setPerformanceData(calculatePerformanceMetrics());
-
-        // Quick stats - dynamically calculated with actual growth
-        const quickStatsData = [
-          { 
-            label: 'Academic Excellence', 
-            value: `${Math.round((completedAssignments / totalAssignments) * 100) || 0}%`, 
-            change: parseFloat(assignmentGrowth.toFixed(1)), 
-            icon: assignmentGrowth >= 0 ? FiTrendingUp : FiTrendingDown, 
-            color: assignmentGrowth >= 0 ? 'green' : 'red',
-            calculation: 'Based on assignment completion'
-          },
-          { 
-            label: 'Admission Growth', 
-            value: `${monthlyApplications}`, 
-            change: parseFloat(admissionMonthlyGrowth.toFixed(1)), 
-            icon: admissionMonthlyGrowth >= 0 ? FiTrendingUp : FiTrendingDown, 
-            color: admissionMonthlyGrowth >= 0 ? 'purple' : 'red',
-            calculation: 'Monthly applications'
-          },
-          { 
-            label: 'Student Engagement', 
-            value: `${Math.round((activeCouncil / (students.students?.length || 1)) * 100) || 0}%`, 
-            change: parseFloat(councilGrowth.toFixed(1)), 
-            icon: councilGrowth >= 0 ? FiActivity : FiTrendingDown, 
-            color: councilGrowth >= 0 ? 'blue' : 'red',
-            calculation: 'Council participation rate'
-          }
-        ];
-
-        setQuickStats(quickStatsData);
-
-        // Admission specific stats with actual growth
-        const admissionStatsData = [
-          { 
-            label: 'Total Applications', 
-            value: applications.length, 
-            change: parseFloat(admissionMonthlyGrowth.toFixed(1)),
-            icon: IoDocumentText, 
-            color: 'purple',
-            trend: admissionMonthlyGrowth >= 0 ? 'up' : 'down',
-            subtitle: `${dailyApplications} today`
-          },
-          { 
-            label: 'Pending Review', 
-            value: pendingApps, 
-            change: 0, // No month-over-month data for pending status
-            icon: FiClock, 
-            color: 'yellow',
-            trend: pendingApps > 5 ? 'warning' : 'stable',
-            subtitle: 'Requires attention'
-          },
-          { 
-            label: 'Acceptance Rate', 
-            value: `${conversionRate}%`, 
-            change: 0, // No month-over-month data for conversion rate
-            icon: FiPercent, 
-            color: 'green',
-            trend: conversionRate > 20 ? 'up' : 'down',
-            subtitle: `${acceptedApps} accepted`
-          },
-          { 
-            label: 'Avg Processing Time', 
-            value: `${avgProcessingTime}d`, 
-            change: 0, // No month-over-month data for processing time
-            icon: FiZap, 
-            color: 'blue',
-            trend: avgProcessingTime < 7 ? 'good' : 'slow',
-            subtitle: 'Days to process'
-          }
-        ];
-
-        setAdmissionStats(admissionStatsData);
-
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
+  
+  // Authentication check
+  const checkAuthentication = useCallback(() => {
+    console.log('🔍 Checking localStorage for user data...');
+    
+    const possibleUserKeys = ['admin_user', 'user', 'currentUser', 'auth_user'];
+    const possibleTokenKeys = ['admin_token', 'token', 'auth_token', 'jwt_token', 'access_token'];
+    
+    let userData = null;
+    let token = null;
+    let extractedUserFromToken = null;
+    
+    // Find token first
+    for (const key of possibleTokenKeys) {
+      const data = localStorage.getItem(key);
+      if (data) {
+        token = data;
+        extractedUserFromToken = decodeJWTToken(data);
+        if (extractedUserFromToken) break;
       }
-    };
-
-    fetchAllData();
+    }
+    
+    // Find user data
+    for (const key of possibleUserKeys) {
+      const data = localStorage.getItem(key);
+      if (data) {
+        userData = data;
+        break;
+      }
+    }
+    
+    // Priority: Use user from token if available
+    let user = extractedUserFromToken;
+    
+    if (!user && userData) {
+      try {
+        user = JSON.parse(userData);
+      } catch (parseError) {
+        console.error('Error parsing user data:', parseError);
+      }
+    }
+    
+    if (!user) {
+      console.log('❌ No user data found');
+      window.location.href = '/pages/adminLogin';
+      return null;
+    }
+    
+    // Verify token is still valid
+    if (token) {
+      try {
+        const tokenPayload = decodeJWTToken(token);
+        if (!tokenPayload) {
+          window.location.href = '/pages/adminLogin';
+          return null;
+        }
+        
+        const currentTime = Date.now() / 1000;
+        if (tokenPayload.exp && tokenPayload.exp < currentTime) {
+          possibleUserKeys.forEach(key => localStorage.removeItem(key));
+          possibleTokenKeys.forEach(key => localStorage.removeItem(key));
+          window.location.href = '/pages/adminLogin';
+          return null;
+        }
+        
+        // Update user data with token information
+        if (tokenPayload) {
+          user = {
+            ...user,
+            ...tokenPayload,
+            id: tokenPayload.id || tokenPayload.userId || tokenPayload.sub || user.id,
+            email: tokenPayload.email || user.email,
+            name: tokenPayload.name || tokenPayload.fullName || user.name,
+            role: tokenPayload.role || tokenPayload.scope || user.role
+          };
+        }
+      } catch (tokenError) {
+        console.log('⚠️ Token validation skipped:', tokenError.message);
+      }
+    }
+    
+    // Check if user has valid role
+    const userRole = user.role;
+    const validRoles = ['ADMIN', 'SUPER_ADMIN', 'administrator', 'TEACHER', 'PRINCIPAL', 'STAFF'];
+    
+    if (!userRole || !validRoles.includes(userRole.toUpperCase())) {
+      window.location.href = '/pages/adminLogin';
+      return null;
+    }
+    
+    return user;
   }, []);
-
-  // Enhanced Analytics Modal with Admission Analytics
-  const AnalyticsModal = () => (
-    showAnalyticsModal && (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-              <IoAnalytics className="text-blue-500" />
-              Advanced Analytics Dashboard
-            </h2>
-            <button
-              onClick={() => setShowAnalyticsModal(false)}
-              className="p-2 hover:bg-gray-100 rounded-xl cursor-pointer"
-            >
-              <FiX className="text-xl text-gray-600" />
-            </button>
-          </div>
-
-          {/* Admission Analytics Section */}
-          <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <FiClipboard className="text-purple-500" />
-              Admission Application Analytics
-            </h3>
-            
-            <div className="grid lg:grid-cols-2 gap-6 mb-6">
-              {/* Admission Overview */}
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
-                <h4 className="text-lg font-semibold text-purple-800 mb-4">Application Overview</h4>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white rounded-lg p-4 border border-purple-200">
-                      <p className="text-sm text-purple-600 font-medium">Total Applications</p>
-                      <p className="text-2xl font-bold text-purple-800">{stats.totalApplications}</p>
-                    </div>
-                    <div className="bg-white rounded-lg p-4 border border-green-200">
-                      <p className="text-sm text-green-600 font-medium">Conversion Rate</p>
-                      <p className="text-2xl font-bold text-green-800">{stats.applicationConversionRate}%</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white rounded-lg p-4 border border-blue-200">
-                      <p className="text-sm text-blue-600 font-medium">Monthly Growth</p>
-                      <p className="text-2xl font-bold text-blue-800">{stats.monthlyApplications}</p>
-                    </div>
-                    <div className="bg-white rounded-lg p-4 border border-orange-200">
-                      <p className="text-sm text-orange-600 font-medium">Avg Processing Time</p>
-                      <p className="text-2xl font-bold text-orange-800">{stats.averageProcessingTime} days</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Stream Distribution */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
-                <h4 className="text-lg font-semibold text-blue-800 mb-4">Stream Preference Analysis</h4>
-                <div className="space-y-3">
-                  {[
-                    { label: 'Science', value: stats.scienceApplications, color: 'blue' },
-                    { label: 'Arts', value: stats.artsApplications, color: 'purple' },
-                    { label: 'Business', value: stats.businessApplications, color: 'green' },
-                    { label: 'Technical', value: stats.technicalApplications, color: 'orange' }
-                  ].map((stream) => (
-                    <div key={stream.label} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full bg-${stream.color}-500`}></div>
-                        <span className="text-sm text-gray-700">{stream.label}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className={`bg-${stream.color}-500 h-2 rounded-full`}
-                            style={{ 
-                              width: `${(stream.value / stats.totalApplications) * 100 || 0}%` 
-                            }}
-                          />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-800">{stream.value}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Status Breakdown */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 mb-6">
-              <h4 className="text-lg font-semibold text-gray-800 mb-4">Application Status Breakdown</h4>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                  { label: 'Pending', value: stats.pendingApplications, color: 'yellow', icon: FiClock },
-                  { label: 'Under Review', value: stats.underReviewApplications, color: 'blue', icon: FiEye },
-                  { label: 'Interviewed', value: stats.interviewedApplications, color: 'purple', icon: FiCalendar },
-                  { label: 'Accepted', value: stats.acceptedApplications, color: 'green', icon: FiCheckCircle },
-                  { label: 'Rejected', value: stats.rejectedApplications, color: 'red', icon: FiX },
-                  { label: 'Waitlisted', value: stats.waitlistedApplications, color: 'orange', icon: FiClock },
-                  { label: 'Conditional', value: stats.conditionalApplications, color: 'teal', icon: FiAlertCircle },
-                  { label: 'Withdrawn', value: stats.withdrawnApplications, color: 'gray', icon: FiUser }
-                ].map((status) => (
-                  <div key={status.label} className="bg-white rounded-lg p-4 border border-gray-200">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className={`p-2 bg-${status.color}-100 rounded-lg`}>
-                        <status.icon className={`text-${status.color}-600`} />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">{status.label}</p>
-                        <p className="text-xl font-bold text-gray-800">{status.value}</p>
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {Math.round((status.value / stats.totalApplications) * 100) || 0}% of total
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Demographic Analysis */}
-            <div className="grid lg:grid-cols-3 gap-6 mb-6">
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-                <h4 className="text-lg font-semibold text-green-800 mb-4 flex items-center gap-2">
-                  <FiGlobe className="text-green-600" />
-                  Top County
-                </h4>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-green-800 mb-2">{stats.topCountyApplications}</p>
-                  <p className="text-sm text-green-600">Most applications received</p>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 border border-pink-200">
-                <h4 className="text-lg font-semibold text-pink-800 mb-4 flex items-center gap-2">
-                  <FiUser className="text-pink-600" />
-                  Gender Distribution
-                </h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-pink-700">Male</span>
-                    <span className="font-semibold text-pink-800">{stats.maleApplications}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-pink-700">Female</span>
-                    <span className="font-semibold text-pink-800">{stats.femaleApplications}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
-                <h4 className="text-lg font-semibold text-orange-800 mb-4 flex items-center gap-2">
-                  <FiBookOpen className="text-orange-600" />
-                  Academic Profile
-                </h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-orange-700">Avg KCPE Score</span>
-                    <span className="font-semibold text-orange-800">{stats.averageKCPEScore}/500</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-orange-700">Avg Age</span>
-                    <span className="font-semibold text-orange-800">{stats.averageAge} years</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Performance Metrics Chart */}
-          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 border border-indigo-200">
-            <h4 className="text-lg font-semibold text-indigo-800 mb-4">Admission Performance Metrics</h4>
-            <div className="space-y-4">
-              {performanceData.map((metric, index) => (
-                <div key={index} className="flex items-center justify-between py-2">
-                  <div className="flex-1">
-                    <span className="font-medium text-gray-700 text-sm">{metric.label}</span>
-                    <span className="text-xs text-gray-500 block">{metric.description}</span>
-                  </div>
-                  <div className="flex items-center gap-4 w-64">
-                    <div className="flex-1 bg-gray-200 rounded-full h-2">
-                      <div 
-                        style={{ width: `${metric.value}%` }}
-                        className={`bg-${metric.color}-500 h-2 rounded-full`}
-                      />
-                    </div>
-                    <div className="flex items-center gap-2 w-20">
-                      <span className="text-sm font-bold text-gray-800">{metric.value}%</span>
-                      {metric.change > 0 ? (
-                        <FiTrendingUp className="text-green-500 text-sm" />
-                      ) : (
-                        <FiTrendingDown className="text-red-500 text-sm" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  );
-
+  
+// Fetch all data including engagement calculations - FIXED VERSION
+const fetchAllData = useCallback(async () => {
+  try {
+    setLoading(true);
+    
+    // First check authentication
+    const authenticatedUser = checkAuthentication();
+    if (!authenticatedUser) return;
+    
+    setUser(authenticatedUser);
+    
+    // Fetch data from all endpoints - USING CORRECT API ENDPOINTS
+    const [
+      studentsRes,
+      staffRes,
+      subscribersRes,
+      assignmentsRes,
+      eventsRes,
+      galleryRes,
+      guidanceRes,
+      newsRes,
+      schoolInfoRes,
+      adminsRes,
+      admissionsRes,
+      resourcesRes,
+      careersRes,
+      emailCampaignsRes,
+      resultsRes // Results data for engagement calculation
+    ] = await Promise.allSettled([
+      fetch('/api/studentupload?includeStats=true&limit=1000'), // Get all students with stats
+      fetch('/api/staff'),
+      fetch('/api/subscriber'),
+      fetch('/api/assignment'),
+      fetch('/api/events'),
+      fetch('/api/gallery'),
+      fetch('/api/guidance'),
+      fetch('/api/news'),
+      fetch('/api/school'),
+      fetch('/api/register'),
+      fetch('/api/applyadmission'),
+      fetch('/api/resources'),
+      fetch('/api/career'),
+      fetch('/api/emails'),
+      fetch('/api/results?limit=1000&includeStudent=true') // Get all results with student data
+    ]);
+    
+    // Process responses with better error handling
+    const studentsData = studentsRes.status === 'fulfilled' 
+      ? await studentsRes.value.json() 
+      : { success: false, data: { students: [] } };
+    
+    const resultsData = resultsRes.status === 'fulfilled' 
+      ? await resultsRes.value.json() 
+      : { success: false, data: { results: [] } };
+    
+    const staff = staffRes.status === 'fulfilled' ? await staffRes.value.json() : { staff: [] };
+    const subscribers = subscribersRes.status === 'fulfilled' ? await subscribersRes.value.json() : { subscribers: [] };
+    const assignments = assignmentsRes.status === 'fulfilled' ? await assignmentsRes.value.json() : { assignments: [] };
+    const events = eventsRes.status === 'fulfilled' ? await eventsRes.value.json() : { events: [] };
+    const gallery = galleryRes.status === 'fulfilled' ? await galleryRes.value.json() : { galleries: [] };
+    const guidance = guidanceRes.status === 'fulfilled' ? await guidanceRes.value.json() : { events: [] };
+    const news = newsRes.status === 'fulfilled' ? await newsRes.value.json() : { news: [] };
+    const schoolInfo = schoolInfoRes.status === 'fulfilled' ? await schoolInfoRes.value.json() : { school: {} };
+    const admins = adminsRes.status === 'fulfilled' ? await adminsRes.value.json() : { users: [] };
+    const admissions = admissionsRes.status === 'fulfilled' ? await admissionsRes.value.json() : { applications: [] };
+    const resources = resourcesRes.status === 'fulfilled' ? await resourcesRes.value.json() : { resources: [] };
+    const careersData = careersRes.status === 'fulfilled' ? await careersRes.value.json() : { jobs: [] };
+    const emailCampaignsData = emailCampaignsRes.status === 'fulfilled' ? await emailCampaignsRes.value.json() : { campaigns: [] };
+    
+    // Store school video for quick tour
+    if (schoolInfo.school?.videoTour) {
+      setSchoolVideo({
+        url: schoolInfo.school.videoTour,
+        type: schoolInfo.school.videoType
+      });
+    }
+    
+    // Extract student and result data properly
+    const studentList = studentsData.success ? 
+      (studentsData.data?.students || studentsData.students || []) : [];
+    
+    const allResults = resultsData.success ?
+      (resultsData.data?.results || resultsData.results || []) : [];
+    
+    console.log('Student data loaded:', studentList.length, 'students');
+    console.log('Results data loaded:', allResults.length, 'results');
+    
+    // Calculate student population and distribution
+    if (studentList.length > 0) {
+      const formDistribution = { 'Form 1': 0, 'Form 2': 0, 'Form 3': 0, 'Form 4': 0 };
+      const genderDistribution = { male: 0, female: 0, other: 0 };
+      const streamDistribution = {};
+      const statusDistribution = { active: 0, inactive: 0 };
+      
+      studentList.forEach(student => {
+        // Form distribution
+        const form = student.form || student.Form || '';
+        if (formDistribution[form] !== undefined) {
+          formDistribution[form]++;
+        } else if (form) {
+          formDistribution[form] = (formDistribution[form] || 0) + 1;
+        }
+        
+        // Gender distribution
+        const gender = student.gender?.toLowerCase() || student.Gender?.toLowerCase() || 'other';
+        if (gender === 'male' || gender === 'm') genderDistribution.male++;
+        else if (gender === 'female' || gender === 'f') genderDistribution.female++;
+        else genderDistribution.other++;
+        
+        // Stream distribution
+        const stream = student.stream || student.Stream || '';
+        if (stream) {
+          streamDistribution[stream] = (streamDistribution[stream] || 0) + 1;
+        }
+        
+        // Status distribution
+        const status = student.status?.toLowerCase() || student.Status?.toLowerCase() || 'active';
+        if (status === 'active' || status === 'active') statusDistribution.active++;
+        else statusDistribution.inactive++;
+      });
+      
+      setStudentPopulation({
+        total: studentList.length,
+        active: statusDistribution.active,
+        inactive: statusDistribution.inactive,
+        byForm: formDistribution,
+        byGender: genderDistribution,
+        byStream: streamDistribution,
+        byStatus: statusDistribution
+      });
+    }
+    
+    // Calculate staff distribution
+    if (staff.staff && staff.staff.length > 0) {
+      const staffDist = calculatePercentages(staff.staff, 'department');
+      setStaffDistribution(staffDist);
+    }
+    
+    // Calculate assignments distribution
+    if (assignments.assignments && assignments.assignments.length > 0) {
+      const assignDist = calculatePercentages(assignments.assignments, 'status');
+      setAssignmentsDistribution(assignDist);
+    }
+    
+    // Calculate resources distribution
+    if (resources.resources && resources.resources.length > 0) {
+      const resourcesDist = calculatePercentages(resources.resources, 'category');
+      setResourcesDistribution(resourcesDist);
+    }
+    
+    // Set careers data
+    if (careersData.jobs && careersData.jobs.length > 0) {
+      setCareers(careersData.jobs.slice(0, 3));
+    }
+    
+    // Set email campaigns
+    if (emailCampaignsData.campaigns && emailCampaignsData.campaigns.length > 0) {
+      setEmailCampaigns(emailCampaignsData.campaigns.slice(0, 2));
+    }
+    
+    // Calculate statistics
+    const activeStudents = studentList.filter(s => 
+      (s.status || s.Status || '').toLowerCase() === 'active'
+    ).length || 0;
+    
+    const inactiveStudents = studentList.length - activeStudents;
+    const activeAssignments = assignments.assignments?.filter(a => 
+      (a.status || '').toLowerCase() === 'assigned'
+    ).length || 0;
+    
+    const upcomingEvents = events.events?.filter(e => {
+      if (!e.date) return false;
+      return new Date(e.date) > new Date();
+    }).length || 0;
+    
+    const guidanceSessionsCount = guidance.events?.length || 0;
+    const completedAssignments = assignments.assignments?.filter(a => 
+      (a.status || '').toLowerCase() === 'completed'
+    ).length || 0;
+    
+    const totalAssignments = assignments.assignments?.length || 1;
+    
+    // Calculate admission statistics
+    const applications = admissions.applications || [];
+    const today = new Date();
+    
+    const monthlyApplications = applications.filter(app => {
+      if (!app.createdAt) return false;
+      const appDate = new Date(app.createdAt);
+      return appDate.getMonth() === today.getMonth() && 
+             appDate.getFullYear() === today.getFullYear();
+    }).length;
+    
+    const dailyApplications = applications.filter(app => {
+      if (!app.createdAt) return false;
+      const appDate = new Date(app.createdAt);
+      return appDate.toDateString() === today.toDateString();
+    }).length;
+    
+    const pendingApps = applications.filter(app => 
+      (app.status || '').toUpperCase() === 'PENDING'
+    ).length;
+    
+    const acceptedApps = applications.filter(app => 
+      (app.status || '').toUpperCase() === 'ACCEPTED'
+    ).length;
+    
+    const rejectedApps = applications.filter(app => 
+      (app.status || '').toUpperCase() === 'REJECTED'
+    ).length;
+    
+    // Calculate conversion rate
+    const conversionRate = applications.length > 0 ? 
+      Math.round((acceptedApps / applications.length) * 100) : 0;
+    
+    // ========== ENGAGEMENT CALCULATIONS ==========
+    // Calculate engagement for each student
+    const engagements = studentList.map(student => ({
+      ...student,
+      engagement: calculateStudentEngagement(student, allResults)
+    }));
+    
+    // Calculate overall engagement statistics
+    const calculatedEngagementStats = calculateEngagementStats(studentList, allResults);
+    setEngagementStats(calculatedEngagementStats);
+    setStudentEngagements(engagements.slice(0, 10));
+    
+    // Update stats with engagement data
+    const updatedStats = {
+      totalStudents: studentList.length || 0,
+      activeStudents,
+      inactiveStudents,
+      totalStaff: staff.staff?.length || 0,
+      totalSubscribers: subscribers.subscribers?.length || 0,
+      pendingEmails: 0,
+      activeAssignments,
+      upcomingEvents,
+      galleryItems: gallery.galleries?.length || 0,
+      guidanceSessions: guidanceSessionsCount,
+      totalNews: news.news?.length || 0,
+      completedAssignments,
+      totalAssignments,
+      
+      // Admission Applications
+      totalApplications: applications.length,
+      pendingApplications: pendingApps,
+      acceptedApplications: acceptedApps,
+      rejectedApplications: rejectedApps,
+      underReviewApplications: applications.filter(app => 
+        (app.status || '').toUpperCase() === 'UNDER_REVIEW'
+      ).length,
+      interviewedApplications: applications.filter(app => 
+        (app.status || '').toUpperCase() === 'INTERVIEWED'
+      ).length,
+      waitlistedApplications: applications.filter(app => 
+        (app.status || '').toUpperCase() === 'WAITLISTED'
+      ).length,
+      conditionalApplications: applications.filter(app => 
+        (app.status || '').toUpperCase() === 'CONDITIONAL_ACCEPTANCE'
+      ).length,
+      withdrawnApplications: applications.filter(app => 
+        (app.status || '').toUpperCase() === 'WITHDRAWN'
+      ).length,
+      monthlyApplications,
+      dailyApplications,
+      applicationConversionRate: conversionRate,
+      averageProcessingTime: 0, // You might want to calculate this
+      
+      // Admission Analytics
+      scienceApplications: applications.filter(app => 
+        (app.preferredStream || '').toUpperCase() === 'SCIENCE'
+      ).length,
+      artsApplications: applications.filter(app => 
+        (app.preferredStream || '').toUpperCase() === 'ARTS'
+      ).length,
+      businessApplications: applications.filter(app => 
+        (app.preferredStream || '').toUpperCase() === 'BUSINESS'
+      ).length,
+      technicalApplications: applications.filter(app => 
+        (app.preferredStream || '').toUpperCase() === 'TECHNICAL'
+      ).length,
+      maleApplications: applications.filter(app => 
+        (app.gender || '').toUpperCase() === 'MALE'
+      ).length,
+      femaleApplications: applications.filter(app => 
+        (app.gender || '').toUpperCase() === 'FEMALE'
+      ).length,
+      topCountyApplications: 'N/A', // You can calculate this
+      averageKCPEScore: 0,
+      averageAge: 0
+    };
+    
+    setStats(updatedStats);
+    
+    // ========== RECENT ACTIVITY ==========
+    const recentActivities = await listenForRecentActivity();
+    setRecentActivity(recentActivities);
+    
+    // ========== PERFORMANCE METRICS ==========
+    const studentGrowth = calculateMonthOverMonthGrowth(
+      updatedStats.totalStudents,
+      0 // You should track previous month's data
+    );
+    
+    const assignmentGrowth = calculateMonthOverMonthGrowth(
+      updatedStats.completedAssignments,
+      0
+    );
+    
+    const performanceMetrics = [
+      { 
+        label: 'Student Engagement', 
+        value: calculatedEngagementStats.engagementRate,
+        change: studentGrowth,
+        color: studentGrowth >= 0 ? 'green' : 'red',
+        description: 'Active and performing students'
+      },
+      { 
+        label: 'Academic Excellence', 
+        value: Math.round((completedAssignments / totalAssignments) * 100) || 0,
+        change: assignmentGrowth,
+        color: assignmentGrowth >= 0 ? 'blue' : 'red',
+        description: 'Assignment completion rate'
+      },
+      { 
+        label: 'Admission Conversion', 
+        value: conversionRate,
+        change: 0,
+        color: conversionRate > 50 ? 'purple' : 'red',
+        description: 'Applications to acceptances'
+      },
+      { 
+        label: 'Guidance Sessions', 
+        value: Math.round((guidanceSessionsCount / (studentList.length || 1)) * 100) || 0,
+        change: 0,
+        color: 'indigo',
+        description: 'Student support engagement'
+      },
+      { 
+        label: 'Recent Activity', 
+        value: Math.min(100, (calculatedEngagementStats.recentActivityCount / 10) * 100),
+        change: 0,
+        color: 'orange',
+        description: 'Recent submissions and updates'
+      }
+    ];
+    
+    setPerformanceData(performanceMetrics);
+    
+    // ========== QUICK STATS ==========
+    const quickStatsData = [
+      { 
+        label: 'Academic Excellence', 
+        value: `${Math.round((completedAssignments / totalAssignments) * 100) || 0}%`, 
+        change: parseFloat(assignmentGrowth.toFixed(1)), 
+        icon: assignmentGrowth >= 0 ? FiTrendingUp : FiTrendingDown, 
+        color: assignmentGrowth >= 0 ? 'green' : 'red',
+        calculation: 'Based on assignment completion'
+      },
+      { 
+        label: 'Student Engagement', 
+        value: `${calculatedEngagementStats.engagementRate}%`, 
+        change: parseFloat(studentGrowth.toFixed(1)), 
+        icon: studentGrowth >= 0 ? FiActivity : FiTrendingDown, 
+        color: studentGrowth >= 0 ? 'blue' : 'red',
+        calculation: 'Active and performing students'
+      },
+      { 
+        label: 'Admission Growth', 
+        value: `${monthlyApplications}`, 
+        change: 0, 
+        icon: monthlyApplications > 0 ? FiTrendingUp : FiTrendingDown, 
+        color: monthlyApplications > 0 ? 'purple' : 'red',
+        calculation: 'Monthly applications'
+      }
+    ];
+    
+    setQuickStats(quickStatsData);
+    
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    sooner.error('Failed to load dashboard data');
+  } finally {
+    setLoading(false);
+  }
+}, [checkAuthentication]);
+  
+  // Initialize dashboard
+  useEffect(() => {
+    fetchAllData();
+    
+    // Set up polling for recent activity (every 60 seconds)
+    const intervalId = setInterval(async () => {
+      if (!refreshing) {
+        const newActivities = await listenForRecentActivity();
+        if (newActivities.length > 0) {
+          setRecentActivity(prev => {
+            const merged = [...newActivities, ...prev];
+            const unique = merged.filter((item, index, self) =>
+              index === self.findIndex(t => t.id === item.id)
+            );
+            return unique.slice(0, 8);
+          });
+        }
+      }
+    }, 60000);
+    
+    return () => clearInterval(intervalId);
+  }, [fetchAllData, refreshing]);
+  
+  // Refresh dashboard data
+  const refreshDashboard = async () => {
+    setRefreshing(true);
+    await fetchAllData();
+    setRefreshing(false);
+  };
+  
   // Quick Tour Modal Component
   const QuickTourModal = () => (
     showQuickTour && (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-6 max-w-4xl w-full">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-              <FiPlay className="text-blue-500" />
-              School Virtual Tour
-            </h2>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        {/* Cinematic Backdrop */}
+        <div 
+          className="absolute inset-0 bg-slate-950/80 backdrop-blur-2xl animate-in fade-in duration-500" 
+          onClick={() => setShowQuickTour(false)}
+        />
+        
+        {/* Modal Container */}
+        <div className="relative bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] w-full max-w-5xl 
+          max-h-[90vh] overflow-y-auto overflow-x-hidden 
+          animate-in zoom-in-95 duration-300 flex flex-col"
+        >
+          
+          {/* Header Section */}
+          <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
+              <div>
+                <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
+                  Katwanyaa High School
+                </h2>
+                <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
+                  "Education is Light"
+                </p>
+              </div>
+            </div>
+            
             <button
               onClick={() => setShowQuickTour(false)}
-              className="p-2 hover:bg-gray-100 rounded-xl cursor-pointer"
+              className="group p-3 hover:bg-rose-50 rounded-2xl transition-all duration-300 cursor-pointer border border-transparent hover:border-rose-100"
             >
-              <FiX className="text-xl text-gray-600" />
+              <FiX className="text-2xl text-slate-400 group-hover:text-rose-500" />
             </button>
           </div>
-
-          {schoolVideo ? (
-            <div className="aspect-video bg-black rounded-xl overflow-hidden">
-              {schoolVideo.type === 'youtube' ? (
-                <iframe
-                  src={schoolVideo.url.replace('watch?v=', 'embed/')}
-                  className="w-full h-full"
-                  allowFullScreen
-                  title="School Virtual Tour"
-                />
+          
+          {/* Video Content Area */}
+          <div className="p-2 sm:p-6 bg-slate-50 flex-grow">
+            <div className="relative aspect-video bg-slate-900 rounded-[1.5rem] overflow-hidden shadow-inner ring-4 md:ring-8 ring-white">
+              {schoolVideo ? (
+                <div className="w-full h-full">
+                  {schoolVideo.type === 'youtube' ? (
+                    <iframe
+                      src={`${schoolVideo.url.replace('watch?v=', 'embed/')}?autoplay=1&rel=0`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video src={schoolVideo.url} autoPlay controls className="w-full h-full object-cover" poster="/school-poster.jpg" />
+                  )}
+                </div>
               ) : (
-                <video
-                  src={schoolVideo.url}
-                  controls
-                  className="w-full h-full"
-                  poster="/school-poster.jpg"
-                >
-                  Your browser does not support the video tag.
-                </video>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                  <FiPlay className="text-4xl text-slate-500 mb-4" />
+                  <h3 className="text-white font-bold text-lg mb-1">Tour Content Unavailable</h3>
+                  <p className="text-slate-500 text-xs md:text-sm max-w-xs">Please upload a campus video in settings.</p>
+                </div>
               )}
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <FiPlay className="text-6xl text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 text-lg">No school tour video available</p>
-              <p className="text-gray-500">Please upload a video in School Information section</p>
+          </div>
+          
+          {/* Footer Actions */}
+          <div className="px-8 py-6 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-0 z-30">
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="flex -space-x-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200" />
+                ))}
+              </div>
+              <p className="text-[11px] font-bold text-slate-500 tracking-tight">
+                Join 1200+ students on the virtual tour
+              </p>
             </div>
-          )}
-
-          <div className="mt-6 flex justify-end">
+            
             <button
               onClick={() => setShowQuickTour(false)}
-              className="bg-blue-600 text-white px-6 py-2 rounded-xl cursor-pointer font-semibold"
+              className="w-full sm:w-auto bg-slate-900 hover:bg-black text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all"
             >
-              Close Tour
+              Exit Tour
             </button>
           </div>
         </div>
       </div>
     )
   );
-
-  const StatCard = ({ icon: Icon, label, value, change, color, subtitle, trend }) => (
-    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 relative overflow-hidden">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
-          <p className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</p>
-          {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
-          {change !== undefined && (
-            <div className="flex items-center gap-1 mt-2">
-              {trend === 'up' || change > 0 ? (
-                <FiTrendingUp className="text-green-500 text-sm" />
-              ) : (
-                <FiTrendingDown className="text-red-500 text-sm" /> 
-              )}
-              <span className={`text-sm font-semibold ${trend === 'up' || change > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {change > 0 ? '+' : ''}{change}%
+  
+  // StatCard Component
+  const StatCard = ({ icon: Icon, label, value, change, color, subtitle, trend }) => {
+    const isPositive = trend === 'up' || change > 0;
+    
+    const colorMap = {
+      blue: 'from-blue-500/10 to-blue-500/5 text-blue-600 border-blue-100',
+      green: 'from-emerald-500/10 to-emerald-500/5 text-emerald-600 border-emerald-100',
+      red: 'from-rose-500/10 to-rose-500/5 text-rose-600 border-rose-100',
+      purple: 'from-purple-500/10 to-purple-500/5 text-purple-600 border-purple-100',
+      orange: 'from-orange-500/10 to-orange-500/5 text-orange-600 border-orange-100',
+      yellow: 'from-yellow-500/10 to-yellow-500/5 text-yellow-600 border-yellow-100',
+      indigo: 'from-indigo-500/10 to-indigo-500/5 text-indigo-600 border-indigo-100',
+      teal: 'from-teal-500/10 to-teal-500/5 text-teal-600 border-teal-100'
+    };
+    
+    const selectedColor = colorMap[color] || colorMap.blue;
+    
+    return (
+      <div className="group relative bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hove overflow-hidden">
+        
+        {/* Background Decorative Glow */}
+        <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br ${selectedColor} blur-2xl opacity-20 group-hover:opacity-40 transition-opacity`} />
+        
+        <div className="flex justify-between items-start relative z-10">
+          <div className="space-y-3">
+            {/* Label Section */}
+            <div>
+              <span className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
+                {label}
               </span>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight mt-1">
+                {value.toLocaleString()}
+              </h3>
             </div>
-          )}
-        </div>
-        <div className={`p-4 rounded-2xl bg-${color}-100`}>
-          <Icon className={`text-2xl text-${color}-600`} />
+            
+            {/* Change & Subtitle Section */}
+            <div className="flex flex-col gap-1.5">
+              {change !== undefined && (
+                <div className={`inline-flex items-center w-fit gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border ${
+                  isPositive 
+                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                    : 'bg-rose-50 text-rose-600 border-rose-100'
+                }`}>
+                  {isPositive ? <FiTrendingUp /> : <FiTrendingDown />}
+                  <span>{change > 0 ? '+' : ''}{change}%</span>
+                </div>
+              )}
+              
+              {subtitle && (
+                <span className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                  <span className="h-1 w-1 rounded-full bg-slate-300" />
+                  {subtitle}
+                </span>
+              )}
+            </div>
+          </div>
+          
+          {/* Modern Icon Container */}
+          <div className={`p-4 rounded-2xl bg-gradient-to-br border shadow-sm ${selectedColor}`}>
+            <Icon className="text-2xl" />
+          </div>
         </div>
       </div>
-    </div>
-  );
-
+    );
+  };
+  
   const PerformanceBar = ({ label, value, change, color, description }) => (
     <div className="flex items-center justify-between py-3">
       <div className="flex-1">
@@ -1140,6 +1550,334 @@ export default function DashboardOverview() {
     </div>
   );
   
+  // Student Engagement Card Component
+  const StudentEngagementCard = () => (
+    <div className="group relative bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
+      
+      {/* Top Glow Accent */}
+      <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-teal-500/10 blur-2xl group-hover:bg-teal-500/20 transition-colors" />
+      
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <div>
+          <h3 className="text-lg font-black text-slate-800 tracking-tight">Student Engagement</h3>
+          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Live Monitoring</p>
+        </div>
+        <div className="p-3 rounded-2xl bg-teal-50 border border-teal-100 text-teal-600 shadow-sm transition-transform group-hover:scale-100">
+          <FiActivity className="text-xl" />
+        </div>
+      </div>
+      
+      {/* Engagement Score Display */}
+      <div className="mb-6">
+        <div className="flex items-end justify-between mb-2">
+          <div>
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Overall Engagement</span>
+            <div className="flex items-baseline gap-2 mt-1">
+              <span className="text-4xl font-black text-slate-900">
+                {engagementStats.engagementRate}%
+              </span>
+              <span className="text-sm font-bold text-slate-400">
+                ({engagementStats.engagedStudents}/{engagementStats.totalStudents} students)
+              </span>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
+              engagementStats.engagementRate >= 70 ? 'bg-emerald-50 text-emerald-600' :
+              engagementStats.engagementRate >= 50 ? 'bg-blue-50 text-blue-600' :
+              engagementStats.engagementRate >= 30 ? 'bg-yellow-50 text-yellow-600' :
+              'bg-rose-50 text-rose-600'
+            }`}>
+              <div className={`h-2 w-2 rounded-full ${
+                engagementStats.engagementRate >= 70 ? 'bg-emerald-500 animate-pulse' :
+                engagementStats.engagementRate >= 50 ? 'bg-blue-500' :
+                engagementStats.engagementRate >= 30 ? 'bg-yellow-500' :
+                'bg-rose-500'
+              }`} />
+              {engagementStats.engagementRate >= 70 ? 'Excellent' :
+               engagementStats.engagementRate >= 50 ? 'Good' :
+               engagementStats.engagementRate >= 30 ? 'Fair' : 'Needs Attention'}
+            </div>
+          </div>
+        </div>
+        
+        {/* Engagement Distribution */}
+        <div className="grid grid-cols-5 gap-2 mt-4">
+          {Object.entries(engagementStats.distribution).map(([level, count]) => (
+            <div key={level} className="text-center">
+              <div className={`h-8 rounded-lg mb-1 flex items-center justify-center text-xs font-bold text-white
+                ${level === 'excellent' ? 'bg-emerald-500' :
+                  level === 'high' ? 'bg-blue-500' :
+                  level === 'medium' ? 'bg-yellow-500' :
+                  level === 'fair' ? 'bg-orange-500' :
+                  'bg-rose-500'}`}
+              >
+                {count}
+              </div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase">
+                {level}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Top Performing Subjects */}
+      <div className="mb-4">
+        <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-3">Top Performing Subjects</h4>
+        <div className="space-y-2">
+          {engagementStats.topPerformingSubjects.slice(0, 3).map((subject, index) => (
+            <div key={index} className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-700 truncate">{subject.subject}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-slate-900">{subject.average.toFixed(1)}%</span>
+                <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full ${
+                      subject.average >= 80 ? 'bg-emerald-500' :
+                      subject.average >= 70 ? 'bg-blue-500' :
+                      subject.average >= 60 ? 'bg-yellow-500' : 'bg-orange-500'
+                    }`}
+                    style={{ width: `${subject.average}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Recent Activity */}
+      <div className="pt-4 border-t border-slate-100">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Recent Activity</span>
+          <span className="text-xs font-bold text-blue-600">{engagementStats.recentActivityCount} updates</span>
+        </div>
+        <p className="text-sm text-slate-500">
+          Based on student results, uploads, and submissions from the last 7 days.
+        </p>
+      </div>
+    </div>
+  );
+  
+  // Student Population Card Component
+  const StudentPopulationCard = () => {
+    // Prepare data for form distribution bar chart
+    const formData = Object.entries(studentPopulation.byForm).map(([form, count]) => ({
+      name: form,
+      students: count,
+      fill: form === 'Form 1' ? '#3B82F6' : 
+             form === 'Form 2' ? '#10B981' : 
+             form === 'Form 3' ? '#F59E0B' : '#8B5CF6'
+    }));
+    
+    // Prepare data for gender distribution pie chart
+    const genderData = [
+      { name: 'Male', value: studentPopulation.byGender.male, color: '#3B82F6' },
+      { name: 'Female', value: studentPopulation.byGender.female, color: '#EC4899' },
+      { name: 'Other', value: studentPopulation.byGender.other, color: '#6B7280' }
+    ];
+    
+    return (
+      <div className="group relative bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
+        
+        {/* Top Glow Accent */}
+        <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-blue-500/10 blur-2xl group-hover:bg-blue-500/20 transition-colors" />
+        
+        <div className="flex items-center justify-between mb-6 relative z-10">
+          <div>
+            <h3 className="text-lg font-black text-slate-800 tracking-tight">Student Population</h3>
+            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Overview & Distribution</p>
+          </div>
+          <div className="p-3 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 shadow-sm transition-transform group-hover:scale-100">
+            <FiUsers className="text-xl" />
+          </div>
+        </div>
+        
+        {/* Population Stats */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100">
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Total Students</span>
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-2xl font-black text-slate-900">{studentPopulation.total}</span>
+              <span className="text-xs font-bold text-slate-400">enrolled</span>
+            </div>
+          </div>
+          
+          <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100">
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Active</span>
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-2xl font-black text-emerald-600">{studentPopulation.active}</span>
+              <span className="text-xs font-bold text-slate-400">
+                ({studentPopulation.total > 0 ? Math.round((studentPopulation.active / studentPopulation.total) * 100) : 0}%)
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Form Distribution Chart */}
+        <div className="mb-6">
+          <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-3">Distribution by Form</h4>
+          <div className="space-y-2">
+            {formData.map((form, index) => (
+              <div key={index} className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-700">{form.name}</span>
+                  <span className="font-black text-slate-900">{form.students}</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full rounded-full transition-all duration-1000"
+                    style={{ 
+                      width: `${studentPopulation.total > 0 ? (form.students / studentPopulation.total) * 100 : 0}%`,
+                      backgroundColor: form.fill
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Gender Distribution */}
+        <div className="pt-4 border-t border-slate-100">
+          <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-3">Gender Distribution</h4>
+          <div className="flex items-center justify-between">
+            {genderData.map((gender, index) => (
+              <div key={index} className="text-center">
+                <div className="flex flex-col items-center">
+                  <div 
+                    className="w-3 h-3 rounded-full mb-1"
+                    style={{ backgroundColor: gender.color }}
+                  />
+                  <span className="text-xs font-bold text-slate-700">{gender.value}</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">{gender.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  // Student Distribution Card Component
+  const StudentDistributionCard = () => {
+    // Prepare data for detailed distribution
+    const streamData = Object.entries(studentPopulation.byStream)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([stream, count]) => ({
+        name: stream,
+        students: count
+      }));
+    
+    // Calculate form percentages
+    const formPercentages = Object.entries(studentPopulation.byForm).map(([form, count]) => ({
+      form,
+      percentage: studentPopulation.total > 0 ? (count / studentPopulation.total) * 100 : 0
+    }));
+    
+    return (
+      <div className="group relative bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
+        
+        {/* Top Glow Accent */}
+        <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-purple-500/10 blur-2xl group-hover:bg-purple-500/20 transition-colors" />
+        
+        <div className="flex items-center justify-between mb-6 relative z-10">
+          <div>
+            <h3 className="text-lg font-black text-slate-800 tracking-tight">Student Distribution</h3>
+            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Detailed Analysis</p>
+          </div>
+          <div className="p-3 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 shadow-sm transition-transform group-hover:scale-100">
+            <FiBarChart2 className="text-xl" />
+          </div>
+        </div>
+        
+        {/* Form Distribution Pie Chart */}
+        <div className="h-40 mb-6">
+          {studentPopulation.total > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={formPercentages}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={60}
+                  paddingAngle={2}
+                  dataKey="percentage"
+                  label={({ form, percentage }) => `${form}: ${percentage.toFixed(1)}%`}
+                >
+                  {formPercentages.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'][index % 4]}
+                      stroke="#fff"
+                      strokeWidth={2}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value, name, props) => {
+                    const form = props.payload?.form || '';
+                    const count = studentPopulation.byForm[form] || 0;
+                    return [`${value.toFixed(1)}% (${count} students)`, 'Percentage'];
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center text-slate-400">
+              No student data available
+            </div>
+          )}
+        </div>
+        
+        {/* Top Streams */}
+        <div className="mb-4">
+          <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-3">Top Streams</h4>
+          <div className="space-y-2">
+            {streamData.length > 0 ? (
+              streamData.map((stream, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-700 truncate">{stream.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-900">{stream.students}</span>
+                    <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-purple-500 rounded-full"
+                        style={{ 
+                          width: `${studentPopulation.total > 0 ? (stream.students / studentPopulation.total) * 100 : 0}%` 
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-400 text-center py-2">No stream data available</p>
+            )}
+          </div>
+        </div>
+        
+        {/* Status Summary */}
+        <div className="pt-4 border-t border-slate-100">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="text-center p-2 bg-emerald-50 rounded-xl border border-emerald-100">
+              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-wider">Active</span>
+              <div className="text-lg font-black text-emerald-700">{studentPopulation.active}</div>
+            </div>
+            <div className="text-center p-2 bg-rose-50 rounded-xl border border-rose-100">
+              <span className="text-[10px] font-black text-rose-600 uppercase tracking-wider">Inactive</span>
+              <div className="text-lg font-black text-rose-700">{studentPopulation.inactive}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
   if (loading) {
     return (
       <ModernLoadingSpinner 
@@ -1148,319 +1886,387 @@ export default function DashboardOverview() {
       />
     );
   }
-
+  
   return (
     <>
-      <AnalyticsModal />
       <QuickTourModal />
       
       <div className="p-6 space-y-6">
         {/* Welcome Section */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 rounded-2xl p-8 text-white overflow-hidden">
+        <div className="relative bg-[#0F172A] rounded-2xl md:rounded-[2.5rem] p-6 md:p-10 text-white overflow-hidden shadow-2xl border border-white/5">
+          
+          {/* Abstract Mesh Gradient Background */}
+          <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-blue-600/30 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
+          
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-white/20 rounded-xl">
-                <IoSparkles className="text-2xl text-yellow-300" />
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+              <div>
+                {/* Institutional Branding */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
+                  <div>
+                    <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
+                      Katwanyaa High School
+                    </h2>
+                    <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
+                      "Education is Light"
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-2">
+                  <div className="p-2 sm:p-3 bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/10 w-fit">
+                    <IoSparkles className="text-2xl sm:text-3xl text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.6)]" />
+                  </div>
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                    Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-white to-blue-200">{user?.name || 'Admin'}</span>!
+                  </h1>
+                </div>
               </div>
-              <h1 className="text-3xl font-bold">Welcome back, {user.name}!</h1>
-            </div>
-            <p className="text-blue-100 text-lg max-w-2xl">
-              Managing <strong>{stats.totalStudents} students</strong>, <strong>{stats.totalStaff} staff members</strong>, and <strong>{stats.totalSubscribers} subscribers</strong>. You have <span className="text-yellow-300 font-semibold">{stats.activeAssignments} active assignments</span> and <span className="text-green-300 font-semibold">{stats.upcomingEvents} upcoming events</span>.
-            </p>
-            
-            <div className="flex items-center gap-3 sm:gap-4 mt-6">
+              
+              {/* Modern Glass Refresh Button */}
               <button
-                onClick={() => setShowAnalyticsModal(true)}
-                className="
-                  bg-white text-blue-600
-                  px-4 py-2 text-sm
-                  sm:px-6 sm:py-3 sm:text-base
-                  rounded-xl font-semibold
-                  flex items-center gap-2
-                  shadow-lg cursor-pointer
-                "
+                onClick={refreshDashboard}
+                disabled={refreshing}
+                className="flex items-center justify-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm tracking-wide transition-all hover:bg-white/20 disabled:opacity-50 w-full sm:w-fit"
               >
-                <FiBarChart2 className="text-base sm:text-lg" />
-                View Analytics
-                <FiArrowUpRight className="text-base sm:text-lg" />
+                <FiRefreshCw className={`text-lg transition-transform ${refreshing ? 'animate-spin' : ''}`} />
+                <span>{refreshing ? 'UPDATING...' : 'REFRESH DATA'}</span>
               </button>
-
+            </div>
+            
+            {/* Summary Text */}
+            <div className="mb-8">
+              <p className="text-blue-100/80 text-base sm:text-md font-medium leading-relaxed">
+                Currently overseeing <span className="text-white font-bold underline decoration-blue-500/50 decoration-2 underline-offset-4">{stats.totalStudents} students</span> and <span className="text-white font-bold underline decoration-purple-500/50 decoration-2 underline-offset-4">{stats.totalStaff} staff</span>. 
+                You have <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-lg bg-yellow-400/20 text-yellow-300 border border-yellow-400/20 mx-1">{stats.activeAssignments} active tasks</span> 
+                and <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-lg bg-orange-500/20 text-orange-400 border border-orange-500/20 mx-1">{stats.upcomingEvents} events</span> scheduled.
+              </p>
+            </div>
+            
+            {/* Call to Action */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <button
                 onClick={() => setShowQuickTour(true)}
-                className="
-                  text-white/80 hover:text-white
-                  px-4 py-2 text-sm
-                  sm:px-6 sm:py-3 sm:text-base
-                  rounded-xl font-semibold
-                  border border-white/20
-                  flex items-center gap-2
-                  cursor-pointer
-                "
+                className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl sm:rounded-2xl font-bold sm:font-black text-sm uppercase tracking-widest shadow-lg transition-all w-full sm:w-auto"
               >
-                <FiPlay className="text-base sm:text-lg" />
-                Quick Tour
+                <FiPlay />
+                Video Tour
               </button>
+              
+              <div className="h-[1px] w-full sm:h-10 sm:w-[1px] bg-white/10 sm:mx-2" />
+              
+              <p className="text-xs font-bold text-white/40 uppercase tracking-widest text-center sm:text-left">
+                System Status: <span className="text-emerald-400">Operational</span>
+              </p>
             </div>
           </div>
         </div>
-
+        
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {quickStats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm mb-2">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  <p className="text-xs text-gray-500 mt-1">{stat.calculation}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {quickStats.map((stat, index) => {
+            const isPositive = stat.change >= 0;
+            
+            const colorStyles = {
+              blue: 'bg-blue-50 border-blue-100 text-blue-600 glow-blue',
+              emerald: 'bg-emerald-50 border-emerald-100 text-emerald-600 glow-emerald',
+              purple: 'bg-purple-50 border-purple-100 text-purple-600 glow-purple',
+              amber: 'bg-amber-50 border-amber-100 text-amber-600 glow-amber',
+              rose: 'bg-rose-50 border-rose-100 text-rose-600 glow-rose'
+            };
+            
+            const style = colorStyles[stat.color] || colorStyles.blue;
+            
+            return (
+              <div 
+                key={index} 
+                className="group relative bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]  overflow-hidden"
+              >
+                {/* Background Accent Blur */}
+                <div className={`absolute -right-2 -top-2 h-20 w-20 rounded-full blur-2xl opacity-10 group-hover:opacity-30 transition-opacity ${style}`} />
+                
+                <div className="flex items-start justify-between relative z-10">
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400">
+                      {stat.label}
+                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <h3 className="text-3xl font-black text-slate-900 tracking-tighter tabular-nums">
+                        {stat.value}
+                      </h3>
+                      <span className="text-[10px] font-bold text-slate-400 italic">
+                        {stat.calculation}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Modern Icon Pod */}
+                  <div className={`p-3.5 rounded-2xl border shadow-sm transition-transform group-hover:scale-100 duration-500 ${style}`}>
+                    <stat.icon className="text-xl" />
+                  </div>
                 </div>
-                <div className={`p-3 rounded-xl bg-${stat.color}-100`}>
-                  <stat.icon className={`text-xl text-${stat.color}-600`} />
-                </div>
-              </div>
-              <div className="flex items-center gap-1 mt-3">
-                {stat.change >= 0 ? (
-                  <FiTrendingUp className="text-green-500 text-sm" />
-                ) : (
-                  <FiTrendingDown className="text-red-500 text-sm" />
-                )}
-                <span className={`text-sm font-semibold ${stat.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {stat.change >= 0 ? '+' : ''}{stat.change}%
-                </span>
-                <span className="text-gray-500 text-sm ml-1">from last month</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Main Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Admission Growth Card */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Admission Growth</h3>
-              <FiUserPlus className="text-2xl text-purple-600" />
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900 mb-2">{stats.totalApplications}</p>
-              <p className="text-sm text-gray-600">Total Applications</p>
-              <div className="mt-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-gray-600">Monthly Growth</span>
-                  <span className={`text-sm font-semibold ${admissionGrowth.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {admissionGrowth.monthlyGrowth >= 0 ? '+' : ''}{admissionGrowth.monthlyGrowth}%
+                
+                {/* Trend Footer */}
+                <div className="mt-6 flex items-center justify-between relative z-10">
+                  <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-tight border ${
+                    isPositive 
+                      ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                      : 'bg-rose-50 text-rose-600 border-rose-100'
+                  }`}>
+                    {isPositive ? <FiTrendingUp size={14} /> : <FiTrendingDown size={14} />}
+                    <span>{isPositive ? '+' : ''}{stat.change}%</span>
+                  </div>
+                  
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    vs. Last Month
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Daily Applications</span>
-                  <span className="text-sm font-semibold text-blue-600">{stats.dailyApplications}</span>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Main Stats Grid - Updated to include Engagement Card */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Student Engagement Card */}
+          <StudentEngagementCard />
+          
+          {/* Staff Distribution Card */}
+          <div className="bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] overflow-hidden">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-black text-slate-800 tracking-tight">Staff Distribution</h3>
+                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Department Breakdown</p>
+              </div>
+              <FiUsers className="text-2xl text-blue-600" />
+            </div>
+            {staffDistribution.length > 0 ? (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={staffDistribution}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                      outerRadius={90}
+                      innerRadius={50}
+                      paddingAngle={4}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {staffDistribution.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#6366F1'][index % 6]}
+                          stroke="#fff"
+                          strokeWidth={3}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value, name, props) => {
+                        const total = staffDistribution.reduce((sum, item) => sum + item.value, 0);
+                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                        return [`${value} staff (${percentage}%)`, 'Department'];
+                      }}
+                      contentStyle={{
+                        borderRadius: '12px',
+                        padding: '12px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.97)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+                        border: '2px solid #e5e7eb',
+                        fontSize: '8px',
+                        fontWeight: 'bold'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                
+                {/* Department breakdown */}
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {staffDistribution.map((dept, index) => {
+                    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#F43F5E', '#6366F1'];
+                    const currentColor = colors[index % colors.length];
+                    
+                    return (
+                      <div 
+                        key={index} 
+                        className="group/dept flex items-center justify-between p-3 bg-white border border-slate-100 rounded-2xl transition-all duration-300 hover:shadow-md hover:border-slate-200 "
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="relative flex-shrink-0">
+                            <div 
+                              className="w-2.5 h-2.5 rounded-full"
+                              style={{ backgroundColor: currentColor }}
+                            />
+                            <div 
+                              className="absolute inset-0 w-2.5 h-2.5 rounded-full animate-ping opacity-0 group-hover/dept:opacity-40"
+                              style={{ backgroundColor: currentColor }}
+                            />
+                          </div>
+                          
+                          <span className="text-xs font-bold text-slate-600 truncate tracking-tight group-hover/dept:text-slate-900 transition-colors">
+                            {dept.name}
+                          </span>
+                        </div>
+                        
+                        {/* Counter Badge */}
+                        <div 
+                          className="ml-2 px-2.5 py-1 rounded-lg text-[11px] font-black tabular-nums transition-all"
+                          style={{ 
+                            backgroundColor: `${currentColor}10`,
+                            color: currentColor 
+                          }}
+                        >
+                          {dept.value.toLocaleString()}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="h-64 flex flex-col items-center justify-center">
+                <FiUsers className="text-4xl text-gray-300 mb-3" />
+                <p className="text-gray-500 font-medium">No staff data available</p>
+                <p className="text-gray-400 text-sm mt-1">Staff information will appear here</p>
+              </div>
+            )}
+          </div>
+          
+          {/* Admission Growth Card */}
+          <div className="group relative bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]  overflow-hidden">
+            
+            {/* Background Decorative Glow */}
+            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br from-purple-500/10 to-transparent blur-2xl opacity-50 group-hover:opacity-100 transition-opacity" />
+            
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    Enrollment Pipe
+                  </span>
+                  <h3 className="text-lg font-black text-slate-800 tracking-tight mt-1">Admission Growth</h3>
+                </div>
+                <div className="p-3 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 shadow-sm transition-transform group-hover:scale-100">
+                  <FiUserPlus className="text-xl" />
+                </div>
+              </div>
+              
+              {/* Main Value Display */}
+              <div className="text-center py-4 bg-slate-50/50 rounded-2xl border border-slate-100 mb-6 group-hover:bg-white transition-colors">
+                <h4 className="text-4xl font-black text-slate-900 tracking-tighter tabular-nums">
+                  {stats.totalApplications.toLocaleString()}
+                </h4>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] mt-1">Total Applications</p>
+              </div>
+              
+              {/* Secondary Metrics Split */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Monthly Growth Tile */}
+                <div className="p-3 rounded-2xl border border-slate-50 bg-white shadow-sm flex flex-col items-center justify-center">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase mb-1">Monthly</span>
+                  <div className={`flex items-center gap-1 font-black text-sm ${
+                    admissionGrowth.monthlyGrowth >= 0 ? 'text-emerald-600' : 'text-rose-600'
+                  }`}>
+                    {admissionGrowth.monthlyGrowth >= 0 ? <FiTrendingUp size={12} /> : <FiTrendingDown size={12} />}
+                    <span>{admissionGrowth.monthlyGrowth >= 0 ? '+' : ''}{admissionGrowth.monthlyGrowth}%</span>
+                  </div>
+                </div>
+                
+                {/* Daily Applications Tile */}
+                <div className="p-3 rounded-2xl border border-slate-50 bg-white shadow-sm flex flex-col items-center justify-center">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase mb-1">Today</span>
+                  <span className="font-black text-blue-600 text-sm tabular-nums">
+                    {stats.dailyApplications}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-
-{/* Staff Distribution Card - Updated with ResultsChart */}
-<div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-  <div className="flex items-center justify-between mb-4">
-    <h3 className="text-lg font-semibold text-gray-800">Staff Distribution</h3>
-    <FiUsers className="text-2xl text-blue-600" />
-  </div>
-  {staffDistribution.length > 0 ? (
-    <div className="h-64">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={staffDistribution}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            // Bolder, more prominent labels
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-            outerRadius={90}
-            innerRadius={50}
-            paddingAngle={4}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {staffDistribution.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#6366F1'][index % 6]}
-                stroke="#fff"
-                strokeWidth={3}
-              />
-            ))}
-          </Pie>
-          <Tooltip 
-            formatter={(value, name, props) => {
-              const total = staffDistribution.reduce((sum, item) => sum + item.value, 0);
-              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-              return [`${value} staff (${percentage}%)`, 'Department'];
-            }}
-            contentStyle={{
-              borderRadius: '12px',
-              padding: '12px',
-              backgroundColor: 'rgba(255, 255, 255, 0.97)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-              border: '2px solid #e5e7eb',
-              fontSize: '8px',
-              fontWeight: 'bold'
-            }}
           
-          />
-         
-        </PieChart>
-      </ResponsiveContainer>
-      
-      {/* Enhanced department breakdown */}
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        {staffDistribution.map((dept, index) => (
-          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <div 
-                className="w-3 h-3 rounded-full"
-                style={{ 
-                  backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#6366F1'][index % 6]
-                }}
-              />
-              <span className="text-xs font-semibold text-gray-700 truncate">{dept.name}</span>
-            </div>
-            <span className="text-xs font-bold text-gray-900">{dept.value}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  ) : (
-    <div className="h-64 flex flex-col items-center justify-center">
-      <FiUsers className="text-4xl text-gray-300 mb-3" />
-      <p className="text-gray-500 font-medium">No staff data available</p>
-      <p className="text-gray-400 text-sm mt-1">Staff information will appear here</p>
-    </div>
-  )}
-</div>
-
-          {/* Assignments & Resources Card */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Assignments & Resources</h3>
-              <FiBook className="text-2xl text-orange-600" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+          {/* Academic Content Card */}
+          <div className="group relative bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] overflow-hidden">
+            
+            {/* Decorative Glow */}
+            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-orange-500/10 blur-2xl group-hover:opacity-100 transition-opacity" />
+            
+            <div className="flex items-center justify-between mb-6 relative z-10">
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Assignments</h4>
+                <h3 className="text-lg font-black text-slate-800 tracking-tight">Academic Content</h3>
+                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Distribution</p>
+              </div>
+              <div className="p-3 rounded-2xl bg-orange-50 border border-orange-100 text-orange-600 shadow-sm transition-transform group-hover:scale-100">
+                <FiBook className="text-xl" />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+              {/* Assignments Column */}
+              <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:bg-white transition-colors">
+                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />
+                  Assignments
+                </h4>
                 {assignmentsDistribution.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     {assignmentsDistribution.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <span className="text-xs text-gray-600">{item.name}</span>
-                        <span className="text-xs font-semibold">{item.value}%</span>
+                      <div key={index} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-slate-700">{item.name}</span>
+                          <span className="font-black text-slate-900 tabular-nums">{item.value}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-200/50 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-orange-500 rounded-full transition-all duration-1000" 
+                            style={{ width: `${item.value}%` }} 
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-500">No assignment data</p>
+                  <p className="text-[10px] text-slate-400 italic py-2">No assignment data available</p>
                 )}
               </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Resources</h4>
+              
+              {/* Resources Column */}
+              <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:bg-white transition-colors">
+                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                  Resources
+                </h4>
                 {resourcesDistribution.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     {resourcesDistribution.slice(0, 3).map((item, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <span className="text-xs text-gray-600">{item.name}</span>
-                        <span className="text-xs font-semibold">{item.value}%</span>
+                      <div key={index} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-slate-700">{item.name}</span>
+                          <span className="font-black text-slate-900 tabular-nums">{item.value}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-200/50 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-blue-500 rounded-full transition-all duration-1000" 
+                            style={{ width: `${item.value}%` }} 
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-500">No resource data</p>
+                  <p className="text-[10px] text-slate-400 italic py-2">No resource data available</p>
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Careers Card */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Career Opportunities</h3>
-              <IoDocumentText className="text-2xl text-green-600" />
-            </div>
-            {careers.length > 0 ? (
-              <div className="space-y-3">
-                {careers.map((career) => (
-                  <div key={career.id} className="p-3 bg-gray-50 rounded-lg">
-                    <p className="font-medium text-sm text-gray-800">{career.jobTitle}</p>
-                    <p className="text-xs text-gray-600">{career.department}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="h-32 flex items-center justify-center">
-                <p className="text-gray-500">No career opportunities</p>
-              </div>
-            )}
-          </div>
-
-          {/* Email Campaigns Card */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 col-span-2">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Email Campaigns</h3>
-              <FiMail className="text-2xl text-red-600" />
-            </div>
-            {emailCampaigns.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4">
-                {emailCampaigns.map((campaign) => {
-                  const recipients = campaign.recipients ? campaign.recipients.split(',').length : 0;
-                  return (
-                    <div key={campaign.id} className="p-4 bg-gray-50 rounded-lg">
-                      <p className="font-medium text-sm text-gray-800">{campaign.title}</p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-gray-600">Recipients</span>
-                        <span className="text-xs font-semibold">{recipients}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-600">Status</span>
-                        <span className={`text-xs font-semibold ${
-                          campaign.status === 'published' ? 'text-green-600' : 'text-yellow-600'
-                        }`}>
-                          {campaign.status}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="h-32 flex items-center justify-center">
-                <p className="text-gray-500">No active email campaigns</p>
-              </div>
-            )}
-          </div>
-
-          {/* Academic Performance Card - Empty */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Academic Performance</h3>
-              <FiAward className="text-2xl text-indigo-600" />
-            </div>
-            <div className="h-32 flex items-center justify-center">
-              <p className="text-gray-500">Performance metrics calculated dynamically</p>
-            </div>
-          </div>
-
-          {/* Student Engagement Card - Empty */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Student Engagement</h3>
-              <FiActivity className="text-2xl text-teal-600" />
-            </div>
-            <div className="h-32 flex items-center justify-center">
-              <p className="text-gray-500">Engagement metrics calculated dynamically</p>
             </div>
           </div>
         </div>
-
-        {/* Additional Stat Cards with corrected growth metrics */}
+        
+        {/* Additional Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard 
             icon={FiCalendar} 
@@ -1472,13 +2278,13 @@ export default function DashboardOverview() {
             subtitle="Scheduled events" 
           />
           <StatCard 
-            icon={FiActivity} 
-            label="Student Council" 
-            value={stats.studentCouncil} 
-            change={parseFloat(growthMetrics.councilGrowth)} 
-            trend={parseFloat(growthMetrics.councilGrowth) >= 0 ? "up" : "down"}
-            color="indigo" 
-            subtitle="Active members" 
+            icon={FiMessageCircle} 
+            label="Guidance Sessions" 
+            value={stats.guidanceSessions} 
+            change={parseFloat(growthMetrics.guidanceGrowth)} 
+            trend={parseFloat(growthMetrics.guidanceGrowth) >= 0 ? "up" : "down"}
+            color="teal" 
+            subtitle="Counseling sessions" 
           />
           <StatCard 
             icon={FiImage} 
@@ -1499,86 +2305,157 @@ export default function DashboardOverview() {
             subtitle="Published news" 
           />
         </div>
+        
+        {/* Email Campaigns with Student Population Cards - NEW LAYOUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Email Campaigns Card - Now takes 2 columns */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden group h-full">
+              {/* Decorative Glow */}
+              <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br from-red-500/10 to-transparent blur-2xl opacity-50 group-hover:opacity-80 transition-opacity" />
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Recent Activity - Now unified from all APIs */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <FiStar className="text-yellow-500" />
-                Recent Activity
-              </h2>
-              <button className="text-blue-600 font-semibold text-sm flex items-center gap-1 cursor-pointer">
-                View All
-                <FiArrowUpRight className="text-sm" />
-              </button>
-            </div>
-            <div className="space-y-4 max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              {recentActivity.length > 0 ? (
-                recentActivity.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-center gap-4 p-3 rounded-xl"
-                  >
-                    <div className={`w-12 h-12 rounded-xl bg-${activity.color}-100 flex items-center justify-center`}>
-                      <activity.icon className={`text-xl text-${activity.color}-600`} />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-800">{activity.action}</p>
-                      <p className="text-sm text-gray-600">{activity.target}</p>
-                    </div>
-                    <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                      {activity.time}
-                    </span>
-                  </div>
-                ))
+              <div className="flex items-center justify-between mb-6 relative z-10">
+                <div>
+                  <h3 className="text-lg font-black text-slate-800 tracking-tight">Email Campaigns</h3>
+                  <p className="text-xs text-slate-400 font-medium">Recent marketing performance</p>
+                </div>
+                <div className="p-3 rounded-2xl bg-red-50 border border-red-100 text-red-600 shadow-sm">
+                  <FiMail className="text-xl" />
+                </div>
+              </div>
+
+              {emailCampaigns.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4 relative z-10">
+                  {emailCampaigns.map((campaign) => {
+                    const recipients = campaign.recipients ? campaign.recipients.split(',').length : 0;
+                    const isPublished = campaign.status === 'published';
+
+                    return (
+                      <div key={campaign.id} className="p-4 bg-slate-50/50 border border-slate-100 rounded-2xl hover:bg-white hover:shadow-md hover:border-slate-200 transition-all duration-300 group/item">
+                        <p className="font-bold text-sm text-slate-800 mb-3 truncate">{campaign.title}</p>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider">Recipients</span>
+                            <span className="text-slate-900 font-black tabular-nums bg-white px-2 py-0.5 rounded-md shadow-sm border border-slate-100">
+                              {recipients.toLocaleString()}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider">Status</span>
+                            <span className={`flex items-center gap-1 px-2 py-0.5 rounded-md font-black uppercase tracking-tighter ${
+                              isPublished ? 'text-emerald-600 bg-emerald-50' : 'text-amber-600 bg-amber-50'
+                            }`}>
+                              <span className={`h-1.5 w-1.5 rounded-full ${isPublished ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                              {campaign.status}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No recent activity</p>
+                <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/30">
+                  <FiMail className="text-3xl text-slate-200 mb-2" />
+                  <p className="text-slate-400 text-sm font-medium">No active campaigns found</p>
+                </div>
               )}
             </div>
           </div>
-
-          {/* Performance Metrics */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <FiTrendingUp className="text-green-500" />
-              Performance Metrics
-            </h2>
-            <div className="space-y-1">
-              {performanceData.map((metric, index) => (
-                <PerformanceBar
-                  key={index}
-                  label={metric.label}
-                  value={metric.value}
-                  change={metric.change}
-                  color={metric.color}
-                  description={metric.description}
-                />
-              ))}
-            </div>
+          
+          {/* Student Population Card - NEW ADDITION */}
+          <StudentPopulationCard />
+        </div>
+        
+        {/* Student Distribution Card - NEW ADDITION */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <StudentDistributionCard />
+          
+          {/* Recent Activity Card */}
+          <div className="group relative bg-white rounded-[2.5rem] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] overflow-hidden">
             
-            <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Overall School Rating</span>
-                <div className="flex items-center gap-2">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <FiStar key={star} className="text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <span className="font-semibold text-gray-800">4.8/5.0</span>
+            {/* Decorative Glow */}
+            <div className="absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gradient-to-br from-amber-500/10 to-transparent blur-3xl opacity-50 transition-opacity group-hover:opacity-80" />
+            
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    History Log
+                  </span>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3 mt-1">
+                    Recent Activity
+                  </h2>
                 </div>
+                <button 
+                  onClick={refreshDashboard}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-50 text-blue-600 font-bold text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm active:scale-95"
+                >
+                  Refresh
+                  <FiRefreshCw className="text-sm" />
+                </button>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Student Engagement</span>
-                <span className="font-semibold text-blue-600">
-                  {Math.round((stats.studentCouncil / stats.totalStudents) * 100) || 0}%
-                </span>
+              
+              {/* Timeline Content */}
+              <div className="relative space-y-6 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
+                {/* The Timeline Track Line */}
+                <div className="absolute left-6 top-2 bottom-2 w-[2px] bg-slate-100 hidden sm:block" />
+                
+                {recentActivity.length > 0 ? (
+                  recentActivity.map((activity, index) => (
+                    <div
+                      key={activity.id}
+                      className="group/item flex flex-col sm:flex-row sm:items-center gap-4 relative transition-all duration-300 "
+                    >
+                      {/* Icon Container with Timeline Pulse */}
+                      <div className="relative z-10 flex-shrink-0">
+                        <div className={`w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center transition-all duration-300 group-hover/item:shadow-md `}>
+                          {/* Subtle Inner Tint */}
+                          <div className={`absolute inset-1.5 rounded-xl opacity-10 bg-${activity.color}-500`} />
+                          <activity.icon className={`text-xl text-${activity.color}-600 relative z-10`} />
+                        </div>
+                      </div>
+                      
+                      {/* Action Text */}
+                      <div className="flex-1 space-y-0.5">
+                        <p className="font-bold text-slate-800 text-[15px] leading-tight group-hover/item:text-blue-600 transition-colors">
+                          {activity.action}
+                        </p>
+                        <p className="text-sm text-slate-500 font-medium tracking-tight">
+                          {activity.target}
+                        </p>
+                      </div>
+                      
+                      {/* Timestamp Badge */}
+                      <div className="flex sm:block">
+                        <span className="inline-block text-[10px] font-black text-slate-400 uppercase tracking-tighter bg-slate-50 border border-slate-100 px-3 py-1 rounded-lg group-hover/item:bg-white group-hover/item:border-slate-200 transition-all">
+                          {activity.time}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-12 flex flex-col items-center justify-center text-center opacity-40">
+                    <FiStar className="text-4xl mb-2" />
+                    <p className="font-bold uppercase tracking-widest text-xs">No Recent Activity</p>
+                    <p className="text-xs text-slate-400 mt-1">Recent submissions will appear here</p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Auto-refresh notice */}
+              <div className="mt-6 pt-6 border-t border-slate-100">
+                <p className="text-xs text-slate-400 text-center">
+                  Updates automatically every few minutes
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </>
-  );  
+  );
 }

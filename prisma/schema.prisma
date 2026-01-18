@@ -175,7 +175,7 @@ model EmailCampaign {
   title         String
   subject       String
   content       String    @db.Text
-  recipients    String
+  recipients    String   @db.Text
   recipientType String    @default("all")
   status        String    @default("draft")
   sentAt        DateTime?
