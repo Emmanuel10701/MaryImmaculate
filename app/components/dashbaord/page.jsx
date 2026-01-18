@@ -1371,93 +1371,95 @@ const fetchAllData = useCallback(async () => {
   };
   
   // Quick Tour Modal Component
-  const QuickTourModal = () => (
-    showQuickTour && (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-        {/* Cinematic Backdrop */}
-        <div 
-          className="absolute inset-0 bg-slate-950/80 backdrop-blur-2xl animate-in fade-in duration-500" 
-          onClick={() => setShowQuickTour(false)}
-        />
+ // Quick Tour Modal Component
+const QuickTourModal = () => (
+  showQuickTour && (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+      {/* Cinematic Backdrop */}
+      <div 
+        className="absolute inset-0 bg-slate-950/80 backdrop-blur-2xl animate-in fade-in duration-500" 
+        onClick={() => setShowQuickTour(false)}
+      />
+      
+      {/* Modal Container - Scrollbar Hidden */}
+      <div className="relative bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] w-full max-w-5xl 
+        max-h-[90vh] overflow-y-auto overflow-x-hidden 
+        [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]
+        animate-in zoom-in-95 duration-300 flex flex-col"
+      >
         
-        {/* Modal Container */}
-        <div className="relative bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] w-full max-w-5xl 
-          max-h-[90vh] overflow-y-auto overflow-x-hidden 
-          animate-in zoom-in-95 duration-300 flex flex-col"
-        >
-          
-          {/* Header Section */}
-          <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-30">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
-              <div>
-                <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
-                  Mary Immaculate Girls 
-                </h2>
-                <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
-                  "Mary Prayer, Discipline, and Hardworkaculate Girls "
-                </p>
-              </div>
-            </div>
-            
-            <button
-              onClick={() => setShowQuickTour(false)}
-              className="group p-3 hover:bg-rose-50 rounded-2xl transition-all duration-300 cursor-pointer border border-transparent hover:border-rose-100"
-            >
-              <FiX className="text-2xl text-slate-400 group-hover:text-rose-500" />
-            </button>
-          </div>
-          
-          {/* Video Content Area */}
-          <div className="p-2 sm:p-6 bg-slate-50 flex-grow">
-            <div className="relative aspect-video bg-slate-900 rounded-[1.5rem] overflow-hidden shadow-inner ring-4 md:ring-8 ring-white">
-              {schoolVideo ? (
-                <div className="w-full h-full">
-                  {schoolVideo.type === 'youtube' ? (
-                    <iframe
-                      src={`${schoolVideo.url.replace('watch?v=', 'embed/')}?autoplay=1&rel=0`}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  ) : (
-                    <video src={schoolVideo.url} autoPlay controls className="w-full h-full object-cover" poster="/school-poster.jpg" />
-                  )}
-                </div>
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
-                  <FiPlay className="text-4xl text-slate-500 mb-4" />
-                  <h3 className="text-white font-bold text-lg mb-1">Tour Content Unavailable</h3>
-                  <p className="text-slate-500 text-xs md:text-sm max-w-xs">Please upload a campus video in settings.</p>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Footer Actions */}
-          <div className="px-8 py-6 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-0 z-30">
-            <div className="hidden sm:flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200" />
-                ))}
-              </div>
-              <p className="text-[11px] font-bold text-slate-500 tracking-tight">
-                Join 1200+ students on the virtual tour
+        {/* Header Section */}
+        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-30">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
+            <div>
+              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
+                Mary Immaculate Girls
+              </h2>
+              <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
+                "Prayer, Discipline, and Hardwork"
               </p>
             </div>
-            
-            <button
-              onClick={() => setShowQuickTour(false)}
-              className="w-full sm:w-auto bg-slate-900 hover:bg-black text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all"
-            >
-              Exit Tour
-            </button>
+          </div>
+          
+          <button
+            onClick={() => setShowQuickTour(false)}
+            className="group p-3 hover:bg-rose-50 rounded-2xl transition-all duration-300 cursor-pointer border border-transparent hover:border-rose-100"
+          >
+            <FiX className="text-2xl text-slate-400 group-hover:text-rose-500" />
+          </button>
+        </div>
+        
+        {/* Video Content Area */}
+        <div className="p-2 sm:p-6 bg-slate-50 flex-grow">
+          <div className="relative aspect-video bg-slate-900 rounded-[1.5rem] overflow-hidden shadow-inner ring-4 md:ring-8 ring-white">
+            {schoolVideo ? (
+              <div className="w-full h-full">
+                {schoolVideo.type === 'youtube' ? (
+                  <iframe
+                    src={`${schoolVideo.url.replace('watch?v=', 'embed/')}?autoplay=1&rel=0`}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video src={schoolVideo.url} autoPlay controls className="w-full h-full object-cover" poster="/school-poster.jpg" />
+                )}
+              </div>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                <FiPlay className="text-4xl text-slate-500 mb-4" />
+                <h3 className="text-white font-bold text-lg mb-1">Tour Content Unavailable</h3>
+                <p className="text-slate-500 text-xs md:text-sm max-w-xs">Please upload a campus video in settings.</p>
+              </div>
+            )}
           </div>
         </div>
+        
+        {/* Footer Actions */}
+        <div className="px-8 py-6 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-0 z-30">
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="flex -space-x-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200" />
+              ))}
+            </div>
+            <p className="text-[11px] font-bold text-slate-500 tracking-tight">
+              Join 1200+ students on the virtual tour
+            </p>
+          </div>
+          
+          <button
+            onClick={() => setShowQuickTour(false)}
+            className="w-full sm:w-auto bg-slate-900 hover:bg-black text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all"
+          >
+            Exit Tour
+          </button>
+        </div>
       </div>
-    )
-  );
+    </div>
+  )
+);
   
   // StatCard Component
   const StatCard = ({ icon: Icon, label, value, change, color, subtitle, trend }) => {
@@ -1910,7 +1912,7 @@ const fetchAllData = useCallback(async () => {
                       Mary Immaculate Girls 
                     </h2>
                     <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
-                      "Mary IPrayer, Discipline, and Hardworkaculate Girls "
+                      "Prayer, Discipline, and Hardwork"
                     </p>
                   </div>
                 </div>

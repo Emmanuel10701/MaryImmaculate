@@ -27,6 +27,24 @@ body {
 }
 
 
+/* For modern browsers (Chrome, Safari, Edge) */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* For Firefox */
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+/* For IE and Edge Legacy */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+}
+
+
+
+
 @keyframes blob {
   0% {
     transform: translate(0px, 0px) scale(1);
