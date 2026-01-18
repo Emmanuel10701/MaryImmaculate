@@ -1240,7 +1240,7 @@ const ModernUniformRequirementsSection = ({ admissionFeeDistribution, admissionF
   </h4>
 
   <p className="text-xs text-slate-500 mb-1">
-    This is an approximate cost covering both boys’ and girls’ uniforms.
+    This is an approximate cost covering girls uniforms.
   </p>
 
   <p className="text-xs text-slate-500 mb-3">
