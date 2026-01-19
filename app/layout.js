@@ -51,19 +51,25 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "Mary Immaculate Girls Secondary School | Empowering Future Leaders",
-    description: "Join the premier Catholic girls' institution in Mweiga, Nyeri. Excellence in academics and character.",
+    title: "Mary Immaculate Girls Secondary School | Mweiga, Nyeri",
+    description: "Empowering future leaders through excellence and faith.",
     url: 'https://mary-immaculate.vercel.app',
     siteName: "Mary Immaculate Girls Secondary School",
     locale: "en_KE",
     type: "website",
-    images: [
-      {
-        url: '/opengraph-image.png', // You need to add this image to your public folder
-        width: 1200,
-        height: 630,
-      }
-    ],
+  },
+
+  // Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: "Mary Immaculate Girls Secondary School",
+    description: "Premier girls' education in Mweiga, Nyeri.",
+  },
+
+  // Search Engine Bot instructions
+  robots: {
+    index: true,
+    follow: true,
   },
   
   icons: {

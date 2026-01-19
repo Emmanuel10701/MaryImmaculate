@@ -1,9 +1,10 @@
+// app/robots.js
 export default function robots() {
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: '/private/', // Example: block admin or private routes
+      disallow: ['/api/', '/session/'], // Don't index your session or API routes
     },
     sitemap: 'https://mary-immaculate.vercel.app/sitemap.xml',
   }
