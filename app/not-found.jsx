@@ -88,7 +88,7 @@ const Modern404 = () => {
                   Let's guide you back to your studies with the options below.
                 </p>
               </div>
-<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 w-full">
+<div className="flex flex-nowrap gap-3 sm:gap-4 pt-4 w-full">
   {/* Back to Assembly */}
   <a
     href="/"
