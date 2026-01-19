@@ -329,7 +329,7 @@ const ModernHero = () => {
       </div>
 
       {/* Main Content Area - Responsive adjustments */}
-      <div className="relative z-20 h-full flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-12 text-center">
+      <div className="relative z-20 h-full flex mt-[5%] flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-12 text-center">
         <div className={`w-full max-w-4xl transition-all duration-500 transform ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'} px-2`}>
           
           {/* Tagline - Reduced size */}
