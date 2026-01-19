@@ -70,7 +70,9 @@ export const metadata = {
     icon: "/ll.png",
     apple: "/ll.png",
   },
-  
+  verification: {
+    google: "googlef8123d1ff1ecb88f", // Paste ONLY the code here
+  },
   robots: {
     index: true,
     follow: true,
