@@ -88,24 +88,62 @@ const Modern404 = () => {
                   Let's guide you back to your studies with the options below.
                 </p>
               </div>
+<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 w-full">
+  {/* Back to Assembly */}
+  <a
+    href="/"
+    className="
+      group
+      flex items-center justify-center gap-2 sm:gap-3
+      w-full sm:w-auto
+      bg-gradient-to-r from-rose-600 to-purple-600
+      hover:from-rose-700 hover:to-purple-700
+      text-white
+      px-4 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4
+      rounded-lg sm:rounded-xl md:rounded-2xl
+      text-sm sm:text-base
+      font-semibold
+      transition-all duration-300
+      shadow-lg shadow-rose-200
+      hover:shadow-xl hover:shadow-purple-300
+      active:scale-95
+    "
+  >
+    <FiHome className="text-lg sm:text-xl group-hover:scale-110 transition-transform duration-300" />
+    <span className="whitespace-nowrap">Back to Assembly</span>
+    <FiChevronRight className="
+      text-base sm:text-lg
+      opacity-0 group-hover:opacity-100
+      transform group-hover:translate-x-1
+      transition-all duration-300
+    " />
+  </a>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <a 
-                  href="/" 
-                  className="group flex items-center justify-center gap-3 bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-semibold transition-all duration-300 shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-purple-300 transform hover:-translate-y-0.5 active:scale-95"
-                >
-                  <FiHome className="text-xl group-hover:scale-110 transition-transform duration-300" />
-                  <span>Back to Assembly</span>
-                  <FiChevronRight className="text-lg opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all duration-300" />
-                </a>
-                <button 
-                  onClick={() => window.history.back()}
-                  className="group flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-purple-200 hover:bg-purple-50 text-slate-700 px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg active:scale-95"
-                >
-                  <FiArrowLeft className="text-xl group-hover:-translate-x-1 transition-transform duration-300" />
-                  <span>Previous Lesson</span>
-                </button>
-              </div>
+  {/* Previous Lesson */}
+  <button
+    onClick={() => window.history.back()}
+    className="
+      group
+      flex items-center justify-center gap-2 sm:gap-3
+      w-full sm:w-auto
+      bg-white
+      border-2 border-slate-200
+      hover:border-purple-200 hover:bg-purple-50
+      text-slate-700
+      px-4 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4
+      rounded-lg sm:rounded-xl md:rounded-2xl
+      text-sm sm:text-base
+      font-semibold
+      transition-all duration-300
+      shadow-md hover:shadow-lg
+      active:scale-95
+    "
+  >
+    <FiArrowLeft className="text-lg sm:text-xl group-hover:-translate-x-1 transition-transform duration-300" />
+    <span className="whitespace-nowrap">Previous Lesson</span>
+  </button>
+</div>
+
             </div>
 
             {/* Right Side: Quick Links Section */}
@@ -126,58 +164,128 @@ const Modern404 = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                    {quickLinks.map((link) => {
-                      const Icon = link.icon;
-                      return (
-                        <a 
-                          key={link.name} 
-                          href={link.href} 
-                          className="group p-3 sm:p-4 rounded-xl border border-slate-100 hover:border-rose-200 hover:bg-gradient-to-br hover:from-rose-50/50 hover:to-white transition-all duration-300 hover:shadow-md hover:shadow-rose-100 active:scale-[0.98]"
-                        >
-                          <div className="flex items-start gap-3 sm:gap-4">
-                            <div className="p-2 sm:p-3 bg-gradient-to-br from-slate-50 to-white group-hover:from-rose-500 group-hover:to-purple-600 group-hover:text-white rounded-lg transition-all duration-300 group-hover:scale-110 shadow-sm">
-                              <Icon className="text-lg sm:text-xl" />
-                            </div>
-                            <div className="text-left flex-1 min-w-0">
-                              <h4 className="font-semibold text-slate-800 group-hover:text-rose-700 transition-colors truncate">
-                                {link.name}
-                              </h4>
-                              <p className="text-sm text-slate-500 group-hover:text-slate-600 transition-colors truncate italic">
-                                {link.description}
-                              </p>
-                            </div>
-                            <FiChevronRight className="text-slate-400 group-hover:text-rose-500 mt-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all duration-300" />
-                          </div>
-                        </a>
-                      );
-                    })}
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+  {quickLinks.map((link) => {
+    const Icon = link.icon;
 
-                  <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-slate-100">
-                    <div className="bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
-                      <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="text-left space-y-1">
-                          <p className="text-slate-300 text-xs font-semibold uppercase tracking-wider">Enrollment Status</p>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-2xl sm:text-3xl font-black text-amber-300 drop-shadow">1200+</span>
-                            <span className="text-sm text-slate-300 italic">Active students</span>
-                          </div>
-                          <p className="text-xs text-slate-400 mt-2">Need immediate assistance?</p>
-                        </div>
-                        <a 
-                          href="/pages/contact"
-                          className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-white/20 hover:border-white/30"
-                        >
-                          <FiMail className="text-sm" />
-                          Contact Office
-                        </a>
-                      </div>
-                      {/* Abstract Design Element */}
-                      <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-rose-500/10 to-purple-500/10 -rotate-45 translate-x-8 -translate-y-8 rounded-full"></div>
-                    </div>
-                  </div>
+    return (
+      <a
+        key={link.name}
+        href={link.href}
+        className="
+          group
+          p-3 sm:p-4
+          rounded-xl
+          border border-slate-100
+          hover:border-rose-200
+          hover:bg-gradient-to-br hover:from-rose-50/50 hover:to-white
+          transition-all duration-300
+          hover:shadow-md hover:shadow-rose-100
+          active:scale-[0.98]
+        "
+      >
+        <div className="flex items-start gap-3 sm:gap-4 flex-nowrap">
+          {/* Icon */}
+          <div
+            className="
+              p-2 sm:p-3
+              bg-gradient-to-br from-slate-50 to-white
+              group-hover:from-rose-500 group-hover:to-purple-600
+              group-hover:text-white
+              rounded-lg
+              transition-all duration-300
+              group-hover:scale-110
+              shadow-sm
+              flex-shrink-0
+            "
+          >
+            <Icon className="text-base sm:text-xl" />
+          </div>
+
+          {/* Text */}
+          <div className="min-w-0 flex-1 text-left">
+            <h4 className="font-semibold text-slate-800 group-hover:text-rose-700 truncate">
+              {link.name}
+            </h4>
+            <p className="text-xs sm:text-sm text-slate-500 group-hover:text-slate-600 truncate italic">
+              {link.description}
+            </p>
+          </div>
+
+          {/* Arrow */}
+          <FiChevronRight
+            className="
+              text-slate-400
+              group-hover:text-rose-500
+              mt-1
+              flex-shrink-0
+              opacity-0 group-hover:opacity-100
+              transform group-hover:translate-x-1
+              transition-all duration-300
+            "
+          />
+        </div>
+      </a>
+    );
+  })}
+</div>
+
+<div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-100">
+  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 p-4 sm:p-6 text-white">
+    
+    {/* Overlay */}
+    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+
+    <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 flex-nowrap">
+      
+      {/* Left content */}
+      <div className="space-y-1 min-w-0">
+        <p className="text-slate-300 text-xs font-semibold uppercase tracking-wider">
+          Enrollment Status
+        </p>
+
+        <div className="flex items-baseline gap-2 flex-nowrap">
+          <span className="text-2xl sm:text-3xl font-black text-amber-300 drop-shadow">
+            1200+
+          </span>
+          <span className="text-xs sm:text-sm text-slate-300 italic">
+            Active students
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-400 mt-2">
+          Need immediate assistance?
+        </p>
+      </div>
+
+      {/* Button */}
+      <a
+        href="/pages/contact"
+        className="
+          inline-flex
+          items-center
+          gap-2
+          px-4 py-2
+          text-xs sm:text-sm
+          rounded-lg
+          border border-white/20
+          bg-white/10 hover:bg-white/20
+          backdrop-blur-sm
+          transition-colors
+          hover:border-white/30
+          flex-shrink-0
+        "
+      >
+        <FiMail className="text-sm" />
+        Contact Office
+      </a>
+    </div>
+
+    {/* Decorative element */}
+    <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-rose-500/10 to-purple-500/10 -rotate-45 translate-x-8 -translate-y-8 rounded-full" />
+  </div>
+</div>
+
                 </div>
               </div>
             </div>
@@ -191,7 +299,7 @@ const Modern404 = () => {
               <span className="mx-2 text-slate-300">•</span>
               Excellence in Education
               <span className="mx-2 text-slate-300">•</span>
-              <a href="/sitemap" className="text-rose-600 hover:text-rose-800 transition-colors font-medium">
+              <a href="/" className="text-rose-600 hover:text-rose-800 transition-colors font-medium">
                 Site Map
               </a>
             </p>

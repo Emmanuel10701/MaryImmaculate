@@ -18,7 +18,7 @@ const heroSlides = [
     title: "Academic Excellence",
     subtitle: "Redefined Through Innovation",
     gradient: "from-blue-500 via-cyan-400 to-purple-600",
-    description: "At Mary Immaculate Girls School, we're pioneering a new era of education. With a 94% KCSE success rate and state-of-the-art STEM facilities, we're not just teaching—we're inspiring the next generation of leaders and innovators.",
+    description: "At Mary  Immaculate School, we're pioneering a new era of education. With a 94% KCSE success rate and state-of-the-art STEM facilities, we're not just teaching—we're inspiring the next generation of leaders and innovators.",
     background: "bg-gradient-to-br from-blue-900/90 via-indigo-900/80 to-purple-900/70",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1000",
     stats: { 
@@ -316,8 +316,8 @@ const ModernHero = () => {
           {/* Text */}
           <span className="text-white text-xs sm:text-sm md:text-lg lg:text-xl 
             font-semibold italic tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-            Welcome to <span className="font-bold hidden sm:inline">Mary Immaculate Girls</span>
-            <span className="font-bold inline sm:hidden">MIGS</span>
+            Welcome to <span className="font-bold hidden sm:inline">Marry ImmaculateHigh Schhool</span>
+            <span className="font-bold inline sm:hidden">Katz</span>
           </span>
 
           {/* Live Indicator */}
@@ -332,28 +332,63 @@ const ModernHero = () => {
       <div className="relative z-20 h-full flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-12 text-center">
         <div className={`w-full max-w-4xl transition-all duration-500 transform ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'} px-2`}>
           
-          {/* Tagline - Responsive */}
-          <div className="flex items-center justify-center space-x-1 sm:space-x-2 mb-3 sm:mb-4">
-            <div className="h-[1px] w-4 sm:w-6 md:w-8 bg-white/40" />
-            <span className={`uppercase tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] text-[10px] xs:text-xs sm:text-sm font-bold ${getHighlightColorClass(slide.highlightColor)}`}>
-              {isMobile ? slide.subtitle.substring(0, 20) + '...' : slide.subtitle}
-            </span>
-            <div className="h-[1px] w-4 sm:w-6 md:w-8 bg-white/40" />
-          </div>
+{/* Tagline - Improved Mobile Size */}
+<div className="flex items-center justify-center space-x-2 sm:space-x-2 mb-4 sm:mb-4">
+  <div className="h-[1px] w-5 sm:w-6 md:w-8 bg-white/40" />
 
-          {/* Dynamic Heading - Responsive */}
-          <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-3 sm:mb-4 md:mb-6 drop-shadow-lg px-2">
-            {slide.title.split(' ').map((word, i) => (
-              <span key={i} className={`${i === slide.title.split(' ').length - 1 ? getHighlightColorClass(slide.highlightColor) : ""} ${isMobile && word.length > 8 ? 'block' : ''}`}>
-                {word}{' '}
-              </span>
-            ))}
-          </h1>
+  <span
+    className={`
+      uppercase
+      tracking-[0.12em] xs:tracking-[0.14em] sm:tracking-[0.18em]
+      text-xs xs:text-sm sm:text-base
+      font-bold
+      ${getHighlightColorClass(slide.highlightColor)}
+    `}
+  >
+    {isMobile ? slide.subtitle.substring(0, 22) + '...' : slide.subtitle}
+  </span>
 
-          {/* Description - Responsive */}
-          <p className="text-sm xs:text-base sm:text-lg text-gray-300 mb-4 sm:mb-6 md:mb-8 mx-auto max-w-xs xs:max-w-sm sm:max-w-lg md:max-w-2xl font-normal leading-relaxed line-clamp-3 sm:line-clamp-none">
-            {isMobile ? slide.description.substring(0, 120) + '...' : slide.description}
-          </p>
+  <div className="h-[1px] w-5 sm:w-6 md:w-8 bg-white/40" />
+</div>
+
+
+{/* Dynamic Heading - Improved Mobile Size */}
+<h1 className="
+  text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl
+  font-extrabold
+  text-white
+  leading-tight
+  mb-4 sm:mb-5 md:mb-6
+  drop-shadow-lg
+  px-2
+">
+  {slide.title.split(' ').map((word, i) => (
+    <span
+      key={i}
+      className={`
+        ${i === slide.title.split(' ').length - 1 ? getHighlightColorClass(slide.highlightColor) : ""}
+        ${isMobile && word.length > 8 ? 'block' : ''}
+      `}
+    >
+      {word}{' '}
+    </span>
+  ))}
+</h1>
+
+{/* Description - Improved Readability */}
+<p className="
+  text-base xs:text-lg sm:text-xl
+  text-gray-300
+  mb-5 sm:mb-6 md:mb-8
+  mx-auto
+  max-w-sm xs:max-w-md sm:max-w-xl md:max-w-2xl
+  font-normal
+  leading-relaxed sm:leading-loose
+  line-clamp-3 sm:line-clamp-none
+">
+  {isMobile ? slide.description.substring(0, 140) + '...' : slide.description}
+</p>
+
 
           {/* Stats - Responsive Grid */}
           <div className="grid grid-cols-3 gap-1 xs:gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6 md:mb-8 max-w-xs xs:max-w-sm sm:max-w-md md:max-w-2xl mx-auto">
@@ -392,31 +427,53 @@ const ModernHero = () => {
             </div>
           </div>
 
-          {/* Action Buttons - Mobile Responsive */}
-          <div className="flex flex-wrap items-center justify-center gap-2 xs:gap-3 sm:gap-4 px-2">
-            <button 
-              onClick={handleSlideButtonClick} 
-              className="px-4 xs:px-6 sm:px-8 py-2 xs:py-2.5 sm:py-3.5 bg-white text-black rounded-full 
-                font-bold text-xs xs:text-sm hover:bg-gray-200 transition-all flex items-center 
-                group shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed
-                whitespace-nowrap flex-shrink-0 w-full xs:w-auto"
-              disabled={navigationBlocked}
-            >
-              {slide.cta}
-              <ArrowRight className="ml-1 xs:ml-1.5 w-3 h-3 xs:w-4 xs:h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
+   {/* Action Buttons - Mobile Optimized */}
+<div className="
+  flex  items-center justify-center gap-3
+  sm:flex-row sm:gap-4
+  px-2
+">
+  <button
+    onClick={handleSlideButtonClick}
+    disabled={navigationBlocked}
+    className="
+      px-6 sm:px-8
+      py-3
+      bg-white text-black
+      rounded-full font-semibold
+      text-sm
+      hover:bg-gray-200
+      transition-all
+      flex items-center justify-center gap-2
+      shadow-lg hover:shadow-xl
+      disabled:opacity-50 disabled:cursor-not-allowed
+    "
+  >
+    {slide.cta}
+    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+  </button>
 
-            <button 
-              onClick={openVideoModal}
-              className="px-4 xs:px-6 sm:px-8 py-2 xs:py-2.5 sm:py-3.5 bg-transparent border border-white/30 
-                text-white rounded-full font-bold text-xs xs:text-sm hover:bg-white/10 transition-colors 
-                backdrop-blur-sm flex items-center gap-1 xs:gap-2 hover:border-white/50 duration-300 group
-                whitespace-nowrap flex-shrink-0 w-full xs:w-auto mt-2 xs:mt-0"
-            >
-              <Play className="w-3 h-3 xs:w-4 xs:h-4 group-hover:scale-110 transition-transform" />
-              {isMobile ? 'Tour' : 'View Tour'}
-            </button>
-          </div>
+  <button
+    onClick={openVideoModal}
+    className="
+      px-6 sm:px-8
+      py-3
+      bg-transparent
+      border border-white/40
+      text-white
+      rounded-full font-semibold
+      text-sm
+      hover:bg-white/10 hover:border-white/70
+      backdrop-blur-sm
+      transition-all duration-300
+      flex items-center justify-center gap-2
+    "
+  >
+    <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
+    {isMobile ? 'Tour' : 'View Tour'}
+  </button>
+</div>
+
         </div>
       </div>
 
