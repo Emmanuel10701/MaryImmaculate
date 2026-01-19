@@ -499,7 +499,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
 
             {/* Buttons - Always in a row */}
             <div className="flex flex-row gap-4 justify-center items-center flex-nowrap">
-              <Link href="/pages/TermsandPolicies" className="w-auto">
+              <Link href="/pages/TermsandPrivacy" className="w-auto">
                 <button className="w-full sm:w-auto px-10 py-3.5 bg-white text-slate-950 font-black text-[10px] md:text-xs uppercase tracking-[0.15em] rounded-xl shadow-lg active:scale-95 flex items-center justify-center gap-2">
                   School Policies <ArrowRight size={16} />
                 </button>
