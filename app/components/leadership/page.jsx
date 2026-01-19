@@ -21,6 +21,7 @@ import {
 import { IoPeopleOutline, IoRibbonOutline } from 'react-icons/io5';
 import { GiGraduateCap } from 'react-icons/gi';
 import CircularProgress from '@mui/material/CircularProgress';
+import Image from "next/image"
 
 
 const ModernStaffLeadership = () => {
@@ -186,7 +187,7 @@ const ModernStaffLeadership = () => {
     if (!role) return 'bg-gradient-to-r from-indigo-500 to-purple-500';
     
     const roleLower = role.toLowerCase();
-    if (roleLower.includes('principal')) return 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900';
+    if (roleLower.includes('principal')) return 'bg-gradient-to-br from-slate-800 via-indigo-900 to-purple-900 bg-fixed text-white';
     if (roleLower.includes('deputy')) return 'bg-gradient-to-r from-purple-500 to-pink-500';
     if (roleLower.includes('teacher') || roleLower.includes('teaching')) return 'bg-gradient-to-r from-green-500 to-emerald-500';
     if (roleLower.includes('bom')) return 'bg-gradient-to-r from-amber-500 to-orange-500';
@@ -201,63 +202,96 @@ const ModernStaffLeadership = () => {
     if (staffMember.role) return staffMember.role;
     return 'Staff Member';
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-[600px] w-full max-w-6xl mx-auto px-4 py-12">
-        {/* Optional Header Skeleton */}
-        <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-12 mx-auto" />
-        
-        {/* Grid of Team Skeletons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex flex-col items-center p-6 space-y-4 rounded-2xl border border-gray-100 bg-white shadow-sm">
-              {/* Avatar Circle */}
-              <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse" />
-              
-              {/* Text Blocks */}
-              <div className="h-5 w-3/4 bg-gray-200 rounded-md animate-pulse" />
-              <div className="h-4 w-1/2 bg-gray-100 rounded-md animate-pulse" />
-              
-              {/* Social Icons Placeholder */}
-              <div className="flex gap-2 pt-2">
-                <div className="w-6 h-6 rounded-md bg-gray-100 animate-pulse" />
-                <div className="w-6 h-6 rounded-md bg-gray-100 animate-pulse" />
-              </div>
-            </div>
-          ))}
-        </div>
+if (loading) {
+  return (
+    <div className="min-h-screen w-full max-w-7xl mx-auto px-6 py-20 bg-[#fafafa]">
+      {/* Centered Modern Header Skeleton */}
+      <div className="flex flex-col items-center mb-16 space-y-4">
+        <div className="h-3 w-24 bg-indigo-100 rounded-full animate-pulse" />
+        <div className="h-10 w-64 bg-gray-200 rounded-2xl animate-pulse" />
       </div>
-    );
-  }
-
-  if (error && !featuredStaff) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center p-4">
-        <div className="text-center max-w-md">
-          <div className="text-red-500 text-4xl mb-4">⚠️</div>
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Unable to load staff data</h3>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-shadow"
+      
+      {/* Modern Fluid Flex Layout: Better for zooming than standard grids */}
+      <div className="flex flex-wrap justify-center gap-8">
+        {[...Array(4)].map((_, i) => (
+          <div 
+            key={i} 
+            className="flex-1 min-w-[280px] max-w-[340px] p-8 rounded-[2.5rem] bg-white border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)]"
           >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+            <div className="relative mb-8">
+              {/* Avatar with Outer Ring */}
+              <div className="w-32 h-32 mx-auto rounded-[2rem] bg-gray-100 animate-pulse rotate-3" />
+              <div className="absolute inset-0 w-32 h-32 mx-auto rounded-[2rem] border-2 border-gray-50 -rotate-6 -z-10" />
+            </div>
+            
+            <div className="space-y-3 flex flex-col items-center">
+              <div className="h-6 w-3/4 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-4 w-1/2 bg-gray-100 rounded-lg animate-pulse" />
+            </div>
 
-  if (!featuredStaff) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-700">No staff data available</p>
-        </div>
+            <div className="mt-8 flex justify-center gap-4">
+              <div className="w-10 h-10 rounded-2xl bg-gray-50 animate-pulse" />
+              <div className="w-10 h-10 rounded-2xl bg-gray-50 animate-pulse" />
+            </div>
+          </div>
+        ))}
       </div>
-    );
-  }
+    </div>
+  );
+}
+if (!featuredStaff) {
+  return (
+    <div className="min-h-[80vh] w-full flex items-center justify-center p-4">
+      {/* Container - Near full width on mobile, 80% on desktop */}
+      <div className="w-[95%] md:max-w-[80%] min-h-[400px] md:min-h-[500px] relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-white border border-gray-100 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] flex flex-col items-center justify-center p-6 md:p-20 text-center">
+        
+        {/* Subtle Background Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-yellow-50/40 blur-[100px] -z-10" />
+
+        {/* Branding Badge */}
+        <div className="mb-6 md:mb-8">
+          <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-yellow-600 mb-2">
+            Mary Immaculate Girls
+          </p>
+          <div className="h-1 w-10 md:w-12 bg-yellow-400 mx-auto rounded-full" />
+        </div>
+
+        {/* Main Icon - Scaled for mobile */}
+        <div className="mb-6 md:mb-10 text-gray-200">
+          <svg className="w-16 h-16 md:w-20 md:h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+
+        {/* Primary Content - text-2xl for mobile, text-5xl for desktop */}
+        <h2 className="text-2xl md:text-5xl font-black text-gray-900 mb-4 md:mb-6 tracking-tight px-2">
+          No Staff Available
+        </h2>
+        
+        <p className="text-gray-500 text-base md:text-xl leading-relaxed max-w-xl mb-8 md:mb-12 px-4">
+          "Play Your Part to Better Your Best." We are currently updating our directory for the new term. 
+          Please refresh to see the latest updates.
+        </p>
+
+        {/* Refresh Button - Adjusted padding for mobile */}
+        <button 
+          onClick={() => window.location.reload()}
+          className="group flex items-center gap-3 px-8 py-4 md:px-12 md:py-5 bg-gray-900 text-white text-sm md:text-base font-bold rounded-xl md:rounded-2xl hover:bg-black transition-all hover:scale-[1.02] active:scale-95 shadow-2xl shadow-gray-200"
+        >
+          <svg 
+            className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-180 transition-transform duration-700" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh Gallery
+        </button>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white font-sans p-4 md:p-8">
@@ -498,17 +532,17 @@ const ModernStaffLeadership = () => {
                       <img
                         src={principal.image.startsWith('/') ? principal.image : `/${principal.image}`}
                         alt={principal.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-indigo-900 to-purple-900 bg-fixed text-white flex items-center justify-center">
                         <FiUser className="text-white text-lg md:text-2xl" />
                       </div>
                     )}
                   </div>
                   <div className="flex-grow min-w-0">
                     <div className="flex items-center justify-between mb-1 md:mb-2">
-                      <span className="px-2 md:px-3 py-1 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full">
+                      <span className="px-2 md:px-3 py-1 bg-gradient-to-br from-slate-800 via-indigo-900 to-purple-900 bg-fixed  text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full">
                         Principal
                       </span>
                       {viewMode === 'principal' && (
@@ -546,7 +580,7 @@ const ModernStaffLeadership = () => {
                       <img
                         src={deputyPrincipal.image.startsWith('/') ? deputyPrincipal.image : `/${deputyPrincipal.image}`}
                         alt={deputyPrincipal.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
@@ -593,7 +627,7 @@ const ModernStaffLeadership = () => {
                       <img
                         src={randomStaff.image.startsWith('/') ? randomStaff.image : `/${randomStaff.image}`}
                         alt={randomStaff.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
@@ -640,7 +674,7 @@ const ModernStaffLeadership = () => {
                       <img
                         src={randomBOM.image.startsWith('/') ? randomBOM.image : `/${randomBOM.image}`}
                         alt={randomBOM.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
