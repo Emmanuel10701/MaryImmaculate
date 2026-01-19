@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   ChevronLeft, ChevronRight, ArrowRight, ShieldCheck, 
   Globe, Rocket, Trophy, BookOpen, Clock, Users, 
-  Calendar, Play, X
+  Calendar, Play, X, Menu, X as XIcon
 } from 'lucide-react';
 import { 
   GiGraduateCap, 
@@ -89,8 +89,21 @@ const ModernHero = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [navigationBlocked, setNavigationBlocked] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   const router = useRouter();
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // DEBUG: Add this to track automatic navigation
   useEffect(() => {
@@ -120,9 +133,6 @@ const ModernHero = () => {
 
     return () => clearTimeout(timer);
   }, []);
-
-  // REMOVED: router.events code - causing error
-  // Next.js App Router doesn't have router.events
 
   const handleSlideChange = useCallback((index) => {
     setIsTransitioning(true);
@@ -293,191 +303,260 @@ const ModernHero = () => {
         </div>
       ))}
 
-      {/* Welcome Banner */}
-      <div className="absolute top-6 left-0 right-0 z-30 flex justify-center px-4">
-        <div className="relative inline-flex items-center gap-4 px-8 py-4 
+      {/* Welcome Banner - Mobile Responsive */}
+      <div className="absolute top-4 sm:top-6 left-0 right-0 z-30 flex justify-center px-2 sm:px-4">
+        <div className="relative inline-flex items-center gap-2 sm:gap-4 px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 
           bg-gradient-to-r from-indigo-500/30 via-purple-500/30 to-pink-500/30
-          backdrop-blur-xl rounded-full border border-white/30 shadow-2xl">
+          backdrop-blur-xl rounded-full border border-white/30 shadow-lg sm:shadow-2xl
+          max-w-[90%] sm:max-w-none overflow-hidden">
 
           {/* Glow */}
           <div className="absolute inset-0 rounded-full bg-white/10 blur-xl -z-10" />
 
           {/* Text */}
-          <span className="text-white text-base sm:text-lg md:text-xl 
-            font-semibold italic tracking-wide">
-            Welcome to <span className="font-bold">Mary Immaculate Girls</span>
+          <span className="text-white text-xs sm:text-sm md:text-lg lg:text-xl 
+            font-semibold italic tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
+            Welcome to <span className="font-bold hidden sm:inline">Mary Immaculate Girls</span>
+            <span className="font-bold inline sm:hidden">MIGS</span>
           </span>
 
           {/* Live Indicator */}
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse" />
-            <span className="w-2.5 h-2.5 bg-emerald-400/50 rounded-full animate-ping" />
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-emerald-400 rounded-full animate-pulse" />
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-emerald-400/50 rounded-full animate-ping" />
           </div>
         </div>
       </div>
 
-      {/* Main Content Area - Centered alignment */}
-      <div className="relative z-20 h-full flex flex-col items-center justify-center px-6 md:px-12 text-center">
-        <div className={`max-w-4xl transition-all duration-500 transform ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+      {/* Main Content Area - Responsive adjustments */}
+      <div className="relative z-20 h-full flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-12 text-center">
+        <div className={`w-full max-w-4xl transition-all duration-500 transform ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'} px-2`}>
           
-          {/* Tagline - Centered */}
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="h-[1px] w-8 bg-white/40" />
-            <span className={`uppercase tracking-[0.2em] text-xs font-bold ${getHighlightColorClass(slide.highlightColor)}`}>
-              {slide.subtitle}
+          {/* Tagline - Responsive */}
+          <div className="flex items-center justify-center space-x-1 sm:space-x-2 mb-3 sm:mb-4">
+            <div className="h-[1px] w-4 sm:w-6 md:w-8 bg-white/40" />
+            <span className={`uppercase tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] text-[10px] xs:text-xs sm:text-sm font-bold ${getHighlightColorClass(slide.highlightColor)}`}>
+              {isMobile ? slide.subtitle.substring(0, 20) + '...' : slide.subtitle}
             </span>
-            <div className="h-[1px] w-8 bg-white/40" />
+            <div className="h-[1px] w-4 sm:w-6 md:w-8 bg-white/40" />
           </div>
 
-          {/* Dynamic Heading - Centered text */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4 drop-shadow-lg">
+          {/* Dynamic Heading - Responsive */}
+          <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-3 sm:mb-4 md:mb-6 drop-shadow-lg px-2">
             {slide.title.split(' ').map((word, i) => (
-              <span key={i} className={i === slide.title.split(' ').length - 1 ? getHighlightColorClass(slide.highlightColor) : ""}>
+              <span key={i} className={`${i === slide.title.split(' ').length - 1 ? getHighlightColorClass(slide.highlightColor) : ""} ${isMobile && word.length > 8 ? 'block' : ''}`}>
                 {word}{' '}
               </span>
             ))}
           </h1>
 
-          {/* Description - Centered and max-width restricted */}
-          <p className="text-base md:text-lg text-gray-300 mb-8 mx-auto max-w-2xl font-normal leading-relaxed">
-            {slide.description}
+          {/* Description - Responsive */}
+          <p className="text-sm xs:text-base sm:text-lg text-gray-300 mb-4 sm:mb-6 md:mb-8 mx-auto max-w-xs xs:max-w-sm sm:max-w-lg md:max-w-2xl font-normal leading-relaxed line-clamp-3 sm:line-clamp-none">
+            {isMobile ? slide.description.substring(0, 120) + '...' : slide.description}
           </p>
 
-          {/* Stats - Centered Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
+          {/* Stats - Responsive Grid */}
+          <div className="grid grid-cols-3 gap-1 xs:gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6 md:mb-8 max-w-xs xs:max-w-sm sm:max-w-md md:max-w-2xl mx-auto">
             {Object.entries(slide.stats).map(([key, value], i) => (
-              <div key={i} className="flex flex-col items-center justify-center bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-all duration-300">
-                <div className={`text-2xl font-bold ${getHighlightColorClass(slide.highlightColor)} mb-1`}>
+              <div key={i} className="flex flex-col items-center justify-center bg-white/5 backdrop-blur-sm border border-white/10 p-1 xs:p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl hover:bg-white/10 transition-all duration-300">
+                <div className={`text-base xs:text-lg sm:text-xl md:text-2xl font-bold ${getHighlightColorClass(slide.highlightColor)} mb-0.5 sm:mb-1`}>
                   {value.split(' ')[0]}
                 </div>
-                <span className="text-white/80 text-xs uppercase tracking-wider">
-                  {value.split(' ').slice(1).join(' ')}
+                <span className="text-white/80 text-[8px] xs:text-xs uppercase tracking-wider text-center leading-tight">
+                  {isMobile ? value.split(' ').slice(1, 2).join(' ') + '...' : value.split(' ').slice(1).join(' ')}
                 </span>
               </div>
             ))}
           </div>
 
-          {/* Features - Centered Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10 max-w-3xl mx-auto">
+          {/* Features - Responsive Grid */}
+          <div className="grid grid-cols-2 gap-1 xs:gap-2 sm:gap-3 mb-4 sm:mb-6 md:mb-10 max-w-xs xs:max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto">
             {slide.features.map((feature, i) => (
-              <div key={i} className="flex items-center justify-center space-x-2 bg-white/5 backdrop-blur-sm border border-white/10 p-3 rounded-xl hover:bg-white/10 transition-all duration-300 group">
-                <IconComponent className={`w-4 h-4 ${getHighlightColorClass(slide.highlightColor)}`} />
-                <span className="text-white font-medium text-xs group-hover:text-white/90">{feature}</span>
+              <div key={i} className="flex items-center justify-center space-x-1 xs:space-x-2 
+                bg-white/5 backdrop-blur-sm border border-white/10 p-1 xs:p-2 sm:p-3 rounded-lg sm:rounded-xl 
+                hover:bg-white/10 transition-all duration-300 group overflow-hidden">
+                <IconComponent className={`w-3 h-3 xs:w-4 xs:h-4 ${getHighlightColorClass(slide.highlightColor)} flex-shrink-0`} />
+                <span className="text-white font-medium text-[10px] xs:text-xs sm:text-sm group-hover:text-white/90 whitespace-nowrap overflow-hidden text-ellipsis">
+                  {isMobile && feature.length > 12 ? feature.substring(0, 10) + '...' : feature}
+                </span>
               </div>
             ))}
           </div>
 
-          {/* Testimonial */}
-          <div className="mb-8 max-w-xl mx-auto">
-            <div className={`border-l-4 ${getBorderColorClass(slide.highlightColor)} pl-4 py-2 bg-white/5 backdrop-blur-sm rounded-r-lg`}>
-              <p className="text-white/70 text-sm italic">{slide.testimonial}</p>
+          {/* Testimonial - Mobile Responsive */}
+          <div className="mb-4 sm:mb-6 md:mb-8 max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl mx-auto">
+            <div className={`border-l-2 sm:border-l-4 ${getBorderColorClass(slide.highlightColor)} pl-2 sm:pl-3 md:pl-4 py-1 sm:py-2 bg-white/5 backdrop-blur-sm rounded-r-lg`}>
+              <p className="text-white/70 text-[10px] xs:text-xs sm:text-sm italic">
+                {isMobile ? slide.testimonial.substring(0, 80) + '...' : slide.testimonial}
+              </p>
             </div>
           </div>
 
-          {/* Action Buttons - Centered Flex */}
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          {/* Action Buttons - Mobile Responsive */}
+          <div className="flex flex-wrap items-center justify-center gap-2 xs:gap-3 sm:gap-4 px-2">
             <button 
               onClick={handleSlideButtonClick} 
-              className="px-8 py-3.5 bg-white text-black rounded-full font-bold text-sm hover:bg-gray-200 transition-all flex items-center group shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 xs:px-6 sm:px-8 py-2 xs:py-2.5 sm:py-3.5 bg-white text-black rounded-full 
+                font-bold text-xs xs:text-sm hover:bg-gray-200 transition-all flex items-center 
+                group shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed
+                whitespace-nowrap flex-shrink-0 w-full xs:w-auto"
               disabled={navigationBlocked}
             >
               {slide.cta}
-              <ArrowRight className="ml-1.5 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-1 xs:ml-1.5 w-3 h-3 xs:w-4 xs:h-4 group-hover:translate-x-1 transition-transform" />
             </button>
 
             <button 
               onClick={openVideoModal}
-              className="px-8 py-3.5 bg-transparent border border-white/30 text-white rounded-full font-bold text-sm hover:bg-white/10 transition-colors backdrop-blur-sm flex items-center gap-2 hover:border-white/50 duration-300 group"
+              className="px-4 xs:px-6 sm:px-8 py-2 xs:py-2.5 sm:py-3.5 bg-transparent border border-white/30 
+                text-white rounded-full font-bold text-xs xs:text-sm hover:bg-white/10 transition-colors 
+                backdrop-blur-sm flex items-center gap-1 xs:gap-2 hover:border-white/50 duration-300 group
+                whitespace-nowrap flex-shrink-0 w-full xs:w-auto mt-2 xs:mt-0"
             >
-              <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              View Tour
+              <Play className="w-3 h-3 xs:w-4 xs:h-4 group-hover:scale-110 transition-transform" />
+              {isMobile ? 'Tour' : 'View Tour'}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Modern Controls - Bottom Right */}
-      <div className="absolute bottom-10 right-8 z-30 flex flex-col space-y-3">
+      {/* Modern Controls - Mobile Responsive Position */}
+      <div className={`absolute z-30 flex space-x-3 sm:space-y-3 sm:flex-col ${isMobile ? 'bottom-4 right-4 flex-row' : 'bottom-10 right-8 flex-col'}`}>
         <button 
           onClick={prevSlide}
-          className="p-3 rounded-full border border-white/10 text-white hover:bg-white hover:text-black transition-all group backdrop-blur-sm hover:scale-110 duration-300"
+          className={`rounded-full border border-white/10 text-white hover:bg-white hover:text-black 
+            transition-all group backdrop-blur-sm hover:scale-110 duration-300
+            ${isMobile ? 'p-2' : 'p-3'}`}
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
         </button>
         <button 
           onClick={nextSlide}
-          className="p-3 rounded-full border border-white/10 text-white hover:bg-white hover:text-black transition-all group backdrop-blur-sm hover:scale-110 duration-300"
+          className={`rounded-full border border-white/10 text-white hover:bg-white hover:text-black 
+            transition-all group backdrop-blur-sm hover:scale-110 duration-300
+            ${isMobile ? 'p-2' : 'p-3'}`}
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
         </button>
       </div>
 
-      {/* Progress Indicators - Vertical Right */}
-      <div className="absolute top-1/2 right-8 -translate-y-1/2 z-30 hidden lg:flex flex-col space-y-6">
-        {heroSlides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => handleSlideChange(index)}
-            className="group flex items-center justify-end"
-          >
-            <span className={`mr-3 text-[10px] font-mono transition-all ${currentSlide === index ? 'text-white' : 'text-white/30 opacity-0 group-hover:opacity-100'}`}>
-              0{index + 1}
-            </span>
-            <div className={`w-[2px] transition-all duration-300 rounded-full ${currentSlide === index ? `h-8 ${getProgressColorClass(heroSlides[index].highlightColor)}` : 'h-3 bg-white/20 group-hover:bg-white/40'}`} />
-          </button>
-        ))}
+      {/* Progress Indicators - Mobile Responsive */}
+      {!isMobile && (
+        <div className="absolute top-1/2 right-4 sm:right-6 md:right-8 -translate-y-1/2 z-30 hidden sm:flex flex-col space-y-4 sm:space-y-6">
+          {heroSlides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => handleSlideChange(index)}
+              className="group flex items-center justify-end"
+            >
+              <span className={`mr-2 sm:mr-3 text-[8px] sm:text-[10px] font-mono transition-all ${currentSlide === index ? 'text-white' : 'text-white/30 opacity-0 group-hover:opacity-100'}`}>
+                0{index + 1}
+              </span>
+              <div className={`w-[1px] sm:w-[2px] transition-all duration-300 rounded-full ${currentSlide === index ? `h-6 sm:h-8 ${getProgressColorClass(heroSlides[index].highlightColor)}` : 'h-2 sm:h-3 bg-white/20 group-hover:bg-white/40'}`} />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Mobile Progress Dots */}
+      {isMobile && (
+        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2">
+          {heroSlides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => handleSlideChange(index)}
+              className="w-2 h-2 rounded-full transition-all duration-300"
+              style={{
+                backgroundColor: currentSlide === index 
+                  ? getProgressColorValue(heroSlides[index].highlightColor)
+                  : 'rgba(255, 255, 255, 0.3)'
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Bottom Info Strip - Mobile Responsive */}
+      <div className={`absolute bottom-0 left-0 w-full z-10 py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 lg:px-12 
+        border-t border-white/5 bg-black/80 backdrop-blur-lg 
+        ${isMobile ? 'flex flex-col items-center justify-center gap-1' : 'hidden md:flex items-center justify-between'} 
+        text-white/70 text-[8px] xs:text-[10px] tracking-[0.1em] sm:tracking-[0.15em] uppercase font-semibold`}>
+        
+        {isMobile ? (
+          <>
+            <div className="flex items-center space-x-4">
+              <span className="flex items-center text-nowrap">
+                <BookOpen className="w-2 h-2 xs:w-3 xs:h-3 mr-1" />
+                Est. 1962
+              </span>
+              <span className="flex items-center text-nowrap">
+                <Trophy className="w-2 h-2 xs:w-3 xs:h-3 mr-1" />
+                94% Success
+              </span>
+            </div>
+            <button 
+              onClick={openVideoModal}
+              className="flex items-center text-white/80 hover:text-white transition-colors duration-300 group text-nowrap"
+            >
+              <Play className="w-2 h-2 xs:w-3 xs:h-3 mr-1 group-hover:scale-110 transition-transform" />
+              Virtual Tour
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="flex space-x-4 md:space-x-6 lg:space-x-8">
+              <span className="flex items-center">
+                <BookOpen className="w-3 h-3 mr-2" />
+                Est. 1962
+              </span>
+              <span className="flex items-center">
+                <Trophy className="w-3 h-3 mr-2" />
+                Mary Immaculate Girls
+              </span>
+            </div>
+            <div className="flex space-x-4 md:space-x-6 lg:space-x-8">
+              <span className="flex items-center">
+                <Clock className="w-3 h-3 mr-2" />
+                94% KCSE Success Rate
+              </span>
+              <button 
+                onClick={openVideoModal}
+                className="flex items-center text-white/80 hover:text-white transition-colors duration-300 group"
+              >
+                <Play className="w-3 h-3 mr-2 group-hover:scale-110 transition-transform" />
+                Virtual Tour
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* Bottom Info Strip - Much Darker */}
-      <div className="absolute bottom-0 left-0 w-full z-10 py-4 px-6 md:px-12 border-t border-white/5 bg-black/80 backdrop-blur-lg hidden md:flex items-center justify-between text-white/70 text-[10px] tracking-[0.15em] uppercase font-semibold">
-        <div className="flex space-x-8">
-          <span className="flex items-center">
-            <BookOpen className="w-3 h-3 mr-2" />
-            Est. 1962
-          </span>
-          <span className="flex items-center">
-            <Trophy className="w-3 h-3 mr-2" />
-            Mary Immaculate Girls
-          </span>
-        </div>
-        <div className="flex space-x-8">
-          <span className="flex items-center">
-            <Clock className="w-3 h-3 mr-2" />
-            94% KCSE Success Rate
-          </span>
-          <button 
-            onClick={openVideoModal}
-            className="flex items-center text-white/80 hover:text-white transition-colors duration-300 group"
-          >
-            <Play className="w-3 h-3 mr-2 group-hover:scale-110 transition-transform" />
-            Virtual Tour
-          </button>
-        </div>
-      </div>
-
-      {/* Video Tour Modal */}
+      {/* Video Tour Modal - Mobile Responsive */}
       {showVideoModal && (
-        <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-6xl rounded-3xl overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="relative w-full max-w-full sm:max-w-4xl md:max-w-5xl lg:max-w-6xl rounded-xl sm:rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
             {/* Modal Header */}
-            <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-r from-black/80 to-transparent p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 flex items-center justify-center">
-                  <Play className="text-white" />
+            <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-r from-black/80 to-transparent p-2 sm:p-3 md:p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-lg sm:rounded-lg 
+                  bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 flex items-center justify-center flex-shrink-0">
+                  <Play className="text-white w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
-                <div>
-                  <h4 className="text-white font-bold">Virtual School Tour</h4>
-                  <p className="text-white/60 text-sm">
+                <div className="overflow-hidden">
+                  <h4 className="text-white font-bold text-xs sm:text-sm md:text-base truncate">Virtual School Tour</h4>
+                  <p className="text-white/60 text-[10px] sm:text-xs md:text-sm truncate">
                     {schoolData?.name || 'Mary Immaculate Girls School'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={closeVideoModal}
-                className="w-10 h-10 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors flex items-center justify-center hover:scale-110 duration-300"
+                className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-black/50 text-white 
+                  hover:bg-black/70 transition-colors flex items-center justify-center 
+                  hover:scale-110 duration-300 flex-shrink-0"
                 aria-label="Close video"
               >
-                <X className="w-6 h-6" />
+                <X className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6" />
               </button>
             </div>
             
@@ -486,17 +565,18 @@ const ModernHero = () => {
               {loading ? (
                 // Loading state
                 <div className="w-full h-full flex flex-col items-center justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-                  <p className="text-white">Loading video tour...</p>
+                  <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-white mb-2 sm:mb-4"></div>
+                  <p className="text-white text-sm sm:text-base">Loading video tour...</p>
                 </div>
               ) : error ? (
                 // Error state
-                <div className="w-full h-full flex flex-col items-center justify-center p-8">
-                  <div className="text-5xl text-red-500 mb-4">!</div>
-                  <p className="text-white text-center mb-4">{error}</p>
+                <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-8">
+                  <div className="text-3xl sm:text-4xl md:text-5xl text-red-500 mb-2 sm:mb-4">!</div>
+                  <p className="text-white text-center text-xs sm:text-sm md:text-base mb-2 sm:mb-4 px-2">{error}</p>
                   <button
                     onClick={retryVideoLoad}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white 
+                      rounded-lg transition-colors text-xs sm:text-sm"
                   >
                     Retry Loading
                   </button>
@@ -523,9 +603,9 @@ const ModernHero = () => {
                     onLoadedData={() => console.log('Video loaded successfully')}
                   >
                     {/* Fallback message */}
-                    <div className="w-full h-full flex flex-col items-center justify-center p-8">
-                      <div className="text-5xl text-gray-400 mb-4">!</div>
-                      <p className="text-white text-center">
+                    <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-8">
+                      <div className="text-3xl sm:text-4xl md:text-5xl text-gray-400 mb-2 sm:mb-4">!</div>
+                      <p className="text-white text-center text-sm sm:text-base">
                         Your browser does not support the video tag.
                       </p>
                     </div>
@@ -533,12 +613,12 @@ const ModernHero = () => {
                 </div>
               ) : (
                 // No video available or no schoolData yet
-                <div className="w-full h-full flex flex-col items-center justify-center p-8">
-                  <div className="text-5xl text-gray-400 mb-4">!</div>
-                  <p className="text-white text-center mb-4">
+                <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-8">
+                  <div className="text-3xl sm:text-4xl md:text-5xl text-gray-400 mb-2 sm:mb-4">!</div>
+                  <p className="text-white text-center text-xs sm:text-sm md:text-base mb-2 sm:mb-4">
                     {schoolData ? 'No video tour available' : 'Loading...'}
                   </p>
-                  <p className="text-white/60 text-sm text-center">
+                  <p className="text-white/60 text-xs sm:text-sm text-center px-2">
                     {schoolData 
                       ? 'Please check back later for our virtual tour' 
                       : 'Fetching video data...'
@@ -549,17 +629,20 @@ const ModernHero = () => {
             </div>
             
             {/* Modal Footer */}
-            <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-r from-transparent to-black/80 p-4">
-              <div className="flex items-center justify-between">
-                <div className="text-white/80 text-sm hidden sm:block">
-                  {schoolData?.description?.substring(0, 100) + '...' || 'Experience our school from anywhere in the world'}
+            <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-r from-transparent to-black/80 p-2 sm:p-3 md:p-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
+                <div className="text-white/80 text-xs sm:text-sm hidden sm:block truncate">
+                  {schoolData?.description?.substring(0, isMobile ? 50 : 100) + '...' || 'Experience our school from anywhere in the world'}
                 </div>
                 <button
                   onClick={handleContactClick}
-                  className="px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white font-medium rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 sm:px-4 md:px-6 lg:px-8 py-1.5 sm:py-2 md:py-3 
+                    text-xs sm:text-sm md:text-base bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 
+                    text-white font-medium rounded-lg hover:opacity-90 transition-all duration-300 
+                    disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   disabled={navigationBlocked}
                 >
-                  Get To Know Us More
+                  {isMobile ? 'Learn More' : 'Get To Know Us More'}
                 </button>
               </div>
             </div>
@@ -570,7 +653,8 @@ const ModernHero = () => {
       {/* Navigation Blocker Overlay (temporary) */}
       {navigationBlocked && (
         <div className="absolute inset-0 z-40 pointer-events-none">
-          <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-black/70 text-white text-xs px-4 py-2 rounded-full backdrop-blur-sm">
+          <div className="absolute bottom-20 sm:bottom-24 left-1/2 transform -translate-x-1/2 
+            bg-black/70 text-white text-[10px] xs:text-xs px-3 py-1.5 rounded-full backdrop-blur-sm">
             Navigation cooling period... {new Date().getSeconds() % 2 === 0 ? '▰▰▰▰▰' : '▰▰▱▱▱'}
           </div>
         </div>
@@ -604,6 +688,15 @@ const getProgressColorClass = (color) => {
     case 'green': return 'bg-emerald-500';
     case 'cyan': return 'bg-cyan-500';
     default: return 'bg-blue-500';
+  }
+};
+
+const getProgressColorValue = (color) => {
+  switch(color) {
+    case 'blue': return '#3b82f6';
+    case 'green': return '#10b981';
+    case 'cyan': return '#06b6d4';
+    default: return '#3b82f6';
   }
 };
 

@@ -111,6 +111,53 @@ export default function ModernHero() {
 
   const router = useRouter();
 
+  // JSON-LD structured data for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'School',
+    name: 'Mary Immaculate Girls Secondary School',
+    image: 'https://mary-immaculate.vercel.app/ll.png',
+    description: 'Premier Catholic girls secondary school in Mweiga, Nyeri County offering academic excellence and holistic development.',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Mweiga',
+      addressLocality: 'Nyeri',
+      addressRegion: 'Nyeri County',
+      postalCode: '10100',
+      addressCountry: 'KE'
+    },
+    url: 'https://mary-immaculate.vercel.app',
+    telephone: '+254700000000',
+    sameAs: [
+      'https://facebook.com/your-school',
+      'https://twitter.com/your-school',
+      'https://instagram.com/your-school'
+    ],
+    foundingDate: '2000',
+    founder: 'Catholic Diocese of Nyeri',
+    numberOfStudents: '400',
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Educational Programs',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Course',
+            name: 'Form 1-4 Secondary Education'
+          }
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Course',
+            name: 'STEM Programs'
+          }
+        }
+      ]
+    }
+  };
+
   // Block automatic navigation on initial load
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -524,6 +571,12 @@ export default function ModernHero() {
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
+      {/* Inject JSON-LD structured data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <Hero />
 
       {/* Modern Achievements & Stats Section */}
