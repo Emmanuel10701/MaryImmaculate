@@ -52,7 +52,7 @@ export default function ModernFooter() {
     { name: 'About Us', href: '/pages/AboutUs', icon: FiHome, color: 'text-amber-500' },
     { name: 'Academics', href: '/pages/admissions', icon: FiBook, color: 'text-orange-500' },
     { name: 'Admissions', href: '/pages/admissions', icon: FiUserCheck, color: 'text-red-500' },
-    { name: 'Assignments', href: '/pages/assignments', icon: FiBookOpen, color: 'text-yellow-500' },
+    { name: 'Careers', href: '/pages/careers', icon: FiBookOpen, color: 'text-yellow-500' },
     { name: 'Staff', href: '/pages/staff', icon: FiUser, color: 'text-amber-400' },
     { name: 'Contact', href: '/pages/contact', icon: FiPhone, color: 'text-orange-400' },
     { name: 'Gallery', href: '/pages/gallery', icon: FiImage, color: 'text-red-400' },
@@ -64,7 +64,7 @@ export default function ModernFooter() {
     { name: 'School Policies', href: '/pages/TermsandPrivacy', icon: FiLock, color: 'text-orange-400' },
     { name: 'Library Resources', href: '/pages/StudentPortal', icon: FiBookOpen, color: 'text-red-400' },
     { name: 'Apply Now', href: '/pages/apply-for-admissions', icon: FiGlobe, color: 'text-yellow-400' },
-    { name: 'Career Guidance', href: '/pages/Guidance-and-Councelling', icon: FiUserCheck, color: 'text-amber-300' },
+    { name: 'Student Guidance', href: '/pages/Guidance-and-Councelling', icon: FiUserCheck, color: 'text-amber-300' },
   ];
 
 
