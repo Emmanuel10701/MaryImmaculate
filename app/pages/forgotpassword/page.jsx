@@ -99,9 +99,9 @@ const ForgotPasswordPage = () => {
             Enter your email address below and we'll send you a link to reset your password.
           </p>
           <div className="flex justify-center flex-wrap gap-2 text-sm font-medium mb-8">
-            <span className="bg-white/20 text-white px-3 py-1 rounded-full">#Security</span>
-            <span className="bg-white/20 text-white px-3 py-1 rounded-full">#AccountRecovery</span>
-            <span className="bg-white/20 text-white px-3 py-1 rounded-full">#Authentication</span>
+            <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs sm:text-sm">#Security</span>
+            <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs sm:text-sm">#AccountRecovery</span>
+            <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs sm:text-sm">#Authentication</span>
           </div>
         </motion.div>
 
@@ -126,7 +126,7 @@ const ForgotPasswordPage = () => {
               disabled={loading}
               className={`flex-1 flex items-center justify-center gap-2 h-14 rounded-xl text-white font-semibold transition-all duration-300 transform ${
                 loading ? 'bg-indigo-400 cursor-not-allowed' :
-                'bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 hover:scale-105'
+                'bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 hover:scale-100'
               }`}
             >
               {loading ? (

@@ -244,8 +244,8 @@ const ResetPasswordContent = () => {
                 Enter your new password below to reset your account password.
               </p>
               <div className="flex justify-center flex-wrap gap-2 text-sm font-medium mb-8">
-                <span className="bg-white/20 text-white px-3 py-1 rounded-full">#Security</span>
-                <span className="bg-white/20 text-white px-3 py-1 rounded-full">#AccountRecovery</span>
+                <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs sm:text-sm">#Security</span>
+                <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs sm:text-sm">#AccountRecovery</span>
               </div>
             </motion.div>
 
