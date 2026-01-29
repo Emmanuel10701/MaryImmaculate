@@ -191,8 +191,8 @@ export default function ModernNavbar() {
       <nav 
         className={`fixed w-full z-50 transition-all duration-300 ${
           isScrolled 
-            ? 'bg-gradient-to-r from-blue-700/95 via-indigo-700/95 to-purple-800/95 backdrop-blur-lg shadow-xl border-b border-white/10' 
-            : 'bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 shadow-lg'
+            ? 'bg-gradient-to-r from-slate-900/95 via-slate-900/95 to-slate-950/95 backdrop-blur-lg shadow-xl border-b border-white/10' 
+            : 'bg-gradient-to-r from-slate-900 via-slate-950 to-slate-950 shadow-lg'
         }`}
       >
         <div className="w-full px-3 xs:px-4 sm:px-6 lg:px-8">
@@ -417,7 +417,8 @@ export default function ModernNavbar() {
 
         {/* Mobile Menu - Responsive */}
         {isOpen && (
-          <div className="lg:hidden bg-gradient-to-b from-blue-700 to-purple-800 border-t border-white/10">
+          <div className="lg:hidden bg-gradient-to-b from-slate-900 to-slate-950 border-t border-white/10">
+
             <div className="px-3 xs:px-4 sm:px-6 py-6 xs:py-8 max-w-2xl mx-auto">
               {/* Mobile Navigation */}
               <div className="space-y-1.5 xs:space-y-2 mb-6 xs:mb-8">
