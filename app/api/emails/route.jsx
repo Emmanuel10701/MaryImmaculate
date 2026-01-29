@@ -524,6 +524,7 @@ function getModernEmailTemplate({
             margin-bottom: 14px;
             font-weight: 700;
             color: #94a3b8;
+            text-align: center;
         }
         
         .social-buttons {
@@ -547,6 +548,7 @@ function getModernEmailTemplate({
             text-transform: uppercase;
             transition: all 0.3s ease;
             color: white;
+            flex-shrink: 0;
         }
         
         .social-btn:hover {
@@ -573,35 +575,7 @@ function getModernEmailTemplate({
             background: #000000;
             border-color: #000000;
         }
-        
-        /* Sender Info */
-        .sender-info {
-            padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 12px;
-            color: #94a3b8;
-        }
-        
-        .sender-info p {
-            margin-bottom: 3px;
-        }
-        
-        .important-notice {
-            background: rgba(234, 179, 8, 0.1);
-            border: 1px solid rgba(234, 179, 8, 0.3);
-            border-radius: 8px;
-            padding: 14px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .important-notice p {
-            font-size: 12px;
-            color: #92400e;
-            margin: 0;
-            word-break: break-word;
-        }
-        
+
         /* Mobile Responsive Design */
         @media (max-width: 480px) {
             body {
@@ -677,6 +651,7 @@ function getModernEmailTemplate({
                 padding: 8px;
                 margin-bottom: 6px;
                 gap: 8px;
+                flex-wrap: wrap;
             }
             
             .attachment-icon {
@@ -700,43 +675,68 @@ function getModernEmailTemplate({
                 font-size: 12px;
             }
             
+            /* Contact Details - Mobile Responsive */
             .contact-details {
                 gap: 10px;
                 margin-bottom: 16px;
+                display: flex;
+                flex-direction: column;
             }
             
             .contact-card {
                 padding: 12px;
                 gap: 10px;
                 border-radius: 10px;
+                width: 100%;
+                min-height: 60px;
+                justify-content: flex-start;
+                align-items: center;
             }
             
             .contact-icon {
                 width: 36px;
                 height: 36px;
                 border-radius: 8px;
+                font-size: 16px;
+                flex-shrink: 0;
             }
             
             .contact-label {
                 font-size: 10px;
+                margin-bottom: 1px;
             }
             
             .contact-value {
-                font-size: 13px;
+                font-size: 12px;
+                max-width: 100%;
+                word-break: break-word;
             }
             
+            .contact-content {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+            
+            /* Social Media - Mobile Responsive */
             .social-media {
                 margin-bottom: 16px;
                 padding: 12px 0;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
             
             .social-title {
                 font-size: 11px;
                 margin-bottom: 12px;
+                text-align: center;
             }
             
             .social-buttons {
                 gap: 8px;
+                justify-content: center;
+                flex-wrap: wrap;
             }
             
             .social-btn {
@@ -744,6 +744,7 @@ function getModernEmailTemplate({
                 height: 40px;
                 border-radius: 10px;
                 font-size: 10px;
+                flex-shrink: 0;
             }
             
             .sender-info {
@@ -783,8 +784,45 @@ function getModernEmailTemplate({
                 margin-bottom: 18px;
             }
             
+            /* Contact Details - Tablet */
             .contact-details {
                 gap: 11px;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .contact-card {
+                padding: 13px;
+                gap: 11px;
+                border-radius: 11px;
+                width: 100%;
+                align-items: center;
+            }
+            
+            .contact-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 9px;
+            }
+            
+            .contact-label {
+                font-size: 10.5px;
+            }
+            
+            .contact-value {
+                font-size: 13px;
+            }
+            
+            /* Social Media - Tablet */
+            .social-buttons {
+                gap: 9px;
+            }
+            
+            .social-btn {
+                width: 42px;
+                height: 42px;
+                border-radius: 11px;
+                font-size: 11px;
             }
             
             .footer {
@@ -864,7 +902,7 @@ function getModernEmailTemplate({
                 <a href="${SCHOOL_WEBSITE}" target="_blank" class="contact-card web">
                     <div class="contact-icon web">🌐</div>
                     <div class="contact-content">
-                        <div class="contact-label">Visit</div>
+                        <div class="contact-label">Visit us</div>
                         <div class="contact-value">Our Website</div>
                     </div>
                 </a>
@@ -892,9 +930,6 @@ function getModernEmailTemplate({
 </body>
 </html>`;
 }
-
-
-
 
 function formatFileSize(bytes) {
   if (bytes === 0) return '0 Bytes';
