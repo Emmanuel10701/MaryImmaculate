@@ -17,10 +17,7 @@ import {
   FiBriefcase,
   FiChevronRight,
   FiLock,
-  FiGrid,
-  FiShield,
-  FiAward,
-  FiTarget
+  FiGrid
 } from 'react-icons/fi';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -194,27 +191,11 @@ export default function ModernNavbar() {
       <nav 
         className={`fixed w-full z-50 transition-all duration-300 ${
           isScrolled 
-            ? 'bg-gradient-to-br from-amber-600/95 via-orange-600/95 to-red-600/95 backdrop-blur-xl shadow-2xl border-b border-white/20' 
-            : 'bg-gradient-to-br from-amber-600 via-orange-600 to-red-600 shadow-xl'
+            ? 'bg-gradient-to-r from-blue-700/95 via-indigo-700/95 to-purple-800/95 backdrop-blur-lg shadow-xl border-b border-white/10' 
+            : 'bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 shadow-lg'
         }`}
       >
-        {/* Enhanced Background Pattern - Matching PortalHeader */}
-        <div className="absolute inset-0 opacity-[0.08] sm:opacity-[0.1] pointer-events-none">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_2px_2px,_rgba(255,255,255,0.15)_1px,_transparent_0)] 
-            bg-[size:20px_20px] sm:bg-[size:24px_24px] md:bg-[size:28px_28px]" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-amber-400/10 to-red-400/5" />
-        </div>
-        
-        {/* Glow Effects - Matching PortalHeader */}
-        <div className="absolute -right-8 -top-8 
-          w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 
-          bg-gradient-to-r from-amber-300 to-orange-400 rounded-full opacity-15 sm:opacity-20 blur-xl md:blur-2xl animate-pulse" />
-        
-        <div className="absolute -left-10 -bottom-10
-          w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 
-          bg-gradient-to-r from-orange-400 to-red-400 rounded-full opacity-10 sm:opacity-15 blur-lg sm:blur-xl" />
-
-        <div className="relative z-10 w-full px-3 xs:px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-3 xs:px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between min-h-[4.5rem] sm:min-h-[5.2rem]">
             
             {/* Logo Section - Mobile Responsive */}
@@ -227,26 +208,24 @@ export default function ModernNavbar() {
             >
               <div className="relative w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 
                 bg-white/20 rounded-lg xs:rounded-xl flex items-center justify-center 
-                shadow-xl border border-white/30 overflow-hidden group">
+                shadow-lg border border-white/30 overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
                 <Image
                   src="/ll.png"
-                  alt="Mary Immaculate Girls Secondary School Logo"
+                  alt="marry imaculate School Logo"
                   width={48}
                   height={48}
-                  className="relative z-10 filter drop-shadow-sm group-hover:scale-105 transition-transform duration-300 w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14"
+                  className="relative z-10 filter drop-shadow-sm group-hover:scale-100 transition-transform duration-300 w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14"
                   priority
                   sizes="(max-width: 480px) 48px, (max-width: 640px) 56px, 64px"
                 />
-                <div className="absolute inset-0 border-2 border-amber-400/20 rounded-lg xs:rounded-xl"></div>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-amber-100 to-orange-50 bg-clip-text text-transparent whitespace-nowrap tracking-tight">
-                  Mary Immaculate Girls Secondary
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent whitespace-nowrap tracking-tight">
+                   Mary Immaculate
                 </h1>
-                <p className="text-xs sm:text-sm text-amber-100/90 font-medium tracking-wide whitespace-nowrap flex items-center gap-1">
-                  <FiTarget className="text-amber-300" />
-                  Prayer, Discipline and Hardwork 
+                <p className="text-xs sm:text-sm text-white/90 font-medium tracking-wide whitespace-nowrap">
+                  Prayer, Discipline and Hardwork
                 </p>
               </div>
             </div>
@@ -269,8 +248,8 @@ export default function ModernNavbar() {
                         <button
                           className={`group flex items-center gap-1.5 font-bold transition-all text-[0.7rem] uppercase tracking-wide whitespace-nowrap px-3 py-2.5 relative min-w-[80px] ${
                             isActive || isAcademicDropdownOpen
-                              ? 'text-white drop-shadow-lg' 
-                              : 'text-amber-100/90 hover:text-white'
+                              ? 'text-white' 
+                              : 'text-white/85 hover:text-white'
                           }`}
                           aria-expanded={isAcademicDropdownOpen}
                           aria-haspopup="true"
@@ -283,17 +262,17 @@ export default function ModernNavbar() {
                           
                           {/* Active underline indicator */}
                           {(isActive || isAcademicDropdownOpen) && (
-                            <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-10 h-0.5 bg-gradient-to-r from-amber-300 to-orange-300 rounded-full"></span>
+                            <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-10 h-0.5 bg-white rounded-full"></span>
                           )}
                         </button>
 
                         {/* Academic Dropdown Menu */}
                         {isAcademicDropdownOpen && (
-                          <div className="absolute top-full left-0 mt-1 w-52 bg-gradient-to-b from-white to-amber-50/95 rounded-xl shadow-2xl border border-amber-100/50 py-2 z-50 backdrop-blur-sm">
-                            <div className="px-3 py-2 border-b border-amber-100/50 bg-gradient-to-r from-amber-50/80 to-orange-50/80 rounded-t-xl">
-                              <h3 className="font-bold text-amber-900 text-[0.7rem] uppercase tracking-wider flex items-center gap-1.5">
-                                <FiAward className="text-amber-600 text-xs" />
-                                Academic Excellence
+                          <div className="absolute top-full left-0 mt-1 w-52 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50">
+                            <div className="px-3 py-2 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
+                              <h3 className="font-bold text-gray-800 text-[0.7rem] uppercase tracking-wider flex items-center gap-1.5">
+                                <FiBook className="text-blue-600 text-xs" />
+                                Academic Resources
                               </h3>
                             </div>
                             
@@ -303,14 +282,14 @@ export default function ModernNavbar() {
                                 href={dropdownItem.href}
                                 className={`group flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-all hover:pl-3.5 ${
                                   isActiveLink(dropdownItem.href)
-                                    ? 'text-orange-700 bg-gradient-to-r from-amber-50/60 to-orange-50/60 border-l-3 border-orange-500'
-                                    : 'text-amber-900/80 hover:text-orange-700 hover:bg-gradient-to-r hover:from-amber-50/40 hover:to-orange-50/40'
+                                    ? 'text-blue-700 bg-blue-50 border-l-3 border-blue-600'
+                                    : 'text-gray-700 hover:text-blue-700 hover:bg-blue-50/50'
                                 }`}
                                 onClick={() => setIsAcademicDropdownOpen(false)}
                               >
                                 <dropdownItem.icon className="text-xs flex-shrink-0" />
                                 <span className="flex-1 truncate">{dropdownItem.name}</span>
-                                <FiChevronRight className="text-amber-400 text-xs group-hover:text-orange-500 opacity-0 group-hover:opacity-100 transition-all" />
+                                <FiChevronRight className="text-gray-400 text-xs group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all" />
                               </a>
                             ))}
                           </div>
@@ -325,20 +304,20 @@ export default function ModernNavbar() {
                       href={item.href}
                       className={`group flex items-center gap-1.5 font-bold transition-all text-[0.7rem] uppercase tracking-wide whitespace-nowrap px-3 py-2.5 relative min-w-[70px] ${
                         isActive 
-                          ? 'text-white drop-shadow-lg' 
-                          : 'text-amber-100/90 hover:text-white'
+                          ? 'text-white' 
+                          : 'text-white/85 hover:text-white'
                       }`}
                     >
-                      <item.icon className="text-xs flex-shrink-0 group-hover:scale-110 transition-transform" />
+                      <item.icon className="text-xs flex-shrink-0 group-hover:scale-100 transition-transform" />
                       <span className="truncate">{item.name}</span>
                       
                       {/* Active underline indicator */}
                       {isActive && (
-                        <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-gradient-to-r from-amber-300 to-orange-300 rounded-full"></span>
+                        <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-white rounded-full"></span>
                       )}
                       
                       {/* Hover underline indicator */}
-                      <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-amber-300/50 to-orange-300/50 rounded-full group-hover:w-6 transition-all duration-300"></span>
+                      <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-white/50 rounded-full group-hover:w-6 transition-all duration-300"></span>
                     </a>
                   );
                 })}
@@ -356,8 +335,8 @@ export default function ModernNavbar() {
                       isActiveLink('/pages/staff') || 
                       isActiveLink('/pages/career') ||
                       isActiveLink('/pages/adminLogin')
-                        ? 'text-white drop-shadow-lg' 
-                        : 'text-amber-100/90 hover:text-white'
+                        ? 'text-white' 
+                        : 'text-white/85 hover:text-white'
                     }`}
                     aria-expanded={isResourcesDropdownOpen}
                     aria-haspopup="true"
@@ -373,16 +352,16 @@ export default function ModernNavbar() {
                       isActiveLink('/pages/staff') || 
                       isActiveLink('/pages/career') ||
                       isActiveLink('/pages/adminLogin')) && (
-                      <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-10 h-0.5 bg-gradient-to-r from-amber-300 to-orange-300 rounded-full"></span>
+                      <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-10 h-0.5 bg-white rounded-full"></span>
                     )}
                   </button>
 
                   {/* Resources Dropdown Menu - INCLUDES ADMIN LOGIN */}
                   {isResourcesDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-52 bg-gradient-to-b from-white to-amber-50/95 rounded-xl shadow-2xl border border-amber-100/50 py-2 z-50 backdrop-blur-sm">
-                      <div className="px-3 py-2 border-b border-amber-100/50 bg-gradient-to-r from-orange-50/80 to-red-50/80 rounded-t-xl">
-                        <h3 className="font-bold text-amber-900 text-[0.7rem] uppercase tracking-wider flex items-center gap-1.5">
-                          <FiShield className="text-orange-600 text-xs" />
+                    <div className="absolute top-full left-0 mt-1 w-52 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50">
+                      <div className="px-3 py-2 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-t-xl">
+                        <h3 className="font-bold text-gray-800 text-[0.7rem] uppercase tracking-wider flex items-center gap-1.5">
+                          <FiGrid className="text-purple-600 text-xs" />
                           Resources & Admin
                         </h3>
                       </div>
@@ -394,22 +373,22 @@ export default function ModernNavbar() {
                           className={`group flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-all hover:pl-3.5 ${
                             isActiveLink(dropdownItem.href)
                               ? dropdownItem.isHighlighted
-                                ? 'bg-gradient-to-r from-orange-50/60 to-red-50/60 border-l-3 border-orange-600 text-orange-700'
-                                : 'text-orange-700 bg-gradient-to-r from-amber-50/60 to-orange-50/60 border-l-3 border-orange-500'
+                                ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-l-3 border-blue-600 text-blue-700'
+                                : 'text-purple-700 bg-purple-50 border-l-3 border-purple-600'
                               : dropdownItem.isHighlighted
-                                ? 'text-orange-600 hover:text-orange-700 hover:bg-gradient-to-r hover:from-orange-50/40 hover:to-red-50/40'
-                                : 'text-amber-900/80 hover:text-orange-700 hover:bg-gradient-to-r hover:from-amber-50/40 hover:to-orange-50/40'
+                                ? 'text-blue-600 hover:text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100'
+                                : 'text-gray-700 hover:text-purple-700 hover:bg-purple-50/50'
                           }`}
                           onClick={() => setIsResourcesDropdownOpen(false)}
                         >
                           <dropdownItem.icon className={`text-xs flex-shrink-0 ${
-                            dropdownItem.isHighlighted ? 'text-orange-600' : ''
+                            dropdownItem.isHighlighted ? 'text-blue-600' : ''
                           }`} />
                           <span className="flex-1 truncate">{dropdownItem.name}</span>
                           <FiChevronRight className={`text-xs ${
                             dropdownItem.isHighlighted 
-                              ? 'text-orange-400 group-hover:text-orange-600' 
-                              : 'text-amber-400 group-hover:text-orange-500'
+                              ? 'text-blue-400 group-hover:text-blue-600' 
+                              : 'text-gray-400 group-hover:text-purple-600'
                           } opacity-0 group-hover:opacity-100 transition-all`} />
                         </a>
                       ))}
@@ -423,7 +402,7 @@ export default function ModernNavbar() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="lg:hidden p-2.5 xs:p-3 rounded-lg xs:rounded-xl text-white 
-                bg-white/20 hover:bg-white/30 transition-all active:scale-95 ml-auto border border-white/30 shadow-lg"
+                bg-white/15 hover:bg-white/25 transition-all active:scale-95 ml-auto"
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
             >
@@ -438,7 +417,7 @@ export default function ModernNavbar() {
 
         {/* Mobile Menu - Responsive */}
         {isOpen && (
-          <div className="lg:hidden bg-gradient-to-br from-amber-700 via-orange-700 to-red-700 border-t border-white/20 backdrop-blur-xl">
+          <div className="lg:hidden bg-gradient-to-b from-blue-700 to-purple-800 border-t border-white/10">
             <div className="px-3 xs:px-4 sm:px-6 py-6 xs:py-8 max-w-2xl mx-auto">
               {/* Mobile Navigation */}
               <div className="space-y-1.5 xs:space-y-2 mb-6 xs:mb-8">
@@ -450,10 +429,10 @@ export default function ModernNavbar() {
                       <div key={item.name} className="space-y-1.5 xs:space-y-2" ref={mobileDropdownRef}>
                         <button
                           onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
-                          className={`w-full flex items-center justify-between p-3 xs:p-4 rounded-lg xs:rounded-xl text-left border border-white/20 shadow-lg ${
+                          className={`w-full flex items-center justify-between p-3 xs:p-4 rounded-lg xs:rounded-xl text-left ${
                             isActive || isMobileDropdownOpen
-                              ? 'bg-white/30 text-white backdrop-blur-sm'
-                              : 'text-amber-100/90 hover:bg-white/20 backdrop-blur-sm'
+                              ? 'bg-white/20 text-white'
+                              : 'text-white/90 hover:bg-white/10'
                           }`}
                           aria-expanded={isMobileDropdownOpen}
                         >
@@ -468,15 +447,15 @@ export default function ModernNavbar() {
                         
                         {/* Mobile Academic Dropdown Items */}
                         {isMobileDropdownOpen && (
-                          <div className="ml-6 xs:ml-8 space-y-1.5 xs:space-y-2 pl-3 xs:pl-4 border-l-2 border-white/30">
+                          <div className="ml-6 xs:ml-8 space-y-1.5 xs:space-y-2 pl-3 xs:pl-4 border-l-2 border-white/20">
                             {academicDropdownItems.map((dropdownItem) => (
                               <a
                                 key={dropdownItem.name}
                                 href={dropdownItem.href}
-                                className={`flex items-center gap-2 xs:gap-3 p-2.5 xs:p-3 rounded-lg border border-white/10 ${
+                                className={`flex items-center gap-2 xs:gap-3 p-2.5 xs:p-3 rounded-lg ${
                                   isActiveLink(dropdownItem.href)
-                                    ? 'bg-white/30 text-white backdrop-blur-sm'
-                                    : 'text-amber-100/80 hover:bg-white/20 backdrop-blur-sm'
+                                    ? 'bg-white/20 text-white'
+                                    : 'text-white/80 hover:bg-white/10'
                                 }`}
                                 onClick={() => {
                                   setIsOpen(false);
@@ -497,10 +476,10 @@ export default function ModernNavbar() {
                     <a
                       key={item.name}
                       href={item.href}
-                      className={`flex items-center gap-2 xs:gap-3 p-3 xs:p-4 rounded-lg xs:rounded-xl border border-white/20 shadow-lg ${
+                      className={`flex items-center gap-2 xs:gap-3 p-3 xs:p-4 rounded-lg xs:rounded-xl ${
                         isActive
-                          ? 'bg-white/30 text-white backdrop-blur-sm'
-                          : 'text-amber-100/90 hover:bg-white/20 backdrop-blur-sm'
+                          ? 'bg-white/20 text-white'
+                          : 'text-white/90 hover:bg-white/10'
                       }`}
                       onClick={() => setIsOpen(false)}
                     >
@@ -514,13 +493,13 @@ export default function ModernNavbar() {
                 <div className="space-y-1.5 xs:space-y-2" ref={mobileResourcesDropdownRef}>
                   <button
                     onClick={() => setIsMobileResourcesDropdownOpen(!isMobileResourcesDropdownOpen)}
-                    className={`w-full flex items-center justify-between p-3 xs:p-4 rounded-lg xs:rounded-xl text-left border border-white/20 shadow-lg ${
+                    className={`w-full flex items-center justify-between p-3 xs:p-4 rounded-lg xs:rounded-xl text-left ${
                       isMobileResourcesDropdownOpen ||
                       isActiveLink('/pages/staff') ||
                       isActiveLink('/pages/career') ||
                       isActiveLink('/pages/adminLogin')
-                        ? 'bg-white/30 text-white backdrop-blur-sm'
-                        : 'text-amber-100/90 hover:bg-white/20 backdrop-blur-sm'
+                        ? 'bg-white/20 text-white'
+                        : 'text-white/90 hover:bg-white/10'
                     }`}
                     aria-expanded={isMobileResourcesDropdownOpen}
                   >
@@ -535,19 +514,19 @@ export default function ModernNavbar() {
                   
                   {/* Mobile Resources Dropdown Items */}
                   {isMobileResourcesDropdownOpen && (
-                    <div className="ml-6 xs:ml-8 space-y-1.5 xs:space-y-2 pl-3 xs:pl-4 border-l-2 border-white/30">
+                    <div className="ml-6 xs:ml-8 space-y-1.5 xs:space-y-2 pl-3 xs:pl-4 border-l-2 border-white/20">
                       {resourcesDropdownItems.map((dropdownItem) => (
                         <a
                           key={dropdownItem.name}
                           href={dropdownItem.href}
-                          className={`flex items-center gap-2 xs:gap-3 p-2.5 xs:p-3 rounded-lg border border-white/10 ${
+                          className={`flex items-center gap-2 xs:gap-3 p-2.5 xs:p-3 rounded-lg ${
                             isActiveLink(dropdownItem.href)
                               ? dropdownItem.isHighlighted
-                                ? 'bg-gradient-to-r from-orange-500/40 to-red-500/40 text-white backdrop-blur-sm'
-                                : 'bg-white/30 text-white backdrop-blur-sm'
+                                ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-white'
+                                : 'bg-white/20 text-white'
                               : dropdownItem.isHighlighted
-                                ? 'text-white hover:bg-gradient-to-r hover:from-orange-500/30 hover:to-red-500/30 backdrop-blur-sm'
-                                : 'text-amber-100/80 hover:bg-white/20 backdrop-blur-sm'
+                                ? 'text-white hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-blue-600/20'
+                                : 'text-white/80 hover:bg-white/10'
                           }`}
                           onClick={() => {
                             setIsOpen(false);
@@ -568,13 +547,10 @@ export default function ModernNavbar() {
               </div>
 
               {/* Mobile Footer - Responsive */}
-              <div className="mt-6 xs:mt-8 pt-4 xs:pt-6 border-t border-white/30 text-center backdrop-blur-sm">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-700/40 to-orange-700/40 backdrop-blur-md rounded-full border border-white/20">
-                  <FiShield className="text-amber-300" />
-                  <p className="text-amber-200/90 text-sm font-bold tracking-wide">
-                    Empowering Future Leaders Since 1995
-                  </p>
-                </div>
+              <div className="mt-6 xs:mt-8 pt-4 xs:pt-6 border-t border-white/20 text-center">
+                <p className="text-white/70 text-xs xs:text-sm font-medium">
+                  Excellence in Education Since 1995
+                </p>
               </div>
             </div>
           </div>

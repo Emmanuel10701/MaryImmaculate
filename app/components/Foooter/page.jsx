@@ -1,17 +1,14 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import {
   FiMapPin,
   FiPhone,
   FiMail,
   FiClock,
-  FiSend,
-  FiHeart,
-  FiCheckCircle,
   FiHome,
   FiBook,
-  FiUser,
+  FiUsers,
   FiCalendar,
   FiImage,
   FiUserCheck,
@@ -19,17 +16,16 @@ import {
   FiHelpCircle,
   FiGlobe,
   FiLock,
-  FiEye,
-  FiDownload,
-  FiBell,
   FiShield,
   FiAward,
   FiTarget,
-  FiUsers,
-  FiFileText,
   FiBriefcase,
   FiActivity,
-  FiUserPlus 
+  FiUserPlus,
+  FiBell,
+  FiCheckCircle,
+  FiDownload,
+  FiEye
 } from 'react-icons/fi';
 import { 
   SiFacebook, 
@@ -38,7 +34,6 @@ import {
   SiLinkedin, 
   SiWhatsapp 
 } from 'react-icons/si';
-import { motion } from 'framer-motion';
 
 export default function ModernFooter() {
   const [showTerms, setShowTerms] = useState(false);
@@ -46,36 +41,26 @@ export default function ModernFooter() {
   const [showSitemap, setShowSitemap] = useState(false);
   const currentYear = new Date().getFullYear();
 
-  // Floating animation data - Updated to match orange theme
-  const [floatingItems, setFloatingItems] = useState([
-    { id: 1, icon: '🎓', x: 10, y: 20, delay: 0 },
-    { id: 2, icon: '✨', x: 25, y: 60, delay: 0.5 },
-    { id: 3, icon: '📚', x: 80, y: 40, delay: 1 },
-    { id: 4, icon: '🏆', x: 65, y: 15, delay: 1.5 },
-    { id: 5, icon: '💡', x: 40, y: 80, delay: 2 },
-    { id: 6, icon: '🌟', x: 90, y: 70, delay: 2.5 }
-  ]);
-
-  // Quick Links - Updated with correct paths
+  // Quick Links
   const quickLinks = [
-    { name: 'Home', href: '/', icon: FiHome, color: 'text-amber-400' },
-    { name: 'About Us', href: '/pages/AboutUs', icon: FiUsers, color: 'text-orange-400' },
-    { name: 'Academics', href: '/pages/academics', icon: FiBook, color: 'text-red-400' },
-    { name: 'Admissions', href: '/pages/admissions', icon: FiUserCheck, color: 'text-amber-300' },
-    { name: 'Gallery', href: '/pages/gallery', icon: FiImage, color: 'text-orange-300' },
-    { name: 'News & Events', href: '/pages/eventsandnews', icon: FiCalendar, color: 'text-red-300' },
-    { name: 'Contact', href: '/pages/contact', icon: FiPhone, color: 'text-amber-200' },
-    { name: 'Careers', href: '/pages/careers', icon: FiBriefcase, color: 'text-orange-200' },
+    { name: 'Home', href: '/', icon: FiHome },
+    { name: 'About Us', href: '/pages/AboutUs', icon: FiUsers },
+    { name: 'Academics', href: '/pages/academics', icon: FiBook },
+    { name: 'Admissions', href: '/pages/admissions', icon: FiUserCheck },
+    { name: 'Gallery', href: '/pages/gallery', icon: FiImage },
+    { name: 'News & Events', href: '/pages/eventsandnews', icon: FiCalendar },
+    { name: 'Contact', href: '/pages/contact', icon: FiPhone },
+    { name: 'Careers', href: '/pages/careers', icon: FiBriefcase },
   ];
 
-  // Resources - Updated to match navbar structure
+  // Resources
   const resources = [
-    { name: 'Student Portal', href: '/pages/StudentPortal', icon: FiFileText, color: 'text-amber-400' },
-    { name: 'Apply Now', href: '/pages/apply-for-admissions', icon: FiUserPlus, color: 'text-orange-400' },
-    { name: 'Guidance & Counselling', href: '/pages/Guidance-and-Councelling', icon: FiHelpCircle, color: 'text-red-400' },
-    { name: 'Staff Directory', href: '/pages/staff', icon: FiUsers, color: 'text-amber-300' },
-    { name: 'Admin Login', href: '/pages/adminLogin', icon: FiLock, color: 'text-orange-300' },
-    { name: 'School Policies', href: '/pages/TermsandPrivacy', icon: FiShield, color: 'text-red-300' },
+    { name: 'Student Portal', href: '/pages/StudentPortal', icon: FiBookOpen },
+    { name: 'Apply Now', href: '/pages/apply-for-admissions', icon: FiUserPlus },
+    { name: 'Guidance & Counselling', href: '/pages/Guidance-and-Councelling', icon: FiHelpCircle },
+    { name: 'Staff Directory', href: '/pages/staff', icon: FiUsers },
+    { name: 'Admin Login', href: '/pages/adminLogin', icon: FiLock },
+    { name: 'School Policies', href: '/pages/TermsandPrivacy', icon: FiShield },
   ];
 
   // Social Media Links
@@ -83,36 +68,26 @@ export default function ModernFooter() {
     {
       icon: SiFacebook,
       href: 'https://facebook.com/maryimmaculategirls',
-      color: 'text-[#1877F2]',
-      bgColor: 'bg-[#1877F2]/10',
       label: 'Facebook'
     },
     {
       icon: SiX,
       href: 'https://twitter.com/maryimmaculategirls',
-      color: 'text-[#1DA1F2]',
-      bgColor: 'bg-[#1DA1F2]/10',
       label: 'Twitter'
     },
     {
       icon: SiYoutube,
       href: 'https://youtube.com/maryimmaculategirls',
-      color: 'text-[#FF0000]',
-      bgColor: 'bg-[#FF0000]/10',
       label: 'YouTube'
     },
     {
       icon: SiLinkedin,
       href: 'https://linkedin.com/school/maryimmaculategirls',
-      color: 'text-[#0077B5]',
-      bgColor: 'bg-[#0077B5]/10',
       label: 'LinkedIn'
     },
     {
       icon: SiWhatsapp,
       href: 'https://wa.me/254720123456',
-      color: 'text-[#25D366]',
-      bgColor: 'bg-[#25D366]/10',
       label: 'WhatsApp'
     },
   ];
@@ -177,125 +152,76 @@ export default function ModernFooter() {
       icon: FiMapPin,
       text: 'Mweiga, Nyeri County, Kenya',
       href: 'https://maps.google.com/?q=-0.416667,36.950000',
-      detail: 'Along Mweiga Nyahururu Road',
-      color: 'text-amber-300'
+      detail: 'Along Mweiga Nyahururu Road'
     },
     {
       icon: FiPhone,
       text: '+254 720 123 456',
       href: 'tel:+254720123456',
-      detail: 'Main Office Line',
-      color: 'text-orange-300'
+      detail: 'Main Office Line'
     },
     {
       icon: FiPhone,
       text: '+254 734 567 890',
       href: 'tel:+254734567890',
-      detail: 'Admissions Office',
-      color: 'text-red-300'
+      detail: 'Admissions Office'
     },
     {
       icon: FiMail,
       text: 'info@maryimmaculate.sc.ke',
       href: 'mailto:info@maryimmaculate.sc.ke',
-      detail: 'General Inquiries',
-      color: 'text-amber-200'
+      detail: 'General Inquiries'
     },
     {
       icon: FiMail,
       text: 'admissions@maryimmaculate.sc.ke',
       href: 'mailto:admissions@maryimmaculate.sc.ke',
-      detail: 'Admissions',
-      color: 'text-orange-200'
+      detail: 'Admissions'
     },
     {
       icon: FiClock,
       text: 'Mon - Fri: 7:30 AM - 5:00 PM',
       href: '#',
-      detail: 'Sat: 8:00 AM - 1:00 PM',
-      color: 'text-red-200'
+      detail: 'Sat: 8:00 AM - 1:00 PM'
     }
   ];
 
   // Achievements
   const achievements = [
-    { text: 'Top Performing School in Nyeri County', color: 'text-amber-300' },
-    { text: 'Excellence in Science & Mathematics', color: 'text-orange-300' },
-    { text: '95% University Placement Rate', color: 'text-red-300' },
-    { text: 'Sports Excellence Award 2023', color: 'text-amber-200' },
+    'Top Performing School in Nyeri County',
+    'Excellence in Science & Mathematics',
+    '95% University Placement Rate',
+    'Sports Excellence Award 2023',
   ];
 
   return (
-    <footer className="relative bg-gradient-to-br from-amber-700 via-orange-700 to-red-700 text-white overflow-hidden">
-      
-      {/* Background Pattern - Matching PortalHeader */}
-      <div className="absolute inset-0 opacity-[0.08] sm:opacity-[0.1] pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_2px_2px,_rgba(255,255,255,0.15)_1px,_transparent_0)] 
-          bg-[size:20px_20px] sm:bg-[size:24px_24px] md:bg-[size:28px_28px]" />
-        <div className="absolute inset-0 bg-gradient-to-tr from-amber-400/10 to-red-400/5" />
-      </div>
-      
-      {/* Glow Effects - Matching PortalHeader */}
-      <div className="absolute -right-8 -top-8 
-        w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 
-        bg-gradient-to-r from-amber-300 to-orange-400 rounded-full opacity-15 sm:opacity-20 blur-xl md:blur-2xl animate-pulse" />
-      
-      <div className="absolute -left-10 -bottom-10
-        w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 
-        bg-gradient-to-r from-orange-400 to-red-400 rounded-full opacity-10 sm:opacity-15 blur-lg sm:blur-xl" />
-
-      {/* Floating Educational Items Animation */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {floatingItems.map((item) => (
-          <motion.div
-            key={item.id}
-            className="absolute text-2xl opacity-10"
-            style={{
-              left: `${item.x}%`,
-              top: `${item.y}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 5, -5, 0],
-            }}
-            transition={{
-              duration: 6,
-              delay: item.delay,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            {item.icon}
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+    <footer className="bg-slate-900 text-white">
+      {/* Main Footer Content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
           
           {/* Column 1: School Information */}
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <div className="relative w-16 h-16 rounded-xl overflow-hidden border-2 border-white/30 shadow-xl">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-white flex-shrink-0">
                 <img 
                   src="/ll.png" 
                   alt="Mary Immaculate Girls Secondary School Logo" 
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
               </div>
               <div>
-                <h3 className="text-xl font-black bg-gradient-to-r from-white to-amber-100 bg-clip-text text-transparent">
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-white leading-tight">
                   Mary Immaculate Girls Secondary
                 </h3>
-                <p className="text-amber-200 text-base flex items-center gap-1">
-                  <FiTarget className="text-amber-300" />
-                  Prayer, Discipline and Hardwork
+                <p className="text-white text-sm sm:text-base font-semibold flex items-center gap-1 mt-1">
+                  <FiTarget className="text-white flex-shrink-0" />
+                  Prayer, Discipline & Hardwork
                 </p>
               </div>
             </div>
 
-            <p className="text-amber-100/90 text-base leading-relaxed backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
+            <p className="text-white text-sm sm:text-base font-medium leading-relaxed">
               A premier learning institution in Mweiga, Nyeri, dedicated to academic excellence, 
               holistic development, and nurturing future women leaders through quality education since 1995.
             </p>
@@ -307,13 +233,13 @@ export default function ModernFooter() {
                   <a
                     key={index}
                     href={item.href}
-                    className="flex items-start gap-4 text-amber-100/80 hover:text-white transition-colors text-base group p-3 rounded-lg hover:bg-white/5 backdrop-blur-sm"
+                    className="flex items-start gap-3 text-white hover:text-gray-300 transition-colors text-sm sm:text-base font-semibold group"
                   >
-                    <ItemIcon className={`${item.color} mt-1 flex-shrink-0 text-lg`} /> 
+                    <ItemIcon className="mt-1 flex-shrink-0 text-lg sm:text-xl group-hover:scale-110 transition-transform" /> 
                     <div>
-                      <span className="font-medium">{item.text}</span>
+                      <span className="block">{item.text}</span>
                       {item.detail && (
-                        <p className="text-sm text-amber-200/60">{item.detail}</p> 
+                        <p className="text-xs sm:text-sm text-gray-300 font-normal">{item.detail}</p> 
                       )}
                     </div>
                   </a>
@@ -325,35 +251,35 @@ export default function ModernFooter() {
           {/* Column 2: Quick Links */}
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <FiGlobe className="text-orange-300 text-xl" />
-              <h4 className="text-lg font-bold text-white">Quick Links</h4>
+              <FiGlobe className="text-white text-lg sm:text-xl lg:text-2xl flex-shrink-0" />
+              <h4 className="text-lg sm:text-xl lg:text-2xl font-black text-white">Quick Links</h4>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-3">
               {quickLinks.map((link, index) => {
                 const Icon = link.icon;
                 return (
                   <a 
                     key={index} 
                     href={link.href} 
-                    className="flex items-center gap-3 text-amber-100/80 hover:text-white transition-all text-base p-3 rounded-xl hover:bg-white/10 backdrop-blur-sm border border-white/10 hover:border-white/30 group"
+                    className="flex items-center gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group hover:translate-x-1"
                   >
-                    <Icon className={`${link.color} flex-shrink-0 text-lg group-hover:scale-110 transition-transform`} />
-                    <span className="font-medium">{link.name}</span>
+                    <Icon className="flex-shrink-0 text-lg sm:text-xl group-hover:scale-125 transition-transform" />
+                    <span>{link.name}</span>
                   </a>
                 );
               })}
             </div>
 
             {/* Achievements */}
-            <div className="mt-4 space-y-3">
+            <div className="mt-6 pt-6 border-t border-gray-700 space-y-3">
               <div className="flex items-center gap-2">
-                <FiAward className="text-amber-300" />
-                <h4 className="text-md font-bold text-white">Recent Achievements</h4>
+                <FiAward className="text-white text-lg sm:text-xl flex-shrink-0" />
+                <h4 className="text-base sm:text-lg lg:text-xl font-black text-white">Achievements</h4>
               </div>
               {achievements.map((achievement, index) => (
-                <div key={index} className={`flex items-center gap-2 text-sm ${achievement.color} p-2 rounded-lg bg-white/5 backdrop-blur-sm`}>
-                  <FiCheckCircle className="flex-shrink-0" />
-                  <span>{achievement.text}</span>
+                <div key={index} className="flex items-start gap-2 text-white text-xs sm:text-sm font-semibold">
+                  <FiCheckCircle className="flex-shrink-0 text-lg mt-1" />
+                  <span>{achievement}</span>
                 </div>
               ))}
             </div>
@@ -362,30 +288,30 @@ export default function ModernFooter() {
           {/* Column 3: Resources */}
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <FiActivity className="text-red-300 text-xl" />
-              <h4 className="text-lg font-bold text-white">Resources</h4>
+              <FiActivity className="text-white text-lg sm:text-xl lg:text-2xl flex-shrink-0" />
+              <h4 className="text-lg sm:text-xl lg:text-2xl font-black text-white">Resources</h4>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {resources.map((resource, index) => {
                 const Icon = resource.icon;
                 return (
                   <a
                     key={index}
                     href={resource.href}
-                    className="flex items-center gap-3 text-amber-100/80 hover:text-white transition-all text-base p-3 rounded-xl hover:bg-white/10 backdrop-blur-sm border border-white/10 hover:border-white/30 group"
+                    className="flex items-center gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group hover:translate-x-1"
                   >
-                    <Icon className={`${resource.color} flex-shrink-0 text-lg group-hover:scale-110 transition-transform`} />
-                    <span className="font-medium">{resource.name}</span>
+                    <Icon className="flex-shrink-0 text-lg sm:text-xl group-hover:scale-125 transition-transform" />
+                    <span>{resource.name}</span>
                   </a>
                 );
               })}
             </div>
 
             {/* Social Media */}
-            <div className="mt-6 space-y-3">
+            <div className="mt-6 pt-6 border-t border-gray-700 space-y-3">
               <div className="flex items-center gap-2">
-                <FiUsers className="text-amber-300" />
-                <h5 className="text-md font-bold text-white">Connect With Us</h5>
+                <FiUsers className="text-white text-lg sm:text-xl flex-shrink-0" />
+                <h5 className="text-base sm:text-lg lg:text-xl font-black text-white">Connect With Us</h5>
               </div>
               <div className="flex flex-wrap gap-3">
                 {socialLinks.map((social, index) => {
@@ -396,17 +322,10 @@ export default function ModernFooter() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`
-                        w-14 h-14 rounded-xl flex items-center justify-center 
-                        transition-all duration-300 transform hover:scale-110 hover:-translate-y-1
-                        ${social.bgColor} backdrop-blur-sm border border-white/20
-                        hover:border-white/40 hover:shadow-lg
-                      `}
+                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all transform hover:scale-125 border border-white/30"
                       aria-label={social.label}
                     >
-                      <SocialIcon 
-                        className={`text-2xl ${social.color}`} 
-                      />
+                      <SocialIcon className="text-xl sm:text-2xl text-white" />
                     </a>
                   );
                 })}
@@ -417,154 +336,137 @@ export default function ModernFooter() {
           {/* Column 4: Newsletter */}
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <FiBell className="text-amber-300 text-xl" />
-              <h4 className="text-lg font-bold text-white">Stay Updated</h4>
+              <FiBell className="text-white text-lg sm:text-xl lg:text-2xl flex-shrink-0" />
+              <h4 className="text-lg sm:text-xl lg:text-2xl font-black text-white">Stay Updated</h4>
             </div>
             
             {/* Newsletter Subscription */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-orange-500/20 to-red-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              
-              <div className="relative bg-gradient-to-br from-white/15 to-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl shadow-amber-900/20">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl">
-                    <FiBell className="text-white text-lg" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white">Newsletter</h4>
-                    <p className="text-amber-200/80 text-md">Get academic events & announcements</p>
-                  </div>
+            <div className="bg-slate-800 rounded-xl p-6 sm:p-8 border border-gray-700">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-3 bg-blue-600 rounded-lg">
+                  <FiBell className="text-white text-lg" />
                 </div>
+                <div>
+                  <h4 className="text-base sm:text-lg font-black text-white">Newsletter</h4>
+                  <p className="text-white text-xs sm:text-sm font-semibold">Get academic events & announcements</p>
+                </div>
+              </div>
 
-                <form onSubmit={handleSubscribe} className="space-y-4">
-                  <div className="relative">
-                    <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-300 text-lg" />
-                    <input
-                      type="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="w-full pl-12 pr-4 py-3.5 bg-white/10 border-2 border-white/20 rounded-xl text-white placeholder-amber-200/50 focus:outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/20 transition-all duration-300 backdrop-blur-sm"
-                    />
-                  </div>
-                  
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !email}
-                    className="group relative w-full overflow-hidden bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3.5 rounded-xl font-bold text-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/30"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative flex items-center justify-center gap-2">
-                      {isSubmitting ? (
-                        <>
-                          <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Subscribing...
-                        </>
-                      ) : (
-                        <>
-                          <FiCheckCircle className="text-lg" />
-                          Subscribe 
-                        </>
-                      )}
+              <form onSubmit={handleSubscribe} className="space-y-4">
+                <div className="relative">
+                  <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-lg flex-shrink-0" />
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full pl-12 pr-4 py-3 sm:py-4 bg-gray-800 border-2 border-gray-700 hover:border-gray-600 focus:border-blue-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base font-semibold"
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !email}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 sm:py-4 rounded-lg font-black text-sm sm:text-base transition-all disabled:cursor-not-allowed hover:scale-105 active:scale-95 transform"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Subscribing...
                     </span>
-                  </button>
-                </form>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <FiCheckCircle className="text-lg" />
+                      Subscribe 
+                    </span>
+                  )}
+                </button>
+              </form>
 
-                {/* Success Message */}
-                {showSuccess && (
-                  <div className="mt-4 p-4 bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-500/30 rounded-xl backdrop-blur-sm animate-fadeIn">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-emerald-500/30 rounded-lg">
-                        <FiCheckCircle className="text-emerald-300 text-lg" />
-                      </div>
-                      <div>
-                        <p className="text-emerald-300 font-medium">Successfully subscribed!</p>
-                        <p className="text-emerald-200/80 text-md">You'll receive updates soon.</p>
-                      </div>
+              {/* Success Message */}
+              {showSuccess && (
+                <div className="mt-4 p-4 bg-emerald-600/30 border border-emerald-500 rounded-lg animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <FiCheckCircle className="text-emerald-300 text-lg flex-shrink-0" />
+                    <div>
+                      <p className="text-emerald-300 font-black text-sm sm:text-base">Successfully subscribed!</p>
+                      <p className="text-emerald-200 text-xs sm:text-sm font-semibold">You'll receive updates soon.</p>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Footer Bottom */}
-        <div className="mt-8 pt-6 border-t border-white/30">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-amber-200/80 text-md text-center md:text-left">
+        <div className="mt-12 sm:mt-16 pt-8 border-t border-gray-700">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-white text-xs sm:text-sm font-semibold text-center md:text-left">
               <p>© {currentYear} Mary Immaculate Girls Secondary School, Mweiga, Nyeri. All rights reserved.</p>
             </div>
 
-            <div className="flex items-center gap-4 text-md">
+            <div className="flex items-center gap-6 text-xs sm:text-sm font-semibold flex-wrap justify-center">
               <button 
                 onClick={() => setShowSitemap(true)} 
-                className="text-amber-200/80 hover:text-white transition-colors flex items-center gap-2"
+                className="text-white hover:text-gray-300 transition-colors flex items-center gap-2 hover:scale-110"
               >
-                <FiGlobe />
+                <FiGlobe className="text-lg" />
                 Sitemap
               </button>
               <button 
                 onClick={() => setShowPrivacy(true)} 
-                className="text-amber-200/80 hover:text-white transition-colors flex items-center gap-2"
+                className="text-white hover:text-gray-300 transition-colors flex items-center gap-2 hover:scale-110"
               >
-                <FiShield />
+                <FiShield className="text-lg" />
                 Terms & Privacy
               </button>
             </div>
           </div>
 
-          <div className="mt-4 text-center text-sm text-amber-200/60">
+          <div className="mt-6 text-center text-xs sm:text-sm text-white font-semibold">
             <p>Accredited by the Ministry of Education • KNEC Centre Code: 12345678</p>
-            <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="flex items-center justify-center gap-2 mt-3">
               <span>Empowering Future Leaders with</span>
-              <FiHeart className="text-red-400 animate-pulse" />
+              <span className="text-lg">❤️</span>
               <span>since 1995</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Detailed Privacy Policy Modal */}
+      {/* Privacy Policy Modal */}
       {showPrivacy && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+            className="absolute inset-0 bg-black/80" 
             onClick={() => setShowPrivacy(false)} 
-            aria-hidden="true" 
           />
-          <div className="relative bg-gradient-to-b from-white to-amber-50 text-gray-900 rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto shadow-2xl border border-amber-100">
-            <div className="sticky top-0 bg-gradient-to-r from-amber-600 to-orange-600 text-white p-6">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                    <FiShield className="text-lg" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold">Privacy Policy & Terms of Service</h2>
-                    <p className="text-amber-100 text-md">Mary Immaculate Girls Secondary</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setShowPrivacy(false)} 
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors text-xl"
-                >
-                  ✕
-                </button>
+          <div className="relative bg-slate-900 text-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl border border-gray-700 p-6 sm:p-8">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-3">
+                <FiShield className="text-2xl text-white" />
+                <h2 className="text-xl sm:text-2xl font-black text-white">Privacy Policy & Terms</h2>
               </div>
+              <button 
+                onClick={() => setShowPrivacy(false)} 
+                className="text-2xl text-white hover:text-gray-300 transition-colors font-bold"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              <section className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100">
-                <h3 className="text-lg font-bold text-amber-900 mb-3 flex items-center gap-2">
-                  <FiShield className="text-amber-600" />
+            <div className="space-y-6">
+              <section className="bg-slate-800 rounded-lg p-6 border border-gray-700">
+                <h3 className="text-lg sm:text-xl font-black text-white mb-3 flex items-center gap-2">
+                  <FiShield />
                   Privacy Commitment
                 </h3>
-                <p className="text-amber-800 text-md">
+                <p className="text-white text-sm sm:text-base font-semibold">
                   At Mary Immaculate Girls Secondary, we are committed to protecting the privacy and security 
                   of all personal information collected from students, parents, staff, and visitors in compliance 
                   with the Data Protection Act, 2019.
@@ -572,41 +474,41 @@ export default function ModernFooter() {
               </section>
 
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100">
-                  <h3 className="text-lg font-bold text-amber-900 mb-3 flex items-center gap-2">
-                    <FiEye className="text-amber-600" />
+                <div className="bg-slate-800 rounded-lg p-6 border border-gray-700">
+                  <h3 className="text-base sm:text-lg font-black text-white mb-3 flex items-center gap-2">
+                    <FiEye />
                     Information Collection
                   </h3>
-                  <ul className="space-y-2 text-amber-800 text-md">
+                  <ul className="space-y-2 text-white text-xs sm:text-sm font-semibold">
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                       Student academic and personal records
                     </li>
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                       Parent/guardian contact information
                     </li>
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                       Staff employment and qualification data
                     </li>
                     <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                       Medical information for emergency purposes
                     </li>
                   </ul>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-100">
-                  <h3 className="text-lg font-bold text-orange-900 mb-3 flex items-center gap-2">
-                    <FiDownload className="text-orange-600" />
+                <div className="bg-slate-800 rounded-lg p-6 border border-gray-700">
+                  <h3 className="text-base sm:text-lg font-black text-white mb-3 flex items-center gap-2">
+                    <FiDownload />
                     Data Protection
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {['🔐 Encrypted Storage', '🛡️ Access Control', '📊 Regular Audits', '👩‍🏫 Staff Training'].map((item, index) => (
-                      <div key={index} className="bg-white/80 rounded-lg p-3 text-center">
+                    {['🔐 Encrypted', '🛡️ Secure', '📊 Audits', '👩‍🏫 Training'].map((item, index) => (
+                      <div key={index} className="bg-slate-900 rounded-lg p-3 text-center border border-gray-700">
                         <div className="text-lg mb-1">{item.split(' ')[0]}</div>
-                        <div className="text-sm font-medium text-orange-800">{item.split(' ').slice(1).join(' ')}</div>
+                        <div className="text-xs sm:text-sm font-bold text-white">{item.split(' ')[1]}</div>
                       </div>
                     ))}
                   </div>
@@ -616,13 +518,13 @@ export default function ModernFooter() {
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <button 
                   onClick={() => setShowPrivacy(false)} 
-                  className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-4 rounded-lg font-black text-sm sm:text-base hover:scale-105 transition-all"
                 >
                   I Understand & Accept
                 </button>
                 <button 
                   onClick={() => setShowPrivacy(false)} 
-                  className="flex-1 bg-amber-100 text-amber-700 py-3 rounded-lg font-semibold hover:bg-amber-200 transition-colors"
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 sm:py-4 rounded-lg font-black text-sm sm:text-base hover:scale-105 transition-all"
                 >
                   Close Policy
                 </button>
@@ -636,76 +538,66 @@ export default function ModernFooter() {
       {showSitemap && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+            className="absolute inset-0 bg-black/80" 
             onClick={() => setShowSitemap(false)} 
-            aria-hidden="true" 
           />
-          <div className="relative bg-gradient-to-b from-white to-amber-50 text-gray-900 rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto shadow-2xl border border-amber-100">
-            <div className="sticky top-0 bg-gradient-to-r from-amber-600 to-orange-600 text-white p-6">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                    <FiGlobe className="text-lg" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold">Site Navigation</h2>
-                    <p className="text-amber-100 text-md">Mary Immaculate Girls Secondary</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setShowSitemap(false)} 
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors text-xl"
-                >
-                  ✕
-                </button>
+          <div className="relative bg-slate-900 text-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl border border-gray-700 p-6 sm:p-8">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-3">
+                <FiGlobe className="text-2xl text-white" />
+                <h2 className="text-xl sm:text-2xl font-black text-white">Site Navigation</h2>
               </div>
+              <button 
+                onClick={() => setShowSitemap(false)} 
+                className="text-2xl text-white hover:text-gray-300 transition-colors font-bold"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="p-6">
-              <div className="grid md:grid-cols-3 gap-6">
-                {['Main Sections', 'Resources', 'Quick Links'].map((section, idx) => (
-                  <div key={idx}>
-                    <h3 className="font-bold text-amber-900 mb-3 text-lg border-b border-amber-200 pb-2">
-                      {section}
-                    </h3>
-                    <div className="space-y-2">
-                      {(section === 'Main Sections' ? quickLinks.slice(0, 4) : 
-                        section === 'Resources' ? resources.slice(0, 4) : 
-                        quickLinks.slice(4)).map((item, index) => {
-                        const Icon = item.icon;
-                        return (
-                          <a
-                            key={index}
-                            href={item.href}
-                            className="flex items-center gap-2 p-3 rounded-lg hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 text-amber-800 hover:text-orange-600 transition-all group"
-                            onClick={() => setShowSitemap(false)}
-                          >
-                            <Icon className={`${item.color} group-hover:scale-110 transition-transform`} />
-                            <span className="font-medium">{item.name}</span>
-                          </a>
-                        );
-                      })}
-                    </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {['Main Sections', 'Resources', 'Quick Links'].map((section, idx) => (
+                <div key={idx}>
+                  <h3 className="font-black text-white mb-4 text-base sm:text-lg border-b border-gray-700 pb-3">
+                    {section}
+                  </h3>
+                  <div className="space-y-3">
+                    {(section === 'Main Sections' ? quickLinks.slice(0, 4) : 
+                      section === 'Resources' ? resources.slice(0, 4) : 
+                      quickLinks.slice(4)).map((item, index) => {
+                      const Icon = item.icon;
+                      return (
+                        <a
+                          key={index}
+                          href={item.href}
+                          className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-800 text-white hover:text-gray-100 transition-all group font-semibold text-sm sm:text-base hover:translate-x-1"
+                          onClick={() => setShowSitemap(false)}
+                        >
+                          <Icon className="group-hover:scale-125 transition-transform" />
+                          <span>{item.name}</span>
+                        </a>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-amber-200">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button 
-                    onClick={() => setShowSitemap(false)} 
-                    className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
-                  >
-                    Close Sitemap
-                  </button>
-                  <a
-                    href="/pages/contact"
-                    onClick={() => setShowSitemap(false)}
-                    className="flex-1 bg-amber-100 text-amber-700 py-3 rounded-lg font-semibold hover:bg-amber-200 transition-colors text-center"
-                  >
-                    Contact Support
-                  </a>
                 </div>
+              ))}
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-gray-700">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button 
+                  onClick={() => setShowSitemap(false)} 
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-4 rounded-lg font-black text-sm sm:text-base hover:scale-105 transition-all"
+                >
+                  Close Sitemap
+                </button>
+                <a
+                  href="/pages/contact"
+                  onClick={() => setShowSitemap(false)}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 sm:py-4 rounded-lg font-black text-sm sm:text-base hover:scale-105 transition-all text-center"
+                >
+                  Contact Support
+                </a>
               </div>
             </div>
           </div>
