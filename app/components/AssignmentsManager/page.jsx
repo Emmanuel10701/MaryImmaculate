@@ -12,6 +12,7 @@ import {
   FiX,
   FiUpload,
   FiRotateCw,
+  FiUserPlus,
   FiTrendingUp,
   FiAward,
   FiEdit,

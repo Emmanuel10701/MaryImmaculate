@@ -7,7 +7,7 @@ import {
   FiUsers, FiActivity, FiHelpCircle, FiX, FiTrash2, FiMessageCircle,
   FiMapPin, FiPhone, FiMail, FiCalendar, FiAward, FiStar,
   FiGrid, FiBriefcase, FiUser, FiInfo, FiImage, FiLogIn, FiDownload,
-  FiShield, FiTarget, FiHeart, FiBell, FiCheckCircle
+  FiShield, FiTarget, FiHeart, FiBell, FiCheckCircle, FiUserPlus 
 } from 'react-icons/fi';
 import { MdMessage, MdSchool } from 'react-icons/md';
 

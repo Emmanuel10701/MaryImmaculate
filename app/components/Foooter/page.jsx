@@ -28,7 +28,8 @@ import {
   FiUsers,
   FiFileText,
   FiBriefcase,
-  FiActivity
+  FiActivity,
+  FiUserPlus 
 } from 'react-icons/fi';
 import { 
   SiFacebook, 
