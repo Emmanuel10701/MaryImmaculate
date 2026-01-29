@@ -50,7 +50,7 @@ export default function ModernFooter() {
 
   const quickLinks = [
     { name: 'About Us', href: '/pages/AboutUs', icon: FiHome, color: 'text-amber-500' },
-    { name: 'Academics', href: '/pages/admissions', icon: FiBook, color: 'text-orange-500' },
+    { name: 'Academics', href: '/pages/admissions', icon: FiBook, color: 'text-orange-500 0 0 0 0 0 0 0 ' },
     { name: 'Admissions', href: '/pages/admissions', icon: FiUserCheck, color: 'text-red-500' },
     { name: 'Careers', href: '/pages/careers', icon: FiBookOpen, color: 'text-yellow-500' },
     { name: 'Staff', href: '/pages/staff', icon: FiUser, color: 'text-amber-400' },
@@ -72,28 +72,28 @@ export default function ModernFooter() {
 const socialLinks = [
   {
     icon: SiFacebook,
-    href: 'https://facebook.com/maryimmaculategirls',
+    href: 'https://facebook.com/katwanyaahighschool',
     color: 'text-[#1877F2]', // Official Facebook Blue
     bgColor: 'bg-[#1877F2]/10',
     label: 'Facebook'
   },
   {
     icon: SiX,
-    href: 'https://twitter.com/maryimmaculategs',
+    href: 'https://twitter.com/katwanyaahighschool',
     color: 'text-[#1DA1F2]', // Official Twitter Blue
     bgColor: 'bg-[#1DA1F2]/10',
     label: 'Twitter'
   },
   {
     icon: SiYoutube,
-    href: 'https://youtube.com/maryimmaculategirls',
+    href: 'https://youtube.com/katwanyaahighschool',
     color: 'text-[#FF0000]', // Official YouTube Red
     bgColor: 'bg-[#FF0000]/10',
     label: 'YouTube'
   },
   {
     icon: SiLinkedin,
-    href: 'https://linkedin.com/school/maryimmaculategirls',
+    href: 'https://linkedin.com/school/katwanyaahighschool',
     color: 'text-[#0077B5]', // Official LinkedIn Blue
     bgColor: 'bg-[#0077B5]/10',
     label: 'LinkedIn'
@@ -173,9 +173,9 @@ const socialLinks = [
   const contactInfo = [
     {
       icon: FiMapPin,
-      text: 'Mweiga, Nyeri County, Kenya',
+      text: 'Matungulu, Machakos County, Kenya',
       href: 'https://maps.google.com/?q=-0.416667,36.950000',
-      detail: 'Along Mweiga Road',
+      detail: 'Along Matungulu Road',
       color: 'text-amber-400'
     },
     {
@@ -216,14 +216,14 @@ const socialLinks = [
   ];
 
   const achievements = [
-    { text: 'Top Performing Girls School in Nyeri', color: 'text-amber-300' },
+    { text: 'Top Performing schhool School in Matungulu', color: 'text-amber-300' },
     { text: 'Excellence in Science & Mathematics', color: 'text-orange-300' },
     { text: '95% University Placement Rate', color: 'text-red-300' },
     { text: 'Sports Excellence Award 2023', color: 'text-yellow-300' },
   ];
 
   return (
-    <footer className="relative bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white overflow-hidden">
+    <footer className="relative bg-gradient-to-br from-slate-800 via-indigo-900 to-purple-900 bg-fixed  text-white overflow-hidden">
       
       {/* Floating Educational Items Animation */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -259,19 +259,19 @@ const socialLinks = [
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-lg overflow-hidden">
                 <img 
-                  src="/ll.png" 
-                  alt="Mary Immaculate Girls Secondary Logo" 
+                  src="/katz.png" 
+                  alt="Katwanyaa High  Logo" 
                   className="w-full h-full object-cover"
                 />
               </div>
               <div>
-                <h3 className="text-xl font-bold">Mary Immaculate Girls Secondary</h3>
-                <p className="text-amber-300 text-base">Empowering Future Leaders</p>
+                <h3 className="text-xl font-bold">Katwanyaa High school</h3>
+                <p className="text-amber-300 text-base">Education is Light</p>
               </div>
             </div>
 
             <p className="text-gray-300 text-base leading-relaxed">
-              A premier girls learning institution in Mweiga, Nyeri, dedicated to academic excellence, 
+              A premier Mixed learning institution in Matungulu, Machakos, dedicated to academic excellence, 
               holistic development, and nurturing future women leaders through quality education.
             </p>
 
@@ -288,7 +288,7 @@ const socialLinks = [
                     <div>
                       <span>{item.text}</span>
                       {item.detail && (
-                        <p className="text-sm text-gray-400">{item.detail}</p> 
+                        <p className="text-md text-gray-400">{item.detail}</p> 
                       )}
                     </div>
                   </a>
@@ -307,7 +307,7 @@ const socialLinks = [
                   <a
                     key={index}
                     href={resource.href}
-                    className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-sm p-2 rounded hover:bg-white/5"
+                    className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-md p-2 rounded hover:bg-white/5"
                   >
                     <Icon className={`${resource.color} flex-shrink-0`} />
                     <span>{resource.name}</span>
@@ -318,7 +318,7 @@ const socialLinks = [
 
             {/* Achievements */}
             <div className="mt-4 space-y-2">
-              <h4 className="text-sm font-semibold text-orange-300">Recent Achievements</h4>
+              <h4 className="text-md font-semibold text-orange-300">Recent Achievements</h4>
               {achievements.map((achievement, index) => (
                 <div key={index} className={`text-xs ${achievement.color} flex items-center gap-1`}>
                   <FiCheckCircle className="flex-shrink-0" />
@@ -338,7 +338,7 @@ const socialLinks = [
                   <a 
                     key={index} 
                     href={link.href} 
-                    className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-sm p-2 rounded hover:bg-white/5"
+                    className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-md p-2 rounded hover:bg-white/5"
                   >
                     <Icon className={`${link.color} flex-shrink-0`} />
                     <span>{link.name}</span>
@@ -347,17 +347,6 @@ const socialLinks = [
               })}
             </div>
 
-            {/* Emergency Contact */}
-            <div className="mt-4 bg-gradient-to-r from-orange-600/30 to-red-600/30 rounded-lg p-3 border border-orange-400/30">
-              <h5 className="text-sm font-medium mb-2">Emergency Contact</h5>
-              <a
-                href="tel:+254720123456"
-                className="inline-flex items-center gap-2 bg-white text-orange-600 px-3 py-2 rounded-lg text-sm font-medium w-full justify-center hover:bg-orange-50 transition-colors"
-              >
-                <FiPhone />
-                +254 720 123 456
-              </a>
-            </div>
           </div>
 
           {/* Newsletter & Social - POSITION CHANGED: Now 4th column (Subscribe moved here) */}
@@ -376,7 +365,7 @@ const socialLinks = [
                   </div>
                   <div>
                     <h4 className="text-lg font-bold text-white">Newsletter</h4>
-                    <p className="text-amber-200/80 text-sm">Get academic events & announcements</p>
+                    <p className="text-amber-200/80 text-md">Get academic events & announcements</p>
                   </div>
                 </div>
 
@@ -397,7 +386,7 @@ const socialLinks = [
                   <button
                     type="submit"
                     disabled={isSubmitting || !email}
-                    className="group relative w-full overflow-hidden bg-gradient-to-r from-orange-600 to-red-600 text-white py-3.5 rounded-xl font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/30"
+                    className="group relative w-full overflow-hidden bg-gradient-to-r from-orange-600 to-red-600 text-white py-3.5 rounded-xl font-bold text-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/30"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <span className="relative flex items-center justify-center gap-2">
@@ -428,7 +417,7 @@ const socialLinks = [
                       </div>
                       <div>
                         <p className="text-emerald-300 font-medium">Successfully subscribed!</p>
-                        <p className="text-emerald-200/80 text-sm">You'll receive updates soon.</p>
+                        <p className="text-emerald-200/80 text-md">You'll receive updates soon.</p>
                       </div>
                     </div>
                   </div>
@@ -437,7 +426,7 @@ const socialLinks = [
             </div>
 {/* Social Media */}
 <div className="space-y-3">
-  <h5 className="text-sm font-medium text-slate-300">Connect With Us</h5>
+  <h5 className="text-md font-medium text-slate-300">Connect With Us</h5>
   <div className="flex flex-wrap gap-3">
     {socialLinks.map((social, index) => {
       const SocialIcon = social.icon;
@@ -449,7 +438,7 @@ const socialLinks = [
           rel="noopener noreferrer"
           className={`
             w-14 h-14 rounded-xl flex items-center justify-center 
-            transition-all duration-300 transform hover:scale-110 hover:-translate-y-1
+            transition-all duration-300 transform hover:scale-100 hover:-translate-y-1
             ${social.bgColor} 
           `}
           aria-label={social.label}
@@ -469,11 +458,11 @@ const socialLinks = [
         {/* Footer Bottom */}
         <div className="mt-8 pt-6 border-t border-white/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-gray-300 text-sm text-center md:text-left">
-              <p>© {currentYear} Mary Immaculate Girls Secondary, Mweiga, Nyeri. All rights reserved.</p>
+            <div className="text-gray-300 text-md text-center md:text-left">
+              <p>© {currentYear} Katwanyaa High school, Matungulu, Machakos. All rights reserved.</p>
             </div>
 
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-4 text-md">
               <button 
                 onClick={() => setShowSitemap(true)} 
                 className="text-gray-300 hover:text-white transition-colors"
@@ -517,7 +506,7 @@ const socialLinks = [
                   </div>
                   <div>
                     <h2 className="text-xl font-bold">Privacy Policy & Terms of Service</h2>
-                    <p className="text-amber-100 text-sm">Last updated: {new Date().toLocaleDateString()}</p>
+                    <p className="text-amber-100 text-md">Last updated: {new Date().toLocaleDateString()}</p>
                   </div>
                 </div>
                 <button 
@@ -532,11 +521,11 @@ const socialLinks = [
             <div className="p-6 space-y-6">
               <section>
                 <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <FiEye className="text-orange-500" />
+                  <FiEye className="text-orange-500 0 0 0 0 0 0 " />
                   Privacy Commitment
                 </h3>
-                <p className="text-gray-700 text-sm">
-                  At Mary Immaculate Girls Secondary, we are committed to protecting the privacy and security 
+                <p className="text-gray-700 text-md">
+                  At Katwanyaa High school, we are committed to protecting the privacy and security 
                   of all personal information collected from students, parents, staff, and visitors. 
                   This policy outlines our practices regarding data collection, usage, and protection 
                   in compliance with the Data Protection Act, 2019.
@@ -545,10 +534,10 @@ const socialLinks = [
 
               <section>
                 <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <FiDownload className="text-orange-500" />
+                  <FiDownload className="text-orange-500 " />
                   Information Collection & Usage
                 </h3>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div className="grid md:grid-cols-2 gap-4 text-md">
                   <div className="bg-amber-50 rounded-lg p-4">
                     <h4 className="font-semibold text-orange-900 mb-2">Collected Information</h4>
                     <ul className="space-y-1 text-orange-800">
@@ -575,7 +564,7 @@ const socialLinks = [
               <section>
                 <h3 className="text-lg font-bold text-gray-900 mb-3">Data Protection Measures</h3>
                 <div className="bg-red-50 rounded-lg p-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-md">
                     <div className="text-center p-2 bg-white rounded">
                       <div className="text-lg">🔐</div>
                       <div className="font-medium text-red-800">Encrypted Storage</div>
@@ -602,18 +591,18 @@ const socialLinks = [
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-semibold mb-2">Data Protection Officer</h4>
-                      <p className="text-sm opacity-90">Email: dpo@maryimmaculate.sc.ke</p>
-                      <p className="text-sm opacity-90">Phone: +254 720 123 456</p>
+                      <p className="text-md opacity-90">Email: dpo@maryimmaculate.sc.ke</p>
+                      <p className="text-md opacity-90">Phone: +254 720 123 456</p>
                     </div>
                     <div>
                       <h4 className="font-semibold mb-2">General Inquiries</h4>
-                      <p className="text-sm opacity-90">Email: info@maryimmaculate.sc.ke</p>
-                      <p className="text-sm opacity-90">Phone: +254 734 567 890</p>
+                      <p className="text-md opacity-90">Email: info@maryimmaculate.sc.ke</p>
+                      <p className="text-md opacity-90">Phone: +254 734 567 890</p>
                     </div>
                   </div>
                   <div className="mt-4 pt-4 border-t border-white/20">
-                    <p className="text-sm opacity-90">
-                      Mary Immaculate Girls Secondary, Mweiga, Nyeri County, Kenya
+                    <p className="text-md opacity-90">
+                      Katwanyaa High school, Matungulu, Machakos County, Kenya
                     </p>
                   </div>
                 </div>
@@ -655,7 +644,7 @@ const socialLinks = [
                   </div>
                   <div>
                     <h2 className="text-xl font-bold">Complete Site Navigation</h2>
-                    <p className="text-amber-100 text-sm">Explore all sections of our website</p>
+                    <p className="text-amber-100 text-md">Explore all sections of our website</p>
                   </div>
                 </div>
                 <button 

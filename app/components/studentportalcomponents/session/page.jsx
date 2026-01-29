@@ -12,8 +12,10 @@ import {
   FiBell, FiBook, FiFileText, FiAward, FiMail,
   FiPhone, FiSave, FiPlus, FiTrash2, FiEdit,
   FiCheck, FiLoader, FiAlertTriangle, FiInfo,
-  FiPrinter, FiCopy, FiLink, FiGlobe,FiPhoneCall 
+  FiPrinter, FiCopy, FiLink, FiGlobe,FiPhoneCall, FiArrowRight, FiHeart  
 } from 'react-icons/fi';
+import { IoClose, IoCalendarClearOutline } from "react-icons/io5"; // or /io for v4
+
 import { 
   FaBell, FaBars, FaChartBar, FaFolder, FaComments, 
   FaRocket, FaFire, FaBolt, FaCalendarCheck,
@@ -77,7 +79,7 @@ const DEFAULT_SESSIONS = [
     priority: 'high',
     image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
     featured: true,
-    location: 'Mary ImmaculateChurch'
+    location: 'Katwanyaa Church'
   }
 ];
 
@@ -185,7 +187,7 @@ function TeamsSection({ teamMembers = [] }) {
                       <img 
                         src={member.image} 
                         alt={member.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-100"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.parentElement.innerHTML = `
@@ -536,20 +538,41 @@ function ModernDetailModal({ session, onClose, onContact }) {
     }
   };
 
+  // Calendar functionality
+  const addToCalendar = () => {
+    try {
+      if (!session.date || session.date === 'Always Available' || session.date === 'Monday - Friday') {
+        toast.error('Cannot add flexible schedules to calendar');
+        return;
+      }
+
+      const startDate = new Date(session.date);
+      const endDate = new Date(startDate);
+      endDate.setHours(startDate.getHours() + 1); // Default 1 hour duration
+
+      const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(session.title)}&dates=${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${endDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(session.description)}&location=${encodeURIComponent(session.location || 'School Counseling Office')}`;
+      
+      window.open(googleCalendarUrl, '_blank');
+      toast.success('Added to Google Calendar');
+    } catch (error) {
+      toast.error('Failed to add to calendar');
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4">
-      <style jsx global>{mobileStyles}</style>
-      <div className="relative bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border-2 border-gray-300 shadow-2xl mobile-full-width">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-900/90 backdrop-blur-sm">
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col">
+        
         {/* Close Button */}
         <button 
           onClick={onClose}
-          className="absolute top-5 right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90 mobile-touch-target"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90 mobile-touch-target"
         >
-          <FaTimes size={20} />
+          <IoClose size={20} />
         </button>
 
         {/* Hero Image */}
-        <div className="relative h-[40vh] sm:h-[350px] w-full shrink-0">
+        <div className="relative h-[30vh] sm:h-[350px] w-full shrink-0">
           {session.image ? (
             <img
               src={session.image}
@@ -562,53 +585,55 @@ function ModernDetailModal({ session, onClose, onContact }) {
           <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20" />
           
           {/* Badge Overlays */}
-          <div className="absolute bottom-6 left-6 flex gap-2">
-            <span className="px-4 py-1.5 bg-white shadow-xl rounded-full text-xs font-bold uppercase tracking-widest text-slate-900">
+          <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex gap-2">
+            <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-white shadow-xl rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest text-blue-600">
               {session.category || 'Counseling'}
             </span>
             {session.featured && (
-              <span className="px-4 py-1.5 bg-slate-900 text-white rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-1">
-                <FaSparkles className="text-amber-400" /> Featured
+              <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-slate-900 text-white rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest flex items-center gap-1">
+                <HiSparkles className="text-amber-400 w-3 h-3 sm:w-4 sm:h-4" /> 
+                <span className="hidden sm:inline">Featured</span>
+                <span className="sm:hidden">★</span>
               </span>
             )}
           </div>
         </div>
 
         {/* Content Area - Scrollable */}
-        <div className="max-h-[calc(90vh-350px)] overflow-y-auto mobile-scroll-hide p-6 md:p-10 bg-white">
-          <div className="max-w-2xl mx-auto space-y-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 bg-white">
+          <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
             
             {/* Title & Category */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className={`p-3 rounded-2xl bg-gradient-to-r ${categoryStyle.gradient}`}>
-                  {React.createElement(categoryStyle.icon, { className: "text-white text-2xl" })}
+            <section className="space-y-3 sm:space-y-4">
+              <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-col sm:flex-row">
+                <div className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-r ${categoryStyle.gradient}`}>
+                  {React.createElement(categoryStyle.icon, { className: "text-white text-xl sm:text-2xl" })}
                 </div>
-                <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-900 leading-tight tracking-tight">
                     {session.title}
                   </h2>
-                  <p className="text-gray-600 text-lg">{session.type || 'Counseling Session'}</p>
+                  <p className="text-slate-600 text-sm sm:text-lg mt-1">{session.type || 'Counseling Session'}</p>
                 </div>
               </div>
 
-              {/* Quick Info Bar */}
-              <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm font-semibold text-gray-600">
+              {/* Quick Info Bar - Responsive */}
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-y-2 sm:gap-y-3 gap-x-6 text-xs sm:text-sm font-semibold text-slate-500">
                 <div className="flex items-center gap-2">
-                  <FiCalendar className="text-blue-500 text-lg" />
+                  <FiCalendar className="text-blue-500 text-base sm:text-lg" />
                   {formatFullDate(session.date)}
                 </div>
                 <div className="flex items-center gap-2">
-                  <FiClock className="text-emerald-500 text-lg" />
+                  <FiClock className="text-emerald-500 text-base sm:text-lg" />
                   {session.time || 'Flexible'}
                 </div>
                 <div className="flex items-center gap-2">
-                  <FiUser className="text-purple-500 text-lg" />
+                  <FiUser className="text-purple-500 text-base sm:text-lg" />
                   {session.counselor || 'School Counselor'}
                 </div>
                 {session.location && (
                   <div className="flex items-center gap-2">
-                    <FiMapPin className="text-rose-500 text-lg" />
+                    <FiMapPin className="text-rose-500 text-base sm:text-lg" />
                     {session.location}
                   </div>
                 )}
@@ -616,84 +641,96 @@ function ModernDetailModal({ session, onClose, onContact }) {
             </section>
 
             {/* Description Block */}
-            <section className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">About this session</h3>
-              <div className="text-gray-700 leading-relaxed text-lg">
+            <section className="space-y-3 sm:space-y-4">
+              <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-400">
+                About this session
+              </h3>
+              <div className="text-slate-700 leading-relaxed text-sm sm:text-base md:text-lg">
                 {session.description || 'Professional counseling and support session.'}
               </div>
               
               {/* Additional Notes */}
               {session.notes && (
-                <div className="pt-4 mt-4 border-t border-gray-200 text-gray-600 whitespace-pre-line">
+                <div className="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-slate-100 text-slate-600 text-xs sm:text-sm md:text-base whitespace-pre-line italic">
                   {session.notes}
                 </div>
               )}
             </section>
 
-            {/* Session Stats Grid */}
-            <section className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
-                <div className="flex items-center gap-2 mb-2">
+            {/* Session Stats Grid - Reduced items for mobile */}
+            <section className="grid grid-cols-2 gap-3 sm:gap-4 pt-4">
+              <div className="p-3 sm:p-4 bg-slate-50 rounded-2xl sm:rounded-3xl border border-slate-100">
+                <div className="flex items-center gap-2 mb-1 sm:mb-2">
                   <div className={`w-2 h-2 rounded-full ${
                     session.priority === 'high' ? 'bg-red-500' :
                     session.priority === 'medium' ? 'bg-amber-500' :
-                    'bg-green-500'
+                    'bg-emerald-500'
                   }`} />
-                  <p className="text-xs uppercase font-bold text-gray-400">Priority</p>
+                  <p className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400">Priority</p>
                 </div>
-                <p className="font-bold text-gray-900 capitalize">{session.priority || 'medium'}</p>
+                <p className="font-bold text-slate-900 text-xs sm:text-sm md:text-base capitalize">{session.priority || 'medium'}</p>
               </div>
               
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
-                <div className={`w-8 h-8 rounded-xl ${
-                  session.status === 'active' ? 'bg-green-100 text-green-600' :
+              <div className="p-3 sm:p-4 bg-slate-50 rounded-2xl sm:rounded-3xl border border-slate-100">
+                <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-xl ${
+                  session.status === 'active' ? 'bg-emerald-100 text-emerald-600' :
                   session.status === 'completed' ? 'bg-blue-100 text-blue-600' :
                   'bg-amber-100 text-amber-600'
-                } flex items-center justify-center mb-2`}>
-                  <FiCalendar size={16} />
+                } flex items-center justify-center mb-1 sm:mb-2`}>
+                  <FiCalendar size={14} className="sm:w-4 sm:h-4" />
                 </div>
-                <p className="text-xs uppercase font-bold text-gray-400">Status</p>
-                <p className="font-bold text-gray-900 capitalize">{session.status || 'scheduled'}</p>
-              </div>
-
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
-                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-2">
-                  <FiAlertCircle size={16} />
-                </div>
-                <p className="text-xs uppercase font-bold text-gray-400">Confidentiality</p>
-                <p className="font-bold text-gray-900">100% Secure</p>
-              </div>
-
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
-                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-2">
-                  <FiStar size={16} />
-                </div>
-                <p className="text-xs uppercase font-bold text-gray-400">Rating</p>
-                <p className="font-bold text-gray-900">4.8/5.0</p>
+                <p className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400">Status</p>
+                <p className="font-bold text-slate-900 text-xs sm:text-sm md:text-base capitalize">{session.status || 'scheduled'}</p>
               </div>
             </section>
           </div>
         </div>
 
-        {/* Action Footer */}
-        <div className="shrink-0 p-6 bg-gray-50/80 backdrop-blur-sm border-t border-gray-200">
-          <div className="max-w-2xl mx-auto flex gap-3">
-            <button
-              onClick={onContact}
-              className="flex-[2] h-14 bg-gray-900 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform mobile-touch-target"
-            >
-              <FiPhoneCall size={20} />
-              Contact Support
-            </button>
-            
-            <button
-              onClick={onClose}
-              className="flex-1 h-14 bg-white border-2 border-gray-200 text-gray-900 rounded-xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform mobile-touch-target"
-            >
-              <FaTimes size={20} />
-              Close
-            </button>
-          </div>
+        {/* Action Footer - Sticky at bottom */}
+        <div className="shrink-0 p-4 sm:p-6 bg-slate-50/80 backdrop-blur-md border-t border-slate-100">
+<div className="max-w-2xl mx-auto flex flex-row gap-2 sm:gap-3 px-1">
+  <button
+    onClick={addToCalendar}
+    disabled={
+      !session.date ||
+      session.date === "Always Available" ||
+      session.date === "Monday - Friday"
+    }
+    className="
+      flex-1 min-w-0
+      h-11 sm:h-14
+      bg-slate-900 text-white
+      rounded-xl sm:rounded-2xl
+      font-semibold sm:font-bold
+      text-[11px] sm:text-sm
+      flex items-center justify-center gap-1.5 sm:gap-2
+      active:scale-95 transition-all
+      disabled:opacity-50 disabled:cursor-not-allowed
+    "
+  >
+    <IoCalendarClearOutline className="shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
+    <span className="truncate">Add to Calendar</span>
+  </button>
+
+  <button
+    onClick={onClose}
+    className="
+      flex-1 min-w-0
+      h-11 sm:h-14
+      bg-white border-2 border-slate-200
+      text-slate-900
+      rounded-xl sm:rounded-2xl
+      font-semibold sm:font-bold
+      text-[11px] sm:text-sm
+      flex items-center justify-center gap-1.5 sm:gap-2
+      active:scale-95 transition-all
+    "
+  >
+    <IoClose className="shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
+    <span className="truncate">Close</span>
+  </button>
+</div>
+
         </div>
       </div>
     </div>
@@ -909,8 +946,8 @@ function EmergencyModal({ student, onClose, onSubmit }) {
                     onClick={() => handleChange({ target: { name: 'urgency', value: level.value } })}
                     className={`p-2 rounded-lg border-2 transition-all mobile-touch-target ${
                       formData.urgency === level.value
-                        ? `border-red-500 bg-gradient-to-r ${level.color} text-white`
-                        : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
+                        ? `border-red-500 font-bold bg-gradient-to-r ${level.color} text-white`
+                        : 'border-gray-300 font-bold bg-gray-50 hover:bg-gray-100'
                     }`}
                   >
                     <span className="text-xs font-bold">{level.label}</span>
@@ -931,7 +968,7 @@ function EmergencyModal({ student, onClose, onSubmit }) {
                 required
                 rows={4}
                 placeholder="Please describe the emergency situation in detail..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
               />
             </div>
 
@@ -940,7 +977,7 @@ function EmergencyModal({ student, onClose, onSubmit }) {
               <h4 className="font-bold text-gray-900 text-sm">Contact Information</h4>
               
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-bold  text-gray-700 mb-1">
                   Phone Number
                 </label>
                 <input
@@ -949,12 +986,12 @@ function EmergencyModal({ student, onClose, onSubmit }) {
                   value={formData.contactPhone}
                   onChange={handleChange}
                   placeholder="Enter phone number for immediate contact"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border font-bold border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-bold  text-gray-700 mb-1">
                   Email Address
                 </label>
                 <input
@@ -964,7 +1001,7 @@ function EmergencyModal({ student, onClose, onSubmit }) {
                   onChange={handleChange}
                   required
                   placeholder="Enter email address"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 />
               </div>
             </div>
@@ -974,9 +1011,9 @@ function EmergencyModal({ student, onClose, onSubmit }) {
               <div className="flex items-start gap-2">
                 <FiAlertTriangle className="text-amber-500 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-xs text-gray-700">
+                  <p className="text-xs  text-gray-700">
                     <span className="font-bold">Important:</span> For immediate life-threatening emergencies, 
-                    please call 911 or your local emergency number first. This form is for urgent school-related 
+                    please call Our Ofiice Direct 0789384922 or your local emergency number first. This form is for urgent school-related 
                     matters that require immediate administrative attention.
                   </p>
                 </div>
@@ -985,7 +1022,7 @@ function EmergencyModal({ student, onClose, onSubmit }) {
 
   {/* Action Buttons */}
 <div className="
-  flex flex-col sm:flex-row 
+  flex  
   gap-4
   mt-6 pb-4
   pt-6
@@ -1038,7 +1075,7 @@ function EmergencyModal({ student, onClose, onSubmit }) {
     ) : (
       <>
         <FaExclamationCircle />
-        Submit Emergency Request
+        Submit 
       </>
     )}
   </button>
@@ -1333,403 +1370,515 @@ function StatisticsCards({ events, guidance, news, teams, activeTab }) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
-      {getActiveStats().map((stat, index) => (
-        <div key={index} className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-200 md:border-2 shadow-sm md:shadow-lg hover:shadow-md md:hover:shadow-xl transition-shadow duration-300 mobile-scroll-hide">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <div className={`p-2 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-r ${stat.color}`}>
-              <div className="text-white text-base md:text-xl">
-                {stat.icon}
-              </div>
-            </div>
-            <div className={`text-xs md:text-sm font-bold px-2 md:px-3 py-1 rounded md:rounded-lg ${
-              index === 0 ? 'bg-blue-100 text-blue-800' :
-              index === 1 ? 'bg-green-100 text-green-800' :
-              'bg-purple-100 text-purple-800'
-            }`}>
-              {index === 0 ? 'All' : index === 1 ? 'Active' : 'Visual'}
-            </div>
+  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
+  {getActiveStats().map((stat, index) => (
+    <div key={index} className="relative bg-white rounded-[24px] md:rounded-[32px] p-4 md:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex flex-col">
+      
+      {/* Header with Icon and Badge */}
+      <div className="flex items-start justify-between mb-4 md:mb-6">
+        <div className={`p-2.5 md:p-3.5 rounded-xl md:rounded-2xl bg-gradient-to-br ${stat.color} shadow-sm`}>
+          <div className="text-white text-lg md:text-2xl">
+            {stat.icon}
           </div>
-          <h4 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{stat.value}</h4>
-          <p className="text-gray-600 text-xs md:text-sm font-medium mobile-text-ellipsis">{stat.label}</p>
         </div>
-      ))}
+        
+        <span className={`px-2.5 py-1 rounded-full text-[10px] md:text-xs font-black uppercase tracking-wider ${
+          index === 0 ? 'bg-blue-50 text-blue-600 border border-blue-200' :
+          index === 1 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' :
+          'bg-purple-50 text-purple-600 border border-purple-200'
+        }`}>
+          {index === 0 ? 'All' : index === 1 ? 'Active' : 'Visual'}
+        </span>
+      </div>
+      
+      {/* Content */}
+      <div className="flex-1 flex flex-col">
+        <h4 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 mb-1 md:mb-2 tracking-tight">
+          {stat.value}
+        </h4>
+        
+        <p className="text-[11px] md:text-sm font-bold text-slate-600 mb-2 uppercase tracking-wider">
+          {stat.label}
+        </p>
+        
+        {stat.sublabel && (
+          <p className="text-[10px] md:text-xs text-slate-400 font-medium mt-auto">
+            {stat.sublabel}
+          </p>
+        )}
+      </div>
+      
+      {/* Decorative Element */}
+      <div className={`absolute -bottom-2 -right-2 w-12 h-12 md:w-16 md:h-16 opacity-[0.03] rounded-full bg-gradient-to-br ${
+        index === 0 ? 'from-blue-500 to-cyan-500' :
+        index === 1 ? 'from-emerald-500 to-green-500' :
+        'from-purple-500 to-pink-500'
+      } hidden md:block`} />
     </div>
+  ))}
+</div>
   );
 }
 
 // ==================== EVENT CARD ====================
+// ==================== MODERNIZED EVENT CARD ====================
 function EventCard({ event, onViewDetails }) {
-  const isUpcoming = new Date(event.date) >= new Date();
+  const [isHovered, setIsHovered] = useState(false);
   
+  const getCategoryStyle = (category) => {
+    const styles = {
+      sports: { 
+        gradient: 'from-red-500 to-orange-500', 
+        bg: 'bg-red-50', 
+        text: 'text-red-700',
+        border: 'border-red-200',
+        iconBg: 'bg-red-100',
+        iconColor: 'text-red-600'
+      },
+      academic: { 
+        gradient: 'from-blue-500 to-cyan-500', 
+        bg: 'bg-blue-50', 
+        text: 'text-blue-700',
+        border: 'border-blue-200',
+        iconBg: 'bg-blue-100',
+        iconColor: 'text-blue-600'
+      },
+      cultural: { 
+        gradient: 'from-purple-500 to-pink-500', 
+        bg: 'bg-purple-50', 
+        text: 'text-purple-700',
+        border: 'border-purple-200',
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600'
+      },
+      workshop: { 
+        gradient: 'from-amber-500 to-orange-500', 
+        bg: 'bg-amber-50', 
+        text: 'text-amber-700',
+        border: 'border-amber-200',
+        iconBg: 'bg-amber-100',
+        iconColor: 'text-amber-600'
+      }
+    };
+    return styles[category] || styles.academic;
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Scheduled';
+    }
+  };
+
+  const categoryStyle = getCategoryStyle(event.category);
+  const isUpcoming = new Date(event.date) >= new Date();
+
   return (
-    <div className="group relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl md:rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-      <div className="relative bg-white rounded-xl md:rounded-2xl border border-gray-200 md:border-2 overflow-hidden shadow-sm md:shadow-lg hover:shadow-md md:hover:shadow-xl transition-all duration-300 mobile-scroll-hide">
-        {/* Event Image */}
-        {event.image && (
-          <div className="relative h-40 md:h-48 overflow-hidden">
-            <img 
-              src={event.image} 
-              alt={event.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-100"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentElement.innerHTML = `
-                  <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-blue-50 to-blue-100">
-                    <div class="text-blue-400 text-center p-4">
-                      <FiCalendar class="text-4xl mx-auto mb-2" />
-                      <p class="text-sm font-medium">Event Image</p>
-                    </div>
-                  </div>
-                `;
-              }}
-            />
-            <div className="absolute top-2 right-2">
-              {isUpcoming && (
-                <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded-full">
-                  Upcoming
-                </span>
-              )}
-            </div>
+    <div 
+      onClick={() => onViewDetails?.(event)}
+      className="relative bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden cursor-pointer"
+    >
+      {/* Image Header */}
+      <div className="relative h-48 w-full shrink-0">
+        {event.image ? (
+          <img
+            src={event.image}
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <FiCalendar className="text-white text-3xl" />
           </div>
         )}
         
-        <div className="p-3 md:p-5 mobile-card-spacing">
-          {/* Event Header */}
-          <div className="flex items-start justify-between mb-3 md:mb-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-1 md:gap-2 mb-2 md:mb-3">
-                <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs font-bold ${
-                  event.category === 'sports' ? 'bg-red-100 text-red-800' :
-                  event.category === 'academic' ? 'bg-blue-100 text-blue-800' :
-                  'bg-purple-100 text-purple-800'
-                }`}>
-                  {event.category?.charAt(0).toUpperCase() + event.category?.slice(1)}
-                </span>
-                <span className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-xs font-bold ${
-                  event.type === 'external' ? 'bg-amber-100 text-amber-800' :
-                  'bg-emerald-100 text-emerald-800'
-                }`}>
-                  {event.type?.charAt(0).toUpperCase() + event.type?.slice(1)}
-                </span>
-                {event.featured && (
-                  <span className="px-1.5 md:px-2 py-0.5 md:py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full">
-                    Featured
-                  </span>
-                )}
-              </div>
-              <h4 className="text-base md:text-lg font-bold text-gray-900 mb-1 md:mb-2 line-clamp-1 mobile-text-ellipsis">{event.title}</h4>
-            </div>
+        {/* Badges */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.border}`}>
+            {event.category?.charAt(0).toUpperCase() + event.category?.slice(1) || 'Event'}
+          </span>
+          {isUpcoming && (
+            <span className="px-3 py-1 bg-slate-900/90 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+              <FiClock className="text-emerald-400" /> Upcoming
+            </span>
+          )}
+        </div>
+
+        {/* Type Badge */}
+        {event.type && (
+          <div className="absolute top-4 right-4">
+            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+              event.type === 'external' ? 'bg-amber-50 border border-amber-200 text-amber-700' :
+              'bg-emerald-50 border border-emerald-200 text-emerald-700'
+            }`}>
+              {event.type}
+            </span>
           </div>
-          
-          {/* Event Description */}
-          <p className="text-gray-600 text-xs md:text-sm mb-4 md:mb-5 line-clamp-2 mobile-text-ellipsis">{event.description}</p>
-          
-          {/* Event Details */}
-          <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-1.5 md:p-2 bg-blue-50 rounded-lg flex-shrink-0">
-                <FiCalendar className="text-blue-500 text-sm md:text-base" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs md:text-sm font-medium text-gray-900 truncate">
-                  {new Date(event.date).toLocaleDateString('en-US', { 
-                    weekday: 'short', 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric' 
-                  })}
-                </div>
-                <div className="text-xs text-gray-500">Date</div>
-              </div>
+        )}
+      </div>
+
+      {/* Content Area */}
+      <div className="p-6">
+        <div className="mb-4">
+          <h3 className="text-xl font-bold text-slate-900 mb-2 line-clamp-2 leading-tight">
+            {event.title}
+          </h3>
+          <p className="text-slate-500 text-sm line-clamp-2 leading-relaxed">
+            {event.description || 'Join us for this upcoming school event and explore new opportunities.'}
+          </p>
+        </div>
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+            <div className={`p-1.5 rounded-lg ${categoryStyle.iconBg}`}>
+              <FiCalendar className={`${categoryStyle.iconColor}`} size={14} />
             </div>
-            
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-1.5 md:p-2 bg-purple-50 rounded-lg flex-shrink-0">
-                <FiClock className="text-purple-500 text-sm md:text-base" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs md:text-sm font-medium text-gray-900 truncate">{event.time}</div>
-                <div className="text-xs text-gray-500">Time</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-1.5 md:p-2 bg-amber-50 rounded-lg flex-shrink-0">
-                <FiMapPin className="text-amber-500 text-sm md:text-base" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs md:text-sm font-medium text-gray-900 truncate">{event.location}</div>
-                <div className="text-xs text-gray-500">Location</div>
-              </div>
-            </div>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">
+              {formatDate(event.date)}
+            </span>
           </div>
-          
-          {/* Event Footer */}
-          <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200">
-            <div className="flex items-center gap-1 md:gap-2">
-              <FiUser className="text-gray-400 text-xs md:text-sm" />
-              <span className="text-xs text-gray-600 truncate">{event.attendees}</span>
+
+          <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+            <div className={`p-1.5 rounded-lg ${categoryStyle.iconBg}`}>
+              <FiClock className={`${categoryStyle.iconColor}`} size={14} />
             </div>
-            <button
-              onClick={() => onViewDetails?.(event)}
-              className="px-3 md:px-4 py-1.5 md:py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs md:text-sm font-bold rounded-lg md:rounded-xl hover:shadow-md md:hover:shadow-lg transition-all transform hover:-translate-y-0.5 mobile-touch-target"
-            >
-              Read More
-            </button>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+              {event.time || 'All Day'}
+            </span>
+          </div>
+
+          <div className="col-span-2 flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+            <div className={`p-1.5 rounded-lg ${categoryStyle.iconBg}`}>
+              <FiMapPin className={`${categoryStyle.iconColor}`} size={14} />
+            </div>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+              {event.location || 'Main Campus Hall'}
+            </span>
           </div>
         </div>
+
+        {/* Action Button */}
+        <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+          View Event Details
+          <FiArrowRight size={18} />
+        </button>
       </div>
     </div>
   );
 }
 
-// ==================== GUIDANCE CARD ====================
+// ==================== MODERNIZED GUIDANCE CARD ====================
 function GuidanceCard({ session, onViewDetails }) {
-  const isUpcoming = new Date(session.date) >= new Date();
+  const [isHovered, setIsHovered] = useState(false);
   
+  const getCategoryStyle = (category) => {
+    const styles = {
+      Academics: { 
+        gradient: 'from-blue-500 to-cyan-500', 
+        bg: 'bg-blue-50', 
+        text: 'text-blue-700',
+        border: 'border-blue-200',
+        iconBg: 'bg-blue-100',
+        iconColor: 'text-blue-600'
+      },
+      Relationships: { 
+        gradient: 'from-purple-500 to-pink-500', 
+        bg: 'bg-purple-50', 
+        text: 'text-purple-700',
+        border: 'border-purple-200',
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600'
+      },
+      Career: { 
+        gradient: 'from-emerald-500 to-green-500', 
+        bg: 'bg-emerald-50', 
+        text: 'text-emerald-700',
+        border: 'border-emerald-200',
+        iconBg: 'bg-emerald-100',
+        iconColor: 'text-emerald-600'
+      }
+    };
+    return styles[category] || styles.Academics;
+  };
+
+  const getPriorityStyle = (priority) => {
+    const styles = {
+      High: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' },
+      Medium: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
+      Low: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' }
+    };
+    return styles[priority] || styles.Medium;
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Scheduled';
+    }
+  };
+
+  const categoryStyle = getCategoryStyle(session.category);
+  const priorityStyle = getPriorityStyle(session.priority);
+
   return (
-    <div className="group relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl md:rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-      <div className="relative bg-white rounded-xl md:rounded-2xl border border-gray-200 md:border-2 overflow-hidden shadow-sm md:shadow-lg hover:shadow-md md:hover:shadow-xl transition-all duration-300 mobile-scroll-hide">
-        {/* Session Image */}
-        {session.image && (
-          <div className="relative h-40 md:h-48 overflow-hidden">
-            <img 
-              src={session.image} 
-              alt={`Session with ${session.counselor}`}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-100"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentElement.innerHTML = `
-                  <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-purple-50 to-pink-100">
-                    <div class="text-purple-400 text-center p-4">
-                      <FiMessageSquare class="text-4xl mx-auto mb-2" />
-                      <p class="text-sm font-medium">Guidance Session</p>
-                    </div>
-                  </div>
-                `;
-              }}
-            />
-            <div className="absolute top-2 right-2">
-              <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                session.priority === 'High' ? 'bg-red-500 text-white' :
-                session.priority === 'Medium' ? 'bg-amber-500 text-white' :
-                'bg-blue-500 text-white'
-              }`}>
-                {session.priority}
+    <div 
+      onClick={() => onViewDetails?.(session)}
+      className="relative bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden cursor-pointer"
+    >
+      {/* Image Header */}
+      <div className="relative h-48 w-full shrink-0">
+        {session.image ? (
+          <img
+            src={session.image}
+            alt={`Session with ${session.counselor}`}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+            <FiMessageSquare className="text-white text-3xl" />
+          </div>
+        )}
+        
+        {/* Badges */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.border}`}>
+            {session.category || 'Session'}
+          </span>
+          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${priorityStyle.bg} ${priorityStyle.text} ${priorityStyle.border}`}>
+            {session.priority || 'Medium'}
+          </span>
+        </div>
+
+        {/* Type Badge */}
+        {session.type && (
+          <div className="absolute top-4 right-4">
+            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+              session.type === 'Counseling' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
+              'bg-indigo-50 border border-indigo-200 text-indigo-700'
+            }`}>
+              {session.type}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Content Area */}
+      <div className="p-6">
+        <div className="mb-4">
+          <h3 className="text-xl font-bold text-slate-900 mb-2 line-clamp-2 leading-tight">
+            Session with {session.counselor || 'Counselor'}
+          </h3>
+          <p className="text-slate-500 text-sm line-clamp-2 leading-relaxed">
+            {session.description || 'Guidance session for student support and development.'}
+          </p>
+        </div>
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+            <div className={`p-1.5 rounded-lg ${categoryStyle.iconBg}`}>
+              <FiCalendar className={`${categoryStyle.iconColor}`} size={14} />
+            </div>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">
+              {formatDate(session.date)}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+            <div className={`p-1.5 rounded-lg ${categoryStyle.iconBg}`}>
+              <FiClock className={`${categoryStyle.iconColor}`} size={14} />
+            </div>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+              {session.time || 'Scheduled'}
+            </span>
+          </div>
+
+          {session.notes && (
+            <div className="col-span-2 flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+              <div className={`p-1.5 rounded-lg ${categoryStyle.iconBg}`}>
+                <FiMessageSquare className={`${categoryStyle.iconColor}`} size={14} />
+              </div>
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+                {session.notes.length > 20 ? session.notes.substring(0, 20) + '...' : session.notes}
               </span>
             </div>
-          </div>
-        )}
-        
-        <div className="p-3 md:p-5 mobile-card-spacing">
-          {/* Session Header */}
-          <div className="flex items-start justify-between mb-3 md:mb-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-1 md:gap-2 mb-2 md:mb-3">
-                <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs font-bold ${
-                  session.category === 'Academics' ? 'bg-blue-100 text-blue-800' :
-                  session.category === 'Relationships' ? 'bg-pink-100 text-pink-800' :
-                  session.category === 'Career' ? 'bg-emerald-100 text-emerald-800' :
-                  'bg-purple-100 text-purple-800'
-                }`}>
-                  {session.category}
-                </span>
-                <span className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-xs font-bold ${
-                  session.type === 'Counseling' ? 'bg-purple-100 text-purple-800' :
-                  'bg-indigo-100 text-indigo-800'
-                }`}>
-                  {session.type}
-                </span>
-              </div>
-              <h4 className="text-base md:text-lg font-bold text-gray-900 mb-1 md:mb-2 truncate">Session with {session.counselor}</h4>
-            </div>
-          </div>
-          
-          {/* Session Description */}
-          <p className="text-gray-600 text-xs md:text-sm mb-4 md:mb-5 line-clamp-2 mobile-text-ellipsis">{session.description}</p>
-          
-          {/* Session Details */}
-          <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-1.5 md:p-2 bg-purple-50 rounded-lg flex-shrink-0">
-                <FiCalendar className="text-purple-500 text-sm md:text-base" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs md:text-sm font-medium text-gray-900 truncate">
-                  {new Date(session.date).toLocaleDateString('en-US', { 
-                    weekday: 'short', 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric' 
-                  })}
-                </div>
-                <div className="text-xs text-gray-500">Date</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-1.5 md:p-2 bg-pink-50 rounded-lg flex-shrink-0">
-                <FiClock className="text-pink-500 text-sm md:text-base" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs md:text-sm font-medium text-gray-900 truncate">{session.time}</div>
-                <div className="text-xs text-gray-500">Time</div>
-              </div>
-            </div>
-            
-            {session.notes && (
-              <div className="flex items-start gap-2 md:gap-3">
-                <div className="p-1.5 md:p-2 bg-blue-50 rounded-lg mt-0.5 flex-shrink-0">
-                  <FiMessageSquare className="text-blue-500 text-sm md:text-base" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs md:text-sm font-medium text-gray-900 line-clamp-2 mobile-text-ellipsis">{session.notes}</div>
-                  <div className="text-xs text-gray-500">Notes</div>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Session Footer */}
-          <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200">
-            <div className="flex items-center gap-1 md:gap-2 min-w-0">
-              <FiUser className="text-gray-400 text-xs md:text-sm flex-shrink-0" />
-              <span className="text-xs text-gray-600 truncate">{session.counselor}</span>
-            </div>
-            <button
-              onClick={() => onViewDetails?.(session)}
-              className="px-3 md:px-4 py-1.5 md:py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white text-xs md:text-sm font-bold rounded-lg md:rounded-xl hover:shadow-md md:hover:shadow-lg transition-all transform hover:-translate-y-0.5 mobile-touch-target"
-            >
-              Read More
-            </button>
-          </div>
+          )}
         </div>
+
+        {/* Action Button */}
+        <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+          View Session Details
+          <FiArrowRight size={18} />
+        </button>
       </div>
     </div>
   );
 }
 
-// ==================== NEWS CARD ====================
+// ==================== MODERNIZED NEWS CARD ====================
 function NewsCard({ newsItem, onViewDetails }) {
-  const isRecent = (() => {
-    const newsDate = new Date(newsItem.date);
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    return newsDate >= sevenDaysAgo;
-  })();
+  const [isHovered, setIsHovered] = useState(false);
   
+  const getCategoryStyle = (category) => {
+    const styles = {
+      community: { 
+        gradient: 'from-emerald-500 to-green-500', 
+        bg: 'bg-emerald-50', 
+        text: 'text-emerald-700',
+        border: 'border-emerald-200',
+        iconBg: 'bg-emerald-100',
+        iconColor: 'text-emerald-600'
+      },
+      academic: { 
+        gradient: 'from-blue-500 to-cyan-500', 
+        bg: 'bg-blue-50', 
+        text: 'text-blue-700',
+        border: 'border-blue-200',
+        iconBg: 'bg-blue-100',
+        iconColor: 'text-blue-600'
+      },
+      sports: { 
+        gradient: 'from-red-500 to-orange-500', 
+        bg: 'bg-red-50', 
+        text: 'text-red-700',
+        border: 'border-red-200',
+        iconBg: 'bg-red-100',
+        iconColor: 'text-red-600'
+      },
+      announcement: { 
+        gradient: 'from-amber-500 to-orange-500', 
+        bg: 'bg-amber-50', 
+        text: 'text-amber-700',
+        border: 'border-amber-200',
+        iconBg: 'bg-amber-100',
+        iconColor: 'text-amber-600'
+      }
+    };
+    return styles[category] || styles.announcement;
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+      
+      if (diff === 0) return 'Today';
+      if (diff === 1) return 'Yesterday';
+      if (diff < 7) return `${diff} days ago`;
+      
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Recent';
+    }
+  };
+
+  const categoryStyle = getCategoryStyle(newsItem.category);
+  const isRecent = (() => {
+    try {
+      const newsDate = new Date(newsItem.date);
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      return newsDate >= sevenDaysAgo;
+    } catch {
+      return false;
+    }
+  })();
+
   return (
-    <div className="group relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl md:rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-      <div className="relative bg-white rounded-xl md:rounded-2xl border border-gray-200 md:border-2 overflow-hidden shadow-sm md:shadow-lg hover:shadow-md md:hover:shadow-xl transition-all duration-300 mobile-scroll-hide">
-        {/* News Image */}
-        {newsItem.image && (
-          <div className="relative h-40 md:h-48 overflow-hidden">
-            <img 
-              src={newsItem.image} 
-              alt={newsItem.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-100"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentElement.innerHTML = `
-                  <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-amber-50 to-orange-100">
-                    <div class="text-amber-400 text-center p-4">
-                      <FiBookOpen class="text-4xl mx-auto mb-2" />
-                      <p class="text-sm font-medium">News Article</p>
-                    </div>
-                  </div>
-                `;
-              }}
-            />
-            <div className="absolute top-2 right-2">
-              {isRecent && (
-                <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded-full">
-                  New
-                </span>
-              )}
-            </div>
+    <div 
+      onClick={() => onViewDetails?.(newsItem)}
+      className="relative bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden cursor-pointer"
+    >
+      {/* Image Header */}
+      <div className="relative h-48 w-full shrink-0">
+        {newsItem.image ? (
+          <img
+            src={newsItem.image}
+            alt={newsItem.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+            <FiBookOpen className="text-white text-3xl" />
           </div>
         )}
         
-        <div className="p-3 md:p-5 mobile-card-spacing">
-          {/* News Header */}
-          <div className="flex items-start justify-between mb-3 md:mb-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-1 md:gap-2 mb-2 md:mb-3">
-                <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs font-bold ${
-                  newsItem.category === 'community' ? 'bg-emerald-100 text-emerald-800' :
-                  newsItem.category === 'academic' ? 'bg-blue-100 text-blue-800' :
-                  newsItem.category === 'sports' ? 'bg-red-100 text-red-800' :
-                  'bg-amber-100 text-amber-800'
-                }`}>
-                  {newsItem.category?.charAt(0).toUpperCase() + newsItem.category?.slice(1)}
-                </span>
-              </div>
-              <h4 className="text-base md:text-lg font-bold text-gray-900 mb-1 md:mb-2 line-clamp-2 mobile-text-ellipsis">{newsItem.title}</h4>
-            </div>
-          </div>
-          
-          {/* News Excerpt */}
-          <p className="text-gray-600 text-xs md:text-sm mb-4 md:mb-5 line-clamp-3 mobile-text-ellipsis">{newsItem.excerpt || newsItem.fullContent}</p>
-          
-          {/* News Details */}
-          <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-1.5 md:p-2 bg-amber-50 rounded-lg flex-shrink-0">
-                <FiCalendar className="text-amber-500 text-sm md:text-base" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs md:text-sm font-medium text-gray-900 truncate">
-                  {new Date(newsItem.date).toLocaleDateString('en-US', { 
-                    weekday: 'short', 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric' 
-                  })}
-                </div>
-                <div className="text-xs text-gray-500">Published</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-1.5 md:p-2 bg-blue-50 rounded-lg flex-shrink-0">
-                <FiUser className="text-blue-500 text-sm md:text-base" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs md:text-sm font-medium text-gray-900 truncate">{newsItem.author}</div>
-                <div className="text-xs text-gray-500">Author</div>
-              </div>
-            </div>
-            
-            {newsItem.likes !== undefined && (
-              <div className="flex items-center gap-2 md:gap-3">
-                <div className="p-1.5 md:p-2 bg-pink-50 rounded-lg flex-shrink-0">
-                  <FiStar className="text-pink-500 text-sm md:text-base" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs md:text-sm font-medium text-gray-900">{newsItem.likes} likes</div>
-                  <div className="text-xs text-gray-500">Engagement</div>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* News Footer */}
-          <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200">
-            <div className="text-xs text-gray-500 truncate">
-              By {newsItem.author}
-            </div>
-            <button
-              onClick={() => onViewDetails?.(newsItem)}
-              className="px-3 md:px-4 py-1.5 md:py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xs md:text-sm font-bold rounded-lg md:rounded-xl hover:shadow-md md:hover:shadow-lg transition-all transform  mobile-touch-target"
-            >
-              Read More
-            </button>
-          </div>
+        {/* Badges */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.border}`}>
+            {newsItem.category?.charAt(0).toUpperCase() + newsItem.category?.slice(1) || 'News'}
+          </span>
+          {isRecent && (
+            <span className="px-3 py-1 bg-slate-900/90 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+              <FiStar className="text-amber-400" /> New
+            </span>
+          )}
         </div>
+
+        {/* Date Badge */}
+        <div className="absolute bottom-4 left-4">
+          <span className="px-3 py-1 bg-white/90 backdrop-blur-md text-slate-700 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
+            {formatDate(newsItem.date)}
+          </span>
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="p-6">
+        <div className="mb-4">
+          <h3 className="text-xl font-bold text-slate-900 mb-2 line-clamp-2 leading-tight">
+            {newsItem.title}
+          </h3>
+          <p className="text-slate-500 text-sm line-clamp-3 leading-relaxed">
+            {newsItem.excerpt || newsItem.fullContent || 'Stay updated with the latest news and announcements.'}
+          </p>
+        </div>
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+            <div className={`p-1.5 rounded-lg ${categoryStyle.iconBg}`}>
+              <FiUser className={`${categoryStyle.iconColor}`} size={14} />
+            </div>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+              {newsItem.author || 'School Admin'}
+            </span>
+          </div>
+
+          {newsItem.likes !== undefined && (
+            <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+              <div className={`p-1.5 rounded-lg ${categoryStyle.iconBg}`}>
+                <FiHeart className={`${categoryStyle.iconColor}`} size={14} />
+              </div>
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">
+                {newsItem.likes} likes
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Action Button */}
+        <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+          Read Full Story
+          <FiArrowRight size={18} />
+        </button>
       </div>
     </div>
   );
@@ -1753,120 +1902,185 @@ export default function GuidanceEventsView() {
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
 
   // Fetch all data with image handling
-  const fetchAllData = useCallback(async () => {
-    try {
-      setError(null);
-      
-      // Fetch events from API
-      const eventsRes = await fetch('/api/events');
-      const eventsData = await eventsRes.json();
-      if (eventsData.success) {
-        // Process events to ensure image paths are complete
-        const processedEvents = (eventsData.events || []).map(event => ({
+// Replace your current fetchAllData function with this updated version
+const fetchAllData = useCallback(async () => {
+  try {
+    setError(null);
+    
+    // Fetch events from API
+    const eventsRes = await fetch('/api/events');
+    const eventsData = await eventsRes.json();
+    
+    if (eventsData.success) {
+      // Process events with comprehensive image mapping
+      const processedEvents = (eventsData.events || []).map(event => {
+        // Try multiple possible image property names
+        const imageSource = 
+          event.image || 
+          event.imageUrl || 
+          event.image_url || 
+          event.thumbnail || 
+          event.cover_image || 
+          event.photo_url;
+        
+        return {
           ...event,
-          image: event.image ? event.image.startsWith('/') ? event.image : `/${event.image}` : null
-        }));
-        setEvents(processedEvents);
-      } else {
-        throw new Error('Failed to fetch events');
-      }
+          // Convert to complete URL if needed
+          image: imageSource ? 
+            (imageSource.startsWith('http') ? imageSource : 
+             imageSource.startsWith('/') ? imageSource : 
+             `/${imageSource}`) : null
+        };
+      });
+      setEvents(processedEvents);
+    } else {
+      throw new Error('Failed to fetch events');
+    }
 
-      // Fetch guidance from API
-      const guidanceRes = await fetch('/api/guidance');
-      const guidanceData = await guidanceRes.json();
-      if (guidanceData.success) {
-        // Process guidance to ensure image paths are complete
-        const processedGuidance = (guidanceData.events || []).map(session => ({
+    // Fetch guidance from API
+    const guidanceRes = await fetch('/api/guidance');
+    const guidanceData = await guidanceRes.json();
+    
+    if (guidanceData.success) {
+      // Process guidance sessions
+      const processedGuidance = (guidanceData.events || []).map(session => {
+        const imageSource = 
+          session.image || 
+          session.imageUrl || 
+          session.image_url || 
+          session.thumbnail;
+        
+        return {
           ...session,
-          image: session.image ? session.image.startsWith('/') ? session.image : `/${session.image}` : null
-        }));
-        // Add default devotion sessions to the beginning
-        setGuidance([...DEFAULT_SESSIONS, ...processedGuidance]);
-      } else {
-        throw new Error('Failed to fetch guidance sessions');
-      }
+          image: imageSource ? 
+            (imageSource.startsWith('http') ? imageSource : 
+             imageSource.startsWith('/') ? imageSource : 
+             `/${imageSource}`) : null
+        };
+      });
+      // Add default devotion sessions to the beginning
+      setGuidance([...DEFAULT_SESSIONS, ...processedGuidance]);
+    } else {
+      throw new Error('Failed to fetch guidance sessions');
+    }
 
-      // Fetch news from API
-      const newsRes = await fetch('/api/news');
-      const newsData = await newsRes.json();
-      if (newsData.success) {
-        // Process news to ensure image paths are complete
-        const processedNews = (newsData.news || []).map(newsItem => ({
-          ...newsItem,
-          image: newsItem.image ? newsItem.image.startsWith('/') ? newsItem.image : `/${newsItem.image}` : null
-        }));
-        setNews(processedNews);
-      } else {
-        throw new Error('Failed to fetch news');
-      }
+    // Fetch news from API
+    const newsRes = await fetch('/api/news');
+    const newsData = await newsRes.json();
+    
+    if (newsData.success) {
+      // IMPORTANT: Your API returns data.data, not data.news
+      const newsItems = newsData.data || newsData.news || [];
+      
+      // Process news items with comprehensive image mapping
+      const processedNews = newsItems.map(newsItem => {
+        // Try all possible image property names
+        const imageSource = 
+          newsItem.image || 
+          newsItem.imageUrl || 
+          newsItem.image_url || 
+          newsItem.thumbnail || 
+          newsItem.cover_image || 
+          newsItem.featured_image ||
+          newsItem.photo;
+        
+        return {
+          id: newsItem.id || newsItem._id,
+          title: newsItem.title || newsItem.headline,
+          excerpt: newsItem.excerpt || newsItem.summary || newsItem.description,
+          fullContent: newsItem.content || newsItem.full_content || newsItem.description,
+          date: newsItem.date || newsItem.createdAt || newsItem.published_date,
+          category: newsItem.category || newsItem.type,
+          author: newsItem.author || newsItem.created_by || 'School Admin',
+          likes: newsItem.likes || newsItem.like_count || 0,
+          // Handle image paths
+          image: imageSource ? 
+            (imageSource.startsWith('http') ? imageSource : 
+             imageSource.startsWith('/') ? imageSource : 
+             `/${imageSource}`) : null
+        };
+      });
+      setNews(processedNews);
+    } else {
+      throw new Error('Failed to fetch news');
+    }
 
-      // Fetch teams from /api/guidanceteam endpoint
-      try {
-        const teamsRes = await fetch('/api/guidanceteam');
-        const teamsData = await teamsRes.json();
-        if (teamsData.success) {
-          // Process team members to ensure image paths are complete
-          const processedTeams = (teamsData.members || []).map(member => ({
+    // Fetch teams
+    try {
+      const teamsRes = await fetch('/api/guidanceteam');
+      const teamsData = await teamsRes.json();
+      if (teamsData.success) {
+        const processedTeams = (teamsData.members || []).map(member => {
+          const imageSource = 
+            member.image || 
+            member.photo || 
+            member.avatar || 
+            member.profile_picture;
+          
+          return {
             ...member,
-            image: member.image ? member.image.startsWith('/') ? member.image : `/${member.image}` : null
-          }));
-          setTeams(processedTeams);
-        } else {
-          console.warn('Failed to fetch team members, using empty array');
-          setTeams([]);
-        }
-      } catch (teamsError) {
-        console.warn('Error fetching team members:', teamsError);
+            image: imageSource ? 
+              (imageSource.startsWith('http') ? imageSource : 
+               imageSource.startsWith('/') ? imageSource : 
+               `/${imageSource}`) : null
+          };
+        });
+        setTeams(processedTeams);
+      } else {
         setTeams([]);
       }
-
-      // Get student data from localStorage
-      const savedStudent = localStorage.getItem('student_data');
-      if (savedStudent) {
-        setStudent(JSON.parse(savedStudent));
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('Failed to load data. Please try again.');
-      
-      // Use sample data with image handling as fallback
-      setEvents([
-        {
-          id: 1,
-          title: "Annual Sports Day",
-          description: "Join us for our annual sports competition with various track and field events.",
-          date: "2026-01-23T00:00:00.000Z",
-          time: "9:00am - 4:00pm",
-          location: "School Playground",
-          category: "sports",
-          type: "external",
-          featured: true,
-          attendees: "All students",
-          image: null
-        }
-      ]);
-      
-      setGuidance([...DEFAULT_SESSIONS]);
-      
-      setNews([
-        {
-          id: 1,
-          title: "School Announces New Library Hours",
-          excerpt: "Extended library hours to support student studies",
-          fullContent: "The school library will now remain open until 6:00 PM on weekdays...",
-          date: "2026-01-02T00:00:00.000Z",
-          category: "announcement",
-          author: "School Administration",
-          likes: 15,
-          image: null
-        }
-      ]);
-      
+    } catch (teamsError) {
+      console.warn('Error fetching team members:', teamsError);
       setTeams([]);
-    } finally {
-      setLoading(false);
     }
-  }, []);
+
+    // Get student data
+    const savedStudent = localStorage.getItem('student_data');
+    if (savedStudent) {
+      setStudent(JSON.parse(savedStudent));
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    setError('Failed to load data. Please try again.');
+    
+    // Use sample data with proper images as fallback
+    setEvents([
+      {
+        id: 1,
+        title: "Annual Sports Day",
+        description: "Join us for our annual sports competition with various track and field events.",
+        date: "2026-01-23T00:00:00.000Z",
+        time: "9:00am - 4:00pm",
+        location: "School Playground",
+        category: "sports",
+        type: "external",
+        featured: true,
+        attendees: "All students",
+        image: "/images/events/sports-day.jpg" // Add proper fallback image
+      }
+    ]);
+    
+    setGuidance([...DEFAULT_SESSIONS]);
+    
+    setNews([
+      {
+        id: 1,
+        title: "School Announces New Library Hours",
+        excerpt: "Extended library hours to support student studies",
+        fullContent: "The school library will now remain open until 6:00 PM on weekdays...",
+        date: "2026-01-02T00:00:00.000Z",
+        category: "announcement",
+        author: "School Administration",
+        likes: 15,
+        image: "/images/news/library-announcement.jpg"
+      }
+    ]);
+    
+    setTeams([]);
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   // Initial fetch
   useEffect(() => {

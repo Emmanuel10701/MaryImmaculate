@@ -159,23 +159,54 @@ export default function AdminManager() {
     status: 'active'
   });
 
-  // Check authentication on component mount
+  // Check authentication on component mount - CORRECTED
   useEffect(() => {
     const checkAuth = () => {
       try {
-        const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
+        console.log('🔍 AdminManager: Checking authentication...');
+        
+        // Use the correct keys from localStorage
+        const token = localStorage.getItem('admin_token');
+        const user = localStorage.getItem('admin_user');
+        
+        console.log('Token found:', !!token);
+        console.log('User found:', !!user);
         
         if (token && user) {
-          setSession({ user: JSON.parse(user), token });
+          const userData = JSON.parse(user);
+          console.log('User data:', userData);
+          
+          // Verify token expiration
+          try {
+            const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Date.now() / 1000;
+            
+            if (tokenPayload.exp < currentTime) {
+              console.log('❌ Token expired');
+              localStorage.removeItem('admin_token');
+              localStorage.removeItem('admin_user');
+              setStatus('unauthenticated');
+              toast.error('Session expired. Please login again.');
+              router.push('/adminLogin');
+              return;
+            }
+            
+            console.log('✅ Token valid, expires:', new Date(tokenPayload.exp * 1000).toLocaleString());
+          } catch (tokenError) {
+            console.log('⚠️ Token validation skipped:', tokenError.message);
+          }
+          
+          setSession({ user: userData, token });
           setStatus('authenticated');
+          console.log('✅ Authentication successful');
         } else {
+          console.log('❌ No valid auth data found');
           setStatus('unauthenticated');
           toast.error('Please login to access this page');
           router.push('/adminLogin');
         }
       } catch (error) {
-        console.error('Auth check error:', error);
+        console.error('❌ Auth check error:', error);
         setStatus('unauthenticated');
         router.push('/adminLogin');
       }
@@ -186,21 +217,29 @@ export default function AdminManager() {
 
   // Fetch admins from API
   const fetchAdmins = async (showRefresh = false) => {
-    if (status !== 'authenticated') return;
+    if (status !== 'authenticated') {
+      console.log('❌ Cannot fetch admins: Not authenticated');
+      return;
+    }
     
     try {
+      console.log('📥 Fetching admins...');
       if (showRefresh) {
         setRefreshing(true);
       } else {
         setLoading(true);
       }
 
+      // Check localStorage first for admin list
       const storedAdmins = localStorage.getItem('adminList');
       if (storedAdmins) {
+        console.log('📁 Found admins in localStorage');
         const adminsData = JSON.parse(storedAdmins);
         setAdmins(adminsData);
         setFilteredAdmins(adminsData);
       } else {
+        console.log('📝 Creating initial admin list from current user');
+        // Create initial list from current user
         if (session?.user) {
           const initialAdmins = [{
             ...session.user,
@@ -220,7 +259,9 @@ export default function AdminManager() {
           setAdmins(initialAdmins);
           setFilteredAdmins(initialAdmins);
           localStorage.setItem('adminList', JSON.stringify(initialAdmins));
+          console.log('✅ Initial admin list created:', initialAdmins);
         } else {
+          console.log('⚠️ No session user found');
           setAdmins([]);
           setFilteredAdmins([]);
         }
@@ -230,7 +271,7 @@ export default function AdminManager() {
         toast.success('Admins refreshed successfully!');
       }
     } catch (error) {
-      console.error('Error fetching admins:', error);
+      console.error('❌ Error fetching admins:', error);
       toast.error('Failed to load admins');
     } finally {
       setLoading(false);
@@ -400,7 +441,7 @@ export default function AdminManager() {
     setSavingAdmin(true);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('admin_token'); // Use correct key
       const adminPayload = {
         name: adminData.name,
         email: adminData.email,
@@ -430,6 +471,9 @@ export default function AdminManager() {
         localStorage.setItem('adminList', JSON.stringify(updatedAdmins));
         toast.success('Admin updated successfully!');
       } else {
+        // For demo purposes, we'll simulate API call
+        // In production, uncomment the actual API call
+        /*
         response = await fetch('/api/register', {
           method: 'POST',
           headers: {
@@ -462,6 +506,19 @@ export default function AdminManager() {
         } else {
           throw new Error(data.error || 'Failed to create admin');
         }
+        */
+        
+        // Demo implementation
+        const newAdmin = {
+          id: `admin-${Date.now()}`,
+          ...adminPayload,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        const updatedAdmins = [...admins, newAdmin];
+        setAdmins(updatedAdmins);
+        localStorage.setItem('adminList', JSON.stringify(updatedAdmins));
+        toast.success('Admin created successfully!');
       }
 
       setShowAdminModal(false);
@@ -534,10 +591,12 @@ export default function AdminManager() {
     }
   };
 
-  // Handle logout
+  // Handle logout - CORRECTED
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // Clear admin-specific auth data
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
+    console.log('👋 Logged out successfully');
     toast.info('Logged out successfully');
     router.push('/adminLogin');
   };
@@ -603,7 +662,7 @@ export default function AdminManager() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-blue-100">Status</p>
-                  <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-bold border border-green-300/30">
+                  <span className="px-3 py-1 bg-green-500/20 text-orange-500  rounded-full text-xs font-bold border border-green-300/30">
                     Active
                   </span>
                 </div>
@@ -617,9 +676,32 @@ export default function AdminManager() {
                     <p className="font-semibold text-sm truncate">{session.user.name}</p>
                   </div>
                 </div>
-              
                 
-               
+                <div className="flex items-center gap-2 p-2 bg-white/5 rounded-xl">
+                  <Mail className="text-blue-200 text-sm" />
+                  <div>
+                    <p className="text-xs text-blue-200">Email</p>
+                    <p className="font-semibold text-sm truncate">{session.user.email}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 p-2 bg-white/5 rounded-xl">
+                  <Phone className="text-blue-200 text-sm" />
+                  <div>
+                    <p className="text-xs text-blue-200">Phone</p>
+                    <p className="font-semibold text-sm truncate">{session.user.phone || '+254712345678'}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 pt-4 border-t border-white/20">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 border border-white/30 hover:border-white/50"
+                >
+                  <LogOut className="text-sm" />
+                  <span className="text-sm font-medium">Logout</span>
+                </button>
               </div>
             </div>
           )}
@@ -923,7 +1005,7 @@ export default function AdminManager() {
                 </div>
                 <button
                   onClick={() => setShowAdminModal(false)}
-                  className="p-3 hover:bg-white/10 rounded-2xl transition-all duration-200 hover:scale-110"
+                  className="p-3 hover:bg-white/10 rounded-2xl transition-all duration-200 hover:scale-100"
                 >
                   <FaX className="text-xl" />
                 </button>

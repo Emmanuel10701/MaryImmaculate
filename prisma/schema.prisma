@@ -19,7 +19,6 @@ model User {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   passwordResets PasswordReset[]
-
   @@map("users")
 }
 
@@ -27,7 +26,6 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
@@ -39,7 +37,6 @@ model PasswordReset {
   createdAt DateTime @default(now())
   expires   DateTime
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId], map: "PasswordReset_userId_fkey")
 }
 
@@ -47,7 +44,6 @@ model Subscriber {
   id        String   @id @default(cuid())
   email     String   @unique
   createdAt DateTime @default(now())
-
   @@map("subscribers")
 }
 
@@ -90,7 +86,6 @@ model Resource {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
   @@index([subject])
   @@index([className])
   @@index([category])
@@ -175,7 +170,7 @@ model EmailCampaign {
   title         String
   subject       String
   content       String    @db.Text
-  recipients    String   @db.Text
+  recipients    String    @db.Text
   recipientType String    @default("all")
   status        String    @default("draft")
   sentAt        DateTime?
@@ -184,162 +179,175 @@ model EmailCampaign {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   attachments   String?   @db.Text
-
   @@map("email_campaigns")
 }
 
 model GalleryImage {
   id          Int      @id @default(autoincrement())
   title       String
-  description String?
+  description String?  @db.Text
   category    Category
   files       Json
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model Student {
-  id                  Int                @id @default(autoincrement())
-  admissionNumber     String             @unique
-  name                String
-  form                String
-  stream              String
-  gender              String
-  dateOfBirth         DateTime
-  enrollmentDate      DateTime
-  kcpeMarks           Int?
-  previousSchool      String?
-  parentName          String
-  parentEmail         String?
-  parentPhone         String
-  emergencyContact    String
-  address             String
-  medicalInfo         String?
-  hobbies             String?
-  academicPerformance String
-  attendance          String
-  disciplineRecord    String
-  status              String             @default("Active")
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  isClassPrefect      Boolean            @default(false)
-  isClassAssistant    Boolean            @default(false)
-  isBellRinger        Boolean            @default(false)
-  promotionHistory    PromotionHistory[]
-  councilPositions    StudentCouncil[]   @relation("StudentToStudentCouncil")
-}
 
-model StudentCouncil {
-  id               String             @id @default(cuid())
-  position         CouncilPosition
-  department       CouncilDepartment?
-  studentId        Int
-  form             String?
-  stream           String?
-  startDate        DateTime
-  endDate          DateTime?
-  status           CouncilStatus      @default(Active)
-  image            String?
-  achievements     String?
-  responsibilities String
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  student          Student            @relation("StudentToStudentCouncil", fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@unique([studentId, position, department, form, stream])
-  @@map("student_councils")
-}
-
-model PromotionHistory {
-  id         Int      @id @default(autoincrement())
-  studentId  Int
-  fromForm   String
-  toForm     String
-  fromStream String
-  toStream   String
-  promotedAt DateTime @default(now())
-  promotedBy String   @default("System")
-  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@index([studentId])
-  @@index([promotedAt])
-}
 
 model SchoolInfo {
-  id                 Int     @id @default(autoincrement())
-  name               String
-  description        String? @db.Text
-  motto              String? @db.Text
-  vision             String? @db.Text
-  mission            String? @db.Text
-  videoTour          String?
-  videoType          String?
-  videoThumbnail     String?
-  videoThumbnailType String?
-  studentCount       Int
-  staffCount         Int
-
-  // BOARDING FEES ONLY (Day school fields removed)
-  feesBoarding                 Float?
-  feesBoardingDistributionJson Json?
-  feesBoardingDistributionPdf  String?
-  feesBoardingPdfName          String?
-  feesBoardingPdfSize          Int?
-  feesBoardingPdfUploadDate    DateTime?
-
-  openDate                   DateTime
-  closeDate                  DateTime
-  subjects                   Json
-  departments                Json
-  curriculumPDF              String?
-  curriculumPdfName          String?
-  curriculumPdfSize          Int?
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(255)
+  description  String?  @db.Text
+  motto        String?  @db.Text
+  vision       String?  @db.Text
+  mission      String?  @db.Text
+  studentCount Int      @default(0)
+  staffCount   Int      @default(0)
+  openDate     DateTime
+  closeDate    DateTime
+  subjects    Json @default("[]")
+  departments Json @default("[]")
+  videoTour      String? @db.Text
+  videoType      String? @db.VarChar(20)
+  videoThumbnail String? @db.Text
+  feesDay      Float?
+  feesBoarding Float?
+  admissionFee Float?
   admissionOpenDate          DateTime?
   admissionCloseDate         DateTime?
   admissionRequirements      String?   @db.Text
-  admissionFee               Float?
-  admissionFeeDistribution   Json?
   admissionCapacity          Int?
-  admissionContactEmail      String?
-  admissionContactPhone      String?
-  admissionWebsite           String?
-  admissionLocation          String?
-  admissionOfficeHours       String?
-  admissionDocumentsRequired Json?
-  admissionFeePdf            String?
-  admissionFeePdfName        String?
-  form1ResultsPdf            String?
-  form1ResultsPdfName        String?
-  form1ResultsPdfSize        Int?
-  form1ResultsYear           Int?
-  form2ResultsPdf            String?
-  form2ResultsPdfName        String?
-  form2ResultsPdfSize        Int?
-  form2ResultsYear           Int?
-  form3ResultsPdf            String?
-  form3ResultsPdfName        String?
-  form3ResultsPdfSize        Int?
-  form3ResultsYear           Int?
-  form4ResultsPdf            String?
-  form4ResultsPdfName        String?
-  form4ResultsPdfSize        Int?
-  form4ResultsYear           Int?
-  mockExamsResultsPdf        String?
-  mockExamsPdfName           String?
-  mockExamsPdfSize           Int?
-  mockExamsYear              Int?
-  kcseResultsPdf             String?
-  kcsePdfName                String?
-  kcsePdfSize                Int?
-  kcseYear                   Int?
-  additionalResultsFiles     Json?
-  createdAt                  DateTime  @default(now())
-  updatedAt                  DateTime  @updatedAt
-
+  admissionContactEmail      String?   @db.VarChar(255)
+  admissionContactPhone      String?   @db.VarChar(50)
+  admissionWebsite           String?   @db.VarChar(255)
+  admissionLocation          String?   @db.Text
+  admissionOfficeHours       String?    @db.Text
+  admissionDocumentsRequired Json      @default("[]")
+  form1ResultsTerm        String?   @db.VarChar(50)  // Add this
+  form2ResultsTerm        String?   @db.VarChar(50)  // Add this
+  form3ResultsTerm        String?   @db.VarChar(50)  // Add this
+  form4ResultsTerm        String?   @db.VarChar(50)  // Add this
+  mockExamsTerm           String?   @db.VarChar(50)  // Add this
+  kcseTerm                String?   @db.VarChar(50)  // Add this
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@index([name])
   @@index([admissionOpenDate, admissionCloseDate])
-  @@index([kcseYear])
+  @@map("SchoolInfo")
+ 
 }
+
+model SchoolDocument {
+  id       Int @id @default(autoincrement())
+  
+  // Curriculum PDF
+  curriculumPDF           String?   @db.Text
+  curriculumPdfName       String?   @db.VarChar(255)
+  curriculumPdfSize       Int?
+  curriculumPdfUploadDate DateTime?
+  curriculumDescription   String?   @db.Text
+  curriculumYear          Int?
+  curriculumTerm          String?   @db.VarChar(50)
+  
+  // Day School Fees PDF
+  feesDayDistributionPdf      String?   @db.Text
+  feesDayPdfName              String?   @db.VarChar(255)
+  feesDayPdfSize              Int?
+  feesDayPdfUploadDate        DateTime?
+  feesDayDescription          String?   @db.Text
+  feesDayYear                 Int?
+  feesDayTerm                 String?   @db.VarChar(50)
+  
+  // Boarding School Fees PDF
+  feesBoardingDistributionPdf      String?   @db.Text
+  feesBoardingPdfName              String?   @db.VarChar(255)
+  feesBoardingPdfSize              Int?
+  feesBoardingPdfUploadDate        DateTime?
+  feesBoardingDescription          String?   @db.Text
+  feesBoardingYear                 Int?
+  feesBoardingTerm                 String?   @db.VarChar(50)
+  
+  // Admission Fee PDF
+  admissionFeePdf           String?   @db.Text
+  admissionFeePdfName       String?   @db.VarChar(255)
+  admissionFeePdfSize       Int?
+  admissionFeePdfUploadDate DateTime?
+  admissionFeeDescription   String?   @db.Text
+  admissionFeeYear          Int?
+  admissionFeeTerm          String?   @db.VarChar(50)
+  
+  // Fee breakdown JSON fields
+  feesDayDistributionJson      Json?
+  feesBoardingDistributionJson Json?
+  admissionFeeDistribution     Json?
+  // Form 1 Results PDF
+  form1ResultsPdf           String?   @db.Text
+  form1ResultsPdfName       String?   @db.VarChar(255)
+  form1ResultsPdfSize       Int?
+  form1ResultsDescription   String?   @db.Text
+  form1ResultsYear          Int?
+  form1ResultsTerm          String?   @db.VarChar(50)
+  form1ResultsUploadDate    DateTime?
+  // Form 2 Results PDF
+  form2ResultsPdf           String?   @db.Text
+  form2ResultsPdfName       String?   @db.VarChar(255)
+  form2ResultsPdfSize       Int?
+  form2ResultsDescription   String?   @db.Text
+  form2ResultsYear          Int?
+  form2ResultsTerm          String?   @db.VarChar(50)
+  form2ResultsUploadDate    DateTime?
+  // Form 3 Results PDF
+  form3ResultsPdf           String?   @db.Text
+  form3ResultsPdfName       String?   @db.VarChar(255)
+  form3ResultsPdfSize       Int?
+  form3ResultsDescription   String?   @db.Text
+  form3ResultsYear          Int?
+  form3ResultsTerm          String?   @db.VarChar(50)
+  form3ResultsUploadDate    DateTime?
+  // Form 4 Results PDF
+  form4ResultsPdf           String?   @db.Text
+  form4ResultsPdfName       String?   @db.VarChar(255)
+  form4ResultsPdfSize       Int?
+  form4ResultsDescription   String?   @db.Text
+  form4ResultsYear          Int?
+  form4ResultsTerm          String?   @db.VarChar(50)
+  form4ResultsUploadDate    DateTime?
+  // Mock Exams PDF
+  mockExamsResultsPdf       String?   @db.Text
+  mockExamsPdfName          String?   @db.VarChar(255)
+  mockExamsPdfSize          Int?
+  mockExamsDescription      String?   @db.Text
+  mockExamsYear             Int?
+  mockExamsTerm             String?   @db.VarChar(50)
+  mockExamsUploadDate       DateTime?
+  // KCSE Results PDF
+  kcseResultsPdf            String?   @db.Text
+  kcsePdfName               String?   @db.VarChar(255)
+  kcsePdfSize               Int?
+  kcseDescription           String?   @db.Text
+  kcseYear                  Int?
+  kcseTerm                  String?   @db.VarChar(50)
+  kcseUploadDate            DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // Add indexes for new term fields
+  @@index([curriculumTerm])
+  @@index([feesDayTerm])
+  @@index([feesBoardingTerm])
+  @@index([admissionFeeTerm])
+  @@index([curriculumYear])
+  @@index([feesDayYear])
+  @@index([feesBoardingYear])
+  @@index([admissionFeeYear])
+  @@index([form1ResultsYear])
+  @@index([form2ResultsYear])
+  @@index([form3ResultsYear])
+  @@index([form4ResultsYear])
+  @@index([mockExamsYear])
+  @@index([kcseYear])
+  @@map("SchoolDocument")
+}
+
 
 model AdmissionApplication {
   id                     String    @id @default(cuid())
@@ -354,7 +362,7 @@ model AdmissionApplication {
   constituency           String
   ward                   String
   village                String?
-  email                  String    @unique
+  email                  String ?   @unique
   phone                  String? // Changed to optional
   alternativePhone       String?
   postalAddress          String
@@ -410,7 +418,6 @@ model AdmissionApplication {
   documentsNotes         String?
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
-
   @@index([applicationNumber])
   @@index([email])
   @@index([phone])
@@ -437,7 +444,6 @@ model CareerJob {
   contactPhone        String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
-
   @@index([jobTitle])
   @@index([department])
   @@index([category])
@@ -461,7 +467,6 @@ model StudentBulkUpload {
   errorLog      Json?
   metadata      Json? // Add this line
   students      databaseStudent[]
-
   @@map("student_bulk_uploads")
 }
 
@@ -482,12 +487,9 @@ model databaseStudent {
   uploadBatchId   String?
   createdAt       DateTime     @default(now())
   feeBalances     FeeBalance[] @relation("StudentFeeBalances")
-
   results StudentResult[]
-
   updatedAt   DateTime           @updatedAt
   uploadBatch StudentBulkUpload? @relation(fields: [uploadBatchId], references: [id], onDelete: Cascade)
-
   @@index([admissionNumber])
   @@index([form])
   @@index([uploadBatchId])
@@ -502,7 +504,6 @@ model StudentStats {
   form3         Int      @default(0)
   form4         Int      @default(0)
   updatedAt     DateTime @updatedAt
-
   @@map("student_stats")
 }
 
@@ -544,51 +545,9 @@ enum Category {
   OTHER
 }
 
-enum CouncilStatus {
-  Active
-  Inactive
-  Graduated
-}
 
-enum CouncilPosition {
-  President
-  DeputyPresident
-  SchoolCaptain
-  DeputyCaptain
-  AcademicsSecretary
-  SportsSecretary
-  EntertainmentSecretary
-  CleaningSecretary
-  MealsSecretary
-  BellRinger
-  DisciplineSecretary
-  HealthSecretary
-  LibrarySecretary
-  TransportSecretary
-  EnvironmentSecretary
-  SpiritualSecretary
-  TechnologySecretary
-  Assistant
-  ClassRepresentative
-  ClassAssistant
-}
 
-enum CouncilDepartment {
-  Presidency
-  Academics
-  Sports
-  Entertainment
-  Cleaning
-  Meals
-  Discipline
-  Health
-  Library
-  Transport
-  Environment
-  Spiritual
-  Technology
-  General
-}
+
 
 model StudentSession {
   id              String   @id @default(cuid())
@@ -600,7 +559,6 @@ model StudentSession {
   ipAddress       String?
   userAgent       String?
   createdAt       DateTime @default(now())
-
   @@index([studentId])
   @@index([token(length: 191)]) // ✅ Prefix index for MySQL TEXT
   @@index([expiresAt])
@@ -618,16 +576,12 @@ model FeeBalance {
   balance         Float           @default(0)
   paymentStatus   String          @default("pending")
   dueDate         DateTime?
-
   // Audit fields
   isActive      Boolean @default(true) // <-- ADD THIS instead of status
   uploadBatchId String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   uploadBatch FeeBalanceUpload? @relation("UploadToFeeBalances", fields: [uploadBatchId], references: [id], onDelete: Cascade)
-
   @@unique([admissionNumber, form, term, academicYear])
   @@index([admissionNumber])
   @@index([form, term, academicYear])
@@ -642,13 +596,11 @@ model FeeBalanceUpload {
   uploadDate    DateTime  @default(now())
   status        String // processing, completed, failed
   processedDate DateTime?
-
   // Upload parameters
   targetForm   String
   term         String?
   academicYear String?
   uploadType   String // new, update
-
   // Statistics
   totalRows   Int
   validRows   Int
@@ -656,9 +608,7 @@ model FeeBalanceUpload {
   errorRows   Int
   errorLog    String?
   metadata    Json?
-
   feeBalances FeeBalance[] @relation("UploadToFeeBalances")
-
   @@map("fee_balance_uploads")
 }
 
@@ -683,7 +633,6 @@ model ResultUpload {
   duplicateRecords Int?            @default(0) // Add this
   warningLog       Json? // Add this
   results          StudentResult[]
-
   @@map("results_uploads")
 }
 
@@ -697,10 +646,8 @@ model StudentResult {
   subjects        Json
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-
   uploadBatchId String?
   uploadBatch   ResultUpload? @relation(fields: [uploadBatchId], references: [id], onDelete: Cascade)
-
   @@unique([admissionNumber, term, academicYear], name: "unique_student_term_year")
   @@index([admissionNumber])
   @@map("student_results")
@@ -736,7 +683,6 @@ model FeeBalanceAuditLog {
   newAmountPaid   Float?
   uploadBatchId   String?
   timestamp       DateTime @default(now())
-
   @@index([admissionNumber])
   @@index([uploadBatchId])
   @@index([timestamp])
@@ -753,7 +699,6 @@ model BatchDeletionLog {
   deletedCount   Int
   deletionReason String // 'replace_upload', 'manual_deletion', 'cleanup'
   deletedAt      DateTime @default(now())
-
   @@index([batchId])
   @@index([entityType])
   @@index([deletedAt])
@@ -762,7 +707,6 @@ model BatchDeletionLog {
 
 // Add this to your existing schema.prisma
 // ===================== Guidance & Counselling Teams (MySQL) =====================
-// SIMPLE Schema - Just one table for all team members
 model TeamMember {
   id        Int      @id @default(autoincrement())
   name      String
@@ -774,11 +718,8 @@ model TeamMember {
   image     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Optional: if you want to group members into teams
   teamId Int?
   team   Team? @relation(fields: [teamId], references: [id])
-
   @@map("team_members")
 }
 
@@ -789,6 +730,5 @@ model Team {
   members   TeamMember[]
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
-
   @@map("teams")
 }

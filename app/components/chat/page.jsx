@@ -6,7 +6,7 @@ import {
   FiHome, FiFileText, FiDollarSign, FiBook, FiRefreshCw, 
   FiUsers, FiActivity, FiHelpCircle, FiX, FiTrash2, FiMessageCircle,
   FiMapPin, FiPhone, FiMail, FiCalendar, FiAward, FiStar,
-  FiGrid, FiBriefcase, FiUser, FiInfo, FiImage, FiLogIn
+  FiGrid, FiBriefcase, FiUser, FiInfo, FiImage, FiLogIn, FiDownload
 } from 'react-icons/fi';
 import { MdMessage, MdSchool } from 'react-icons/md';
 
@@ -17,7 +17,7 @@ const iconMap = {
   'school': MdSchool, 'colored-message': MdMessage, 'map': FiMapPin,
   'phone': FiPhone, 'mail': FiMail, 'calendar': FiCalendar, 'award': FiAward,
   'star': FiStar, 'grid': FiGrid, 'briefcase': FiBriefcase, 'user': FiUser,
-  'info': FiInfo, 'image': FiImage, 'login': FiLogIn
+  'info': FiInfo, 'image': FiImage, 'login': FiLogIn, 'download': FiDownload
 };
 
 const SafeIcon = ({ name, ...props }) => {
@@ -73,30 +73,31 @@ const staticCategories = {
   general: {
     name: "Overview",
     icon: 'school',
-    content: `MWEIGA GIRLS HIGH SCHOOL
+    content: `🏫 A.I.C KATWANYAA HIGH SCHOOL
 
-**A Public Girls Boarding School**
+**A Public County School in Machakos**
 
 Quick Facts:
-• Established: 1978
-• Location: Mweiga, Nyeri County
-• Students: 1100+ (Boarding)
-• Staff: 80+
-• Motto: "Striving for Excellence"
+• Established: 1976
+• Location: Kambusu, Matungulu, Machakos County
+• Students: 1000+
+• Staff: 50+
 
 School Type:
-• Public Girls Boarding School
-• 8-4-4 & CBC Curriculum
-• Girls only institution
+• Public County School
+• Mixed (Boys & Girls) - Day & Boarding
+• Competency-Based Curriculum (CBE)
 
 Contact:
-• Phone: +254 724 567 890
-• Email: info@mweigagirlshigh.sc.ke
-• Address: P.O. Box 456-10100, Mweiga, Nyeri
+• Phone: +254 729 370 590
+• Email: katwanyaaschool@yahoo.com
+• Address: P.O. Box 363 – 90131 Tala, Kenya
 
 Hours:
-• Administrative: Mon-Fri: 8:00 AM - 5:00 PM
-• School: Full boarding (Term Time)`,
+• Mon-Fri: 7:30 AM - 5:00 PM
+• Sat: 8:00 AM - 1:00 PM
+
+Learn more by selecting other categories!`,
     links: [
       { label: 'About', path: '/pages/AboutUs', icon: 'info' },
       { label: 'Overview', path: '/pages/overview', icon: 'grid' }
@@ -107,30 +108,35 @@ Hours:
     icon: 'file',
     content: `📋 ADMISSIONS
 
-**Boarding School Admissions**
-
 Requirements:
-• KCPE: 280+ Marks
+• KCPE: 250+ Marks
 • Age: 13-16 years
-• Good conduct and discipline
-• Medical fitness for boarding
+• Good conduct
+• Transfer students considered
 
 Documents:
-1. KCPE certificate (Original & Copy)
+1. KCPE certificate
 2. Birth certificate
-3. School leaving certificate
-4. 4 passport photos
+3. School reports
+4. Passport photos
 5. Medical report
-6. Parents/Guardian ID copies
 
-**Admission Process:**
-1. Application form collection
-2. Document submission
-3. Entrance assessment
-4. Interview with parents
+Steps:
+1. Collect admission form
+2. Submit required documents
+3. Academic assessment
+4. Parent/guardian interview
 5. Admission confirmation
 
-**Limited vacancies available for Forms 2 & 3 transfers based on performance.**`,
+**Competency-Based Curriculum:**
+• STEM Pathway
+• Social Sciences Pathway
+• Arts & Sports Science Pathway
+
+**Technology Partnership:**
+• Angaza Center technology partnership
+• Fully equipped computer lab
+• Internet access for all students`,
     links: [
       { label: 'Admissions', path: '/pages/admissions', icon: 'file' },
       { label: 'Apply Now', path: '/pages/apply-for-admissions', icon: 'user' }
@@ -139,28 +145,33 @@ Documents:
   fees: {
     name: "Fees",
     icon: 'dollar',
-    content: `💰 BOARDING SCHOOL FEES 2024
+    content: `💰 FEES STRUCTURE
 
-**Boarding Fees (Per Term):**
-• Tuition: KES 18,000
-• Boarding: KES 22,000
-• Activities: KES 3,500
-• **Total: KES 43,500**
+**School Fees (Per Term):**
+• Day School: KES 12,000 - 15,000
+• Boarding School: KES 25,000 - 30,000
+• Activities: KES 2,000 - 3,000
 
-**Inclusive of:**
-• Full boarding accommodation
-• Three balanced meals daily
-• Academic materials
+**Fee Distribution:**
+• Tuition fees
+• Activity fees
+• Laboratory charges
+• Library fees
 • Sports facilities
-• Medical care (basic)
 
 **Payment Options:**
-• Bank Transfer: Mweiga Girls High School
-• M-Pesa Paybill: 123456
+• Bank Transfer
+• M-Pesa payments
+• Cash payments at bursar's office
 • Installment plans available
-• Government scholarships for needy students
 
-**Note:** Fees are payable at the beginning of each term.`,
+**Scholarships:**
+• Academic excellence scholarships
+• Sports scholarships
+• Needy student support
+• County government bursaries
+
+**Affordable quality education with flexible payment options!**`,
     links: [
       { label: 'Student Portal', path: '/pages/StudentPortal', icon: 'book' }
     ]
@@ -170,29 +181,34 @@ Documents:
     icon: 'book',
     content: `📚 ACADEMICS
 
-**Dual Curriculum System:**
-• 8-4-4 Curriculum (Forms 1-4)
-• CBC Implementation (Junior Secondary)
+**Curriculum:** Competency-Based Education (CBE)
 
-**Subjects Offered:**
-• Core: English, Kiswahili, Mathematics
-• Sciences: Biology, Chemistry, Physics
-• Humanities: History, Geography, CRE
-• Business: Business Studies, Computer Studies
-• Technical: Home Science, Agriculture
+**Learning Pathways:**
+1. STEM (Science, Technology, Engineering, Mathematics)
+2. Social Sciences
+3. Arts & Sports Science
 
-**Academic Streams (Form 3/4):**
-1. Sciences (Biology & Chemistry)
-2. Humanities (History & Geography)
-3. Business/Technical
+**Form 1 & 2 (Core Subjects):**
+• English • Kiswahili
+• Mathematics • Integrated Sciences
+• Creative Arts • Business Studies
+• Computer Studies • Life Skills Education
 
 **Special Features:**
-• Modern Science Laboratories
-• Computer Lab with 40+ computers
-• Well-stocked Library
-• Career Guidance Center
-• Remedial & Tuition Program
-• CBC Competency-Based Assessment`,
+• Angaza Center Technology Partnership
+• Fully equipped computer laboratory
+• Science laboratories
+• Modern library
+• Career guidance programs
+• Remedial classes
+
+**Examination System:**
+• Continuous Assessment Tests (CATs)
+• End of Term examinations
+• Mock examinations
+• KCSE national examinations
+
+**Quality holistic education for all students!**`,
     links: [
       { label: 'Academics', path: '/pages/academics', icon: 'book' },
       { label: 'Guidance & Counselling', path: '/pages/Guidance-and-Councelling', icon: 'users' }
@@ -212,35 +228,39 @@ Documents:
     icon: 'activity',
     content: `⚽ CO-CURRICULAR ACTIVITIES
 
-**Sports Program:**
-• Netball (County Champions)
-• Volleyball
-• Athletics
-• Handball
-• Table Tennis
-• Badminton
+**Sports:**
+• Football • Rugby
+• Basketball • Volleyball
+• Athletics • Netball
+• Table Tennis • Swimming
 
 **Clubs & Societies:**
-1. Science & Mathematics Club
+1. Science & Technology Club
 2. Drama & Music Club
 3. Environmental Club
-4. Debate & Public Speaking
-5. Young Farmers Club
-6. Christian Union
+4. Debate & Public Speaking Club
+5. Christian Union
+6. Scouts & Guides
 7. Journalism Club
 
 **Competitions:**
-• National Music Festivals
-• Science & Engineering Fair
-• Drama Festivals
-• Sports Championships
-• Academic Olympiads
+• Music Festivals
+• Science & Engineering Fairs
+• Sports championships
+• Academic contests
+• Drama festivals
 
 **Leadership Development:**
-• Prefectorial Board
-• Club Leadership
-• Peer Counseling
-• Mentorship Programs`,
+• Student Council
+• Class Prefects system
+• Club leadership positions
+• Peer counseling program
+
+**Talent Development:**
+• Art exhibitions
+• Music performances
+• Drama productions
+• Sports tournaments`,
     links: [
       { label: 'News & Events', path: '/pages/eventsandnews', icon: 'calendar' },
       { label: 'Sports', path: '/pages/sports', icon: 'activity' }
@@ -252,26 +272,33 @@ Documents:
     content: `🏆 SCHOOL ACHIEVEMENTS
 
 **Academic Excellence:**
-• 2023 KCSE Mean Grade: B+
-• 92% University Qualification Rate
-• 15 Straight A's in 2023 KCSE
-• Consistent Top 10 in Nyeri County
+• Consistent improvement in KCSE results
+• High university placement rate
+• Subject specialization awards
+• STEM program recognition
 
 **Sports Achievements:**
-• County Netball Champions 2022, 2023
-• Regional Athletics Gold Medalists
-• National Volleyball Finalists
-• Sportsmanship Awards
+• County sports champions
+• Regional athletics medals
+• Basketball tournament winners
+• Sportsmanship awards
 
 **Talent Development:**
-• National Music Festival Winners
-• Drama Festivals County Champions
-• Art & Design Exhibition Awards
+• Music festival winners
+• Drama competition finalists
+• Art exhibition participants
+• Public speaking champions
 
-**School Recognition:**
-• Best Managed Boarding School Award
-• Environmental Conservation Award
-• Academic Improvement Award 2023`,
+**Community Recognition:**
+• Environmental conservation awards
+• Community service recognition
+• Clean school initiatives
+• Leadership development programs
+
+**Technology Partnership:**
+• Angaza Center technology integration
+• Digital learning implementation
+• Computer literacy excellence`,
     links: [
       { label: 'News & Events', path: '/pages/eventsandnews', icon: 'calendar' },
       { label: 'Results', path: '/results', icon: 'award' }
@@ -283,28 +310,28 @@ Documents:
     content: `📞 CONTACT US
 
 **School Administration:**
-• Principal: Mrs. Jane Wanjiku
-• Deputy Principal (Academics): Mr. James Kariuki
-• Deputy Principal (Administration): Mrs. Sarah Muthoni
-• Boarding Mistress: Mrs. Grace Nyambura
+• Principal: [Name to be updated]
+• Deputy Principal (Academics)
+• Deputy Principal (Administration)
+• Senior Teacher
 
 **Contact Information:**
-• School Phone: +254 724 567 890
-• Principal's Office: +254 723 456 789
-• Email: info@mweigagirlshigh.sc.ke
-• Admissions: admissions@mweigagirlshigh.sc.ke
-• Bursar: bursar@mweigagirlshigh.sc.ke
+• Phone: +254 729 370 590
+• Email: katwanyaaschool@yahoo.com
+• Admissions: katwanyaaschool@yahoo.com
 
 **Physical Address:**
-Mweiga Girls High School
-Along Nyeri-Nyahururu Road
-Mweiga Township, Nyeri County
-P.O. Box 456-10100, Mweiga
+A.I.C Katwanyaa High School
+Kambusu, Matungulu Sub-County
+Machakos County
+P.O. Box 363 – 90131 Tala, Kenya
 
 **Office Hours:**
 • Monday-Friday: 8:00 AM - 5:00 PM
-• Saturday: 9:00 AM - 1:00 PM
-• School Visits by Appointment`,
+• Saturday: 8:00 AM - 1:00 PM
+• Sunday: Closed
+
+**Visit Us:** We welcome parents, guardians, and visitors during office hours.`,
     links: [
       { label: 'Contact', path: '/pages/contact', icon: 'phone' },
       { label: 'Staff Directory', path: '/pages/staff', icon: 'users' },
@@ -315,8 +342,16 @@ P.O. Box 456-10100, Mweiga
 };
 
 // Helper function to format dynamic content
-const buildDynamicCategories = (schoolData) => {
+const buildDynamicCategories = (schoolData, documentData) => {
   if (!schoolData) return staticCategories;
+
+  // Format fee distribution for display
+  const formatFeeDistribution = (distribution) => {
+    if (!distribution || typeof distribution !== 'object') return '';
+    return Object.entries(distribution)
+      .map(([key, value]) => `• ${key}: KES ${value.toLocaleString()}`)
+      .join('\n');
+  };
 
   return {
     general: {
@@ -324,21 +359,21 @@ const buildDynamicCategories = (schoolData) => {
       icon: 'school',
       content: `🏫 ${schoolData.name}
 
-**Motto:** ${schoolData.motto}
+**Motto:** ${schoolData.motto || 'Education is Light'}
 
 **Vision:**
-${schoolData.vision}
+${schoolData.vision || 'To be a center of excellence in holistic education'}
 
 **Mission:**
-${schoolData.mission}
+${schoolData.mission || 'To provide quality education that nurtures intellectual, moral, and physical development'}
 
 **About Our School:**
-${schoolData.description}
+${schoolData.description || 'A public county school committed to academic excellence and holistic development'}
 
 Quick Facts:
-• Students: ${schoolData.studentCount}
-• Staff: ${schoolData.staffCount}
-• Academic Term: ${new Date(schoolData.openDate).toLocaleDateString()} - ${new Date(schoolData.closeDate).toLocaleDateString()}
+• Students: ${schoolData.studentCount || '1000+'}
+• Staff: ${schoolData.staffCount || '50+'}
+• Academic Term: ${schoolData.openDate ? new Date(schoolData.openDate).toLocaleDateString() : 'Jan'} - ${schoolData.closeDate ? new Date(schoolData.closeDate).toLocaleDateString() : 'Dec'}
 
 **School Philosophy:**
 We provide a supportive learning environment that promotes intellectual growth, moral values, and holistic development through qualified staff and modern facilities.`,
@@ -350,77 +385,123 @@ We provide a supportive learning environment that promotes intellectual growth, 
       content: `📋 ADMISSIONS INFORMATION
 
 **Admission Period:**
-• Opens: ${new Date(schoolData.admissionOpenDate).toLocaleDateString()}
-• Closes: ${new Date(schoolData.admissionCloseDate).toLocaleDateString()}
+• Opens: ${schoolData.admissionOpenDate ? new Date(schoolData.admissionOpenDate).toLocaleDateString() : 'January'}
+• Closes: ${schoolData.admissionCloseDate ? new Date(schoolData.admissionCloseDate).toLocaleDateString() : 'March'}
 
-**Admission Fee:** KES ${schoolData.admissionFee.toLocaleString()}
-**Admission Capacity:** ${schoolData.admissionCapacity} students
+**Admission Fee:** ${schoolData.admissionFee ? `KES ${schoolData.admissionFee.toLocaleString()}` : 'Contact for details'}
+**Admission Capacity:** ${schoolData.admissionCapacity || 'Limited slots available'}
 
-**Fee Distribution:**
-${Object.entries(schoolData.admissionFeeDistribution || {}).map(([key, value]) => `• ${key}: KES ${value.toLocaleString()}`).join('\n')}
+${documentData?.admissionFeePdf ? `**Download Admission Fee Structure:** ${documentData.admissionFeePdfName || 'Admission Fees'}` : ''}
+
+${documentData?.admissionFeeDistribution ? `**Admission Fee Distribution:**
+${formatFeeDistribution(documentData.admissionFeeDistribution)}` : ''}
+
+**Required Documents:**
+${schoolData.admissionDocumentsRequired && schoolData.admissionDocumentsRequired.length > 0 
+  ? schoolData.admissionDocumentsRequired.map(doc => `• ${doc}`).join('\n')
+  : '• KCPE Certificate\n• Birth Certificate\n• School Reports\n• Passport Photos\n• Medical Report'}
 
 **Contact Admissions:**
-• Email: ${schoolData.admissionContactEmail}
-• Phone: ${schoolData.admissionContactPhone}
-• Location: ${schoolData.admissionLocation}
-• Office Hours: ${schoolData.admissionOfficeHours}
+• Email: ${schoolData.admissionContactEmail || 'katwanyaaschool@yahoo.com'}
+• Phone: ${schoolData.admissionContactPhone || '+254 729 370 590'}
+• Location: ${schoolData.admissionLocation || 'Kambusu, Matungulu, Machakos County'}
+• Office Hours: ${schoolData.admissionOfficeHours || 'Mon-Fri: 8:00 AM - 5:00 PM'}
 
-**Requirements:**
-${schoolData.admissionRequirements || 'Please contact admissions office for specific requirements'}
+**Admission Requirements:**
+${schoolData.admissionRequirements || '• KCPE: 250+ Marks\n• Age: 13-16 years\n• Good conduct\n• Transfer students considered'}
 
-**Apply through our website for seamless admission processing.`,
-      links: staticCategories.admissions.links
+**Apply through our website for seamless admission processing.**`,
+      links: [
+        ...staticCategories.admissions.links,
+        ...(documentData?.admissionFeePdf ? [{ 
+          label: 'Download Fees', 
+          action: 'download', 
+          url: documentData.admissionFeePdf,
+          icon: 'download' 
+        }] : [])
+      ]
     },
     fees: {
       name: "Fees",
       icon: 'dollar',
-      content: `💰 BOARDING SCHOOL FEE STRUCTURE
+      content: `💰 FEE STRUCTURE
 
-**Boarding School Fees (Per Term):** KES ${schoolData.feesBoarding ? schoolData.feesBoarding.toLocaleString() : '43,500'}
+**Day School Fees (Per Term):** ${schoolData.feesDay ? `KES ${schoolData.feesDay.toLocaleString()}` : 'KES 12,000 - 15,000'}
 
-**Boarding Fee Distribution:**
-${schoolData.feesBoardingDistribution ? Object.entries(schoolData.feesBoardingDistribution).map(([key, value]) => `• ${key}: KES ${value.toLocaleString()}`).join('\n') : `• Tuition: KES 18,000\n• Boarding: KES 22,000\n• Activities: KES 3,500`}
+${documentData?.feesDayDistributionPdf ? `**Download Day School Fee Structure:** ${documentData.feesDayPdfName || 'Day School Fees'}` : ''}
+
+${documentData?.feesDayDistributionJson ? `**Day Fee Distribution:**
+${formatFeeDistribution(documentData.feesDayDistributionJson)}` : ''}
+
+**Boarding School Fees (Per Term):** ${schoolData.feesBoarding ? `KES ${schoolData.feesBoarding.toLocaleString()}` : 'KES 25,000 - 30,000'}
+
+${documentData?.feesBoardingDistributionPdf ? `**Download Boarding Fee Structure:** ${documentData.feesBoardingPdfName || 'Boarding School Fees'}` : ''}
+
+${documentData?.feesBoardingDistributionJson ? `**Boarding Fee Distribution:**
+${formatFeeDistribution(documentData.feesBoardingDistributionJson)}` : ''}
 
 **Payment Information:**
 • Detailed fee structure available for download
 • Multiple payment options available
-• Installment plans upon request
-• Contact bursar for payment arrangements
+• Contact bursar for payment plans
 
-**Note:** All fees are payable at the beginning of each term.`,
-      links: staticCategories.fees.links
+**Note:** All fees are subject to review as per school policies.`,
+      links: [
+        ...staticCategories.fees.links,
+        ...(documentData?.feesDayDistributionPdf ? [{ 
+          label: 'Download Day Fees', 
+          action: 'download', 
+          url: documentData.feesDayDistributionPdf,
+          icon: 'download' 
+        }] : []),
+        ...(documentData?.feesBoardingDistributionPdf ? [{ 
+          label: 'Download Boarding Fees', 
+          action: 'download', 
+          url: documentData.feesBoardingDistributionPdf,
+          icon: 'download' 
+        }] : [])
+      ]
     },
     academics: {
       name: "Academics",
       icon: 'book',
       content: `📚 ACADEMIC PROGRAM
 
-**Dual Curriculum:**
-• 8-4-4 System (Forms 1-4)
-• CBC Implementation (Junior Secondary)
-
 **Subjects Offered:**
-${schoolData.subjects ? schoolData.subjects.map(subject => `• ${subject}`).join('\n') : `• English • Kiswahili • Mathematics\n• Biology • Chemistry • Physics\n• History • Geography • CRE\n• Business Studies • Computer Studies\n• Home Science • Agriculture`}
+${schoolData.subjects && schoolData.subjects.length > 0 
+  ? schoolData.subjects.map(subject => `• ${subject}`).join('\n')
+  : `• English • Kiswahili • Mathematics
+• Integrated Sciences • Creative Arts
+• Business Studies • Computer Studies
+• Life Skills Education`}
 
 **Academic Departments:**
-${schoolData.departments ? schoolData.departments.map(dept => `• ${dept}`).join('\n') : `• Languages Department\n• Mathematics Department\n• Sciences Department\n• Humanities Department\n• Technical Department`}
+${schoolData.departments && schoolData.departments.length > 0 
+  ? schoolData.departments.map(dept => `• ${dept}`).join('\n')
+  : `• Languages Department
+• Mathematics Department
+• Sciences Department
+• Humanities Department`}
 
-**Curriculum:**
-• Comprehensive 8-4-4 curriculum
-• CBC competency-based education
-• Download curriculum details: ${schoolData.curriculumPdfName || 'mweiga-girls-curriculum.pdf'}
-
-**Examination Results:**
-• KCSE ${schoolData.examResults?.kcse?.year || '2023'} results available
-• Download performance reports
-• Continuous assessment and monitoring
+${documentData?.curriculumPDF ? `**Curriculum:**
+• Download curriculum details: ${documentData.curriculumPdfName || 'School Curriculum'}
+• Year: ${documentData.curriculumYear || 'Current'}
+• Term: ${documentData.curriculumTerm || 'All Terms'}` : '**Curriculum:** Comprehensive Competency-Based Curriculum (CBE)'}
 
 **Academic Support:**
 • Regular assessments and evaluations
 • Remedial classes
 • Career guidance programs
-• CBC competency tracking`,
-      links: staticCategories.academics.links
+• Angaza Center Technology Partnership`,
+      links: [
+        ...staticCategories.academics.links,
+        ...(documentData?.curriculumPDF ? [{ 
+          label: 'Download Curriculum', 
+          action: 'download', 
+          url: documentData.curriculumPDF,
+          icon: 'download' 
+        }] : [])
+      ]
     },
     facilities: {
       name: "Facilities",
@@ -435,27 +516,65 @@ ${schoolData.departments ? schoolData.departments.map(dept => `• ${dept}`).joi
       content: `🏆 SCHOOL ACHIEVEMENTS
 
 **Academic Excellence:**
-• KCSE ${schoolData.examResults?.kcse?.year || '2023'} results documented
 • Consistent academic improvement
 • Subject specialization achievements
-• University placement success
+• High university placement rate
 
-**Examination Results:**
-• Download KCSE results: ${schoolData.examResults?.kcse?.name || 'mweiga-girls-kcse-2023.pdf'}
-• Additional performance reports available
+${documentData?.kcseResultsPdf ? `**KCSE Examination Results:**
+• Download KCSE results: ${documentData.kcsePdfName || 'KCSE Results'}
+• Year: ${documentData.kcseYear || 'Latest'}
+• Description: ${documentData.kcseDescription || 'National Examination Results'}` : '**Examination Results:** Available upon request'}
+
+**Additional Exam Results:**
+${documentData?.form1ResultsPdf ? `• Form 1 Results: ${documentData.form1ResultsPdfName}` : ''}
+${documentData?.form2ResultsPdf ? `• Form 2 Results: ${documentData.form2ResultsPdfName}` : ''}
+${documentData?.form3ResultsPdf ? `• Form 3 Results: ${documentData.form3ResultsPdfName}` : ''}
+${documentData?.form4ResultsPdf ? `• Form 4 Results: ${documentData.form4ResultsPdfName}` : ''}
+${documentData?.mockExamsResultsPdf ? `• Mock Exams: ${documentData.mockExamsPdfName}` : ''}
 
 **Student Success:**
 • Holistic development focus
 • Talent nurturing programs
-• Leadership development initiatives
-• Sports and co-curricular achievements
-
-**Quality Assurance:**
-• Regular academic reviews
-• Performance tracking systems
-• Continuous improvement programs
-• Boarding school excellence standards`,
-      links: staticCategories.achievements.links
+• Leadership development initiatives`,
+      links: [
+        ...staticCategories.achievements.links,
+        ...(documentData?.kcseResultsPdf ? [{ 
+          label: 'Download KCSE Results', 
+          action: 'download', 
+          url: documentData.kcseResultsPdf,
+          icon: 'download' 
+        }] : []),
+        ...(documentData?.form1ResultsPdf ? [{ 
+          label: 'Form 1 Results', 
+          action: 'download', 
+          url: documentData.form1ResultsPdf,
+          icon: 'download' 
+        }] : []),
+        ...(documentData?.form2ResultsPdf ? [{ 
+          label: 'Form 2 Results', 
+          action: 'download', 
+          url: documentData.form2ResultsPdf,
+          icon: 'download' 
+        }] : []),
+        ...(documentData?.form3ResultsPdf ? [{ 
+          label: 'Form 3 Results', 
+          action: 'download', 
+          url: documentData.form3ResultsPdf,
+          icon: 'download' 
+        }] : []),
+        ...(documentData?.form4ResultsPdf ? [{ 
+          label: 'Form 4 Results', 
+          action: 'download', 
+          url: documentData.form4ResultsPdf,
+          icon: 'download' 
+        }] : []),
+        ...(documentData?.mockExamsResultsPdf ? [{ 
+          label: 'Mock Exams', 
+          action: 'download', 
+          url: documentData.mockExamsResultsPdf,
+          icon: 'download' 
+        }] : [])
+      ]
     },
     contact: {
       name: "Contact",
@@ -463,13 +582,13 @@ ${schoolData.departments ? schoolData.departments.map(dept => `• ${dept}`).joi
       content: `📞 CONTACT INFORMATION
 
 **School Contacts:**
-• Phone: ${schoolData.admissionContactPhone || '+254 724 567 890'}
-• Email: ${schoolData.admissionContactEmail || 'info@mweigagirlshigh.sc.ke'}
-• Location: ${schoolData.admissionLocation || 'Mweiga Township, Nyeri County'}
-• Website: ${schoolData.admissionWebsite || 'www.mweigagirlshigh.sc.ke'}
+• Phone: ${schoolData.admissionContactPhone || '+254 729 370 590'}
+• Email: ${schoolData.admissionContactEmail || 'katwanyaaschool@yahoo.com'}
+• Location: ${schoolData.admissionLocation || 'Kambusu, Matungulu, Machakos County'}
+• Website: ${schoolData.admissionWebsite || 'Contact office for details'}
 
 **Office Hours:**
-${schoolData.admissionOfficeHours || 'Monday-Friday: 8:00 AM - 5:00 PM | Saturday: 9:00 AM - 1:00 PM'}
+${schoolData.admissionOfficeHours || 'Monday-Friday: 8:00 AM - 5:00 PM\nSaturday: 8:00 AM - 1:00 PM'}
 
 **Administration:**
 • Comprehensive administrative support
@@ -513,7 +632,7 @@ const formatMessage = (content) => {
       else if (/^\d+\./.test(line)) {
         return (
           <div key={index} className="flex items-start ml-1 mb-0.5">
-            <span className="text-green-300 mr-1 text-xs font-semibold">
+            <span className="text-orange-500 mr-1 text-xs font-semibold">
               {line.match(/^\d+/)[0]}.
             </span>
             <span className="text-gray-100 text-xs">{line.replace(/^\d+\.\s*/, '')}</span>
@@ -549,6 +668,7 @@ export default function ChatBot() {
   const [showCategories, setShowCategories] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [schoolData, setSchoolData] = useState(null);
+  const [documentData, setDocumentData] = useState(null);
   const [hasFetchedData, setHasFetchedData] = useState(false);
   const [isFetchingData, setIsFetchingData] = useState(false);
   const messagesEndRef = useRef(null);
@@ -556,37 +676,46 @@ export default function ChatBot() {
   const chatContainerRef = useRef(null);
   const router = useRouter();
 
-  // Fetch school data from API
+  // Fetch school data and document data from APIs
   useEffect(() => {
-    const fetchSchoolData = async () => {
-      // Only fetch once and if not already fetched
+    const fetchAllData = async () => {
       if (hasFetchedData || isFetchingData) return;
       
       setIsFetchingData(true);
       try {
-        const response = await fetch('/api/school');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.school) {
-            setSchoolData(data.school);
+        // Fetch school data
+        const schoolResponse = await fetch('/api/school');
+        if (schoolResponse.ok) {
+          const schoolData = await schoolResponse.json();
+          if (schoolData.success && schoolData.school) {
+            setSchoolData(schoolData.school);
+          }
+        }
+
+        // Fetch document data
+        const documentsResponse = await fetch('/api/schooldocuments');
+        if (documentsResponse.ok) {
+          const documentsData = await documentsResponse.json();
+          if (documentsData.success && documentsData.document) {
+            setDocumentData(documentsData.document);
           }
         }
       } catch (error) {
-        console.error('Failed to fetch school data:', error);
-        // Silently fall back to static content - no UI disruption
+        console.error('Failed to fetch data:', error);
+        // Silently fall back to static content
       } finally {
         setHasFetchedData(true);
         setIsFetchingData(false);
       }
     };
 
-    fetchSchoolData();
+    fetchAllData();
   }, [hasFetchedData, isFetchingData]);
 
   // Get categories based on data availability
   const getCategories = () => {
-    if (schoolData) {
-      return buildDynamicCategories(schoolData);
+    if (schoolData || documentData) {
+      return buildDynamicCategories(schoolData, documentData);
     }
     return staticCategories;
   };
@@ -624,7 +753,7 @@ export default function ChatBot() {
   }, []);
 
   useEffect(() => {
-    const chatData = localStorage.getItem('mweigagirls_chat');
+    const chatData = localStorage.getItem('Katwanyaa_chat');
     if (chatData) {
       const { messages: savedMessages, timestamp } = JSON.parse(chatData);
       const fourHoursAgo = Date.now() - (4 * 60 * 60 * 1000);
@@ -632,33 +761,34 @@ export default function ChatBot() {
       if (timestamp > fourHoursAgo) {
         setMessages(savedMessages);
       } else {
-        localStorage.removeItem('mweigagirls_chat');
+        localStorage.removeItem('Katwanyaa_chat');
         setMessages([getWelcomeMessage()]);
       }
     } else {
       setMessages([getWelcomeMessage()]);
     }
-  }, []);
+  }, [schoolData, documentData]);
 
   const getWelcomeMessage = () => {
-    const schoolName = schoolData?.name || 'MWEIGA GIRLS HIGH SCHOOL';
-    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**STRIVING FOR EXCELLENCE** ✨';
-    const studentCount = schoolData?.studentCount || '1100+';
-    const staffCount = schoolData?.staffCount || '80+';
+    const schoolName = schoolData?.name || 'A.I.C KATWANYAA HIGH SCHOOL';
+    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**Education is Light** ✨';
+    const studentCount = schoolData?.studentCount || '1000+';
+    const staffCount = schoolData?.staffCount || '50+';
     
     return {
       id: 1,
       role: 'assistant',
       content: `🎓 WELCOME TO ${schoolName.toUpperCase()}!${motto}
 
-Hello! I'm the Mweiga Girls Assistant.
+Hello! I'm Katwa, your assistant.
 
 About Our School:
-• Public Girls Boarding School
-• Established: 1978
-• Location: Mweiga, Nyeri County
-• Students: ${studentCount} (Boarding) | Staff: ${staffCount}
-• Dual Curriculum: 8-4-4 & CBC System
+• Public County School (Mixed - Day & Boarding)
+• Established: 1976
+• Location: Kambusu, Matungulu, Machakos County
+• Students: ${studentCount} | Teachers: ${staffCount}
+• Competency-Based Curriculum (CBE)
+• Angaza Center Technology Partnership
 
 ${schoolData ? 'For the most current information, choose a category below! 👇' : 'Choose a category below to learn more! 👇'}`,
       links: [
@@ -676,7 +806,7 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
         messages: messages,
         timestamp: Date.now()
       };
-      localStorage.setItem('mweigagirls_chat', JSON.stringify(chatData));
+      localStorage.setItem('Katwanyaa_chat', JSON.stringify(chatData));
     }
   }, [messages]);
 
@@ -751,14 +881,20 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
   };
 
   const clearChat = () => {
-    localStorage.removeItem('mweigagirls_chat');
+    localStorage.removeItem('Katwanyaa_chat');
     setMessages([getWelcomeMessage()]);
     setShowCategories(true);
   };
 
-  const handleLinkClick = (path) => {
-    router.push(path);
-    setIsOpen(false);
+  const handleLinkClick = (link) => {
+    if (link.action === 'download' && link.url) {
+      // Open download in new tab
+      window.open(link.url, '_blank');
+    } else if (link.path) {
+      // Navigate to internal page
+      router.push(link.path);
+      setIsOpen(false);
+    }
   };
 
   return (
@@ -773,7 +909,7 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-orange-600 via-amber-700 to-red-800  text-white rounded-full p-4 shadow-lg transition-all hover:scale-105 active:scale-95"
+          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-100 active:scale-95"
           aria-label="Open chat assistant"
           style={{
             transform: 'translateZ(0)',
@@ -797,24 +933,38 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
             willChange: 'transform'
           }}
         >
-            {/* Header with logo */}
-            <div className="bg-gradient-to-r from-orange-600 via-amber-700 to-red-800 text-white p-4 flex-shrink-0">
+          {/* Header with logo */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 flex-shrink-0">
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white flex-shrink-0">
-                  <img 
-                    src="/ll.png" 
-                    alt="Mweiga Girls High School Logo" 
+                <div
+                  className="
+                    w-8 h-8
+                    xs:w-9 xs:h-9
+                    sm:w-10 sm:h-10
+                    md:w-12 md:h-12
+                    rounded-lg sm:rounded-xl
+                    flex items-center justify-center
+                    shadow-md sm:shadow-lg
+                    overflow-hidden
+                    bg-white
+                    flex-shrink-0
+                  "
+                >
+                  <img
+                    src="/katz.png"
+                    alt="Katwanyaa High School Logo"
                     className="w-full h-full object-cover"
                     style={{ imageRendering: 'auto' }}
                   />
                 </div>
+
                 <div className="min-w-0">
-                  <h3 className="text-lg sm:text-xl font-bold text-white truncate">
-                    {schoolData?.name || 'Mweiga Girls High School'}
+                  <h3 className="text-lg sm:text-md font-bold text-white truncate">
+                    {schoolData?.name || 'A.I.C Katwanyaa High'}
                   </h3>
                   <p className="text-blue-200 text-xs sm:text-sm truncate">
-                    {schoolData?.motto || 'Striving for Excellence'}
+                    {schoolData?.motto || 'Education is Light'}
                   </p>
                 </div>
               </div>
@@ -909,8 +1059,12 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
                         {message.links.map((link, index) => (
                           <button
                             key={index}
-                            onClick={() => handleLinkClick(link.path)}
-                            className="inline-flex items-center gap-1 text-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-2 py-1.5 rounded transition-all font-medium whitespace-nowrap flex-shrink-0"
+                            onClick={() => handleLinkClick(link)}
+                            className={`inline-flex items-center gap-1 text-xs px-2 py-1.5 rounded transition-all font-medium whitespace-nowrap flex-shrink-0 ${
+                              link.action === 'download'
+                                ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
+                                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                            }`}
                           >
                             {link.icon && <SafeIcon name={link.icon} className="w-3 h-3" />}
                             {link.label}

@@ -1,120 +1,132 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../libs/prisma";
-import path from "path";
-import fs from "fs";
-import { writeFile } from "fs/promises";
+import { FileManager } from "../../../libs/superbase"; // Changed from cloudinary
 
-// Helpers
-const ensureUploadDir = (uploadDir) => {
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+// Helper functions
+const uploadFileToSupabase = async (file) => {
+  if (!file || !file.name || file.size === 0) return null;
+
+  try {
+    const result = await FileManager.uploadFile(file, `resources/files`);
+    
+    if (!result) return null;
+    
+    return {
+      url: result.url,
+      name: result.fileName,
+      size: result.fileSize,
+      extension: result.fileName.substring(result.fileName.lastIndexOf('.')).toLowerCase(),
+      uploadedAt: new Date().toISOString(),
+    };
+  } catch (err) {
+    console.error("❌ Supabase upload error:", err);
+    return null;
   }
 };
 
-const uploadFile = async (file, uploadDir) => {
-  if (!file || !file.name) return null;
-  
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const timestamp = Date.now();
-  const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-  const fileName = `${timestamp}-${sanitizedFileName}`;
-  const filePath = path.join(uploadDir, fileName);
-  
-  await writeFile(filePath, buffer);
-  return {
-    url: `/resources/${fileName}`,
-    name: file.name,
-    size: formatFileSize(file.size),
-    extension: file.name.split('.').pop().toLowerCase(),
-    uploadedAt: new Date().toISOString()
-  };
-};
-
-const uploadMultipleFiles = async (files, uploadDir) => {
+const uploadMultipleFilesToSupabase = async (files) => {
   if (!files || files.length === 0) return [];
-  
+
   const uploadedFiles = [];
-  
+
   for (const file of files) {
-    if (file && file.name) {
-      const fileData = await uploadFile(file, uploadDir);
-      if (fileData) {
-        uploadedFiles.push(fileData);
-      }
+    // Skip empty files
+    if (!file.name || file.size === 0) continue;
+    
+    const result = await uploadFileToSupabase(file);
+    if (result) {
+      uploadedFiles.push({
+        url: result.url,
+        name: result.name,
+        size: formatFileSize(result.size),
+        extension: result.extension,
+        uploadedAt: result.uploadedAt,
+      });
     }
   }
-  
+
   return uploadedFiles;
 };
 
 const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
 const getFileType = (fileName) => {
-  const ext = fileName.split('.').pop().toLowerCase();
-  
+  const ext = fileName.split(".").pop().toLowerCase();
+
   const typeMap = {
-    pdf: 'pdf',
-    doc: 'document', docx: 'document',
-    txt: 'document',
-    ppt: 'presentation', pptx: 'presentation',
-    xls: 'spreadsheet', xlsx: 'spreadsheet', csv: 'spreadsheet',
-    jpg: 'image', jpeg: 'image', png: 'image', gif: 'image',
-    mp4: 'video', mov: 'video',
-    mp3: 'audio', wav: 'audio',
-    zip: 'archive', rar: 'archive'
+    pdf: "pdf",
+    doc: "document",
+    docx: "document",
+    txt: "document",
+    ppt: "presentation",
+    pptx: "presentation",
+    xls: "spreadsheet",
+    xlsx: "spreadsheet",
+    csv: "spreadsheet",
+    jpg: "image",
+    jpeg: "image",
+    png: "image",
+    gif: "image",
+    webp: "image",
+    bmp: "image",
+    svg: "image",
+    mp4: "video",
+    mov: "video",
+    avi: "video",
+    wmv: "video",
+    flv: "video",
+    webm: "video",
+    mkv: "video",
+    mp3: "audio",
+    wav: "audio",
+    m4a: "audio",
+    ogg: "audio",
+    zip: "archive",
+    rar: "archive",
+    "7z": "archive",
   };
-  
-  return typeMap[ext] || 'document';
+
+  return typeMap[ext] || "document";
 };
 
 const determineMainTypeFromFiles = (files) => {
-  if (!files || files.length === 0) return 'document';
-  
-  const types = files.map(file => getFileType(file.name));
-  
-  // Count occurrences
+  if (!files || files.length === 0) return "document";
+
+  const types = files.map((file) => getFileType(file.name));
   const typeCount = {};
-  types.forEach(type => {
+  types.forEach((type) => {
     typeCount[type] = (typeCount[type] || 0) + 1;
   });
-  
-  // Return most common type
-  const mostCommon = Object.keys(typeCount).reduce((a, b) => 
+
+  return Object.keys(typeCount).reduce((a, b) =>
     typeCount[a] > typeCount[b] ? a : b
   );
-  
-  return mostCommon;
 };
 
 // 🔹 GET — Fetch all resources
-export async function GET(request) {
+export async function GET() {
   try {
     const resources = await prisma.resource.findMany({
-      orderBy: {
-        createdAt: 'desc'
-      }
+      orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        resources,
-        count: resources.length
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ 
+      success: true, 
+      resources, 
+      count: resources.length 
+    }, { status: 200 });
   } catch (error) {
     console.error("❌ Error fetching resources:", error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message 
+    }, { status: 500 });
   }
 }
 
@@ -134,42 +146,38 @@ export async function POST(request) {
     const uploadedBy = formData.get("uploadedBy")?.trim() || "System";
     const isActive = formData.get("isActive") !== "false";
 
-    // Validate required fields
     if (!title || !subject || !className || !teacher) {
       return NextResponse.json(
-        { success: false, error: "Title, subject, class, and teacher are required" },
+        { 
+          success: false, 
+          error: "Title, subject, class, and teacher are required" 
+        },
         { status: 400 }
       );
     }
 
-    // Get multiple files - use "files" as the field name
     const files = formData.getAll("files");
+    const validFiles = files.filter(file => file && file.name && file.size > 0);
     
-    // Validate files
-    if (!files || files.length === 0 || (files.length === 1 && !files[0].name)) {
-      return NextResponse.json(
-        { success: false, error: "At least one file is required" },
-        { status: 400 }
-      );
+    if (validFiles.length === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "At least one valid file is required" 
+      }, { status: 400 });
     }
 
-    // Upload directory
-    const uploadDir = path.join(process.cwd(), "public/resources");
-    ensureUploadDir(uploadDir);
-    
-    // Upload all files
-    const uploadedFiles = await uploadMultipleFiles(files, uploadDir);
+    // Upload files to Supabase
+    const uploadedFiles = await uploadMultipleFilesToSupabase(validFiles);
     if (uploadedFiles.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "Failed to upload files" },
-        { status: 500 }
-      );
+      return NextResponse.json({ 
+        success: false, 
+        error: "Failed to upload files" 
+      }, { status: 500 });
     }
 
-    // Determine main type
-    const mainType = determineMainTypeFromFiles(files);
+    const mainType = determineMainTypeFromFiles(validFiles);
 
-    // Create resource with multiple files
+    // Save resource to database
     const resource = await prisma.resource.create({
       data: {
         title,
@@ -179,7 +187,7 @@ export async function POST(request) {
         description,
         category,
         type: mainType,
-        files: uploadedFiles, // Array of file objects
+        files: uploadedFiles,
         accessLevel,
         uploadedBy,
         downloads: 0,
@@ -188,21 +196,18 @@ export async function POST(request) {
     });
 
     return NextResponse.json(
-      {
-        success: true,
-        message: `Resource created with ${uploadedFiles.length} file(s)`,
-        resource,
+      { 
+        success: true, 
+        message: `Resource created with ${uploadedFiles.length} file(s)`, 
+        resource 
       },
       { status: 201 }
     );
   } catch (error) {
     console.error("❌ Error creating resource:", error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error.message
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message 
+    }, { status: 500 });
   }
 }

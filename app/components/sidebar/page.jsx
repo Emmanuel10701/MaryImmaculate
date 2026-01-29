@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { 
   FiLogOut, 
   FiX, 
@@ -12,81 +11,31 @@ import {
   FiMail,
   FiUser,
   FiShield,
-  FiUsers,
-  FiUserCheck,
   FiInfo,
   FiMessageCircle,
   FiCalendar,
-  FiUserPlus,
   FiClipboard,
   FiFileText,
-  FiCheckCircle,
-  FiDownload,
-  FiFilter,
-  FiSearch,FiDollarSign,
+  FiDollarSign,
   FiFolder,
-  FiFile,
-  FiVideo,
-  FiMusic,
-  FiArchive,
-  FiTrendingUp,
-  FiDatabase,
-  FiPieChart,
-  FiLayers,
-  FiUpload
+  FiArchive
 } from 'react-icons/fi';
 
-
 import { 
-  IoSparkles, 
-  IoStatsChart,
-  IoRocket,
   IoNewspaper,
   IoPeopleCircle,
-  IoSchool
 } from 'react-icons/io5';
 
 import { 
   MdAdminPanelSettings,
-  MdPersonOutline
 } from 'react-icons/md';
 import { useEffect, useState } from 'react';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, setSidebarOpen, tabs }) {
   const [isMobile, setIsMobile] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSupportModal, setShowSupportModal] = useState(false);
-  const [realStats, setRealStats] = useState({
-    totalStudents: 0,
-    totalStaff: 0,
-    totalSubscribers: 0,
-    studentCouncil: 0,
-    upcomingEvents: 0,
-    totalNews: 0,
-    activeAssignments: 0,
-    galleryItems: 0,
-    guidanceSessions: 0,
-    totalApplications: 0,
-    pendingApplications: 0,
-    acceptedApplications: 0,
-    rejectedApplications: 0,
-    totalResources: 0,
-    recentResources: 0,
-    totalStudent: 0,
-    totalFees:0,
-    totalResults:0,
-    activeResources: 0,
-    totalCareers: 0,
-    resourcesByType: {
-      documents: 0,
-      videos: 0,
-      pdfs: 0,
-      presentations: 0
-    }
-  });
 
   // Get user data from localStorage same way as dashboard
   useEffect(() => {
@@ -179,122 +128,6 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
     initializeUser();
   }, []);
 
-  // Fetch real counts from APIs including resources
-  const fetchRealCounts = async () => {
-    try {
-      const [
-        studentsRes,
-        staffRes,
-        subscribersRes,
-        councilRes,
-        eventsRes,
-        newsRes,
-        assignmentsRes,
-        galleryRes,
-        guidanceRes,
-        admissionsRes,
-        resourcesRes,
-        careersRes,
-        resultsRes,
-        studentRes
-      ] = await Promise.allSettled([
-        fetch('/api/staff'),
-        fetch('/api/subscriber'),
-        fetch('/api/events'),
-        fetch('/api/news'),
-        fetch('/api/assignment'),
-        fetch('/api/gallery'),
-        fetch('/api/guidance'),
-        fetch('/api/applyadmission'),
-        fetch('/api/resources?accessLevel=admin&limit=100'),
-        fetch('/api/career'),
-        fetch('/api/student'),
-        fetch('/api/feebalances'),
-        fetch('/api/results')
-      ]);
-
-      // Process responses and get actual counts
-      const staff = staffRes.status === 'fulfilled' ? await staffRes.value.json() : { staff: [] };
-      const subscribers = subscribersRes.status === 'fulfilled' ? await subscribersRes.value.json() : { subscribers: [] };
-      const events = eventsRes.status === 'fulfilled' ? await eventsRes.value.json() : { events: [] };
-      const news = newsRes.status === 'fulfilled' ? await newsRes.value.json() : { news: [] };
-      const assignments = assignmentsRes.status === 'fulfilled' ? await assignmentsRes.value.json() : { assignments: [] };
-      const gallery = galleryRes.status === 'fulfilled' ? await galleryRes.value.json() : { galleries: [] };
-      const guidance = guidanceRes.status === 'fulfilled' ? await guidanceRes.value.json() : { events: [] };
-      const admissions = admissionsRes.status === 'fulfilled' ? await admissionsRes.value.json() : { applications: [] };
-      const resources = resourcesRes.status === 'fulfilled' ? await resourcesRes.value.json() : { resources: [] };
-      const careers = careersRes.status === 'fulfilled' ? await careersRes.value.json() : { careers: [] };
-
-      const student = studentRes.status === 'fulfilled' ? await studentRes.value.json() : { students: [] };
-      const fees = studentRes.status === 'fulfilled' ? await studentRes.value.json() : { feebalances: [] };
-      const results = resultsRes.status === 'fulfilled' ? await resultsRes.value.json() : { results: [] };
-
-
-      const activeStudents = students.students?.filter(s => s.status === 'Active').length || 0;
-      const activeCouncil = council.councilMembers?.filter(c => c.status === 'Active').length || 0;
-      const upcomingEvents = events.events?.filter(e => new Date(e.date) > new Date()).length || 0;
-      const activeAssignments = assignments.assignments?.filter(a => a.status === 'assigned').length || 0;
-      
-      // Admission statistics
-      const admissionsData = admissions.applications || [];
-      const pendingApps = admissionsData.filter(app => app.status === 'PENDING').length || 0;
-      const acceptedApps = admissionsData.filter(app => app.status === 'ACCEPTED').length || 0;
-      const rejectedApps = admissionsData.filter(app => app.status === 'REJECTED').length || 0;
-
-      // Resource statistics
-      const resourcesData = resources.resources || [];
-      const activeResources = resourcesData.filter(r => r.isActive !== false).length || 0;
-      
-      // Calculate resources by type
-      const resourcesByType = {
-        documents: resourcesData.filter(r => r.type === 'document' || r.type === 'worksheet').length || 0,
-        videos: resourcesData.filter(r => r.type === 'video').length || 0,
-        pdfs: resourcesData.filter(r => r.type === 'pdf').length || 0,
-        presentations: resourcesData.filter(r => r.type === 'presentation').length || 0
-      };
-
-      // Calculate recent resources (last 7 days)
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const recentResources = resourcesData.filter(r => 
-        r.createdAt && new Date(r.createdAt) > sevenDaysAgo
-      ).length || 0;
-
-      setRealStats({
-        totalStudents: students.students?.length || 0,
-
-        activeStudents,
-        totalStaff: staff.staff?.length || 0,
-        totalSubscribers: subscribers.subscribers?.length || 0,
-        studentCouncil: activeCouncil,
-        upcomingEvents,
-        totalNews: news.news?.length || 0,
-        activeAssignments,
-        galleryItems: gallery.galleries?.length || 0,
-        guidanceSessions: guidance.events?.length || 0,
-        totalApplications: admissionsData.length || 0,
-        pendingApplications: pendingApps,
-        acceptedApplications: acceptedApps,
-        rejectedApplications: rejectedApps,
-        totalResources: resourcesData.length || 0,
-        recentResources,
-        activeResources,
-        resourcesByType,
-        totalCareers: careers.careers?.length || 0
-      });
-
-    } catch (error) {
-      console.error('Error fetching real counts:', error);
-    }
-  };
-
-  // Fetch counts when component mounts
-  useEffect(() => {
-    if (!loading) {
-      fetchRealCounts();
-    }
-  }, [loading]);
-
   // Detect screen size and set initial sidebar state
   useEffect(() => {
     const checkScreenSize = () => {
@@ -342,54 +175,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
     setShowSupportModal(true);
   };
 
-  // Enhanced quick stats with real data including resources
-  const quickStats = [
-
-    { 
-      label: 'Resources', 
-      value: realStats.totalResources?.toLocaleString() || '0', 
-      icon: FiFolder, 
-      color: 'emerald', 
-      change: `${realStats.recentResources || 0} recent` 
-    },
-    { 
-      label: 'Applications', 
-      value: realStats.totalApplications?.toLocaleString() || '0', 
-      icon: FiFileText, 
-      color: 'purple', 
-      change: realStats.pendingApplications > 0 ? `${realStats.pendingApplications} pending` : '+8%' 
-    }
-  ];
-
-  // Resource specific stats for the expanded view
-  const resourceStats = [
-    { 
-      label: 'Documents', 
-      value: realStats.resourcesByType?.documents?.toLocaleString() || '0', 
-      icon: FiFileText, 
-      color: 'blue' 
-    },
-    { 
-      label: 'Videos', 
-      value: realStats.resourcesByType?.videos?.toLocaleString() || '0', 
-      icon: FiVideo, 
-      color: 'purple' 
-    },
-    { 
-      label: 'PDFs', 
-      value: realStats.resourcesByType?.pdfs?.toLocaleString() || '0', 
-      icon: FiFileText, 
-      color: 'red' 
-    },
-    { 
-      label: 'Presentations', 
-      value: realStats.resourcesByType?.presentations?.toLocaleString() || '0', 
-      icon: FiFolder, 
-      color: 'orange' 
-    }
-  ];
-
-  // Define default tabs if none provided - now with resource tab (counts removed)
+  // Define default tabs if none provided
   const defaultTabs = [
     { 
       id: 'overview', 
@@ -409,18 +195,17 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
       icon: FiMessageCircle,
       badge: 'purple'
     },
- 
     {
       id: 'results',
       label: 'Exam Results',
       icon: FiClipboard,
       badge: 'teal'
     },
-    { 
-      id: 'staff', 
-      label: 'Staff Management', 
-      icon: FiUserCheck,
-      badge: 'orange'
+    {
+      id: 'schooldocuments',
+      label: 'School Documents',
+      icon: FiArchive, 
+      badge: 'indigo'
     },
     { 
       id: 'assignments', 
@@ -428,19 +213,12 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
       icon: FiBook,
       badge: 'red'
     },
-{
-id: 'careers',
+    {
+      id: 'careers',
       label: 'Careers',
       icon: FiCalendar,
       badge: 'lime'
-},
-    {
-      id: 'student',
-      label: 'Student Records',
-      icon: FiInfo,
-      badge: 'cyan'
-}
-,
+    },
     { 
       id: 'resources', 
       label: 'Learning Resources', 
@@ -453,7 +231,12 @@ id: 'careers',
       icon: FiDollarSign,
       badge: 'yellow'
     },
-
+    {
+      id: 'student',
+      label: 'Student Records',
+      icon: FiInfo,
+      badge: 'cyan'
+    },
     { 
       id: 'admissions', 
       label: 'Admission Applications', 
@@ -632,7 +415,7 @@ id: 'careers',
               </div>
               <div className="min-w-0">
                 <h1 className="text-sm lg:text-lg font-bold text-gray-800 truncate">
-                  Marry Immaculate High School
+                  Katz High School
                 </h1>
                 <p className="text-gray-600 text-xs lg:text-sm font-medium truncate">Admin Portal</p>
               </div>
@@ -695,71 +478,6 @@ id: 'careers',
               );
             })}
             </div>
-
-            {/* Quick Stats with Real Data */}
-            <div className="mt-6 lg:mt-8 space-y-3 lg:space-y-4">
-              {/* Main Stats */}
-              <div className="p-4 lg:p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200 backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-blue-600 mb-3 lg:mb-4">
-                  <IoSparkles className="text-sm lg:text-lg" />
-                  <span className="font-semibold text-xs lg:text-sm">Live Stats</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 lg:gap-3">
-                  {quickStats.map((stat, index) => {
-                    const StatIcon = stat.icon || FiUser;
-                    return (
-                     <div
-                       key={stat.label}
-                       className="text-center p-2 lg:p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200 cursor-pointer shadow-sm"
-                     >
-                      <div className={`w-6 h-6 lg:w-8 lg:h-8 rounded-lg bg-${stat.color}-100 flex items-center justify-center mx-auto mb-1 lg:mb-2`}>
-                        <StatIcon className={`text-${stat.color}-600 text-xs lg:text-sm`} />
-                      </div>
-                      <div className="text-gray-800 font-bold text-xs lg:text-sm">{stat.value}</div>
-                      <div className="text-gray-600 text-[10px] lg:text-xs mt-1 truncate">{stat.label}</div>
-                      <div className={`text-${stat.color}-600 text-[10px] lg:text-xs font-semibold mt-1 truncate`}>
-                        {stat.change}
-                      </div>
-                     </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Resource Type Breakdown */}
-              {realStats.totalResources > 0 && (
-                <div className="p-3 lg:p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl border border-emerald-200 backdrop-blur-sm">
-                  <div className="flex items-center justify-between mb-2 lg:mb-3">
-                    <div className="flex items-center gap-2 text-emerald-600">
-                      <FiFolder className="text-sm lg:text-lg" />
-                      <span className="font-semibold text-xs lg:text-sm">Resource Types</span>
-                    </div>
-                    <span className="text-emerald-600 text-[10px] lg:text-xs font-bold">
-                      {realStats.totalResources} total
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1 lg:gap-2">
-                    {resourceStats.map((stat, index) => {
-                      const StatIcon = stat.icon;
-                      return (
-                        <div
-                          key={stat.label}
-                          className="flex items-center gap-1 lg:gap-2 p-1 lg:p-2 bg-white/80 rounded-lg border border-emerald-100 hover:border-emerald-200 transition-colors duration-200"
-                        >
-                          <div className={`w-5 h-5 lg:w-7 lg:h-7 rounded-lg bg-${stat.color}-100 flex items-center justify-center`}>
-                            <StatIcon className={`text-${stat.color}-600 text-[10px] lg:text-xs`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-emerald-800 font-bold text-xs lg:text-sm truncate">{stat.value}</div>
-                            <div className="text-gray-600 text-[10px] lg:text-xs truncate">{stat.label}</div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
           </nav>
 
           {/* Footer */}
@@ -814,9 +532,7 @@ id: 'careers',
               onClick={handleLogout}
               className="w-full flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 text-red-600 hover:text-red-700 rounded-xl transition-all duration-200 border border-red-200 hover:border-red-300 hover:bg-red-50 group"
             >
-              <div className="group-hover:rotate-180 transition-transform duration-300">
                 <FiLogOut className="text-sm lg:text-lg" />
-              </div>
               <span className="font-semibold text-xs lg:text-sm truncate">Sign Out</span>
             </button>
 

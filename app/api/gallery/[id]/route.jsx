@@ -1,13 +1,81 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../libs/prisma";
-import path from "path";
-import fs from "fs";
-import { randomUUID } from "crypto";
+import cloudinary from "../../../../libs/cloudinary";
 
-const uploadDir = path.join(process.cwd(), "public/gallery");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Helper: Upload file to Cloudinary
+const uploadFileToCloudinary = async (file) => {
+  if (!file?.name || file.size === 0) return null;
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const timestamp = Date.now();
+    const originalName = file.name;
+    const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.'));
+    const sanitizedFileName = nameWithoutExt.replace(/[^a-zA-Z0-9.-]/g, "_");
+
+    const isVideo = file.type.startsWith('video/');
+    
+    return await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: isVideo ? "video" : "image",
+          folder: "school_gallery",
+          public_id: `${timestamp}-${sanitizedFileName}`,
+          ...(isVideo ? {
+            transformation: [
+              { width: 1280, crop: "scale" },
+              { quality: "auto" }
+            ]
+          } : {
+            transformation: [
+              { width: 1200, height: 800, crop: "fill" },
+              { quality: "auto:good" }
+            ]
+          })
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(buffer);
+    });
+  } catch {
+    return null;
+  }
+};
+
+// Helper: Delete files from Cloudinary
+const deleteFilesFromCloudinary = async (fileUrls) => {
+  if (!Array.isArray(fileUrls) && !fileUrls) return;
+
+  try {
+    const urls = Array.isArray(fileUrls) ? fileUrls : [fileUrls];
+    
+    const deletePromises = urls.map(async (fileUrl) => {
+      if (!fileUrl?.includes('cloudinary.com')) return;
+
+      try {
+        const urlMatch = fileUrl.match(/\/upload\/(?:v\d+\/)?(.+?)\.\w+(?:$|\?)/);
+        if (!urlMatch) return;
+        
+        const publicId = urlMatch[1];
+        const isVideo = fileUrl.includes('/video/') || 
+                       fileUrl.match(/\.(mp4|mpeg|avi|mov|wmv|flv|webm|mkv)$/i);
+        
+        await cloudinary.uploader.destroy(publicId, { 
+          resource_type: isVideo ? "video" : "image" 
+        });
+      } catch {
+        // Silent fail on individual file delete
+      }
+    });
+
+    await Promise.all(deletePromises);
+  } catch {
+    // Silent fail
+  }
+};
 
 // Valid categories
 const validCategories = [
@@ -105,18 +173,11 @@ export async function PUT(req, { params }) {
     // Handle files to remove
     const filesToRemove = formData.getAll("filesToRemove");
     if (filesToRemove.length > 0) {
+      // Delete files from Cloudinary
+      await deleteFilesFromCloudinary(filesToRemove);
+      
       // Filter out files marked for removal
       updatedFiles = updatedFiles.filter(file => !filesToRemove.includes(file));
-      
-      // Delete the removed files from storage
-      filesToRemove.forEach((filePath) => {
-        const fileName = filePath.replace('/gallery/', '');
-        const fullPath = path.join(uploadDir, fileName);
-        if (fs.existsSync(fullPath)) {
-          fs.unlinkSync(fullPath);
-          console.log(`🗑️ Deleted file: ${fullPath}`);
-        }
-      });
     }
 
     // Handle new file uploads
@@ -150,13 +211,10 @@ export async function PUT(req, { params }) {
             );
           }
 
-          const buffer = Buffer.from(await file.arrayBuffer());
-          const fileName = `${randomUUID()}-${file.name.replace(/\s+/g, '-').toLowerCase()}`;
-          const filePath = path.join(uploadDir, fileName);
-          fs.writeFileSync(filePath, buffer);
-          
-          newFiles.push(`/gallery/${fileName}`);
-          console.log(`📤 Uploaded new file: ${fileName}`);
+          const result = await uploadFileToCloudinary(file);
+          if (result) {
+            newFiles.push(result.secure_url);
+          }
         }
       }
       
@@ -216,7 +274,7 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    // Find gallery to get file paths for cleanup
+    // Find gallery to get file URLs for cleanup
     const gallery = await prisma.galleryImage.findUnique({
       where: { id: parseInt(id) }
     });
@@ -228,16 +286,9 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    // Delete files from storage
-    if (Array.isArray(gallery.files)) {
-      gallery.files.forEach((filePath) => {
-        const fileName = filePath.replace('/gallery/', '');
-        const fullPath = path.join(uploadDir, fileName);
-        if (fs.existsSync(fullPath)) {
-          fs.unlinkSync(fullPath);
-          console.log(`🗑️ Deleted gallery file: ${fullPath}`);
-        }
-      });
+    // Delete files from Cloudinary
+    if (Array.isArray(gallery.files) && gallery.files.length > 0) {
+      await deleteFilesFromCloudinary(gallery.files);
     }
 
     // Delete from database

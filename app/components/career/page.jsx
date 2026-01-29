@@ -249,7 +249,7 @@ const categories = [
 ];
 
   const departments = [
-    'Primary School', 'Secondary School', 'Administration', 'Finance', 
+    'Primary School', 'High School', 'Administration', 'Finance', 
     'IT', 'Maintenance', 'Medical', 'Library', 'Sports', 'Arts', 'Music',"security","Cafeteria", 'Cooking', 'Transportation',"Cleaning","farming"
   ];
 
@@ -320,7 +320,7 @@ const categories = [
             {/* Job Title & Department Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <label className=" text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
                   <span className="text-red-500">*</span> Job Title
                 </label>
                 <TextField 
@@ -454,7 +454,7 @@ const categories = [
 
             {/* Job Description */}
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-5 border border-blue-200">
-              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <label className=" text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <FaFileAlt className="text-blue-600" /> Job Description
               </label>
               <TextareaAutosize 
@@ -485,7 +485,7 @@ const categories = [
             {/* Experience & Qualifications Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 border border-purple-200">
-                <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                <label className=" text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                   <FaGraduationCap className="text-purple-600" /> Required Experience
                 </label>
                 <TextField 
@@ -506,7 +506,7 @@ const categories = [
               </div>
               
               <div className="bg-gradient-to-br from-pink-50 to-rose-100 rounded-2xl p-5 border border-pink-200">
-                <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                <label className=" text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                   <FaAward className="text-pink-600" /> Qualifications
                 </label>
                 <TextareaAutosize 
@@ -522,7 +522,7 @@ const categories = [
 
             {/* Contact Information */}
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-5 border border-gray-200">
-              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <label className=" text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <FaEnvelope className="text-gray-600" /> Contact Information
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -949,7 +949,7 @@ export default function ModernCareersPage() {
   const [jobType, setJobType] = useState('');
 
   const categories = ['Teaching', 'Administrative', 'Support Staff', 'Medical', 'Academic', 'Technical', 'Accounting', 'Science'];
-  const departments = ['Primary School', 'Secondary School', 'Administration', 'Finance', 'IT', 'Maintenance', 'Medical', 'Library', 'Sports'];
+  const departments = ['Primary School', 'High School', 'Administration', 'Finance', 'IT', 'Maintenance', 'Medical', 'Library', 'Sports'];
   const jobTypes = ['full-time', 'part-time', 'contract', 'internship'];
 
   useEffect(() => {

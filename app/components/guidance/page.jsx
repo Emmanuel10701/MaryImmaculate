@@ -1730,7 +1730,7 @@ const ModernMemberModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto py-8">
       {/* Modal Container */}
-      <div className="relative w-full max-w-5xl bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[90vh] md:max-h-[85vh] flex flex-col">
+      <div className="relative w-[85%] max-w-4xl bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[80vh] md:max-h-[75vh] flex flex-col">
         
         {/* Close Button */}
         <button 
@@ -1896,23 +1896,24 @@ const ModernMemberModal = ({
                       <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
                         <FiPhone className="w-5 h-5 md:w-6 md:h-6" />
                       </div>
-                      <input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => handleFieldChange('phone', e.target.value)}
-                        className={`w-full pl-12 md:pl-14 pr-4 py-3.5 md:py-4 text-base md:text-lg border-2 rounded-xl md:rounded-2xl focus:outline-none focus:ring-4 transition-all shadow-sm ${
-                          errors.phone 
-                            ? 'border-red-500 focus:border-red-500 focus:ring-red-100' 
-                            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-100'
-                        }`}
-                        placeholder="+1 (123) 456-7890"
-                        disabled={isLoading}
-                        inputMode="tel"
-                      />
+                      
+                      
+<input
+  type="tel"
+  value={formData.phone}
+  onChange={(e) => handleFieldChange('phone', e.target.value)}
+  className={`w-full pl-12 md:pl-14 pr-4 py-3.5 md:py-4 text-base md:text-lg border-2 rounded-xl md:rounded-2xl focus:outline-none focus:ring-4 transition-all shadow-sm ${
+    errors.phone // <-- Use errors.phone instead of hasError
+      ? 'border-red-500 focus:border-red-500 focus:ring-red-100'
+      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-100'
+  }`}
+  placeholder="+1 (123) 456-7890"
+  disabled={isLoading}
+  inputMode="tel"
+/>
+
                     </div>
-                    {errors.phone && (
-                      <p className="text-red-500 text-sm mt-2 font-medium">{errors.phone}</p>
-                    )}
+                   
                   </div>
                   
                   <div>
@@ -2365,7 +2366,7 @@ const GuidanceTeamModal = ({
             
             <button 
               onClick={onClose}
-              className="p-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-2xl transition-all duration-300 hover:scale-110"
+              className="p-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-2xl transition-all duration-300 hover:scale-100"
               disabled={isLoading}
             >
               <FiX className="w-6 h-6" />
@@ -3434,7 +3435,7 @@ const handleViewMember = (member) => {
   className="group relative inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl text-base font-bold tracking-tight shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-0.5"
 >
   <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-  <FiUserPlus className="w-5 h-5 transition-transform group-hover:scale-110 group-hover:-rotate-12" />
+  <FiUserPlus className="w-5 h-5 transition-transform group-hover:scale-100 group-hover:-rotate-12" />
   <span className="relative">Add Team Member</span>
 </button>
           </div>

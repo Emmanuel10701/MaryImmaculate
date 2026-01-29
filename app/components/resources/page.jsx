@@ -334,12 +334,7 @@ function Notification({
             </button>
           </div>
         </div>
-        <div className="h-1 bg-gray-200">
-          <div 
-            className={`h-full ${styles.progress} transition-all duration-100 ease-linear`}
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+
       </div>
     </div>
   )
@@ -398,11 +393,6 @@ function ModernResourceDetailModal({ resource, onClose, onEdit }) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Calculate total size of all files
-  const totalSize = Array.isArray(resource.files) 
-    ? resource.files.reduce((acc, file) => acc + (file.size || 0), 0)
-    : resource.size || 0;
-    
   return (
     <Modal open={true} onClose={onClose}>
       <Box sx={{
@@ -428,12 +418,7 @@ function ModernResourceDetailModal({ resource, onClose, onEdit }) {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button 
-                onClick={() => onEdit(resource)} 
-                className="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-full text-sm sm:text-base font-bold shadow-lg cursor-pointer whitespace-nowrap"
-              >
-                <FiEdit size={16} /> Edit
-              </button>
+             
               <button 
                 onClick={onClose} 
                 className="p-2 sm:p-3 bg-white/10 text-white rounded-full cursor-pointer"
@@ -445,7 +430,7 @@ function ModernResourceDetailModal({ resource, onClose, onEdit }) {
         </div>
 
         <div className="max-h-[calc(95vh-140px)] overflow-y-auto">
-          <div className="p-4 sm:p-6 md:p-8 space-y-6">
+          <div className="p-4 sm:p-6 md:p-8 space-y-8">
             {/* Resource Title and Status */}
             <div className="space-y-4">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 break-words">
@@ -470,37 +455,30 @@ function ModernResourceDetailModal({ resource, onClose, onEdit }) {
                     Class: {resource.className}
                   </span>
                 )}
-                {resource.isActive !== undefined && (
-                  <span className={`px-3 py-1.5 rounded-full text-sm font-bold ${
-                    resource.isActive 
-                      ? 'bg-green-100 text-green-800 border border-green-200' 
-                      : 'bg-gray-100 text-gray-800 border border-gray-200'
-                  }`}>
-                    {resource.isActive ? 'Active' : 'Inactive'}
-                  </span>
-                )}
               </div>
             </div>
 
             {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column - Description and Files */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Description */}
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-4 sm:p-6 border border-gray-200">
-                  <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2 text-lg">
+              <div className="lg:col-span-2 space-y-8">
+                {/* Description - Full Width */}
+                <div className="w-full">
+                  <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
                     <IoDocumentTextOutline className="text-blue-600" />
                     Description
                   </h3>
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
-                    {resource.description || 'No description available.'}
-                  </p>
+                  <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-200">
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
+                      {resource.description || 'No description available.'}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Files Section */}
+                {/* Files Section - Full Width */}
                 {Array.isArray(resource.files) && resource.files.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-gray-900 flex items-center gap-2 text-lg">
+                  <div className="w-full space-y-4">
+                    <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
                       <FiPaperclip className="text-orange-600" />
                       Files ({resource.files.length})
                     </h3>
@@ -513,17 +491,13 @@ function ModernResourceDetailModal({ resource, onClose, onEdit }) {
                                 {getFileIcon()}
                               </div>
                               <div className="min-w-0">
-                                <h4 className="text-sm sm:text-base font-bold text-gray-900 truncate">
-                                  {file.name || file.url?.split('/').pop()}
-                                </h4>
-                                <p className="text-gray-600 text-xs sm:text-sm">
-                                  {file.size ? formatFileSize(file.size) : 'N/A'}
-                                </p>
+                          <h4 className="text-sm sm:text-base font-bold text-gray-900 truncate">
+  {file.name.replace(/^[\d-]+/, "")}
+</h4>
+                            
                               </div>
                             </div>
-                            <button className="p-1.5 sm:p-2 text-orange-600 hover:bg-orange-100 rounded-lg cursor-pointer">
-                              <FiDownload size={16} />
-                            </button>
+                          
                           </div>
                           <div className="flex items-center justify-between text-xs">
                             {file.extension && (
@@ -540,129 +514,79 @@ function ModernResourceDetailModal({ resource, onClose, onEdit }) {
                         </div>
                       ))}
                     </div>
-                    {resource.files.length > 4 && (
-                      <div className="text-center pt-2">
-                        <span className="text-sm text-orange-600 font-medium">
-                          +{resource.files.length - 4} more files
-                        </span>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
 
               {/* Right Column - Information Panel */}
-              <div className="space-y-6">
-                {/* Information Card */}
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-4 sm:p-6 border border-blue-200">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <FiBriefcase className="text-blue-600" />
-                    Resource Information
-                  </h3>
+<div className="space-y-6">
+  {/* Modernized Resource Information Card */}
+  <div className="bg-white rounded-[24px] p-5 border border-slate-100 shadow-sm transition-all hover:shadow-md">
+    <div className="flex items-center gap-2 mb-6 px-1">
+      <div className="p-2 bg-blue-50 rounded-lg">
+        <FiBriefcase className="text-blue-600" size={18} />
+      </div>
+      <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">
+        Resource Metadata
+      </h3>
+    </div>
 
-                  <div className="space-y-4">
-                    {/* Teacher */}
-                    {resource.teacher && (
-                      <div className="flex flex-col">
-                        <span className="text-gray-400 text-xs uppercase tracking-wide mb-1">Teacher</span>
-                        <div className="flex items-center gap-2">
-                          <FiUserCheck className="text-blue-500" size={16} />
-                          <span className="text-gray-700 font-medium text-sm sm:text-base truncate">
-                            {resource.teacher}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Uploaded By */}
-                    <div className="flex flex-col">
-                      <span className="text-gray-400 text-xs uppercase tracking-wide mb-1">Uploaded By</span>
-                      <div className="flex items-center gap-2">
-                        <FiUsers className="text-green-500" size={16} />
-                        <span className="text-gray-700 font-medium text-sm sm:text-base">
-                          {resource.uploadedBy || 'System'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Total Files */}
-                    {Array.isArray(resource.files) && (
-                      <div className="flex flex-col">
-                        <span className="text-gray-400 text-xs uppercase tracking-wide mb-1">Files</span>
-                        <div className="flex items-center gap-2">
-                          <FiFile className="text-purple-500" size={16} />
-                          <span className="text-gray-700 font-medium text-sm sm:text-base">
-                            {resource.files.length} file(s)
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Downloads */}
-                    <div className="flex flex-col">
-                      <span className="text-gray-400 text-xs uppercase tracking-wide mb-1">Downloads</span>
-                      <div className="flex items-center gap-2">
-                        <FiDownload className="text-red-500" size={16} />
-                        <span className="text-gray-700 font-medium text-sm sm:text-base">
-                          {resource.files.length || 0}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Created Date */}
-                    {resource.createdAt && (
-                      <div className="flex flex-col">
-                        <span className="text-gray-400 text-xs uppercase tracking-wide mb-1">Upload Date</span>
-                        <div className="flex items-center gap-2">
-                          <FiCalendar className="text-indigo-500" size={16} />
-                          <span className="text-gray-700 font-medium text-sm sm:text-base">
-                            {new Date(resource.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+    {/* Information Grid */}
+    <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+      {/* Teacher Row - Full width if needed or half */}
+      {resource.teacher && (
+        <div className="col-span-2 flex flex-col p-3 bg-slate-50/50 rounded-2xl border border-slate-50">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 px-1">Lead Teacher</span>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-100 shrink-0">
+               <FiUserCheck className="text-white" size={16} />
             </div>
+            <span className="text-slate-700 font-bold text-sm sm:text-base truncate">
+              {resource.teacher}
+            </span>
+          </div>
+        </div>
+      )}
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-emerald-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-emerald-600 font-medium">Total Files</p>
-                    <p className="text-lg sm:text-xl font-bold text-gray-900">
-                      {Array.isArray(resource.files) ? resource.files.length : 1}
-                    </p>
-                  </div>
-                  <FiFile className="text-emerald-500" size={20} />
-                </div>
-              </div>
+      {/* Uploaded By */}
+      <div className="flex flex-col px-1">
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Publisher</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 shrink-0">
+            <FiUsers className="text-emerald-500" size={14} />
+          </div>
+          <span className="text-slate-700 font-bold text-xs sm:text-sm truncate">
+            {resource.uploadedBy || 'System'}
+          </span>
+        </div>
+      </div>
 
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-purple-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-purple-600 font-medium">Downloads</p>
-                    <p className="text-lg sm:text-xl font-bold text-gray-900">
-                      {resource.files.length || 0}
-                    </p>
-                  </div>
-                  <FiDownload className="text-purple-500" size={20} />
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-amber-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-amber-600 font-medium">Status</p>
-                    <p className="text-lg sm:text-xl font-bold text-gray-900">
-                      {resource.isActive ? 'Active' : 'Inactive'}
-                    </p>
-                  </div>
-                  <FiCheckCircle className="text-amber-500" size={20} />
-                </div>
-              </div>
+      {/* Files Count */}
+      <div className="flex flex-col px-1">
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Total Assets</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center border border-purple-100 shrink-0">
+            <FiFile className="text-purple-500" size={14} />
+          </div>
+          <span className="text-slate-700 font-bold text-xs sm:text-sm">
+            {resource.files?.length || 0} items
+          </span>
+        </div>
+      </div>
+
+      {/* Downloads Stats */}
+      <div className="flex flex-col px-1">
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Popularity</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center border border-red-100 shrink-0">
+            <FiDownload className="text-red-500" size={14} />
+          </div>
+        
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
             </div>
           </div>
 
@@ -675,20 +599,18 @@ function ModernResourceDetailModal({ resource, onClose, onEdit }) {
               >
                 Close
               </button>
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                <button 
-                  onClick={() => onEdit(resource)} 
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl sm:rounded-2xl font-bold shadow-lg cursor-pointer text-sm sm:text-base"
-                >
-                  <FiEdit size={16} /> Edit Resource
-                </button>
-              </div>
+              <button 
+                onClick={() => onEdit(resource)} 
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl sm:rounded-2xl font-bold shadow-lg cursor-pointer text-sm sm:text-base"
+              >
+                <FiEdit size={16} /> Edit Resource
+              </button>
             </div>
           </div>
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 // Modern Resource Card Component - UPDATED WITH SELECTION CHECKBOX
@@ -750,7 +672,7 @@ function ModernResourceCard({ resource, onEdit, onDelete, onView, selected, onSe
   return (
     <div className={`bg-white rounded-[2rem] shadow-xl border ${
       selected ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-gray-100'
-    } w-full max-w-md overflow-hidden transition-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer`} onClick={() => onView(resource)}>
+    } w-full max-w-md overflow-hidden transition-none hover:shadow-2xl  cursor-pointer`} onClick={() => onView(resource)}>
       
       {/* Header with Type and Selection Checkbox */}
       <div className={`p-6 ${typeColor.bg} border-b ${typeColor.text} border-opacity-20 relative`}>
@@ -843,19 +765,7 @@ function ModernResourceCard({ resource, onEdit, onDelete, onView, selected, onSe
           </div>
         </div>
 
-        {/* Downloads */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-gray-600">Downloads</span>
-            <span className="text-xs font-bold text-indigo-600">{resource.downloads || 0}</span>
-          </div>
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
-              style={{ width: `${Math.min(((resource.downloads || 0) / 100) * 100, 100)}%` }}
-            ></div>
-          </div>
-        </div>
+
 
         {/* Modern Action Bar */}
         <div className="flex items-center gap-3">
@@ -898,21 +808,50 @@ function ModernResourceCard({ resource, onEdit, onDelete, onView, selected, onSe
 
 // Modern Resource Modal Component (Create/Edit) - WITH MULTIPLE FILE SUPPORT
 function ModernResourceModal({ onClose, onSave, resource, loading }) {
-  const [formData, setFormData] = useState({
-    title: resource?.title || '',
-    description: resource?.description || '',
-    subject: resource?.subject || '',
-    className: resource?.className || '',
-    teacher: resource?.teacher || '',
-    category: resource?.category || 'General',
-    accessLevel: resource?.accessLevel || 'student',
-    uploadedBy: resource?.uploadedBy || 'Admin',
-    isActive: resource?.isActive ?? true
-  });
+ // At the top of ModernResourceModal component, make sure you have:
+const [formData, setFormData] = useState({
+  title: resource?.title || '',
+  description: resource?.description || '',
+  subject: resource?.subject || '',
+  className: resource?.className || '',
+  teacher: resource?.teacher || '',
+  category: resource?.category || 'General',
+  accessLevel: resource?.accessLevel || 'student',
+  uploadedBy: resource?.uploadedBy || 'Admin',
+  isActive: resource?.isActive ?? true
+});
 
-  const [files, setFiles] = useState([]);
-  const [existingFiles, setExistingFiles] = useState(resource?.files || []);
+const [files, setFiles] = useState([]); // New files to upload
+const [existingFiles, setExistingFiles] = useState([]); // Existing files from resource
+const [filesToRemove, setFilesToRemove] = useState([]); // Files to delete
 
+// Add this useEffect to properly initialize existingFiles
+useEffect(() => {
+  if (resource?.files) {
+    try {
+      // Handle different file formats
+      const filesArray = Array.isArray(resource.files) ? resource.files : [];
+      const formattedFiles = filesArray.map(file => {
+        // Ensure each file has required properties
+        const fileName = file.name || (typeof file === 'string' ? file : 'Unknown');
+        const fileUrl = file.url || (typeof file === 'string' ? file : '');
+        
+        return {
+          url: fileUrl,
+          name: fileName,
+          size: file.size || 0,
+          extension: file.extension || fileName.split('.').pop()?.toLowerCase() || 'unknown',
+          uploadedAt: file.uploadedAt || new Date().toISOString()
+        };
+      });
+      
+      setExistingFiles(formattedFiles);
+    } catch (error) {
+      console.error('Error parsing resource files:', error);
+      setExistingFiles([]);
+    }
+  }
+}, [resource]);
   // Class options
   const classOptions = [
     'Form 1',
@@ -960,53 +899,92 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
       name: file.name,
       size: file.size,
       type: file.type,
-      preview: URL.createObjectURL(file)
+      preview: URL.createObjectURL(file),
+      isExisting: false
     }));
     setFiles(prev => [...prev, ...newFiles]);
+    e.target.value = '';
   };
 
-  const removeFile = (index, isExisting = false) => {
-    if (isExisting) {
-      setExistingFiles(prev => prev.filter((_, i) => i !== index));
+const removeFile = (index, isExisting = false) => {
+  if (isExisting) {
+    const file = existingFiles[index];
+    if (file?.url) {
+      setFilesToRemove(prev => [...prev, file.url]);
+    }
+    setExistingFiles(prev => prev.filter((_, i) => i !== index));
+  } else {
+    // Remove preview URL if it exists
+    if (files[index]?.preview) {
+      URL.revokeObjectURL(files[index].preview);
+    }
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  }
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  // Validate required fields
+  if (!formData.title.trim() || !formData.subject || !formData.className || !formData.teacher) {
+    alert('Please fill in all required fields');
+    return;
+  }
+  
+  if (files.length === 0 && existingFiles.length === 0 && !resource) {
+    alert('Please upload at least one file');
+    return;
+  }
+
+  // Create FormData for submission
+  const formDataToSend = new FormData();
+  
+  // Add form data
+  Object.keys(formData).forEach(key => {
+    if (key === 'isActive') {
+      formDataToSend.append(key, formData[key] ? 'true' : 'false');
     } else {
-      setFiles(prev => prev.filter((_, i) => i !== index));
+      formDataToSend.append(key, formData[key]);
     }
-  };
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Validate required fields
-    if (!formData.title.trim() || !formData.subject || !formData.className || !formData.teacher) {
-      alert('Please fill in all required fields');
-      return;
+  // Add action type
+  formDataToSend.append('action', 'update');
+
+  // Handle files for CREATE vs UPDATE
+  if (resource) {
+// When preparing existing files for the update:
+const filesToKeep = existingFiles
+  .filter(file => !filesToRemove.some(url => url === file.url))
+  .map(file => {
+    // Ensure file has required properties
+    return {
+      url: file.url || '',
+      name: file.name || 'Unknown File',
+      size: file.size || 0,
+      extension: file.extension || file.name?.split('.').pop()?.toLowerCase() || 'unknown',
+      uploadedAt: file.uploadedAt || new Date().toISOString()
+    };
+  });
+
+if (filesToKeep.length > 0) {
+  formDataToSend.append('existingFiles', JSON.stringify(filesToKeep));
+}
+    // Add files to remove
+    if (filesToRemove.length > 0) {
+      formDataToSend.append('filesToRemove', JSON.stringify(filesToRemove));
     }
-    
-    if (files.length === 0 && existingFiles.length === 0 && !resource) {
-      alert('Please upload at least one file');
-      return;
+  }
+
+  // Add new files (for both CREATE and UPDATE)
+  files.forEach(fileObj => {
+    if (fileObj.file && !fileObj.isExisting) {
+      formDataToSend.append('files', fileObj.file);
     }
+  });
 
-    const submitData = new FormData();
-    
-    // Add form data
-    Object.keys(formData).forEach(key => {
-      submitData.append(key, formData[key]);
-    });
-
-    // Add files
-    files.forEach(fileObj => {
-      submitData.append('files', fileObj.file);
-    });
-
-    // If editing and we have existing files, we need to handle them
-    if (resource && existingFiles.length > 0) {
-      // You might want to send existing files info to backend
-      submitData.append('existingFiles', JSON.stringify(existingFiles));
-    }
-
-    await onSave(submitData, resource?.id);
-  };
+  await onSave(formDataToSend, resource?.id);
+};
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -1033,289 +1011,285 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
         overflow: 'hidden',
         background: 'linear-gradient(135deg, #f8fafc 0%, #faf5ff 100%)'
       }}>
-        {/* Header - Made larger */}
-        <div className="bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 p-8 text-white">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 p-6 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-4 bg-white bg-opacity-20 rounded-2xl">
-                <FiFolder className="text-2xl" />
+              <div className="p-3 bg-white bg-opacity-20 rounded-2xl">
+                <FiFolder className="text-xl" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold">{resource ? 'Edit' : 'Create'} Resource</h2>
-                <p className="text-white/90 opacity-90 mt-2 text-lg">
+                <h2 className="text-2xl font-bold">{resource ? 'Edit' : 'Create'} Resource</h2>
+                <p className="text-white/90 opacity-90 mt-1 text-sm">
                   Upload educational materials and resources
                 </p>
               </div>
             </div>
             {!loading && (
-              <button onClick={onClose} className="p-3 hover:bg-white hover:bg-opacity-20 rounded-xl cursor-pointer">
-                <FiX className="text-2xl" />
+              <button onClick={onClose} className="p-2 hover:bg-white hover:bg-opacity-20 rounded-xl cursor-pointer">
+                <FiX className="text-xl" />
               </button>
             )}
           </div>
         </div>
 
-        <div className="max-h-[calc(95vh-200px)] overflow-y-auto">
-          <form onSubmit={handleSubmit} className="p-8 space-y-8">
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-              {/* Left Column - 2/3 width */}
-              <div className="xl:col-span-2 space-y-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Title */}
-                  <div className="lg:col-span-2">
-                    <label className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3 bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl border border-blue-200">
-                      <IoDocumentTextOutline className="text-blue-600 text-xl" /> 
-                      Resource Title *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.title}
-                      onChange={(e) => handleChange('title', e.target.value)}
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-lg"
-                      placeholder="Enter resource title"
-                    />
-                  </div>
-
-                  {/* Subject and Class */}
-                  <div>
-                    <label className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3 bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
-                      <IoBookOutline className="text-purple-600 text-xl" /> 
-                      Subject *
-                    </label>
-                    <select
-                      required
-                      value={formData.subject}
-                      onChange={(e) => handleChange('subject', e.target.value)}
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50 text-lg"
-                    >
-                      <option value="">Select Subject</option>
-                      {subjectOptions.map(subject => (
-                        <option key={subject} value={subject}>{subject}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
-                      <FiUsers className="text-green-600 text-xl" /> 
-                      Class *
-                    </label>
-                    <select
-                      required
-                      value={formData.className}
-                      onChange={(e) => handleChange('className', e.target.value)}
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 text-lg"
-                    >
-                      <option value="">Select Class</option>
-                      {classOptions.map(className => (
-                        <option key={className} value={className}>{className}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Teacher */}
-                  <div className="lg:col-span-2">
-                    <label className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
-                      <FiUserCheck className="text-amber-600 text-xl" /> 
-                      Teacher *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.teacher}
-                      onChange={(e) => handleChange('teacher', e.target.value)}
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-50 text-lg"
-                      placeholder="Enter teacher's name"
-                    />
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3 bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl border border-blue-200">
-                    <FiFileText className="text-blue-600 text-xl" /> 
-                    Description
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => handleChange('description', e.target.value)}
-                    rows="5"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-lg"
-                    placeholder="Describe the resource..."
-                  />
-                </div>
-              </div>
-
-              {/* Right Column - 1/3 width */}
-              <div className="space-y-8">
-                {/* Category and Access Level */}
-                <div className="space-y-6">
-                  <div>
-                    <label className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3 bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-xl border border-indigo-200">
-                      <FiTag className="text-indigo-600 text-xl" /> 
-                      Category
-                    </label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => handleChange('category', e.target.value)}
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 text-lg"
-                    >
-                      {categoryOptions.map(category => (
-                        <option key={category} value={category}>{category}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Access Level */}
-                  <div>
-                    <label className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
-                      <FiShield className="text-amber-600 text-xl" /> 
-                      Access Level
-                    </label>
-                    <select
-                      value={formData.accessLevel}
-                      onChange={(e) => handleChange('accessLevel', e.target.value)}
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-50 text-lg"
-                    >
-                      <option value="student">Student</option>
-                      <option value="teacher">Teacher</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </div>
-
-                  {/* Uploaded By */}
-                  <div>
-                    <label className="block text-lg font-bold text-gray-800 mb-4 flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
-                      <FiUserCheck className="text-amber-600 text-xl" /> 
-                      Uploaded By
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.uploadedBy}
-                      onChange={(e) => handleChange('uploadedBy', e.target.value)}
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-50 text-lg"
-                      placeholder="Enter uploader name"
-                    />
-                  </div>
-
-                  {/* Active Status */}
-                  <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                    <input
-                      type="checkbox"
-                      id="isActive"
-                      checked={formData.isActive}
-                      onChange={(e) => handleChange('isActive', e.target.checked)}
-                      className="w-6 h-6 text-green-600 rounded focus:ring-green-500 cursor-pointer"
-                    />
-                    <label htmlFor="isActive" className="text-lg font-bold text-gray-800 cursor-pointer">
-                      Active (Visible to users)
-                    </label>
-                  </div>
-                </div>
-              </div>
+        <div className="max-h-[calc(95vh-150px)] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {/* Title - Full Width */}
+            <div>
+              <label className="block text-base font-bold text-gray-800 mb-3">
+                Resource Title *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) => handleChange('title', e.target.value)}
+                className="w-full px-4 font-bold py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                placeholder="Enter resource title"
+              />
             </div>
 
-            {/* Bottom Section - Full width */}
-            <div className="space-y-8">
-              {/* File Upload Section */}
+            {/* Subject and Class in Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-3 bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200">
-                  <FiPaperclip className="text-orange-600 text-xl" /> 
-                  Upload Files *
+                <label className="block text-base font-bold text-gray-800 mb-3">
+                  Subject *
                 </label>
-                <div className="space-y-6">
-                  {/* Upload Area */}
-                  <div className="border-3 border-dashed border-gray-300 rounded-2xl p-8">
-                    <input
-                      type="file"
-                      multiple
-                      onChange={handleFileChange}
-                      className="hidden"
-                      id="resourceFiles"
-                    />
-                    <label htmlFor="resourceFiles" className="cursor-pointer block text-center">
-                      <div className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl inline-block mb-4">
-                        <FiUpload className="text-blue-600 text-3xl" />
-                      </div>
-                      <p className="text-xl font-bold text-gray-700 mb-2">
-                        Drag & drop files or click to browse
-                      </p>
-                      <p className="text-gray-500 text-lg">
-                        Upload multiple files (PDF, DOC, PPT, XLS, Images, Videos, Audio)
-                      </p>
-                      <p className="text-sm text-gray-400 mt-2">
-                        Maximum file size: 10MB per file
-                      </p>
-                    </label>
-                  </div>
-                  
-                  {/* Uploaded Files List */}
-                  {(files.length > 0 || existingFiles.length > 0) && (
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-bold text-gray-700">
-                        Selected Files ({files.length + existingFiles.length})
-                      </h4>
-                      
-                      {/* New Files */}
-                      {files.length > 0 && (
-                        <div className="space-y-3">
-                          {files.map((fileObj, index) => (
-                            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
-                              <div className="flex items-center gap-4">
-                                <FiFileText className="text-gray-500 text-xl" />
-                                <div>
-                                  <p className="text-lg font-medium text-gray-800">{fileObj.name}</p>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => removeFile(index, false)}
-                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer"
-                              >
-                                <FiX className="text-lg" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                <select
+                  required
+                  value={formData.subject}
+                  onChange={(e) => handleChange('subject', e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50"
+                >
+                  <option value="">Select Subject</option>
+                  {subjectOptions.map(subject => (
+                    <option key={subject} value={subject}>{subject}</option>
+                  ))}
+                </select>
+              </div>
 
-                      {/* Existing Files */}
-                      {existingFiles.length > 0 && (
-                        <div className="space-y-3">
-                          <h5 className="text-sm font-bold text-gray-600">Existing Files:</h5>
-                          {existingFiles.map((file, index) => (
-                            <div key={index} className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
-                              <div className="flex items-center gap-4">
-                                <FiFileText className="text-blue-500 text-xl" />
-                                <div>
-                                  <p className="text-lg font-medium text-gray-800">{file.name}</p>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => removeFile(index, true)}
-                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer"
-                              >
-                                <FiX className="text-lg" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+              <div>
+                <label className="block text-base font-bold text-gray-800 mb-3">
+                  Class *
+                </label>
+                <select
+                  required
+                  value={formData.className}
+                  onChange={(e) => handleChange('className', e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50"
+                >
+                  <option value="">Select Class</option>
+                  {classOptions.map(className => (
+                    <option key={className} value={className}>{className}</option>
+                  ))}
+                </select>
               </div>
             </div>
+
+            {/* Teacher - Full Width */}
+            <div>
+              <label className="block text-base font-bold text-gray-800 mb-3">
+                Teacher *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.teacher}
+                onChange={(e) => handleChange('teacher', e.target.value)}
+                className="w-full px-4 py-3 font-bold border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-50"
+                placeholder="Enter teacher's name"
+              />
+            </div>
+
+            {/* Description - Full Width */}
+            <div>
+              <label className="block text-base font-bold text-gray-800 mb-3">
+                Description
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                rows="4"
+                className="w-full px-4 py-3 font-bold border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                placeholder="Describe the resource..."
+              />
+            </div>
+
+            {/* Category and Access Level in Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-base font-bold text-gray-800 mb-3">
+                  Category
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => handleChange('category', e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
+                >
+                  {categoryOptions.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-base font-bold text-gray-800 mb-3">
+                  Access Level
+                </label>
+                <select
+                  value={formData.accessLevel}
+                  onChange={(e) => handleChange('accessLevel', e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-50"
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Uploaded By and Active Status in Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-base font-bold text-gray-800 mb-3">
+                  Uploaded By
+                </label>
+                <input
+                  type="text"
+                  value={formData.uploadedBy}
+                  onChange={(e) => handleChange('uploadedBy', e.target.value)}
+                  className="w-full px-4 py-3 font-bold border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-50"
+                  placeholder="Enter uploader name"
+                />
+              </div>
+
+              {/* Active Status */}
+              <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => handleChange('isActive', e.target.checked)}
+                  className="w-5 h-5 text-green-600 rounded focus:ring-green-500 cursor-pointer"
+                />
+                <label htmlFor="isActive" className="text-base font-bold text-gray-800 cursor-pointer">
+                  Active (Visible to users)
+                </label>
+              </div>
+            </div>
+
+<div className="w-full lg:w-[75%] mx-auto flex flex-col space-y-8">
+  <section className="bg-white rounded-[32px] p-2 sm:p-4">
+    <div className="flex items-center gap-3 mb-6 px-2">
+      <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
+      <label className="text-xl font-black text-slate-800 tracking-tight">
+        Upload Resources *
+      </label>
+    </div>
+
+    <div className="space-y-6">
+      {/* 1. Modern Dropzone Area */}
+      <div className="relative group">
+        <input
+          type="file"
+          multiple
+          onChange={handleFileChange}
+          className="hidden"
+          id="resourceFiles"
+        />
+        <label 
+          htmlFor="resourceFiles" 
+          className="cursor-pointer w-full py-10 border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50/50 hover:bg-blue-50/30 hover:border-blue-400 transition-all flex flex-col items-center justify-center text-center px-6"
+        >
+          <div className="p-4 bg-white shadow-sm rounded-2xl mb-4 group-hover:scale-100 transition-transform">
+            <FiUpload className="text-blue-600 text-3xl" />
+          </div>
+          <p className="text-lg font-bold text-slate-800 mb-1">
+            Drag & drop files or <span className="text-blue-600">browse</span>
+          </p>
+          <p className="text-slate-500 text-sm max-w-xs">
+            PDF, DOC, PPT, XLS, Images, Videos, or Audio
+          </p>
+          <div className="mt-4 flex gap-3">
+             <span className="px-3 py-1 bg-white border border-slate-100 rounded-full text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+               Max 10MB
+             </span>
+          </div>
+        </label>
+      </div>
+
+      {/* 2. Uploaded Files List */}
+      {(files.length > 0 || existingFiles.length > 0) && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
+              Selected Assets ({files.length + existingFiles.length})
+            </h4>
+          </div>
+
+          <div className="grid gap-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+            {/* New Files Segment */}
+            {files.map((fileObj, index) => (
+              <div key={`new-${index}`} className="group flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-blue-200 hover:shadow-sm transition-all">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                    <FiFileText className="text-emerald-600 text-lg" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-700 truncate">{fileObj.name}</p>
+                    <p className="text-emerald-600 text-[11px] font-bold uppercase tracking-wider">
+                      Ready to Upload • {formatFileSize(fileObj.size)}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeFile(index, false)}
+                  className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                >
+                  <FiX className="text-lg" />
+                </button>
+              </div>
+            ))}
+
+            {/* Existing Files Segment */}
+            {existingFiles.map((file, index) => (
+              <div key={`exist-${index}`} className="group flex items-center justify-between p-4 bg-blue-50/30 border border-blue-100 rounded-2xl hover:shadow-sm transition-all">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
+                    <FiFileText className="text-white text-lg" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-700 truncate">{file.name || 'Cloud Resource'}</p>
+                    <p className="text-blue-600 text-[11px] font-bold uppercase tracking-wider">
+                      Stored in Cloud • {formatFileSize(file.size)}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeFile(index, true)}
+                  className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                >
+                  <FiX className="text-lg" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+</div>
 
             {/* Form Actions */}
-            <div className="flex items-center justify-between pt-8 border-t border-gray-200">
+            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
               <button 
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-10 py-4 rounded-2xl font-bold shadow-lg disabled:opacity-50 cursor-pointer text-lg"
+                className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg disabled:opacity-50 cursor-pointer text-sm"
               >
                 Cancel
               </button>
@@ -1323,11 +1297,11 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
               <button 
                 type="submit"
                 disabled={loading}
-                className="px-10 py-4 text-white rounded-2xl font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-lg"
+                className="px-6 py-3 text-white rounded-xl font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-sm"
               >
                 {loading ? (
                   <>
-                    <CircularProgress size={20} className="text-white" />
+                    <CircularProgress size={16} className="text-white" />
                     {resource ? 'Updating...' : 'Uploading...'}
                   </>
                 ) : (
@@ -1342,7 +1316,7 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 // Main Resources Manager Component
@@ -1752,47 +1726,48 @@ export default function ResourcesManager() {
     }
   };
 
-  const handleSubmit = async (formData, id) => {
-    setSaving(true);
-    try {
-      let response;
-      
-      if (id) {
-        // Update existing
-        response = await fetch(`/api/resources/${id}`, {
-          method: 'PUT',
-          body: formData,
-        });
-      } else {
-        // Create new
-        response = await fetch('/api/resources', {
-          method: 'POST',
-          body: formData,
-        });
-      }
-      
-      const result = await response.json();
-
-      if (result.success) {
-        // Refresh the list
-        await fetchResources();
-        setShowModal(false);
-        showNotification(
-          'success',
-          id ? 'Updated' : 'Created',
-          `Resource ${id ? 'updated' : 'created'} successfully!`
-        );
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Error saving resource:', error);
-      showNotification('error', 'Save Failed', error.message || `Failed to ${id ? 'update' : 'create'} resource`);
-    } finally {
-      setSaving(false);
+const handleSubmit = async (formData, id) => {
+  setSaving(true);
+  try {
+    let response;
+    
+    if (id) {
+      // Update existing resource
+      response = await fetch(`/api/resources/${id}`, {
+        method: 'PUT',
+        body: formData,
+        // Don't set Content-Type for FormData
+      });
+    } else {
+      // Create new resource
+      response = await fetch('/api/resources', {
+        method: 'POST',
+        body: formData,
+        // Don't set Content-Type for FormData
+      });
     }
-  };
+    
+    const result = await response.json();
 
+    if (result.success) {
+      // Refresh the list
+      await fetchResources();
+      setShowModal(false);
+      showNotification(
+        'success',
+        id ? 'Updated' : 'Created',
+        `Resource ${id ? 'updated' : 'created'} successfully!`
+      );
+    } else {
+      throw new Error(result.error);
+    }
+  } catch (error) {
+    console.error('Error saving resource:', error);
+    showNotification('error', 'Save Failed', error.message || `Failed to ${id ? 'update' : 'create'} resource`);
+  } finally {
+    setSaving(false);
+  }
+};
   // Create new resource
   const handleCreate = () => {
     setEditingResource(null);
@@ -1829,7 +1804,7 @@ export default function ResourcesManager() {
                 onClick={() => paginate(page)}
                 className={`px-3 py-2 rounded-xl font-bold ${
                   currentPage === page
-                    ? 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
                     : 'text-gray-700'
                 }`}
               >
@@ -1980,7 +1955,7 @@ export default function ResourcesManager() {
         <button
           onClick={handleCreate}
           className="group relative overflow-hidden px-4 sm:px-5 py-2.5 sm:py-3
-                     bg-gradient-to-br from-amber-900 via-orange-900 to-red-900
+                     bg-gradient-to-r from-blue-500 to-cyan-500
                      text-white rounded-xl sm:rounded-2xl font-semibold
                      hover:shadow-xl hover:shadow-cyan-500/30
                      active:scale-95 transition-all w-full xs:w-auto"
@@ -2141,7 +2116,7 @@ export default function ResourcesManager() {
               placeholder="Search resources by title, description, or subject..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-50"
+              className="w-full pl-10    font-bold pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-50"
             />
           </div>
 

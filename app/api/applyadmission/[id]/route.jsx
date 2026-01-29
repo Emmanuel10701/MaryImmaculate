@@ -14,11 +14,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const SCHOOL_NAME = 'Mary Immaculate Girls Secondary School';
-const SCHOOL_LOCATION = 'Mweiga, Nyeri County';
-const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork';
+const SCHOOL_NAME = 'Katwanyaa High  School';
+const SCHOOL_LOCATION = 'Matungulu, Machakos County';
+const SCHOOL_MOTTO = 'Education is Light';
 const CONTACT_PHONE = '+254720123456';
-const CONTACT_EMAIL = 'admissions@maryimmaculategirls.sc.ke';
+const CONTACT_EMAIL = 'admissions@katwanyaahighSchool.sc.ke';
 
 // ====================================================================
 // UTILITY FUNCTIONS
@@ -38,7 +38,7 @@ function calculateAge(dateOfBirth) {
 function generateApplicationNumber() {
   const year = new Date().getFullYear();
   const randomNum = randomBytes(4).toString('hex').toUpperCase();
-  return `MIGS/${year}/${randomNum}`;
+  return `Katz/${year}/${randomNum}`;
 }
 
 function validatePhone(phone) {
@@ -83,7 +83,7 @@ function formatDate(date) {
 }
 
 // ====================================================================
-// EMAIL TEMPLATE FUNCTIONS - FULLY MOBILE RESPONSIVE
+// EMAIL TEMPLATE FUNCTIONS - FULLY MOBILE RESPONSIVE WITH SIMPLE BUTTONS
 // ====================================================================
 
 function getApplicantConfirmationTemplate(name, appNumber) {
@@ -94,12 +94,10 @@ function getApplicantConfirmationTemplate(name, appNumber) {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta name="x-apple-disable-message-reformatting">
-      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <title>Application Received - ${SCHOOL_NAME}</title>
+      <title>Application Confirmation - ${SCHOOL_NAME}</title>
       <style>
-        /* MOBILE-FIRST RESPONSIVE STYLES */
         * {
-          Margin: 0;
+          margin: 0;
           padding: 0;
           box-sizing: border-box;
           -webkit-text-size-adjust: 100%;
@@ -107,144 +105,170 @@ function getApplicantConfirmationTemplate(name, appNumber) {
         }
         
         body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
-          line-height: 1.4;
-          color: #333333;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          background-color: #f8fafc;
+          padding: 16px;
           margin: 0;
-          padding: 0;
-          width: 100% !important;
-          background-color: #f5f7fa;
+          -webkit-font-smoothing: antialiased;
         }
         
         .container {
-          max-width: 600px !important;
-          width: 100% !important;
+          max-width: 600px;
           margin: 0 auto;
-          background: #ffffff;
+          background: white;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+          border: 1px solid #e2e8f0;
         }
         
-        /* HEADER */
         .header {
           background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-          color: #ffffff;
-          padding: 30px 20px;
+          color: white;
+          padding: 40px 20px;
           text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .header::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+          background-size: 20px 20px;
+          opacity: 0.1;
         }
         
         .header h1 {
-          font-size: 24px;
-          font-weight: 700;
-          line-height: 1.2;
+          font-size: 28px;
+          font-weight: 800;
           margin: 0 0 8px 0;
+          position: relative;
+          z-index: 1;
         }
         
-        .header h2 {
-          font-size: 16px;
-          font-weight: 400;
-          opacity: 0.9;
+        .header p {
+          font-size: 15px;
+          opacity: 0.95;
           margin: 0;
+          position: relative;
+          z-index: 1;
         }
         
-        /* CONTENT */
+        .badge {
+          display: inline-block;
+          background: rgba(255, 255, 255, 0.15);
+          padding: 8px 20px;
+          border-radius: 24px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          margin-top: 12px;
+          position: relative;
+          z-index: 1;
+        }
+        
         .content {
-          padding: 30px 20px;
+          padding: 40px 28px;
         }
         
-        /* SUCCESS CARD */
         .success-card {
           background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-          padding: 25px 20px;
-          margin: 20px 0;
-          border-radius: 10px;
+          padding: 28px;
+          margin: 24px 0;
+          border-radius: 12px;
           text-align: center;
         }
         
         .success-icon {
           font-size: 48px;
-          margin-bottom: 15px;
           display: block;
+          margin-bottom: 12px;
         }
         
-        .badge {
+        .success-badge {
           display: inline-block;
           background: #4caf50;
           color: white;
-          padding: 8px 20px;
+          padding: 10px 24px;
           border-radius: 50px;
           font-weight: 600;
           font-size: 14px;
-          margin: 10px 0;
+          margin: 12px 0;
         }
         
-        /* INFO GRID */
         .info-grid {
-          display: block;
-          margin: 20px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          margin: 28px 0;
         }
         
-        @media (min-width: 400px) {
+        @media (min-width: 480px) {
           .info-grid {
-            display: flex;
-            gap: 12px;
+            flex-direction: row;
           }
         }
         
         .info-box {
-          background: #f8f9fa;
-          padding: 18px;
-          border-radius: 8px;
-          border: 1px solid #e9ecef;
-          margin-bottom: 12px;
+          background: #f8fafc;
+          padding: 20px;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          flex: 1;
         }
         
-        @media (min-width: 400px) {
-          .info-box {
-            flex: 1;
-            margin-bottom: 0;
-          }
+        .info-label {
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          color: #0369a1;
+          letter-spacing: 0.05em;
+          margin-bottom: 8px;
         }
         
-        /* TEXT STYLES */
-        .text-large {
-          font-size: 18px;
+        .info-value {
+          font-size: 20px;
           font-weight: 700;
-          color: #1e3c72;
-          margin: 8px 0;
+          color: #075985;
+          word-break: break-word;
           line-height: 1.3;
         }
         
-        .text-medium {
-          font-size: 16px;
-          color: #333333;
-          margin: 12px 0;
-          line-height: 1.5;
+        .section-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1e3c72;
+          margin: 28px 0 16px 0;
+          border-left: 4px solid #4c7cf3;
+          padding-left: 12px;
         }
         
-        .text-small {
-          font-size: 13px;
-          color: #666666;
-          margin: 4px 0;
-        }
-        
-        /* NEXT STEPS */
-        .next-steps {
+        .steps-box {
           background: #e3f2fd;
-          padding: 20px;
-          border-radius: 10px;
-          margin: 20px 0;
+          padding: 24px;
+          border-radius: 12px;
+          margin: 24px 0;
         }
         
         .steps-list {
           list-style: none;
           padding: 0;
-          margin: 15px 0 0 0;
+          margin: 0;
         }
         
         .steps-list li {
-          padding: 12px 0;
+          padding: 14px 0;
           border-bottom: 1px solid rgba(30, 60, 114, 0.1);
           display: flex;
           align-items: flex-start;
+          gap: 12px;
         }
         
         .steps-list li:last-child {
@@ -252,121 +276,388 @@ function getApplicantConfirmationTemplate(name, appNumber) {
         }
         
         .step-icon {
-          font-size: 20px;
-          margin-right: 12px;
+          font-size: 24px;
           min-width: 30px;
+          flex-shrink: 0;
         }
         
-        /* CONTACT INFO */
-        .contact-info {
+        .step-text {
+          font-size: 14px;
+          color: #333;
+          line-height: 1.6;
+        }
+        
+        .important-box {
+          background: rgba(234, 179, 8, 0.1);
+          border: 1px solid rgba(234, 179, 8, 0.3);
+          padding: 20px;
+          border-radius: 12px;
+          margin: 24px 0;
+        }
+        
+        .important-title {
+          font-size: 15px;
+          font-weight: 700;
+          color: #92400e;
+          margin: 0 0 12px 0;
+        }
+        
+        .important-text {
+          font-size: 14px;
+          color: #78350f;
+          margin: 8px 0;
+          line-height: 1.6;
+        }
+        
+        .contact-section {
           background: linear-gradient(135deg, #f0f7ff 0%, #dbeafe 100%);
-          padding: 25px 20px;
-          border-radius: 10px;
-          margin-top: 25px;
+          padding: 28px;
+          border-radius: 12px;
+          margin: 28px 0;
           text-align: center;
         }
         
-        .contact-items {
+        .contact-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1e3c72;
+          margin: 0 0 20px 0;
+        }
+        
+        .contact-buttons {
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 14px;
           margin: 20px 0;
         }
         
-        @media (min-width: 400px) {
-          .contact-items {
+        @media (min-width: 480px) {
+          .contact-buttons {
             flex-direction: row;
             justify-content: center;
           }
         }
         
-        .contact-item {
-          text-align: center;
+        .contact-btn {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px;
+          background: white;
+          border: 2px solid #dbeafe;
+          border-radius: 10px;
+          text-decoration: none;
+          transition: all 0.2s ease;
+          flex: 1;
+          justify-content: center;
+        }
+        
+        .contact-btn:hover {
+          background: #f0f7ff;
+          border-color: #0284c7;
         }
         
         .contact-icon {
-          font-size: 22px;
-          margin-bottom: 8px;
-          display: block;
-        }
-        
-        /* IMPORTANT NOTES */
-        .important-notes {
-          background: #fff3cd;
-          padding: 18px;
+          width: 40px;
+          height: 40px;
           border-radius: 8px;
-          margin: 20px 0;
-          border-left: 4px solid #ff9800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+          color: white;
+          font-weight: bold;
+          flex-shrink: 0;
         }
         
-        /* FOOTER */
-        .footer {
-          background: #1a1a2e;
-          color: #b0b0b0;
-          padding: 25px 20px;
-          text-align: center;
+        .contact-icon.phone {
+          background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
         }
         
-        .footer-links {
-          margin: 15px 0;
+        .contact-icon.email {
+          background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
         }
         
-        .footer-links a {
-          color: #667eea;
-          text-decoration: none;
-          margin: 0 10px;
+        .contact-text {
+          color: #1e3c72;
+          font-weight: 600;
           font-size: 14px;
         }
         
-        /* RESPONSIVE MEDIA QUERIES */
-        @media only screen and (max-width: 480px) {
+        .footer {
+          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+          color: #cbd5e1;
+          padding: 28px;
+          text-align: center;
+        }
+        
+        .footer-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: white;
+          margin: 0 0 8px 0;
+        }
+        
+        .footer-text {
+          font-size: 13px;
+          margin: 4px 0;
+        }
+        
+        .footer-motto {
+          font-size: 12px;
+          font-style: italic;
+          margin: 12px 0;
+        }
+        
+        @media (max-width: 768px) {
+          body {
+            padding: 12px;
+          }
+          
           .header {
-            padding: 25px 15px;
+            padding: 32px 16px;
           }
           
           .header h1 {
-            font-size: 22px;
+            font-size: 24px;
           }
           
-          .header h2 {
+          .header p {
             font-size: 14px;
           }
           
           .content {
-            padding: 25px 15px;
+            padding: 24px 16px;
           }
           
           .success-card {
-            padding: 20px 15px;
+            padding: 20px;
           }
           
-          .text-large {
+          .info-box {
+            padding: 16px;
+          }
+          
+          .info-value {
+            font-size: 18px;
+          }
+          
+          .section-title {
             font-size: 17px;
+            margin: 24px 0 14px 0;
           }
           
-          .text-medium {
-            font-size: 15px;
+          .steps-box {
+            padding: 20px;
+            margin: 20px 0;
+          }
+          
+          .steps-list li {
+            padding: 12px 0;
+          }
+          
+          .step-icon {
+            font-size: 20px;
+          }
+          
+          .step-text {
+            font-size: 13px;
+          }
+          
+          .important-box {
+            padding: 16px;
+            margin: 20px 0;
+          }
+          
+          .important-title {
+            font-size: 14px;
+          }
+          
+          .important-text {
+            font-size: 13px;
+            margin: 6px 0;
+          }
+          
+          .contact-section {
+            padding: 24px;
+            margin: 24px 0;
+          }
+          
+          .contact-title {
+            font-size: 16px;
+            margin-bottom: 18px;
+          }
+          
+          .contact-btn {
+            padding: 14px;
+            font-size: 13px;
+          }
+          
+          .contact-icon {
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
           }
           
           .footer {
-            padding: 20px 15px;
+            padding: 24px;
+          }
+          
+          .footer-title {
+            font-size: 16px;
+          }
+          
+          .footer-text {
+            font-size: 12px;
           }
         }
         
-        /* FORCE MOBILE OPTIMIZATION */
-        @media only screen and (max-width: 600px) {
-          .container {
-            min-width: 320px !important;
+        @media (max-width: 480px) {
+          body {
+            padding: 8px;
           }
           
-          img {
-            max-width: 100% !important;
-            height: auto !important;
+          .header {
+            padding: 24px 12px;
           }
           
-          table, tbody, tr, td {
-            display: block !important;
-            width: 100% !important;
+          .header h1 {
+            font-size: 20px;
+            margin-bottom: 6px;
+          }
+          
+          .header p {
+            font-size: 12px;
+          }
+          
+          .badge {
+            font-size: 10px;
+            padding: 6px 14px;
+            margin-top: 10px;
+          }
+          
+          .content {
+            padding: 16px 12px;
+          }
+          
+          .success-card {
+            padding: 16px;
+            margin: 16px 0;
+          }
+          
+          .success-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+          }
+          
+          .success-badge {
+            font-size: 12px;
+            padding: 8px 16px;
+          }
+          
+          .info-grid {
+            gap: 12px;
+            margin: 16px 0;
+          }
+          
+          .info-box {
+            padding: 14px;
+            margin-bottom: 0;
+          }
+          
+          .info-label {
+            font-size: 10px;
+            margin-bottom: 6px;
+          }
+          
+          .info-value {
+            font-size: 16px;
+          }
+          
+          .section-title {
+            font-size: 16px;
+            margin: 20px 0 12px 0;
+            padding-left: 10px;
+          }
+          
+          .steps-box {
+            padding: 16px;
+            margin: 16px 0;
+          }
+          
+          .steps-list li {
+            padding: 10px 0;
+            gap: 10px;
+          }
+          
+          .step-icon {
+            font-size: 18px;
+          }
+          
+          .step-text {
+            font-size: 12px;
+          }
+          
+          .important-box {
+            padding: 14px;
+            margin: 16px 0;
+          }
+          
+          .important-title {
+            font-size: 13px;
+            margin-bottom: 8px;
+          }
+          
+          .important-text {
+            font-size: 12px;
+            margin: 4px 0;
+          }
+          
+          .contact-section {
+            padding: 16px;
+            margin: 16px 0;
+          }
+          
+          .contact-title {
+            font-size: 15px;
+            margin-bottom: 14px;
+          }
+          
+          .contact-buttons {
+            gap: 10px;
+            margin: 12px 0;
+          }
+          
+          .contact-btn {
+            padding: 12px;
+            gap: 10px;
+            flex-direction: column;
+          }
+          
+          .contact-icon {
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+          }
+          
+          .contact-text {
+            font-size: 12px;
+          }
+          
+          .footer {
+            padding: 16px;
+          }
+          
+          .footer-title {
+            font-size: 16px;
+          }
+          
+          .footer-text {
+            font-size: 11px;
+          }
+          
+          .footer-motto {
+            font-size: 11px;
           }
         }
       </style>
@@ -374,96 +665,93 @@ function getApplicantConfirmationTemplate(name, appNumber) {
     <body>
       <div class="container">
         <div class="header">
-          <h1>✅ APPLICATION RECEIVED</h1>
-          <h2>${SCHOOL_NAME}</h2>
+          <h1>✅ Application Received</h1>
+          <p>${SCHOOL_NAME}</p>
+          <div class="badge">Welcome to Our Admissions Process</div>
         </div>
         
         <div class="content">
           <div class="success-card">
             <span class="success-icon">🎉</span>
-            <span class="badge">Application Submitted Successfully!</span>
-            <h3 style="color: #2e7d32; margin: 12px 0 0 0; font-size: 20px;">
+            <span class="success-badge">Application Submitted Successfully!</span>
+            <h3 style="color: #2e7d32; margin: 16px 0 0 0; font-size: 22px;">
               Welcome to ${SCHOOL_NAME} Admissions
             </h3>
           </div>
           
-          <p class="text-medium">
+          <p style="font-size: 16px; color: #333; margin: 20px 0; line-height: 1.6;">
             Dear <strong style="color: #1e3c72;">${name}</strong>,
             <br><br>
-            Thank you for choosing ${SCHOOL_NAME} for your secondary education journey. 
-            We have successfully received your admission application and it is now under review.
+            Thank you for choosing ${SCHOOL_NAME} for your education journey. 
+            We have successfully received your admission application and it is now under review by our team.
           </p>
           
           <div class="info-grid">
             <div class="info-box">
-              <p class="text-small">Applicant Name</p>
-              <p class="text-large">${name}</p>
+              <div class="info-label">📝 Applicant Name</div>
+              <div class="info-value">${name}</div>
             </div>
             <div class="info-box">
-              <p class="text-small">Application Number</p>
-              <p class="text-large">${appNumber}</p>
+              <div class="info-label">🔐 Application Number</div>
+              <div class="info-value">${appNumber}</div>
             </div>
           </div>
           
-          <div class="next-steps">
-            <h4 style="color: #1e3c72; margin: 0 0 15px 0; font-size: 18px;">📋 What Happens Next?</h4>
+          <div class="section-title">📋 What Happens Next?</div>
+          <div class="steps-box">
             <ul class="steps-list">
               <li>
                 <span class="step-icon">🔍</span>
-                <span><strong>Application Review:</strong> Our admissions team will review your application within 7-14 working days</span>
+                <span class="step-text"><strong>Application Review:</strong> Our admissions team will review your application within 7-14 working days</span>
               </li>
               <li>
                 <span class="step-icon">📧</span>
-                <span><strong>Status Updates:</strong> You will receive email notifications at every stage of the process</span>
+                <span class="step-text"><strong>Status Updates:</strong> You will receive email notifications at every stage of the process</span>
               </li>
               <li>
                 <span class="step-icon">📞</span>
-                <span><strong>Verification:</strong> We may contact you for additional information or clarification</span>
+                <span class="step-text"><strong>Verification:</strong> We may contact you for additional information or clarification</span>
               </li>
               <li>
                 <span class="step-icon">🎯</span>
-                <span><strong>Decision:</strong> Final admission decision will be communicated via email</span>
+                <span class="step-text"><strong>Decision:</strong> Final admission decision will be communicated via email</span>
               </li>
             </ul>
           </div>
           
-          <div class="important-notes">
-            <h4 style="color: #d35400; margin: 0 0 10px 0; font-size: 16px;">⚠️ Important Notes</h4>
-            <p class="text-medium">
-              • Keep your application number (<strong>${appNumber}</strong>) safe for future reference<br>
-              • All communications will be sent to this email address<br>
-              • Do not share your application details with unauthorized persons<br>
-              • Application review typically takes 2-3 weeks
-            </p>
+          <div class="important-box">
+            <h4 class="important-title">⚠️ Important Notes</h4>
+            <p class="important-text">• Keep your application number <strong>${appNumber}</strong> safe for future reference</p>
+            <p class="important-text">• All communications will be sent to this email address</p>
+            <p class="important-text">• Do not share your application details with unauthorized persons</p>
+            <p class="important-text">• Application review typically takes 2-3 weeks</p>
           </div>
           
-          <div class="contact-info">
-            <h4 style="color: #1e3c72; margin: 0 0 15px 0; font-size: 18px;">📞 Need Help?</h4>
-            <p class="text-medium">
+          <div class="contact-section">
+            <h3 class="contact-title">📞 Need Help?</h3>
+            <p style="font-size: 14px; color: #1e3c72; margin: 0 0 16px 0;">
               Our admissions team is here to assist you:
             </p>
-            <div class="contact-items">
-              <div class="contact-item">
-                <span class="contact-icon">📱</span>
-                <p style="margin: 0; font-weight: 600; font-size: 15px;">${CONTACT_PHONE}</p>
-                <p class="text-small">Call Us</p>
-              </div>
-              <div class="contact-item">
-                <span class="contact-icon">📧</span>
-                <p style="margin: 0; font-weight: 600; font-size: 15px;">${CONTACT_EMAIL}</p>
-                <p class="text-small">Email Us</p>
-              </div>
+            <div class="contact-buttons">
+              <a href="tel:${CONTACT_PHONE}" class="contact-btn">
+                <div class="contact-icon phone">☎</div>
+                <div class="contact-text">${CONTACT_PHONE}</div>
+              </a>
+              <a href="mailto:${CONTACT_EMAIL}" class="contact-btn">
+                <div class="contact-icon email">✉</div>
+                <div class="contact-text">${CONTACT_EMAIL}</div>
+              </a>
             </div>
-            <p style="margin-top: 15px; font-size: 13px; color: #666;">
+            <p style="margin-top: 14px; font-size: 12px; color: #666;">
               Office Hours: Monday - Friday, 8:00 AM - 5:00 PM
             </p>
           </div>
           
-          <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #e9ecef;">
-            <p style="font-size: 17px; color: #1e3c72; font-weight: 600; margin-bottom: 10px;">
+          <div style="text-align: center; margin-top: 28px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+            <p style="font-size: 16px; color: #1e3c72; font-weight: 600; margin-bottom: 8px;">
               We look forward to reviewing your application!
             </p>
-            <p style="font-size: 15px; color: #333;">
+            <p style="font-size: 15px; color: #333; margin: 0;">
               Best regards,<br>
               <strong>The Admissions Team</strong><br>
               ${SCHOOL_NAME}
@@ -472,18 +760,13 @@ function getApplicantConfirmationTemplate(name, appNumber) {
         </div>
         
         <div class="footer">
-          <div style="margin-bottom: 15px;">
-            <p style="font-size: 18px; color: #ffffff; margin: 0 0 8px 0; font-weight: 600;">${SCHOOL_NAME}</p>
-            <p style="margin: 0 0 5px 0; font-size: 14px;">${SCHOOL_LOCATION}</p>
-            <p style="margin: 0 0 12px 0; font-style: italic; font-size: 13px;">"${SCHOOL_MOTTO}"</p>
-          </div>
-          <div class="footer-links">
-            <a href="mailto:${CONTACT_EMAIL}">Email Us</a>
-            <a href="tel:${CONTACT_PHONE}">Call Us</a>
-            <a href="#">Visit Website</a>
-          </div>
-          <p style="color: #888888; margin: 15px 0 0 0; font-size: 11px; line-height: 1.4;">
-            © ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.<br>
+          <p class="footer-title">${SCHOOL_NAME}</p>
+          <p class="footer-text">${SCHOOL_LOCATION}</p>
+          <p class="footer-motto">"${SCHOOL_MOTTO}"</p>
+          <p class="footer-text" style="margin-top: 12px;">
+            © ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.
+          </p>
+          <p class="footer-text" style="opacity: 0.7;">
             This is an automated confirmation email. Please do not reply to this email.
           </p>
         </div>
@@ -505,12 +788,10 @@ function getAdminNotificationTemplate(applicantData, applicationNumber) {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta name="x-apple-disable-message-reformatting">
-      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <title>New Application - ${SCHOOL_NAME}</title>
       <style>
-        /* MOBILE-FIRST RESPONSIVE STYLES */
         * {
-          Margin: 0;
+          margin: 0;
           padding: 0;
           box-sizing: border-box;
           -webkit-text-size-adjust: 100%;
@@ -519,262 +800,352 @@ function getAdminNotificationTemplate(applicantData, applicationNumber) {
         
         body {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          line-height: 1.4;
-          color: #333333;
+          line-height: 1.6;
+          color: #333;
+          background-color: #f8fafc;
+          padding: 16px;
           margin: 0;
-          padding: 0;
-          width: 100% !important;
-          background-color: #f5f7fa;
+          -webkit-font-smoothing: antialiased;
         }
         
         .container {
-          max-width: 600px !important;
-          width: 100% !important;
+          max-width: 600px;
           margin: 0 auto;
-          background: #ffffff;
+          background: white;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+          border: 1px solid #e2e8f0;
         }
         
-        /* HEADER */
         .header {
-          background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
-          color: #ffffff;
-          padding: 25px 20px;
+          background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+          color: white;
+          padding: 32px 20px;
           text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .header::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+          background-size: 20px 20px;
+          opacity: 0.1;
         }
         
         .header h1 {
-          font-size: 22px;
-          font-weight: 700;
-          line-height: 1.2;
-          margin: 0 0 8px 0;
+          font-size: 24px;
+          font-weight: 800;
+          margin: 0 0 6px 0;
+          position: relative;
+          z-index: 1;
         }
         
-        .header h2 {
-          font-size: 15px;
-          font-weight: 400;
-          opacity: 0.9;
+        .header p {
+          font-size: 14px;
+          opacity: 0.95;
           margin: 0;
+          position: relative;
+          z-index: 1;
         }
         
-        /* ALERT BANNER */
         .alert-banner {
-          background: #fff3cd;
-          border-left: 4px solid #ffc107;
-          padding: 18px 15px;
+          background: #fef2f2;
+          border-left: 4px solid #dc2626;
+          padding: 16px 20px;
           text-align: center;
         }
         
         .badge {
           display: inline-block;
-          background: #2196f3;
+          background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
           color: white;
-          padding: 6px 16px;
+          padding: 8px 18px;
           border-radius: 50px;
           font-weight: 600;
-          font-size: 13px;
-          margin-bottom: 10px;
+          font-size: 12px;
+          margin-bottom: 8px;
         }
         
-        /* CONTENT */
         .content {
-          padding: 25px 20px;
+          padding: 28px;
         }
         
-        /* APPLICATION INFO */
-        .app-info {
+        .app-card {
           background: linear-gradient(135deg, #f0f7ff 0%, #dbeafe 100%);
-          padding: 22px 18px;
-          border-radius: 10px;
-          margin: 15px 0;
+          padding: 24px;
+          border-radius: 12px;
+          margin: 20px 0;
           text-align: center;
         }
         
-        .app-title {
+        .app-number {
           color: #1e3c72;
-          font-size: 19px;
+          font-size: 16px;
           font-weight: 600;
-          margin: 0 0 10px 0;
-        }
-        
-        .app-name {
-          font-size: 18px;
-          font-weight: 700;
-          color: #1e3c72;
           margin: 0 0 8px 0;
         }
         
-        /* DETAILS TABLE - MOBILE FRIENDLY */
-        .details-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 20px 0;
+        .app-name {
+          font-size: 22px;
+          font-weight: 700;
+          color: #075985;
+          margin: 0 0 8px 0;
         }
         
-        .details-table tr {
-          display: block;
-          margin-bottom: 12px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid #e9ecef;
+        .app-date {
+          font-size: 12px;
+          color: #666;
+          margin: 0;
         }
         
-        .details-table tr:last-child {
+        .section-title {
+          font-size: 17px;
+          font-weight: 700;
+          color: #dc2626;
+          margin: 24px 0 14px 0;
+          border-bottom: 2px solid #fee2e2;
+          padding-bottom: 8px;
+        }
+        
+        .info-row {
+          display: flex;
+          padding: 12px 0;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-row:last-child {
           border-bottom: none;
-          margin-bottom: 0;
-          padding-bottom: 0;
         }
         
-        .details-table td {
-          display: block;
-          width: 100% !important;
-          padding: 4px 0;
-          border: none;
+        .info-label {
+          font-weight: 700;
+          color: #666;
+          width: 40%;
+          font-size: 13px;
         }
         
-        .details-table td:first-child {
-          font-weight: 600;
-          color: #1e3c72;
-          font-size: 14px;
-        }
-        
-        .details-table td:last-child {
-          font-size: 15px;
+        .info-value {
           color: #333;
-          padding-bottom: 4px;
+          width: 60%;
+          font-size: 13px;
+          word-break: break-word;
         }
         
-        /* ACTION BOX */
         .action-box {
           background: #e8f5e9;
           border: 2px solid #4caf50;
-          padding: 20px 18px;
-          border-radius: 10px;
-          margin: 20px 0;
+          border-radius: 12px;
+          padding: 20px;
+          margin: 24px 0;
         }
         
-        .action-box h4 {
+        .action-title {
           color: #2e7d32;
-          font-size: 17px;
-          margin: 0 0 15px 0;
-          text-align: center;
-        }
-        
-        .action-box ol {
-          margin: 0;
-          padding-left: 20px;
-        }
-        
-        .action-box li {
-          margin-bottom: 8px;
-          font-size: 14px;
-        }
-        
-        /* STATS GRID */
-        .stats-grid {
-          display: flex;
-          justify-content: space-around;
-          flex-wrap: wrap;
-          margin: 15px 0;
-          gap: 15px;
-        }
-        
-        .stat-item {
-          text-align: center;
-          flex: 1;
-          min-width: 80px;
-        }
-        
-        .stat-number {
-          font-size: 22px;
+          font-size: 16px;
           font-weight: 700;
-          color: #1e3c72;
+          margin: 0 0 12px 0;
+        }
+        
+        .action-list {
+          list-style: none;
+          padding: 0;
           margin: 0;
         }
         
-        .stat-label {
-          font-size: 12px;
-          color: #666666;
-          margin: 3px 0 0 0;
+        .action-list li {
+          padding: 8px 0;
+          color: #2e7d32;
+          font-size: 13px;
         }
         
-        /* FOOTER */
+        .urgency-notice {
+          background: #fff3cd;
+          border: 1px solid #ffeaa7;
+          border-radius: 8px;
+          padding: 14px;
+          margin: 20px 0;
+          text-align: center;
+          font-weight: 600;
+          color: #856404;
+          font-size: 13px;
+        }
+        
         .footer {
-          background: #2c3e50;
-          color: #b0b0b0;
-          padding: 22px 18px;
+          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+          color: #cbd5e1;
+          padding: 24px;
           text-align: center;
         }
         
         .footer-title {
           font-size: 16px;
-          color: #ffffff;
-          font-weight: 600;
-          margin: 0 0 8px 0;
+          font-weight: 700;
+          color: white;
+          margin: 0 0 6px 0;
         }
         
-        /* RESPONSIVE MEDIA QUERIES */
-        @media only screen and (max-width: 480px) {
+        .footer-text {
+          font-size: 12px;
+          margin: 3px 0;
+        }
+        
+        @media (max-width: 768px) {
+          body {
+            padding: 12px;
+          }
+          
           .header {
-            padding: 22px 15px;
+            padding: 28px 16px;
+          }
+          
+          .header h1 {
+            font-size: 22px;
+          }
+          
+          .header p {
+            font-size: 13px;
+          }
+          
+          .content {
+            padding: 20px;
+          }
+          
+          .app-card {
+            padding: 20px;
+            margin: 16px 0;
+          }
+          
+          .app-name {
+            font-size: 20px;
+          }
+          
+          .section-title {
+            font-size: 16px;
+            margin: 20px 0 12px 0;
+          }
+          
+          .info-row {
+            padding: 10px 0;
+          }
+          
+          .info-label {
+            font-size: 12px;
+          }
+          
+          .info-value {
+            font-size: 12px;
+          }
+          
+          .action-box {
+            padding: 16px;
+            margin: 20px 0;
+          }
+          
+          .action-title {
+            font-size: 15px;
+          }
+          
+          .footer {
+            padding: 20px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          body {
+            padding: 8px;
+          }
+          
+          .header {
+            padding: 20px 12px;
           }
           
           .header h1 {
             font-size: 20px;
           }
           
+          .header p {
+            font-size: 12px;
+          }
+          
           .content {
-            padding: 20px 15px;
+            padding: 16px;
           }
           
-          .app-info {
-            padding: 20px 15px;
+          .app-card {
+            padding: 16px;
+            margin: 12px 0;
           }
           
-          .app-title {
-            font-size: 17px;
+          .app-number {
+            font-size: 14px;
+            margin-bottom: 6px;
           }
           
           .app-name {
-            font-size: 16px;
+            font-size: 18px;
+          }
+          
+          .app-date {
+            font-size: 11px;
+          }
+          
+          .section-title {
+            font-size: 15px;
+            margin: 16px 0 10px 0;
+          }
+          
+          .info-row {
+            flex-direction: column;
+            padding: 8px 0;
+          }
+          
+          .info-label {
+            width: 100%;
+            margin-bottom: 3px;
+            font-size: 11px;
+          }
+          
+          .info-value {
+            width: 100%;
+            font-size: 12px;
+          }
+          
+          .action-box {
+            padding: 14px;
+            margin: 16px 0;
+          }
+          
+          .action-title {
+            font-size: 14px;
+          }
+          
+          .action-list li {
+            font-size: 12px;
+            padding: 6px 0;
+          }
+          
+          .urgency-notice {
+            padding: 12px;
+            font-size: 12px;
           }
           
           .footer {
-            padding: 20px 15px;
-          }
-        }
-        
-        @media only screen and (min-width: 481px) {
-          .details-table {
-            display: table;
+            padding: 16px;
           }
           
-          .details-table tr {
-            display: table-row;
-            border-bottom: 1px solid #e9ecef;
-            margin: 0;
-            padding: 0;
+          .footer-title {
+            font-size: 14px;
           }
           
-          .details-table td {
-            display: table-cell;
-            width: auto !important;
-            padding: 10px 12px;
-            border-bottom: 1px solid #e9ecef;
-          }
-          
-          .details-table td:first-child {
-            width: 40%;
-          }
-        }
-        
-        /* FORCE MOBILE OPTIMIZATION */
-        @media only screen and (max-width: 600px) {
-          .container {
-            min-width: 320px !important;
-          }
-          
-          img {
-            max-width: 100% !important;
-            height: auto !important;
+          .footer-text {
+            font-size: 11px;
           }
         }
       </style>
@@ -782,124 +1153,95 @@ function getAdminNotificationTemplate(applicantData, applicationNumber) {
     <body>
       <div class="container">
         <div class="header">
-          <h1>🚨 NEW APPLICATION SUBMITTED</h1>
-          <h2>${SCHOOL_NAME} Admissions System</h2>
+          <h1>🚨 NEW APPLICATION</h1>
+          <p>${SCHOOL_NAME} Admissions System</p>
         </div>
         
         <div class="alert-banner">
-          <span class="badge">ACTION REQUIRED</span>
-          <p style="margin: 10px 0 0 0; font-weight: 600; color: #856404; font-size: 14px;">
-            A new student application requires review in the admissions portal
+          <div class="badge">ACTION REQUIRED</div>
+          <p style="margin: 8px 0 0 0; font-weight: 600; color: #991b1b; font-size: 14px;">
+            A new student application requires review
           </p>
         </div>
         
         <div class="content">
-          <div class="app-info">
-            <p class="app-title">Application: ${applicationNumber}</p>
+          <div class="app-card">
+            <p class="app-number">Application: ${applicationNumber}</p>
             <p class="app-name">${applicantData.firstName} ${applicantData.lastName}</p>
-            <p style="font-size: 14px; color: #666; margin: 5px 0 0 0;">Submitted: ${formattedDate}</p>
+            <p class="app-date">Submitted: ${formattedDate}</p>
           </div>
           
-          <h4 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 17px;">📋 Application Details</h4>
-          
-          <table class="details-table">
-            <tr>
-              <td>Applicant Name:</td>
-              <td>${applicantData.firstName} ${applicantData.middleName || ''} ${applicantData.lastName}</td>
-            </tr>
-            <tr>
-              <td>Date of Birth:</td>
-              <td>${formatDate(applicantData.dateOfBirth)} (Age: ${age})</td>
-            </tr>
-            <tr>
-              <td>Gender:</td>
-              <td>${applicantData.gender}</td>
-            </tr>
-            <tr>
-              <td>Nationality:</td>
-              <td>${applicantData.nationality}</td>
-            </tr>
-            <tr>
-              <td>County:</td>
-              <td>${applicantData.county}</td>
-            </tr>
-            <tr>
-              <td>Preferred Stream:</td>
-              <td>${getStreamLabel(applicantData.preferredStream)}</td>
-            </tr>
-            <tr>
-              <td>Previous School:</td>
-              <td>${applicantData.previousSchool}</td>
-            </tr>
-            <tr>
-              <td>KCPE Marks:</td>
-              <td>${kcpeMarks}</td>
-            </tr>
-            <tr>
-              <td>Contact Email:</td>
-              <td>${applicantData.email}</td>
-            </tr>
-            <tr>
-              <td>Contact Phone:</td>
-              <td>${applicantData.phone}</td>
-            </tr>
-          </table>
+          <h2 class="section-title">📋 Application Details</h2>
+          <div class="info-row">
+            <div class="info-label">Full Name:</div>
+            <div class="info-value">${applicantData.firstName} ${applicantData.middleName || ''} ${applicantData.lastName}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Date of Birth:</div>
+            <div class="info-value">${formatDate(applicantData.dateOfBirth)} (Age: ${age})</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Gender:</div>
+            <div class="info-value">${applicantData.gender}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Nationality:</div>
+            <div class="info-value">${applicantData.nationality}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">County:</div>
+            <div class="info-value">${applicantData.county}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Preferred Stream:</div>
+            <div class="info-value">${getStreamLabel(applicantData.preferredStream)}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Previous School:</div>
+            <div class="info-value">${applicantData.previousSchool}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">KCPE Marks:</div>
+            <div class="info-value">${kcpeMarks}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Contact Email:</div>
+            <div class="info-value">${applicantData.email}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Contact Phone:</div>
+            <div class="info-value">${applicantData.phone}</div>
+          </div>
           
           <div class="action-box">
-            <h4>✅ Next Steps</h4>
-            <ol>
-              <li>Review application completeness</li>
-              <li>Verify academic credentials</li>
-              <li>Check for any missing documents</li>
-              <li>Update application status in portal</li>
-              <li>Schedule interview if required</li>
+            <h3 class="action-title">✅ Next Steps</h3>
+            <ol class="action-list">
+              <li>1. Review application completeness</li>
+              <li>2. Verify academic credentials</li>
+              <li>3. Check for any missing documents</li>
+              <li>4. Update application status in portal</li>
+              <li>5. Schedule interview if required</li>
             </ol>
-            <p style="margin-top: 15px; font-weight: 600; text-align: center; color: #2e7d32;">
-              ⏰ Please process within 48 hours
-            </p>
           </div>
           
-          <div style="background: #f8f9fa; padding: 18px; border-radius: 8px; margin: 20px 0;">
-            <h4 style="color: #1e3c72; margin: 0 0 12px 0; font-size: 16px;">📊 School Statistics</h4>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <p class="stat-number">400+</p>
-                <p class="stat-label">Total Students</p>
-              </div>
-              <div class="stat-item">
-                <p class="stat-number">4</p>
-                <p class="stat-label">Streams</p>
-              </div>
-              <div class="stat-item">
-                <p class="stat-number">98%</p>
-                <p class="stat-label">Transition Rate</p>
-              </div>
-            </div>
+          <div class="urgency-notice">
+            ⏰ Please process this application within 48 hours
           </div>
           
-          <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e9ecef;">
-            <p style="font-size: 14px; color: #666; margin: 0 0 5px 0;">
-              <strong>School Information:</strong>
-            </p>
-            <p style="font-size: 13px; color: #666; margin: 0 0 3px 0;">
-              ${SCHOOL_NAME}
-            </p>
-            <p style="font-size: 13px; color: #666; margin: 0 0 3px 0;">
-              ${SCHOOL_LOCATION}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 0;">
-              Motto: "${SCHOOL_MOTTO}"
+          <div style="background: #f8fafc; padding: 16px; border-radius: 10px; margin: 20px 0;">
+            <p style="font-size: 13px; color: #666; margin: 0;">
+              <strong>School:</strong> ${SCHOOL_NAME}<br>
+              <strong>Location:</strong> ${SCHOOL_LOCATION}<br>
+              <strong>Motto:</strong> "${SCHOOL_MOTTO}"
             </p>
           </div>
         </div>
         
         <div class="footer">
           <p class="footer-title">${SCHOOL_NAME} Admissions Portal</p>
-          <p style="margin: 8px 0 0 0; font-size: 12px; line-height: 1.4;">
-            This is an automated notification from the admissions system.<br>
-            Please log in to the portal to take action.
-          </p>
-          <p style="margin: 15px 0 0 0; font-size: 11px; color: #888888;">
+          <p class="footer-text">This is an automated notification from the admissions system.</p>
+          <p class="footer-text">Please log in to the portal to take action.</p>
+          <p class="footer-text" style="margin-top: 12px;">
             © ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.
           </p>
         </div>
@@ -918,114 +1260,93 @@ function getStatusUpdateTemplate(application, newStatus, updateData = {}) {
   let title = '';
   let message = '';
   let actionSection = '';
+  let headerGradient = 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)';
   
   switch (newStatus) {
     case 'ACCEPTED':
       subjectIcon = '🎉';
       title = 'Congratulations! Admission Offer';
+      headerGradient = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
       message = `We are pleased to inform you that your application to ${SCHOOL_NAME} has been <strong>ACCEPTED</strong>. Welcome to our school community!`;
       actionSection = `
-        <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); padding: 20px; border-radius: 10px; margin: 15px 0;">
-          <h4 style="color: #2e7d32; margin: 0 0 12px 0; font-size: 17px;">✅ Next Steps to Complete Admission:</h4>
-          <ol style="margin: 0; padding-left: 20px;">
-            <li style="margin-bottom: 6px; font-size: 14px;">Complete the admission acceptance form</li>
-            <li style="margin-bottom: 6px; font-size: 14px;">Submit all required documents (Birth Certificate, KCPE Certificate, etc.)</li>
-            <li style="margin-bottom: 6px; font-size: 14px;">Pay admission fees as per fee structure</li>
+        <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); padding: 24px; border-radius: 12px; margin: 20px 0;">
+          <h4 style="color: #2e7d32; margin: 0 0 14px 0; font-size: 17px;">✅ Next Steps to Complete Admission:</h4>
+          <ol style="margin: 0; padding-left: 20px; color: #2e7d32;">
+            <li style="margin-bottom: 8px; font-size: 14px;">Complete the admission acceptance form</li>
+            <li style="margin-bottom: 8px; font-size: 14px;">Submit all required documents</li>
+            <li style="margin-bottom: 8px; font-size: 14px;">Pay admission fees as per fee structure</li>
             <li style="font-size: 14px;">Report on: <strong>${updateData.reportingDate ? formatDate(updateData.reportingDate) : 'To be communicated'}</strong></li>
           </ol>
-          ${updateData.assignedStream ? `<p style="margin-top: 12px; font-size: 14px;"><strong>Assigned Stream:</strong> ${getStreamLabel(updateData.assignedStream)}</p>` : ''}
-          ${updateData.admissionClass ? `<p style="font-size: 14px;"><strong>Class:</strong> ${updateData.admissionClass}</p>` : ''}
+          ${updateData.assignedStream ? `<p style="margin-top: 12px; font-size: 14px; color: #2e7d32;"><strong>Assigned Stream:</strong> ${getStreamLabel(updateData.assignedStream)}</p>` : ''}
         </div>
       `;
       break;
       
     case 'REJECTED':
       subjectIcon = '📄';
+      headerGradient = 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)';
       title = 'Application Status Update';
       message = `After careful review, we regret to inform you that your application to ${SCHOOL_NAME} has not been successful at this time.`;
       actionSection = `
-        <div style="background: #f8f9fa; padding: 18px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #6c757d;">
-          <h4 style="color: #343a40; margin: 0 0 8px 0; font-size: 16px;">Application Feedback:</h4>
-          <p style="font-size: 14px; margin: 0 0 6px 0;"><strong>Reason:</strong> ${updateData.rejectionReason || 'Application did not meet the admission criteria at this time.'}</p>
-          ${updateData.alternativeSuggestions ? `<p style="font-size: 14px; margin: 0 0 6px 0;"><strong>Suggestions:</strong> ${updateData.alternativeSuggestions}</p>` : ''}
-          ${updateData.decisionNotes ? `<p style="font-size: 14px; margin: 0;"><strong>Notes:</strong> ${updateData.decisionNotes}</p>` : ''}
+        <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+          <h4 style="color: #7f1d1d; margin: 0 0 8px 0; font-size: 15px;">Application Feedback:</h4>
+          <p style="font-size: 13px; margin: 0 0 6px 0; color: #333;"><strong>Reason:</strong> ${updateData.rejectionReason || 'Application did not meet admission criteria.'}</p>
         </div>
       `;
       break;
       
     case 'INTERVIEW_SCHEDULED':
       subjectIcon = '📅';
+      headerGradient = 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)';
       title = 'Interview Scheduled';
       message = `Your application to ${SCHOOL_NAME} has progressed to the interview stage. We would like to invite you for an interview.`;
       actionSection = `
-        <div style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); padding: 20px; border-radius: 10px; margin: 15px 0;">
-          <h4 style="color: #7b1fa2; margin: 0 0 12px 0; font-size: 17px;">📅 Interview Details:</h4>
-          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
-            <div style="background: white; padding: 15px; border-radius: 8px;">
-              <p style="margin: 0 0 5px 0; font-size: 13px; color: #666;">Date</p>
-              <p style="margin: 0; font-weight: 600; color: #333; font-size: 15px;">${updateData.interviewDate ? formatDate(updateData.interviewDate) : 'To be confirmed'}</p>
+        <div style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); padding: 20px; border-radius: 12px; margin: 20px 0;">
+          <h4 style="color: #6a1b9a; margin: 0 0 14px 0; font-size: 16px;">📅 Interview Details:</h4>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="background: white; padding: 12px; border-radius: 8px;">
+              <p style="margin: 0 0 3px 0; font-size: 12px; color: #666;">Date</p>
+              <p style="margin: 0; font-weight: 700; color: #333; font-size: 15px;">${updateData.interviewDate ? formatDate(updateData.interviewDate) : 'To be confirmed'}</p>
             </div>
-            <div style="background: white; padding: 15px; border-radius: 8px;">
-              <p style="margin: 0 0 5px 0; font-size: 13px; color: #666;">Time</p>
-              <p style="margin: 0; font-weight: 600; color: #333; font-size: 15px;">${updateData.interviewTime || 'To be confirmed'}</p>
-            </div>
-            <div style="background: white; padding: 15px; border-radius: 8px;">
-              <p style="margin: 0 0 5px 0; font-size: 13px; color: #666;">Venue</p>
-              <p style="margin: 0; font-weight: 600; color: #333; font-size: 15px;">${updateData.interviewVenue || 'Main Administration Building, ' + SCHOOL_LOCATION}</p>
+            <div style="background: white; padding: 12px; border-radius: 8px;">
+              <p style="margin: 0 0 3px 0; font-size: 12px; color: #666;">Time</p>
+              <p style="margin: 0; font-weight: 700; color: #333; font-size: 15px;">${updateData.interviewTime || 'To be confirmed'}</p>
             </div>
           </div>
-          <p style="margin-top: 12px; font-size: 13px; color: #666;">
-            <strong>Please bring:</strong> Original documents, parents/guardian if under 18, and any relevant certificates.
-          </p>
         </div>
       `;
       break;
       
     case 'WAITLISTED':
       subjectIcon = '⏳';
+      headerGradient = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
       title = 'Application Waitlisted';
       message = `Your application to ${SCHOOL_NAME} has been placed on a <strong>WAITLIST</strong>. We will contact you if a space becomes available.`;
       actionSection = `
-        <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); padding: 18px; border-radius: 8px; margin: 15px 0;">
-          <h4 style="color: #1565c0; margin: 0 0 8px 0; font-size: 16px;">Waitlist Information:</h4>
-          <p style="font-size: 14px; margin: 0 0 6px 0;"><strong>Position:</strong> ${updateData.waitlistPosition || 'Not specified'}</p>
-          ${updateData.waitlistNotes ? `<p style="font-size: 14px; margin: 0 0 6px 0;"><strong>Notes:</strong> ${updateData.waitlistNotes}</p>` : ''}
-          <p style="margin-top: 8px; font-size: 13px;">
-            We will contact you immediately if a space becomes available. You may check your status periodically.
-          </p>
+        <div style="background: linear-gradient(135deg, #fef3c7, #fef08a); padding: 16px; border-radius: 8px; margin: 20px 0;">
+          <p style="font-size: 13px; margin: 0; color: #92400e;">We will notify you immediately if a space becomes available.</p>
         </div>
       `;
       break;
       
     case 'CONDITIONAL_ACCEPTANCE':
       subjectIcon = '📝';
+      headerGradient = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
       title = 'Conditional Admission Offer';
       message = `Your application to ${SCHOOL_NAME} has received a <strong>CONDITIONAL ACCEPTANCE</strong>. Please review the conditions below.`;
       actionSection = `
-        <div style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 4px solid #ffc107;">
-          <h4 style="color: #d35400; margin: 0 0 12px 0; font-size: 17px;">📋 Conditions to Fulfill:</h4>
-          <div style="background: white; padding: 18px; border-radius: 8px; margin-top: 12px;">
-            <p style="font-size: 14px; margin: 0;">${updateData.conditions || 'Please contact the admissions office for specific conditions.'}</p>
+        <div style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #ffc107;">
+          <h4 style="color: #d35400; margin: 0 0 12px 0; font-size: 16px;">📋 Conditions to Fulfill:</h4>
+          <div style="background: white; padding: 14px; border-radius: 8px;">
+            <p style="font-size: 13px; margin: 0; color: #333;">${updateData.conditions || 'Please contact admissions for specific conditions.'}</p>
           </div>
-          ${updateData.conditionDeadline ? `
-            <div style="background: #f8f9fa; padding: 14px; border-radius: 6px; margin-top: 12px;">
-              <p style="margin: 0; font-weight: 600; font-size: 14px;">⏰ Deadline: ${formatDate(updateData.conditionDeadline)}</p>
-              <p style="margin: 5px 0 0 0; font-size: 13px;">All conditions must be met by this date to secure your admission.</p>
-            </div>
-          ` : ''}
         </div>
       `;
       break;
       
     default:
-      subjectIcon = '📧';
       title = 'Application Status Update';
       message = `Your application status has been updated to: <strong>${statusLabel}</strong>.`;
-      actionSection = updateData.decisionNotes ? `
-        <div style="background: #f8f9fa; padding: 18px; border-radius: 8px; margin: 15px 0;">
-          <p style="font-size: 14px; margin: 0;"><strong>Notes:</strong> ${updateData.decisionNotes}</p>
-        </div>
-      ` : '';
   }
   
   return `
@@ -1035,12 +1356,10 @@ function getStatusUpdateTemplate(application, newStatus, updateData = {}) {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta name="x-apple-disable-message-reformatting">
-      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <title>Status Update - ${SCHOOL_NAME}</title>
       <style>
-        /* MOBILE-FIRST RESPONSIVE STYLES */
         * {
-          Margin: 0;
+          margin: 0;
           padding: 0;
           box-sizing: border-box;
           -webkit-text-size-adjust: 100%;
@@ -1049,172 +1368,327 @@ function getStatusUpdateTemplate(application, newStatus, updateData = {}) {
         
         body {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          line-height: 1.4;
-          color: #333333;
+          line-height: 1.6;
+          color: #333;
+          background-color: #f8fafc;
+          padding: 16px;
           margin: 0;
-          padding: 0;
-          width: 100% !important;
-          background-color: #f5f7fa;
+          -webkit-font-smoothing: antialiased;
         }
         
         .container {
-          max-width: 600px !important;
-          width: 100% !important;
+          max-width: 600px;
           margin: 0 auto;
-          background: #ffffff;
+          background: white;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+          border: 1px solid #e2e8f0;
         }
         
         .header {
-          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-          color: #ffffff;
-          padding: 25px 20px;
+          background: ${headerGradient};
+          color: white;
+          padding: 32px 20px;
           text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .header::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+          background-size: 20px 20px;
+          opacity: 0.1;
         }
         
         .header h1 {
-          font-size: 20px;
-          font-weight: 700;
-          line-height: 1.2;
-          margin: 0 0 5px 0;
+          font-size: 24px;
+          font-weight: 800;
+          margin: 0 0 6px 0;
+          position: relative;
+          z-index: 1;
         }
         
-        .header h2 {
+        .header p {
           font-size: 14px;
-          font-weight: 400;
-          opacity: 0.9;
+          opacity: 0.95;
           margin: 0;
+          position: relative;
+          z-index: 1;
         }
         
         .content {
-          padding: 25px 20px;
+          padding: 28px;
         }
         
         .status-card {
           background: linear-gradient(135deg, #f0f7ff 0%, #dbeafe 100%);
-          padding: 22px 18px;
-          border-radius: 10px;
-          margin: 15px 0;
+          padding: 24px;
+          border-radius: 12px;
+          margin: 20px 0;
           text-align: center;
+          border: 1px solid #bfdbfe;
+        }
+        
+        .status-title {
+          color: #1e3c72;
+          font-size: 20px;
+          font-weight: 700;
+          margin: 0 0 12px 0;
+        }
+        
+        .status-message {
+          font-size: 15px;
+          line-height: 1.6;
+          margin: 0;
+          color: #333;
         }
         
         .info-grid {
           display: flex;
           flex-direction: column;
-          gap: 10px;
-          margin: 15px 0;
+          gap: 12px;
+          margin: 20px 0;
         }
         
-        @media (min-width: 400px) {
+        @media (min-width: 480px) {
           .info-grid {
             flex-direction: row;
           }
         }
         
         .info-box {
-          background: #f8f9fa;
+          background: #f8fafc;
           padding: 16px;
-          border-radius: 8px;
-          border: 1px solid #e9ecef;
-          margin-bottom: 10px;
-        }
-        
-        @media (min-width: 400px) {
-          .info-box {
-            flex: 1;
-            margin-bottom: 0;
-          }
-        }
-        
-        .label {
-          font-size: 12px;
-          color: #666666;
-          margin: 0 0 5px 0;
-        }
-        
-        .value {
-          font-size: 16px;
-          font-weight: 600;
-          color: #1e3c72;
-          margin: 0;
-          line-height: 1.3;
-        }
-        
-        .contact-info {
-          background: #e3f2fd;
-          padding: 20px 18px;
           border-radius: 10px;
-          margin: 20px 0;
+          border: 1px solid #e2e8f0;
+          flex: 1;
         }
         
-        .contact-items {
+        .info-label {
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          color: #0369a1;
+          letter-spacing: 0.05em;
+          margin-bottom: 6px;
+        }
+        
+        .info-value {
+          font-size: 16px;
+          font-weight: 700;
+          color: #075985;
+          word-break: break-word;
+        }
+        
+        .contact-section {
+          background: #e3f2fd;
+          padding: 20px;
+          border-radius: 12px;
+          margin: 24px 0;
+          text-align: center;
+        }
+        
+        .contact-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #1e3c72;
+          margin: 0 0 16px 0;
+        }
+        
+        .contact-buttons {
           display: flex;
           flex-direction: column;
-          gap: 15px;
-          margin: 15px 0;
+          gap: 10px;
         }
         
-        @media (min-width: 400px) {
-          .contact-items {
+        @media (min-width: 480px) {
+          .contact-buttons {
             flex-direction: row;
             justify-content: center;
+            gap: 12px;
           }
         }
         
-        .contact-item {
-          text-align: center;
+        .contact-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: white;
+          border: 1px solid #90caf9;
+          border-radius: 8px;
+          text-decoration: none;
+          transition: all 0.2s ease;
+          flex: 1;
+          justify-content: center;
+          font-size: 13px;
+          color: #1e3c72;
+          font-weight: 600;
+        }
+        
+        .contact-btn:hover {
+          background: #f0f7ff;
+          border-color: #0284c7;
+        }
+        
+        .contact-icon {
+          font-size: 18px;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+          color: white;
+          border-radius: 6px;
+          font-weight: bold;
         }
         
         .footer {
-          background: #1a1a2e;
-          color: #b0b0b0;
-          padding: 22px 18px;
+          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+          color: #cbd5e1;
+          padding: 24px;
           text-align: center;
         }
         
-        /* RESPONSIVE MEDIA QUERIES */
-        @media only screen and (max-width: 480px) {
+        .footer-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: white;
+          margin: 0 0 6px 0;
+        }
+        
+        .footer-text {
+          font-size: 12px;
+          margin: 3px 0;
+        }
+        
+        @media (max-width: 768px) {
+          body {
+            padding: 12px;
+          }
+          
           .header {
-            padding: 22px 15px;
+            padding: 28px 16px;
           }
           
           .header h1 {
-            font-size: 18px;
+            font-size: 22px;
           }
           
           .content {
-            padding: 20px 15px;
+            padding: 20px;
           }
           
           .status-card {
-            padding: 20px 15px;
+            padding: 20px;
           }
           
           .info-box {
             padding: 14px;
           }
           
-          .value {
-            font-size: 15px;
-          }
-          
-          .contact-info {
-            padding: 18px 15px;
+          .info-value {
+            font-size: 14px;
           }
           
           .footer {
-            padding: 20px 15px;
+            padding: 20px;
           }
         }
         
-        /* FORCE MOBILE OPTIMIZATION */
-        @media only screen and (max-width: 600px) {
-          .container {
-            min-width: 320px !important;
+        @media (max-width: 480px) {
+          body {
+            padding: 8px;
           }
           
-          img {
-            max-width: 100% !important;
-            height: auto !important;
+          .header {
+            padding: 20px 12px;
+          }
+          
+          .header h1 {
+            font-size: 20px;
+          }
+          
+          .header p {
+            font-size: 12px;
+          }
+          
+          .content {
+            padding: 16px;
+          }
+          
+          .status-card {
+            padding: 16px;
+            margin: 16px 0;
+          }
+          
+          .status-title {
+            font-size: 18px;
+          }
+          
+          .status-message {
+            font-size: 14px;
+          }
+          
+          .info-grid {
+            gap: 10px;
+            margin: 16px 0;
+          }
+          
+          .info-box {
+            padding: 12px;
+          }
+          
+          .info-label {
+            font-size: 10px;
+          }
+          
+          .info-value {
+            font-size: 14px;
+          }
+          
+          .contact-section {
+            padding: 16px;
+            margin: 16px 0;
+          }
+          
+          .contact-buttons {
+            gap: 8px;
+          }
+          
+          .contact-btn {
+            padding: 10px 12px;
+            font-size: 12px;
+          }
+          
+          .contact-icon {
+            font-size: 16px;
+            width: 24px;
+            height: 24px;
+          }
+          
+          .footer {
+            padding: 16px;
+          }
+          
+          .footer-title {
+            font-size: 16px;
+          }
+          
+          .footer-text {
+            font-size: 11px;
+          }
+          
+          .footer-motto {
+            font-size: 11px;
           }
         }
       </style>
@@ -1223,72 +1697,62 @@ function getStatusUpdateTemplate(application, newStatus, updateData = {}) {
       <div class="container">
         <div class="header">
           <h1>${subjectIcon} ${title}</h1>
-          <h2>${SCHOOL_NAME}</h2>
+          <p>${SCHOOL_NAME}</p>
         </div>
         
         <div class="content">
           <div class="status-card">
-            <h3 style="color: #1e3c72; margin: 0 0 10px 0; font-size: 18px;">
-              Status: ${statusLabel}
-            </h3>
-            <p style="font-size: 15px; line-height: 1.5; margin: 0;">
-              ${message}
-            </p>
+            <h3 class="status-title">Status: ${statusLabel}</h3>
+            <p class="status-message">${message}</p>
           </div>
           
           <div class="info-grid">
             <div class="info-box">
-              <p class="label">Applicant Name</p>
-              <p class="value">${applicantName}</p>
+              <div class="info-label">Applicant Name</div>
+              <div class="info-value">${applicantName}</div>
             </div>
             <div class="info-box">
-              <p class="label">Application Number</p>
-              <p class="value">${applicationNumber}</p>
+              <div class="info-label">Application Number</div>
+              <div class="info-value">${applicationNumber}</div>
             </div>
           </div>
           
           ${actionSection}
           
-          <div class="contact-info">
-            <h4 style="color: #1e3c72; margin: 0 0 12px 0; font-size: 16px; text-align: center;">📞 Need Assistance?</h4>
-            <p style="font-size: 14px; text-align: center; margin: 0 0 15px 0;">Our admissions team is here to help:</p>
-            <div class="contact-items">
-              <div class="contact-item">
-                <p style="margin: 0; font-weight: 600; font-size: 14px;">${CONTACT_PHONE}</p>
-                <p class="label">Call Us</p>
-              </div>
-              <div class="contact-item">
-                <p style="margin: 0; font-weight: 600; font-size: 14px;">${CONTACT_EMAIL}</p>
-                <p class="label">Email Us</p>
-              </div>
-      
+          <div class="contact-section">
+            <h3 class="contact-title">📞 Need Assistance?</h3>
+            <div class="contact-buttons">
+              <a href="tel:${CONTACT_PHONE}" class="contact-btn">
+                <div class="contact-icon">☎</div>
+                <span>${CONTACT_PHONE}</span>
+              </a>
+              <a href="mailto:${CONTACT_EMAIL}" class="contact-btn">
+                <div class="contact-icon">✉</div>
+                <span>Email Us</span>
+              </a>
             </div>
-            <p style="margin-top: 12px; font-size: 12px; color: #666; text-align: center;">
+            <p style="margin-top: 12px; font-size: 12px; color: #666;">
               Office Hours: Monday - Friday, 8:00 AM - 5:00 PM
             </p>
           </div>
           
-          <div style="text-align: center; margin-top: 20px; padding-top: 18px; border-top: 1px solid #e9ecef;">
-            <p style="font-size: 16px; color: #1e3c72; font-weight: 600; margin-bottom: 8px;">
+          <div style="text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+            <p style="font-size: 15px; color: #1e3c72; font-weight: 600; margin-bottom: 8px;">
               Thank you for your interest in ${SCHOOL_NAME}
             </p>
-            <p style="font-size: 14px; color: #333; margin: 0;">
+            <p style="font-size: 14px; color: #333, margin: 0;">
               Best regards,<br>
-              <strong>The Admissions Team</strong><br>
-              ${SCHOOL_NAME}
+              <strong>The Admissions Team</strong>
             </p>
           </div>
         </div>
         
         <div class="footer">
-          <div style="margin-bottom: 12px;">
-            <p style="font-size: 16px; color: #ffffff; margin: 0 0 6px 0; font-weight: 600;">${SCHOOL_NAME}</p>
-            <p style="margin: 0 0 4px 0; font-size: 13px;">${SCHOOL_LOCATION}</p>
-            <p style="margin: 0 0 10px 0; font-style: italic; font-size: 12px;">"${SCHOOL_MOTTO}"</p>
-          </div>
-          <p style="color: #888888; margin: 0; font-size: 11px; line-height: 1.4;">
-            © ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.<br>
-            This is an automated email. Please do not reply to this email.
+          <p class="footer-title">${SCHOOL_NAME}</p>
+          <p class="footer-text">${SCHOOL_LOCATION}</p>
+          <p class="footer-text" style="margin-top: 10px;">© ${new Date().getFullYear()} ${SCHOOL_NAME}</p>
+          <p class="footer-text" style="opacity: 0.7;">
+            This is an automated email. Please do not reply.
           </p>
         </div>
       </div>
@@ -1309,12 +1773,10 @@ function getDeletionNotificationTemplate(application, deletedBy) {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta name="x-apple-disable-message-reformatting">
-      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <title>Application Deleted - ${SCHOOL_NAME}</title>
       <style>
-        /* MOBILE-FIRST RESPONSIVE STYLES */
         * {
-          Margin: 0;
+          margin: 0;
           padding: 0;
           box-sizing: border-box;
           -webkit-text-size-adjust: 100%;
@@ -1323,105 +1785,237 @@ function getDeletionNotificationTemplate(application, deletedBy) {
         
         body {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          line-height: 1.4;
-          color: #333333;
+          line-height: 1.6;
+          color: #333;
+          background-color: #f8fafc;
+          padding: 16px;
           margin: 0;
-          padding: 0;
-          width: 100% !important;
-          background-color: #f5f5f5;
+          -webkit-font-smoothing: antialiased;
         }
         
         .container {
-          max-width: 600px !important;
-          width: 100% !important;
+          max-width: 600px;
           margin: 0 auto;
-          background: #ffffff;
+          background: white;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+          border: 1px solid #e2e8f0;
         }
         
         .header {
           background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-          color: #ffffff;
-          padding: 25px 20px;
+          color: white;
+          padding: 32px 20px;
           text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .header::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+          background-size: 20px 20px;
+          opacity: 0.1;
         }
         
         .header h1 {
-          font-size: 20px;
-          font-weight: 700;
-          line-height: 1.2;
-          margin: 0 0 8px 0;
+          font-size: 24px;
+          font-weight: 800;
+          margin: 0 0 6px 0;
+          position: relative;
+          z-index: 1;
         }
         
         .header p {
           font-size: 14px;
-          opacity: 0.9;
+          opacity: 0.95;
           margin: 0;
+          position: relative;
+          z-index: 1;
         }
         
         .content {
-          padding: 25px 20px;
+          padding: 28px;
         }
         
         .alert-box {
           background: #f8d7da;
           border: 1px solid #f5c6cb;
-          padding: 18px;
-          border-radius: 8px;
+          border-radius: 12px;
+          padding: 20px;
           margin: 20px 0;
+        }
+        
+        .alert-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #721c24;
+          margin: 0 0 8px 0;
+        }
+        
+        .alert-text {
+          font-size: 14px;
+          color: #721c24;
+          margin: 0;
+          line-height: 1.6;
         }
         
         .info-box {
-          background: #f8f9fa;
-          padding: 18px;
-          border-radius: 8px;
+          background: #f8fafc;
+          padding: 20px;
+          border-radius: 12px;
           margin: 20px 0;
+          border: 1px solid #e2e8f0;
         }
         
         .info-box h4 {
-          color: #495057;
+          color: #1e3c72;
           font-size: 16px;
-          margin: 0 0 12px 0;
+          margin: 0 0 14px 0;
         }
         
-        .info-box p {
-          font-size: 14px;
-          margin: 0 0 8px 0;
+        .info-row {
+          display: flex;
+          padding: 8px 0;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-row:last-child {
+          border-bottom: none;
+        }
+        
+        .info-label {
+          font-weight: 700;
+          color: #666;
+          width: 35%;
+          font-size: 13px;
+        }
+        
+        .info-value {
           color: #333;
+          width: 65%;
+          font-size: 13px;
+          word-break: break-word;
         }
         
         .footer {
-          background: #343a40;
-          color: #b0b0b0;
-          padding: 22px 18px;
+          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+          color: #cbd5e1;
+          padding: 24px;
           text-align: center;
         }
         
-        /* RESPONSIVE MEDIA QUERIES */
-        @media only screen and (max-width: 480px) {
+        .footer-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: white;
+          margin: 0 0 6px 0;
+        }
+        
+        .footer-text {
+          font-size: 12px;
+          margin: 3px 0;
+        }
+        
+        @media (max-width: 768px) {
+          body {
+            padding: 12px;
+          }
+          
           .header {
-            padding: 22px 15px;
+            padding: 28px 16px;
           }
           
           .header h1 {
-            font-size: 18px;
+            font-size: 22px;
           }
           
           .content {
-            padding: 20px 15px;
+            padding: 20px;
           }
           
-          .alert-box, .info-box {
-            padding: 15px;
+          .alert-box {
+            padding: 16px;
+          }
+          
+          .info-box {
+            padding: 16px;
           }
           
           .footer {
-            padding: 20px 15px;
+            padding: 20px;
           }
         }
         
-        @media only screen and (max-width: 600px) {
-          .container {
-            min-width: 320px !important;
+        @media (max-width: 480px) {
+          body {
+            padding: 8px;
+          }
+          
+          .header {
+            padding: 20px 12px;
+          }
+          
+          .header h1 {
+            font-size: 20px;
+          }
+          
+          .header p {
+            font-size: 12px;
+          }
+          
+          .content {
+            padding: 16px;
+          }
+          
+          .alert-box {
+            padding: 14px;
+          }
+          
+          .alert-title {
+            font-size: 14px;
+          }
+          
+          .alert-text {
+            font-size: 12px;
+          }
+          
+          .info-box {
+            padding: 14px;
+          }
+          
+          .info-box h4 {
+            font-size: 14px;
+          }
+          
+          .info-row {
+            padding: 6px 0;
+          }
+          
+          .info-label {
+            font-size: 12px;
+          }
+          
+          .info-value {
+            font-size: 12px;
+          }
+          
+          .footer {
+            padding: 16px;
+          }
+          
+          .footer-title {
+            font-size: 14px;
+          }
+          
+          .footer-text {
+            font-size: 11px;
           }
         }
       </style>
@@ -1430,46 +2024,58 @@ function getDeletionNotificationTemplate(application, deletedBy) {
       <div class="container">
         <div class="header">
           <h1>🗑️ Application Deleted</h1>
-          <p>${SCHOOL_NAME}</p>
+          <p>${SCHOOL_NAME} Admissions System</p>
         </div>
         
         <div class="content">
           <div class="alert-box">
-            <h3 style="color: #721c24; margin: 0 0 10px 0; font-size: 16px;">⚠️ Application Record Deleted</h3>
-            <p style="margin: 0; color: #721c24; font-size: 14px;">
+            <h3 class="alert-title">⚠️ Application Record Deleted</h3>
+            <p class="alert-text">
               An application record has been permanently deleted from the admissions system.
             </p>
           </div>
           
           <div class="info-box">
             <h4>Deleted Application Details:</h4>
-            <p><strong>Applicant:</strong> ${applicantName}</p>
-            <p><strong>Application Number:</strong> ${applicationNumber}</p>
-            <p><strong>Email:</strong> ${application.email}</p>
-            <p><strong>Phone:</strong> ${application.phone}</p>
-            <p><strong>Deleted On:</strong> ${deletionDate}</p>
-            <p><strong>Deleted By:</strong> ${deletedBy}</p>
-            <p><strong>Reason:</strong> Application record permanently removed from database</p>
+            <div class="info-row">
+              <div class="info-label">Applicant:</div>
+              <div class="info-value">${applicantName}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">App Number:</div>
+              <div class="info-value">${applicationNumber}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Email:</div>
+              <div class="info-value">${application.email}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Phone:</div>
+              <div class="info-value">${application.phone}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Deleted On:</div>
+              <div class="info-value">${deletionDate}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Deleted By:</div>
+              <div class="info-value">${deletedBy}</div>
+            </div>
           </div>
           
-          <div style="background: #e9ecef; padding: 15px; border-radius: 6px; margin: 20px 0;">
+          <div style="background: #e9ecef; padding: 14px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; color: #495057; font-size: 13px;">
-              <strong>Note:</strong> This deletion is permanent and cannot be undone. 
-              All associated data has been removed from the system.
+              <strong>Note:</strong> This deletion is permanent and cannot be undone. All data has been removed.
             </p>
           </div>
-          
-          <p style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 13px;">
-            This is an automated notification from the ${SCHOOL_NAME} Admissions System.
-          </p>
         </div>
         
         <div class="footer">
-          <p style="margin: 0 0 10px 0; font-size: 14px; color: #fff;">${SCHOOL_NAME}</p>
-          <p style="margin: 0 0 5px 0; font-size: 13px;">${SCHOOL_LOCATION}</p>
-          <p style="margin: 0; font-style: italic; font-size: 12px;">"${SCHOOL_MOTTO}"</p>
-          <p style="margin: 15px 0 0 0; color: #888; font-size: 10px;">
-            © ${new Date().getFullYear()} ${SCHOOL_NAME}. Confidential - For internal use only.
+          <p class="footer-title">${SCHOOL_NAME}</p>
+          <p class="footer-text">${SCHOOL_LOCATION}</p>
+          <p class="footer-text">"${SCHOOL_MOTTO}"</p>
+          <p class="footer-text" style="margin-top: 12px; opacity: 0.7;">
+            © ${new Date().getFullYear()} ${SCHOOL_NAME}. Confidential.
           </p>
         </div>
       </div>

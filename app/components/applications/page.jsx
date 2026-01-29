@@ -6,7 +6,6 @@ import { Fragment } from 'react'; // Add this line at the top
 import { FcAdvertising, FcClock, FcOk, FcConferenceCall, FcLineChart } from 'react-icons/fc';
 import { HiOutlineMail, HiOutlineClock, HiOutlineCheckCircle } from 'react-icons/hi';
 
-
 import {
   User,
   Plus,
@@ -472,7 +471,7 @@ const ApplicationDetailModal = ({ application, open, onClose }) => {
                 // You can add print functionality here
                 window.print()
               }}
-              className="px-4 py-2 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-lg transition-all duration-200 font-medium hover:opacity-90"
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg transition-all duration-200 font-medium hover:opacity-90"
             >
               Print Application
             </button>
@@ -1190,7 +1189,7 @@ const EmptyState = () => (
       <p className="text-gray-500 mb-6">Try adjusting your filters or search terms</p>
       <button
         onClick={resetFilters}
-        className="px-6 py-3 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
+        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
       >
         Clear All Filters
       </button>
@@ -1372,7 +1371,7 @@ const EmptyState = () => (
           {/* Icon with Soft Glow */}
           <div className="relative">
             <div className="absolute inset-0 bg-current opacity-10 blur-xl rounded-full group-hover:opacity-20 transition-opacity" />
-            <div className="relative text-3xl sm:text-4xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+            <div className="relative text-3xl sm:text-4xl transition-transform duration-500 group-hover:scale-100 group-hover:rotate-3">
               {stat.icon}
             </div>
           </div>
@@ -2061,6 +2060,39 @@ const EmptyState = () => (
         <X className="w-6 h-6" />
       </button>
     </div>
+  </div>
+
+  {/* Floating Action Buttons - Always Visible & Accessible */}
+  <div className="fixed bottom-24 right-6 flex flex-col gap-3 z-50">
+    {/* Primary Action Button */}
+    <button
+      onClick={() => {/* Add your primary action */}}
+      className="p-4 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+      title="Primary Action"
+      aria-label="Primary Action"
+    >
+      <Check className="w-6 h-6" />
+    </button>
+    
+    {/* Secondary Action Button */}
+    <button
+      onClick={() => {/* Add your secondary action */}}
+      className="p-4 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+      title="Secondary Action"
+      aria-label="Secondary Action"
+    >
+      <RefreshCw className="w-6 h-6" />
+    </button>
+    
+    {/* Tertiary Action Button */}
+    <button
+      onClick={() => {/* Add your tertiary action */}}
+      className="p-4 bg-amber-600 text-white rounded-full shadow-lg hover:bg-amber-700 hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+      title="Tertiary Action"
+      aria-label="Tertiary Action"
+    >
+      <AlertCircle className="w-6 h-6" />
+    </button>
   </div>
 
   {/* Content Area - Increased Height & Spacing */}

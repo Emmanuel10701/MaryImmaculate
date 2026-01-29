@@ -9,7 +9,8 @@ import {
   FiLogOut,
   FiMenu,
   FiUser,
-  FiMail,FiDollarSign,
+  FiMail,
+  FiDollarSign,
   FiUserPlus,
   FiImage,
   FiShield,
@@ -17,7 +18,11 @@ import {
   FiInfo,
   FiTrendingUp,
   FiAward,
-  FiClipboard
+  FiClipboard,
+  FiMonitor,
+  FiSmartphone,
+FiArrowLeft,
+FiArchive
 } from 'react-icons/fi';
 import { 
   IoStatsChart,
@@ -26,18 +31,18 @@ import {
   IoSparkles
 } from 'react-icons/io5';
 
+import { useRouter } from 'next/navigation';
+
 // Import components
 import AdminSidebar from '../components/sidebar/page';
 import DashboardOverview from '../components/dashbaord/page';
 import AssignmentsManager from '../components/AssignmentsManager/page';
 import NewsEventsManager from '../components/eventsandnews/page';
 import StaffManager from '../components/staff/page';
-import StudentManager from '../components/students/page';
 import SubscriberManager from '../components/subscriber/page';
 import EmailManager from '../components/email/page';
 import GalleryManager from '../components/gallery/page';
-import StudentCouncil from '../components/studentCouncil/page';
-import AdminsProfileManager from '../components/adminsandprofile/page';
+import AdminManager from '../components/adminsandprofile/page';
 import GuidanceCounselingTab from '../components/guidance/page';
 import SchoolInfoTab from '../components/schoolinfo/page';
 import ApplicationsManager from '../components/applications/page';
@@ -46,17 +51,18 @@ import Careers from "../components/career/page";
 import Student from "../components/student/page";
 import Fees from "../components/fees/page";
 import Results from "../components/resultsUpload/page";
+import SchoolDocs from "../components/schooldocuments/page"; // Added import for School Documents
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobileWarning, setShowMobileWarning] = useState(false);
   const [realStats, setRealStats] = useState({
-    totalStudents: 0,
     totalStaff: 0,
     totalSubscribers: 0,
-    studentCouncil: 0,
     upcomingEvents: 0,
     totalNews: 0,
     activeAssignments: 0,
@@ -69,7 +75,162 @@ export default function AdminDashboard() {
     totalStudent: 0,
     totalFees: 0,
     totalResults: 0
+
   });
+
+  // Check screen size on mount and resize
+  useEffect(() => {
+    const checkScreenSize = () => {
+      // For phones only (screen width <= 768px)
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      
+      // Show warning only on mobile phones
+      if (mobile) {
+        setShowMobileWarning(true);
+        // Auto-close sidebar on mobile
+        setSidebarOpen(false);
+      }
+    };
+
+    // Initial check
+    checkScreenSize();
+
+    // Add event listener
+    window.addEventListener('resize', checkScreenSize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+
+const router =useRouter()
+
+
+  // Mobile Warning Modal Component
+  const MobileWarningModal = () => (
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[100] flex items-center justify-center p-4">
+      <div className="w-full max-w-md mx-auto bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl border border-gray-700 shadow-2xl overflow-hidden animate-scale-in">
+        {/* Modal Header */}
+        <div className="p-6 sm:p-8 border-b border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <FiSmartphone className="text-xl text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Mobile Access Detected</h3>
+                <p className="text-gray-400 text-sm">Limited Space</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 p-3 bg-blue-900/30 rounded-xl border border-blue-800/50">
+            <FiMonitor className="text-blue-400 text-lg" />
+            <p className="text-blue-300 text-sm">
+              <span className="font-semibold">Recommendation:</span> Use a desktop for the best experience
+            </p>
+          </div>
+        </div>
+        
+        {/* Modal Body */}
+        <div className="p-6 sm:p-8">
+          <div className="space-y-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <FiSmartphone className="text-red-400 text-xs" />
+              </div>
+              <div>
+                <h4 className="text-white font-semibold mb-1">Limited Features</h4>
+                <p className="text-gray-400 text-sm">
+                  Some admin features are optimized for desktop and may not work properly on mobile.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <FiMonitor className="text-green-400 text-xs" />
+              </div>
+              <div>
+                <h4 className="text-white font-semibold mb-1">Desktop Recommended</h4>
+                <p className="text-gray-400 text-sm">
+                  For full functionality, data management, and better navigation.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <IoSparkles className="text-yellow-400 text-xs" />
+              </div>
+              <div>
+<h4 className="text-white font-semibold mb-1">Go Back</h4>
+<p className="text-gray-400 text-sm">
+  Return to the previous page to review or change your settings and Navigate it with the Desktop or Laptop.
+</p>
+
+              </div>
+            </div>
+          </div>
+          
+          {/* Device info */}
+          <div className="p-4 bg-gray-800/50 rounded-xl border border-gray-700 mb-6">
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Screen Width</p>
+                <p className="text-white font-bold">{window.innerWidth}px</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Device Type</p>
+                <p className="text-white font-bold">Mobile Phone</p>
+              </div>
+            </div>
+          </div>
+          
+        
+        </div>
+  {/* Footer */}
+<div className="p-6 bg-gray-900/50 border-t border-gray-800 space-y-4">
+  <div className="flex justify-center">
+    <button
+      onClick={() => router.back()}
+      className="group flex items-center gap-2 px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-full border border-gray-700 transition-all active:scale-95 shadow-lg"
+    >
+      <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+      <span className="text-sm font-bold">Go Back</span>
+    </button>
+  </div>
+
+  <p className="text-gray-500 text-[10px] sm:text-xs text-center max-w-xs mx-auto leading-relaxed">
+    For optimal experience, use a device with screen width greater than 768px
+  </p>
+</div>
+
+      </div>
+    </div>
+  );
+
+  // Simple Mobile Banner (alternative to modal)
+  const MobileBanner = () => (
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-gradient-to-r from-red-500/95 to-orange-500/95 backdrop-blur-lg border-t border-white/20">
+      <div className="flex items-center justify-between max-w-7xl mx-auto">
+        <div className="flex items-center gap-3">
+          <FiSmartphone className="text-white text-xl" />
+          <div>
+            <p className="text-white font-bold text-sm">Admin Panel on Mobile</p>
+            <p className="text-white/90 text-xs">Some features may be limited. Use desktop for full experience.</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowMobileWarning(false)}
+          className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm font-semibold transition-colors duration-200 backdrop-blur-sm"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  );
 
   // Modern Loading Screen with Enhanced Design
   const LoadingScreen = () => (
@@ -196,7 +357,6 @@ export default function AdminDashboard() {
       const [
         staffRes,
         subscribersRes,
-        councilRes,
         eventsRes,
         newsRes,
         assignmentsRes,
@@ -207,11 +367,11 @@ export default function AdminDashboard() {
         careersRes,
         studentRes,
         feesRes,
+        schooldocumentsRes, // Added this
         resultsRes
       ] = await Promise.allSettled([
         fetch('/api/staff'),
         fetch('/api/subscriber'),
-        fetch('/api/studentCouncil'),
         fetch('/api/events'),
         fetch('/api/news'),
         fetch('/api/assignment'),
@@ -220,15 +380,16 @@ export default function AdminDashboard() {
         fetch('/api/applyadmission'),
         fetch('/api/resources'),
         fetch('/api/career'),
-        fetch('/api/student'),
+        fetch('/api/studentupload'), // Modified to use studentupload API
         fetch('/api/feebalances'),
-        fetch('/api/results')
+        fetch('/api/results'),
+        fetch('/api/schooldocuments') // Added this
+
       ]);
 
       // Process responses and get actual counts
       const staff = staffRes.status === 'fulfilled' ? await staffRes.value.json() : { staff: [] };
       const subscribers = subscribersRes.status === 'fulfilled' ? await subscribersRes.value.json() : { subscribers: [] };
-      const council = councilRes.status === 'fulfilled' ? await councilRes.value.json() : { councilMembers: [] };
       const events = eventsRes.status === 'fulfilled' ? await eventsRes.value.json() : { events: [] };
       const news = newsRes.status === 'fulfilled' ? await newsRes.value.json() : { news: [] };
       const assignments = assignmentsRes.status === 'fulfilled' ? await assignmentsRes.value.json() : { assignments: [] };
@@ -241,12 +402,10 @@ export default function AdminDashboard() {
       const fees = feesRes.status === 'fulfilled' ? await feesRes.value.json() : { feebalances: [] };
       const results = resultsRes.status === 'fulfilled' ? await resultsRes.value.json() : { results: [] };
 
-      // Calculate real counts
-      const activeCouncil = council.councilMembers?.filter(c => c.status === 'Active').length || 0;
-      const upcomingEvents = events.events?.filter(e => {
-        if (!e.date) return false;
-        return new Date(e.date) > new Date();
-      }).length || 0;
+      const schoolDocs = schooldocumentsRes.status === 'fulfilled' ? await schooldocumentsRes.value.json() : { documents: [] };
+
+
+  
       
       const activeAssignments = assignments.assignments?.filter(a => a.status === 'assigned').length || 0;
       
@@ -255,10 +414,8 @@ export default function AdminDashboard() {
       const pendingApps = admissionsData.filter(app => app.status === 'PENDING').length || 0;
 
       setRealStats({
-        totalStudents: studentCount, // Using the new student count
         totalStaff: staff.staff?.length || 0,
         totalSubscribers: subscribers.subscribers?.length || 0,
-        studentCouncil: activeCouncil,
         upcomingEvents,
         totalNews: news.news?.length || 0,
         activeAssignments,
@@ -270,13 +427,9 @@ export default function AdminDashboard() {
         Careers: careers.careers?.length || 0,
         totalStudent: student.students?.length || 0,
         totalFees: fees.feebalances?.length || 0,
-        totalResults: results.results?.length || 0
-      });
+        totalResults: results.results?.length || 0,
+        schooldocuments: schoolDocs.documents?.length || 0 // Added this
 
-      console.log('✅ Updated real stats:', {
-        totalStudents: studentCount,
-        totalStaff: staff.staff?.length || 0,
-        // ... other stats
       });
 
     } catch (error) {
@@ -403,12 +556,12 @@ export default function AdminDashboard() {
         return <DashboardOverview />;
       case 'school-info':
         return <SchoolInfoTab />;
+
+     case 'schooldocuments': // Added this case
+         return <SchoolDocs />;
       case 'guidance-counseling':
         return <GuidanceCounselingTab />;
-      case 'students':
-        return <StudentManager />;
-      case 'student-council':
-        return <StudentCouncil />;
+      
       case 'staff':
         return <StaffManager />;
       case 'assignments':
@@ -423,21 +576,18 @@ export default function AdminDashboard() {
         return <NewsEventsManager />;
       case 'gallery':
         return <GalleryManager />;
-       case 'careers':
+      case 'careers':
         return <Careers />; 
       case 'subscribers':
         return <SubscriberManager />;
       case 'email':
         return <EmailManager />;
-
       case 'student':
         return <Student />;  
-
       case 'fees':
         return <Fees />;
-
       case 'admins-profile':
-        return <AdminsProfileManager user={user} />;
+        return <AdminManager user={user} />;
       default:
         return <DashboardOverview />;
     }
@@ -463,18 +613,13 @@ export default function AdminDashboard() {
       icon: FiMessageCircle,
       badge: 'purple'
     },
-    { 
-      id: 'students', 
-      label: 'Student Management', 
-      icon: FiUsers,
-      badge: 'blue'
-    },
-    { 
-      id: 'student-council', 
-      label: 'Student Council', 
-      icon: FiUsers,
-      badge: 'green'
-    },
+
+{
+    id: 'schooldocuments',
+    label: 'School Documents',
+    icon: FiArchive, 
+    badge: 'indigo'
+  },
     { 
       id: 'staff', 
       label: 'Staff & BOM', 
@@ -557,7 +702,6 @@ export default function AdminDashboard() {
 
   // Header stats component with simple hover effect
   const HeaderStat = ({ icon: Icon, value, label, color = 'blue', trend = 'up' }) => {
-    // Define color classes
     const colorClasses = {
       blue: 'bg-blue-100 text-blue-600',
       green: 'bg-green-100 text-green-600',
@@ -607,6 +751,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 overflow-hidden">
+      {/* Mobile Warning Modal */}
+      {showMobileWarning && <MobileWarningModal />}
+      
+      {/* Mobile Banner (alternative) */}
+      {/* {showMobileWarning && <MobileBanner />} */}
+
       {/* Sidebar */}
       <AdminSidebar 
         activeTab={activeTab}
@@ -641,7 +791,7 @@ export default function AdminDashboard() {
               <div className="hidden xl:flex items-center gap-3">
                 <HeaderStat 
                   icon={FiUsers} 
-                  value={realStats.totalStudents} 
+                  value={realStats.totalStudent} 
                   label="Students" 
                   color="blue"
                   trend="up"
@@ -653,13 +803,7 @@ export default function AdminDashboard() {
                   color="green"
                   trend="up"
                 />
-                <HeaderStat 
-                  icon={FiUserPlus} 
-                  value={realStats.totalSubscribers} 
-                  label="Subscribers" 
-                  color="purple"
-                  trend="up"
-                />
+                               
               </div>
 
               {/* User Menu */}
@@ -696,4 +840,29 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
+}
+
+// Add CSS animations
+const styles = `
+  @keyframes scale-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out forwards;
+  }
+`;
+
+// Add styles to head
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
 }

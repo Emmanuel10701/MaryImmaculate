@@ -12,63 +12,63 @@ import {
 import { IoRocketOutline } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
 
-// Enhanced Hero Slides with Modern Design
+// Enhanced Hero Slides with Modern Design - Updated with accurate Katwanyaa High School in Matungulu information
 const heroSlides = [
   {
-    title: "Academic Excellence",
-    subtitle: "Redefined Through Innovation",
+    title: "Katwanyaa High School",
+    subtitle: "Matungulu, Machakos County",
     gradient: "from-blue-500 via-cyan-400 to-purple-600",
-    description: "At Mary Immaculate School, we're pioneering a new era of education. With a 94% KCSE success rate and state-of-the-art STEM facilities, we're not just teaching—we're inspiring the next generation of leaders and innovators.",
+    description: "Katwanyaa High School is a public secondary school located in Matungulu sub-county, Machakos County, Kenya. The school is committed to providing quality education and holistic development to students from the region.",
     background: "bg-gradient-to-br from-blue-900/90 via-indigo-900/80 to-purple-900/70",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1000",
     stats: { 
-      students: "400+ Active Learners", 
-      excellence: "94% KCSE Success", 
-      years: "10+ Years Excellence" 
+      students: "Public School", 
+      excellence: "Quality Education", 
+      years: "Serving Community" 
     },
-    features: ["Modern STEM Labs", "Digital Library", "Expert Faculty", "Research Programs"],
+    features: ["Academic Excellence", "Co-curricular Activities", "Character Building", "Community Focus"],
     cta: "Admissions",
     link: "/pages/admissions",
     highlightColor: "blue",
-    testimonial: "\"The academic rigor combined with innovative teaching transformed my child's approach to learning.\" - Parent of 2023 Graduate",
+    testimonial: "\"A school dedicated to nurturing talents and academic potential of students in Matungulu.\"",
     icon: GiGraduateCap
   },
   {
-    title: "Holistic Development",
-    subtitle: "Nurturing Complete Individuals",
+    title: "Holistic Education",
+    subtitle: "Beyond Academics",
     gradient: "from-emerald-500 via-teal-400 to-green-600",
-    description: "Beyond academics, we cultivate well-rounded individuals through 15+ clubs, competitive sports teams, and comprehensive life skills training. Our balanced approach ensures students develop essential competencies for lifelong success.",
+    description: "The school emphasizes all-round development through sports, clubs, and community engagement. Students are encouraged to participate in various activities to develop leadership and life skills.",
     background: "bg-gradient-to-br from-emerald-900/90 via-green-900/80 to-teal-900/70",
     image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=2170&auto=format&fit=crop",
     stats: { 
-      teams: "10+ Sports Teams", 
-      clubs: "15+ Clubs", 
-      success: "National Awards" 
+      teams: "Sports Programs", 
+      clubs: "Student Societies", 
+      success: "Talent Nurturing" 
     },
-    features: ["Sports Excellence", "Creative Arts", "Leadership Training", "Community Service"],
+    features: ["Sports Development", "Music & Arts", "Leadership Programs", "Agricultural Projects"],
     cta: "About Us",
     link: "/pages/AboutUs",
     highlightColor: "green",
-    testimonial: "\"The extracurricular programs helped my child discover their passion for drama and develop crucial leadership skills.\" - Current Parent",
+    testimonial: "\"The school provides opportunities for students to discover and develop their talents.\"",
     icon: GiTrophyCup
   },
   {
-    title: "Future-Ready Education",
-    subtitle: "Preparing for the Digital Age",
+    title: "Community Partnership",
+    subtitle: "Local Engagement",
     gradient: "from-cyan-500 via-blue-400 to-indigo-600",
-    description: "Experience cutting-edge education with our technology-enhanced smart classrooms, advanced computer labs, and comprehensive digital literacy programs. We prepare students for careers in an increasingly technological world.",
+    description: "As a community-based institution in Matungulu, Katwanyaa High School works closely with parents and local stakeholders to provide relevant education that addresses community needs.",
     background: "bg-gradient-to-br from-cyan-900/90 via-blue-900/80 to-indigo-900/70",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop",
     stats: { 
-      labs: "3 Modern Labs", 
-      tech: "Digital Classrooms", 
-      innovation: "STEM Programs" 
+      labs: "Practical Learning", 
+      tech: "Skill Development", 
+      innovation: "Local Solutions" 
     },
-    features: ["Computer Studies", "Science Innovation", "Career Guidance", "Coding Classes"],
+    features: ["Parent Engagement", "Local Partnerships", "Skill Training", "Career Preparation"],
     cta: "Apply Now",
     link: "/pages/apply-for-admissions",
     highlightColor: "cyan",
-    testimonial: "\"The advanced computer labs gave me skills that directly contributed to securing my university scholarship in Computer Science.\" - 2022 Alumni",
+    testimonial: "\"An important educational institution serving the Matungulu community.\"",
     icon: IoRocketOutline
   }
 ];
@@ -316,8 +316,8 @@ const ModernHero = () => {
           {/* Text - Reduced size */}
           <span className="text-white text-xs sm:text-sm md:text-base 
             font-semibold italic tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-            Welcome to <span className="font-bold hidden sm:inline">Mary Immaculate High School</span>
-            <span className="font-bold inline sm:hidden">MIGS</span>
+            Welcome to <span className="font-bold hidden sm:inline">Katwanyaa High School</span>
+            <span className="font-bold inline sm:hidden">KHS</span>
           </span>
 
           {/* Live Indicator */}
@@ -329,11 +329,11 @@ const ModernHero = () => {
       </div>
 
       {/* Main Content Area - Responsive adjustments */}
-      <div className="relative z-20 h-full flex mt-[5%] flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-12 text-center">
+      <div className="relative z-20 h-full flex flex-col mt-[5%] items-center justify-center px-3 sm:px-4 md:px-6 lg:px-12 text-center">
         <div className={`w-full max-w-4xl transition-all duration-500 transform ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'} px-2`}>
           
           {/* Tagline - Reduced size */}
-          <div className="flex items-center justify-center space-x-2 sm:space-x-2 mb-3 sm:mb-4">
+          <div className="flex items-center justify-center space-x-2 sm:space-x-2 mb-4 sm:mb-4">
             <div className="h-[1px] w-5 sm:w-6 md:w-8 bg-white/40" />
 
             <span
@@ -541,11 +541,11 @@ const ModernHero = () => {
             <div className="flex items-center space-x-4">
               <span className="flex items-center text-nowrap">
                 <BookOpen className="w-2 h-2 xs:w-3 xs:h-3 mr-1" />
-                Est. 1962
+                Matungulu
               </span>
               <span className="flex items-center text-nowrap">
                 <Trophy className="w-2 h-2 xs:w-3 xs:h-3 mr-1" />
-                94% Success
+                Public School
               </span>
             </div>
             <button 
@@ -561,17 +561,17 @@ const ModernHero = () => {
             <div className="flex space-x-4 md:space-x-6 lg:space-x-8">
               <span className="flex items-center">
                 <BookOpen className="w-3 h-3 mr-2" />
-                Est. 1962
+                Matungulu, Machakos
               </span>
               <span className="flex items-center">
                 <Trophy className="w-3 h-3 mr-2" />
-                Mary Immaculate Girls
+                Public Secondary School
               </span>
             </div>
             <div className="flex space-x-4 md:space-x-6 lg:space-x-8">
               <span className="flex items-center">
                 <Clock className="w-3 h-3 mr-2" />
-                94% KCSE Success Rate
+                Quality Education
               </span>
               <button 
                 onClick={openVideoModal}
@@ -597,9 +597,9 @@ const ModernHero = () => {
                   <Play className="text-white w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
                 <div className="overflow-hidden">
-                  <h4 className="text-white font-bold text-xs sm:text-sm md:text-base truncate">Virtual School Tour</h4>
+                  <h4 className="text-white font-bold text-xs sm:text-sm md:text-base truncate">Katwanyaa High School Tour</h4>
                   <p className="text-white/60 text-[10px] sm:text-xs md:text-sm truncate">
-                    {schoolData?.name || 'Mary Immaculate Girls School'}
+                    {schoolData?.name || 'Katwanyaa High School - Matungulu'}
                   </p>
                 </div>
               </div>
@@ -686,7 +686,7 @@ const ModernHero = () => {
             <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-r from-transparent to-black/80 p-2 sm:p-3 md:p-4">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                 <div className="text-white/80 text-xs sm:text-sm hidden sm:block truncate">
-                  {schoolData?.description?.substring(0, isMobile ? 50 : 100) + '...' || 'Experience our school from anywhere in the world'}
+                  {schoolData?.description?.substring(0, isMobile ? 50 : 100) + '...' || 'Experience Katwanyaa High School from anywhere in the world'}
                 </div>
                 <button
                   onClick={handleContactClick}

@@ -1,183 +1,1258 @@
 'use client';
-import React from 'react';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { toast, Toaster } from 'sonner';
 import { 
-  FiSearch, 
-  FiFilter, 
-  FiX, 
-  FiHome,
-  FiChevronLeft,
-  FiChevronRight,
-  FiDownload,
-  FiShare2,
-  FiHeart,
-  FiImage,
-  FiVideo,
-  FiPlay,
-  FiPause,
-  FiVolume2,
-  FiVolumeX,
-  FiGrid,
-  FiList,
-  FiChevronUp,
-  FiChevronDown,
-  FiUsers,
-  FiBook,
-  FiAward,
-  FiMusic,
-  FiMic,
-  FiCamera,
-  FiCalendar,
-  FiUser,
-  FiBookOpen,
-  FiTarget,
-  FiStar,
-  FiGlobe,
-  FiMessageSquare,
-  FiFacebook,
-  FiTwitter,
-  FiFileText,
-  FiInfo
+  FiSearch, FiFilter, FiX, FiHome, FiChevronLeft, FiChevronRight,
+  FiDownload, FiShare2, FiHeart, FiImage, FiVideo, FiPlay, FiPause,
+  FiVolume2, FiVolumeX, FiGrid, FiList, FiChevronUp, FiChevronDown,
+  FiUsers, FiBook, FiAward, FiMusic, FiMic, FiCamera, FiCalendar,
+  FiUser, FiBookOpen, FiTarget, FiStar, FiGlobe, FiMessageSquare,
+  FiFacebook, FiTwitter, FiFileText, FiInfo, FiRefreshCw, FiEye,
+  FiBookmark, FiExternalLink, FiZap, FiTrendingUp, FiCopy, FiBell,
+  FiUserPlus, FiArrowRight, FiPlus, FiRotateCw, FiEdit3, FiTrash2,
+  FiSave, FiUpload, FiMapPin, FiAlertTriangle, FiMail, FiPhone, FiFolder, FiLock 
 } from 'react-icons/fi';
 import { FaWhatsapp, FaFacebookF, FaTwitter, FaCopy } from 'react-icons/fa';
 import { 
-  IoClose,
-  IoMenu
+  IoClose, IoMenu, IoSparkles
 } from 'react-icons/io5';
-import { CircularProgress, Backdrop } from '@mui/material';
-import Image from 'next/image';
+import {
+  IoCalendarClearOutline,
+  IoRibbonOutline,
+  IoPeopleCircle,
+  IoStatsChart,
+  IoShareSocialOutline,
+  IoLocationOutline,
+  IoTimeOutline,
+  IoPersonOutline,
+  IoShareOutline,
+  IoNewspaperOutline
+} from 'react-icons/io5';
+import { CircularProgress, Box, Typography, Stack } from '@mui/material';
 
-// Modern color palette
-const COLORS = {
-  primary: '#1d4ed8', // blue-700
-  secondary: '#3b82f6', // blue-600
-  accent: '#f59e0b', // amber-500
-  background: '#f8fafc', // slate-50
-  surface: '#ffffff',
-  text: '#1e293b', // slate-800
-  textLight: '#64748b', // slate-600
-  border: '#e2e8f0', // slate-200
-  success: '#10b981', // emerald-500
-  warning: '#f59e0b', // amber-500
-  error: '#ef4444', // red-500
-  info: '#3b82f6', // blue-500
-  overlay: 'rgba(0, 0, 0, 0.85)'
+// Modern Modal Component with Glass Morphism
+const ModernModal = ({ children, open, onClose, maxWidth = '800px', blur = true }) => {
+  if (!open) return null;
+
+  return (
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${blur ? 'backdrop-blur-md' : 'bg-black/50'}`}>
+      <div 
+        className="relative bg-white/95 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-white/40"
+        style={{ 
+          width: '90%',
+          maxWidth: maxWidth,
+          maxHeight: '90vh',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)'
+        }}
+      >
+        <div className="absolute top-4 right-4 z-10">
+          <button 
+            onClick={onClose}
+            className="p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white cursor-pointer border border-gray-200 shadow-sm"
+          >
+            <FiX className="text-gray-600 w-5 h-5" />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
 };
 
-// Modern typography scale
-const TYPOGRAPHY = {
-  h1: 'text-2xl lg:text-3xl font-bold',
-  h2: 'text-xl lg:text-2xl font-bold',
-  h3: 'text-lg lg:text-xl font-semibold',
-  h4: 'text-base lg:text-lg font-semibold',
-  body1: 'text-sm lg:text-base',
-  body2: 'text-xs lg:text-sm',
-  caption: 'text-xs',
-  small: 'text-xs'
+// Modern Card Component
+const GlassCard = ({ children, className = '', hover = true }) => (
+  <div className={`
+    bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 
+    shadow-lg shadow-black/5 transition-all duration-300
+    ${hover ? 'hover:shadow-xl hover:shadow-black/10 hover:-translate-y-1' : ''}
+    ${className}
+  `}>
+    {children}
+  </div>
+);
+
+// Modern Hero Banner Component
+const ModernHeroBanner = ({ stats, onRefresh }) => {
+  return (
+    <div className="relative bg-[#0F172A] rounded-2xl md:rounded-[2.5rem] p-6 md:p-10 text-white overflow-hidden shadow-2xl border border-white/5 mb-8">
+      {/* Abstract Mesh Gradient Background */}
+      <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-blue-600/30 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] left-[-10%] w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
+      
+      <div className="relative z-10">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+          <div>
+            {/* Institutional Branding */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
+              <div>
+                <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
+                  Katwanyaa High School
+                </h2>
+                <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
+                  "Education is Light"
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-2">
+              <div className="p-2 sm:p-3 bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/10 w-fit">
+                <IoSparkles className="text-2xl sm:text-3xl text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.6)]" />
+              </div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                School <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-white to-blue-200">Gallery</span>
+              </h1>
+            </div>
+          </div>
+          
+          {/* Modern Glass Refresh Button */}
+          <button
+            onClick={onRefresh}
+            className="flex items-center justify-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm tracking-wide transition-all hover:bg-white/20 w-full sm:w-fit"
+          >
+            <FiRefreshCw className="text-lg" />
+            <span>REFRESH GALLERY</span>
+          </button>
+        </div>
+        
+        {/* Summary Text */}
+        <div className="mb-8">
+          <p className="text-blue-100/80 text-base sm:text-md font-medium leading-relaxed">
+            Explore <span className="text-white font-bold underline decoration-blue-500/50 decoration-2 underline-offset-4">{stats.totalFiles} media files</span> 
+            across <span className="text-white font-bold underline decoration-purple-500/50 decoration-2 underline-offset-4 mx-2">{stats.totalCategories} categories</span> 
+            capturing our school's journey. This month: <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-lg bg-yellow-400/20 text-yellow-300 border border-yellow-400/20 mx-1">{stats.thisMonth} new galleries</span>.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-// Modern spacing scale
-const SPACING = {
-  xs: '0.5rem',    // 8px
-  sm: '0.75rem',   // 12px
-  md: '1rem',      // 16px
-  lg: '1.5rem',    // 24px
-  xl: '2rem',      // 32px
-  '2xl': '3rem'    // 48px
+// Modern Gallery Card Component (Matching Counseling Session Card Design)
+const ModernGalleryCard = ({ gallery, onView, onFavorite, viewMode = 'grid', onShare }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const getCategoryStyle = (category) => {
+    const styles = {
+      GENERAL: { 
+        gradient: 'from-blue-500 to-cyan-500', 
+        bg: 'bg-blue-50', 
+        text: 'text-blue-700',
+        border: 'border-blue-200',
+        iconBg: 'bg-blue-100',
+        iconColor: 'text-blue-600'
+      },
+      CLASSROOMS: { 
+        gradient: 'from-emerald-500 to-green-500', 
+        bg: 'bg-emerald-50', 
+        text: 'text-emerald-700',
+        border: 'border-emerald-200',
+        iconBg: 'bg-emerald-100',
+        iconColor: 'text-emerald-600'
+      },
+      TEACHING: { 
+        gradient: 'from-purple-500 to-pink-500', 
+        bg: 'bg-purple-50', 
+        text: 'text-purple-700',
+        border: 'border-purple-200',
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600'
+      },
+      LABORATORIES: { 
+        gradient: 'from-indigo-500 to-purple-500', 
+        bg: 'bg-indigo-50', 
+        text: 'text-indigo-700',
+        border: 'border-indigo-200',
+        iconBg: 'bg-indigo-100',
+        iconColor: 'text-indigo-600'
+      },
+      SPORTS_DAY: { 
+        gradient: 'from-amber-500 to-orange-500', 
+        bg: 'bg-amber-50', 
+        text: 'text-amber-700',
+        border: 'border-amber-200',
+        iconBg: 'bg-amber-100',
+        iconColor: 'text-amber-600'
+      },
+      GRADUATION: { 
+        gradient: 'from-rose-500 to-red-500', 
+        bg: 'bg-rose-50', 
+        text: 'text-rose-700',
+        border: 'border-rose-200',
+        iconBg: 'bg-rose-100',
+        iconColor: 'text-rose-600'
+      }
+    };
+    return styles[category] || styles.GENERAL;
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Recently added';
+    }
+  };
+
+  // Modern Grid View (Matching Counseling Card)
+  if (viewMode === 'grid') {
+    const theme = getCategoryStyle(gallery.category);
+    
+    return (
+      <div 
+        onClick={() => onView(gallery)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="relative group cursor-pointer"
+      >
+        <div className="relative bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+          {/* 1. Static Image Header */}
+          <div className="relative h-52 w-full shrink-0">
+            {gallery.files && gallery.files[0] ? (
+              <img
+                src={gallery.files[0]}
+                alt={gallery.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            ) : (
+              <div className={`w-full h-full bg-gradient-to-br ${theme.gradient}`} />
+            )}
+            
+            {/* Permanent Badges */}
+            <div className="absolute top-4 left-4 flex flex-col gap-2">
+              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${theme.bg} ${theme.text} ${theme.border}`}>
+                {gallery.category.replace(/_/g, ' ') || 'Gallery'}
+              </span>
+              {gallery.year && (
+                <span className="px-3 py-1 bg-slate-900/90 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                  <IoSparkles className="text-amber-400" /> {gallery.year}
+                </span>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="absolute top-4 right-4 flex gap-2">
+              {/* Share Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShare(gallery);
+                }}
+                className="p-2.5 rounded-xl backdrop-blur-md border shadow-sm bg-white/90 border-white/10 text-slate-700 hover:bg-white"
+              >
+                <FiShare2 size={16} />
+              </button>
+              
+              {/* Favorite Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFavorite(gallery);
+                  setIsFavorite(!isFavorite);
+                }}
+                className={`p-2.5 rounded-xl backdrop-blur-md border shadow-sm ${
+                  isFavorite 
+                    ? 'bg-amber-500 border-amber-500 text-white' 
+                    : 'bg-white/90 border-white/10 text-slate-700 hover:bg-white'
+                }`}
+              >
+                <FiBookmark className={isFavorite ? 'fill-current' : ''} size={16} />
+              </button>
+            </div>
+
+            {/* File Count Overlay */}
+            <div className="absolute bottom-0 inset-x-0 h-12 bg-gradient-to-t from-black/40 to-transparent flex items-end p-4">
+              <span className="text-[10px] font-bold text-white uppercase tracking-widest">
+                {gallery.files?.length || 0} files
+              </span>
+            </div>
+          </div>
+
+          {/* 2. Content Area */}
+          <div className="p-6">
+            <h3 className="text-xl font-bold text-slate-900 mb-2 line-clamp-2 leading-tight">
+              {gallery.title}
+            </h3>
+            
+            <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+              {gallery.description || 'School gallery collection.'}
+            </p>
+
+            {/* 3. Bento-Style Info Grid */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+                <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
+                  <FiCalendar className={`${theme.iconColor}`} size={14} />
+                </div>
+                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">
+                  {formatDate(gallery.date)}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+                <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
+                  <FiImage className={`${theme.iconColor}`} size={14} />
+                </div>
+                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+                  {gallery.files?.length || 0} items
+                </span>
+              </div>
+
+              <div className="col-span-2 flex items-center gap-2.5 p-2 rounded-2xl bg-slate-50 border border-slate-100/50">
+                <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
+                  <FiFolder className={`${theme.iconColor}`} size={14} />
+                </div>
+                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+                  {gallery.category.replace(/_/g, ' ')}
+                </span>
+              </div>
+            </div>
+
+            {/* 4. Status Indicator */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full bg-emerald-500 animate-pulse`} />
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Active Collection
+                </span>
+              </div>
+              
+              <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border bg-emerald-50 text-emerald-700 border-emerald-200`}>
+                Published
+              </div>
+            </div>
+
+            {/* 5. Final Action Button */}
+            <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform hover:shadow-lg">
+              View Gallery
+              <FiArrowRight size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // List View
+  return (
+    <div 
+      onClick={() => onView(gallery)}
+      className="relative bg-white rounded-[24px] border border-slate-100 p-4 shadow-sm cursor-pointer transition-colors active:bg-slate-50 group"
+    >
+      <div className="flex gap-5">
+        {/* Image Container */}
+        <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-sm">
+          {gallery.files && gallery.files[0] ? (
+            <img
+              src={gallery.files[0]}
+              alt={gallery.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className={`w-full h-full bg-gradient-to-br ${getCategoryStyle(gallery.category).gradient}`} />
+          )}
+          <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl"></div>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
+          <div>
+            {/* Metadata Row */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                  getCategoryStyle(gallery.category).bg
+                } ${getCategoryStyle(gallery.category).text} ${
+                  getCategoryStyle(gallery.category).border
+                }`}>
+                  {gallery.category.replace(/_/g, ' ')}
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                  {formatDate(gallery.date)}
+                </span>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onShare(gallery);
+                  }}
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-slate-500 transition-colors"
+                >
+                  <FiShare2 size={14} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onFavorite(gallery);
+                    setIsFavorite(!isFavorite);
+                  }}
+                  className={`p-1.5 rounded-lg transition-colors ${
+                    isFavorite ? 'text-amber-500 bg-amber-50' : 'text-slate-300 hover:text-slate-500'
+                  }`}
+                >
+                  <FiBookmark className={isFavorite ? 'fill-current' : ''} size={14} />
+                </button>
+              </div>
+            </div>
+
+            <h3 className="text-base font-bold text-slate-900 leading-snug line-clamp-2 mb-2">
+              {gallery.title}
+            </h3>
+
+            <p className="text-slate-500 text-xs line-clamp-2 mb-3">
+              {gallery.description || 'School gallery collection.'}
+            </p>
+          </div>
+
+          {/* Footer: Details & Action */}
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex items-center gap-4 text-xs text-slate-500">
+              <div className="flex items-center gap-1">
+                <FiImage className="text-slate-400" size={12} />
+                <span className="font-semibold">{gallery.files?.length || 0} files</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <FiCalendar className="text-slate-400" size={12} />
+                <span>{gallery.year}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-1 text-blue-600 font-bold text-[11px] uppercase tracking-wider">
+              View
+              <FiArrowRight size={12} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-// Card elevation styles
-const ELEVATION = {
-  none: 'shadow-none',
-  sm: 'shadow-sm',
-  md: 'shadow',
-  lg: 'shadow-lg',
-  xl: 'shadow-xl'
+// Modern Stats Card Component
+const ModernStatCard = ({ stat }) => {
+  const Icon = stat.icon;
+  
+  return (
+    <div className="relative flex flex-col justify-between overflow-hidden bg-white border border-slate-100 p-4 md:p-6 rounded-[24px] md:rounded-[32px] shadow-sm">
+      {/* Top Section: Icon & Badge */}
+      <div className="flex items-start justify-between mb-4 md:mb-8">
+        <div className={`p-2 md:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br ${stat.gradient} bg-opacity-[0.08] text-slate-700`}>
+          <Icon className="text-lg md:text-2xl" />
+        </div>
+        
+        {/* Status Dot */}
+        <div className="hidden xs:block h-2 w-2 rounded-full bg-slate-200" />
+      </div>
+
+      {/* Content Section */}
+      <div className="space-y-1">
+        {/* Label */}
+        <p className="text-[9px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
+          {stat.label}
+        </p>
+        
+        <div className="flex items-baseline gap-1">
+          {/* Number */}
+          <h3 className="text-xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+            {stat.number}
+          </h3>
+        </div>
+
+        {/* Sublabel */}
+        <p className="text-[10px] md:text-sm font-medium text-slate-500 leading-tight line-clamp-1 md:line-clamp-none">
+          {stat.sublabel}
+        </p>
+      </div>
+
+      {/* Decorative Background Element */}
+      <div className={`absolute -bottom-2 -right-2 w-12 h-12 md:w-20 md:h-20 opacity-[0.03] rounded-full bg-gradient-to-br ${stat.gradient} hidden md:block`} />
+    </div>
+  );
 };
 
-// Button variants
-const BUTTON_VARIANTS = {
-  primary: `bg-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%) text-white`,
-  secondary: `bg-${COLORS.surface} text-${COLORS.text} border border-${COLORS.border}`,
-  outline: `border border-${COLORS.border} text-${COLORS.text} bg-transparent`,
-  ghost: `text-${COLORS.text} bg-transparent hover:bg-${COLORS.background}/50`,
-  danger: `bg-gradient(135deg, ${COLORS.error} 0%, #dc2626 100%) text-white`
+// Share Modal Component
+const ShareModal = ({ isOpen, onClose, gallery }) => {
+  const [copied, setCopied] = useState(false);
+  
+  if (!isOpen || !gallery) return null;
+
+  const shareUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/gallery/${gallery.id}`
+    : '';
+
+  const shareTitle = `Check out this school gallery: ${gallery.title}`;
+  const shareText = `${gallery.title} - ${gallery.description?.substring(0, 100)}...`;
+
+  const shareOptions = [
+    {
+      name: 'Copy Link',
+      icon: FiCopy,
+      color: 'bg-slate-100',
+      iconColor: 'text-slate-600',
+      action: () => {
+        navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        toast.success('Gallery link copied to clipboard!');
+        setTimeout(() => setCopied(false), 2000);
+      }
+    },
+    {
+      name: 'WhatsApp',
+      icon: FaWhatsapp,
+      color: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
+      action: () => {
+        const url = `https://wa.me/?text=${encodeURIComponent(`${shareTitle}\n${shareText}\n${shareUrl}`)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    },
+    {
+      name: 'Twitter',
+      icon: FaTwitter,
+      color: 'bg-sky-50',
+      iconColor: 'text-sky-600',
+      action: () => {
+        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${shareTitle}\n${shareUrl}`)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    },
+    {
+      name: 'Facebook',
+      icon: FaFacebookF,
+      color: 'bg-blue-50',
+      iconColor: 'text-blue-600',
+      action: () => {
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    },
+    {
+      name: 'Email',
+      icon: FiMail,
+      color: 'bg-rose-50',
+      iconColor: 'text-rose-600',
+      action: () => {
+        const subject = encodeURIComponent(shareTitle);
+        const body = encodeURIComponent(`${shareText}\n\n${shareUrl}`);
+        const url = `mailto:?subject=${subject}&body=${body}`;
+        window.location.href = url;
+      }
+    },
+    {
+      name: 'Telegram',
+      icon: FiShare2,
+      color: 'bg-blue-50',
+      iconColor: 'text-blue-600',
+      action: () => {
+        const url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    }
+  ];
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] transition-opacity duration-300"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div 
+          className="bg-white rounded-[40px] w-full max-w-md max-h-[90vh] overflow-hidden border border-slate-200 shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="p-6 border-b border-slate-100">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xl font-bold text-slate-900">Share Gallery</h3>
+              <button
+                onClick={onClose}
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+            <p className="text-slate-500 text-sm">
+              Share "{gallery.title}" with others
+            </p>
+          </div>
+
+          {/* Content */}
+          <div className="p-6">
+            {/* Item Preview */}
+            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl mb-6">
+              <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                {gallery.files && gallery.files[0] ? (
+                  <img src={gallery.files[0]} alt={gallery.title} className="w-full h-full object-cover" />
+                ) : (
+                  <FiImage className="text-white" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-slate-900 truncate">{gallery.title}</h4>
+                <p className="text-xs text-slate-500 truncate">{gallery.files?.length || 0} files</p>
+              </div>
+            </div>
+
+            {/* Share Options Grid */}
+            <div className="grid grid-cols-3 gap-3">
+              {shareOptions.map((option, index) => (
+                <button
+                  key={index}
+                  onClick={option.action}
+                  className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 hover:bg-slate-50 transition-colors"
+                >
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 ${option.color}`}>
+                    <option.icon className={`text-lg ${option.iconColor}`} />
+                  </div>
+                  <span className="text-xs font-medium text-slate-700">{option.name}</span>
+                  {option.name === 'Copy Link' && copied && (
+                    <span className="text-[10px] text-emerald-600 font-bold mt-1">Copied!</span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* URL Preview */}
+            <div className="mt-6">
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                Gallery Link
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={shareUrl}
+                  readOnly
+                  className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 truncate"
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(shareUrl);
+                    toast.success('Link copied!');
+                  }}
+                  className="px-4 py-3 bg-slate-900 text-white rounded-xl font-medium text-sm hover:bg-slate-800 transition-colors"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="p-6 border-t border-slate-100">
+            <button
+              onClick={onClose}
+              className="w-full py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
-// Helper function to clean up file names
-const cleanFileName = (filename) => {
-  if (!filename) return 'File';
-  const name = filename.split('/').pop();
-  // Remove UUID and random characters
-  const cleanName = name.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/i, '');
-  const withoutExt = cleanName.split('.').slice(0, -1).join('.');
-  // Capitalize first letter of each word
-  return withoutExt
-    .split(/[-_]/)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ') || 'Image';
+// Modern Gallery Detail Modal
+// Modern Gallery Detail Modal with WORKING Download
+const ModernGalleryDetailModal = ({ gallery, onClose, onDownload, onShare }) => {
+  const [activeTab, setActiveTab] = useState('preview');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [downloading, setDownloading] = useState(false);
+
+  if (!gallery) return null;
+
+  const getCategoryStyle = (category) => {
+    const styles = {
+      GENERAL: { gradient: 'from-blue-500 to-cyan-500', icon: FiGlobe },
+      CLASSROOMS: { gradient: 'from-emerald-500 to-green-500', icon: FiBookOpen },
+      TEACHING: { gradient: 'from-purple-500 to-pink-500', icon: FiBook },
+      LABORATORIES: { gradient: 'from-indigo-500 to-purple-500', icon: FiTarget },
+      SPORTS_DAY: { gradient: 'from-amber-500 to-orange-500', icon: FiAward },
+      GRADUATION: { gradient: 'from-rose-500 to-red-500', icon: FiAward }
+    };
+    return styles[category] || { gradient: 'from-slate-500 to-slate-600', icon: FiImage };
+  };
+
+  const categoryStyle = getCategoryStyle(gallery.category);
+  const CategoryIcon = categoryStyle.icon;
+
+  const isVideoFile = (filename) => {
+    if (!filename) return false;
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.webm', '.mkv'];
+    return videoExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+  };
+
+  const isImageFile = (filename) => {
+    if (!filename) return false;
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+  };
+
+  // WORKING DOWNLOAD FUNCTION - Downloads each file individually
+  const downloadAllFiles = async () => {
+    if (!gallery || !gallery.files || gallery.files.length === 0) {
+      toast.error('No files available to download');
+      return;
+    }
+
+    setDownloading(true);
+    const toastId = toast.loading(`Starting download of ${gallery.files.length} files...`);
+    
+    try {
+      const files = gallery.files;
+      let downloadedCount = 0;
+      
+      // Download each file one by one
+      for (let i = 0; i < files.length; i++) {
+        const fileUrl = files[i];
+        const fileName = fileUrl.split('/').pop() || `file_${i + 1}`;
+        
+        try {
+          // Update progress
+          toast.loading(`Downloading ${i + 1}/${files.length}: ${fileName}`, { id: toastId });
+          
+          // Create a hidden anchor element
+          const link = document.createElement('a');
+          link.href = fileUrl;
+          link.download = fileName;
+          link.style.display = 'none';
+          
+          // Add to document and trigger download
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          downloadedCount++;
+          
+          // Small delay between downloads to avoid browser blocking
+          if (i < files.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+          
+        } catch (error) {
+          console.error(`Failed to download ${fileName}:`, error);
+        }
+      }
+      
+      // Show success message
+      toast.dismiss(toastId);
+      toast.success(`Successfully downloaded ${downloadedCount}/${files.length} files!`, {
+        duration: 5000
+      });
+      
+      if (downloadedCount < files.length) {
+        toast.info(`${files.length - downloadedCount} files may need to be downloaded manually`, {
+          duration: 7000
+        });
+      }
+      
+    } catch (error) {
+      console.error('Error in download process:', error);
+      toast.dismiss(toastId);
+      toast.error('Download failed. Please try downloading files individually.');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  // Alternative: Download selected file only
+  const downloadSelectedFile = async () => {
+    if (!gallery.files || !gallery.files[selectedIndex]) {
+      toast.error('No file selected to download');
+      return;
+    }
+    
+    const fileUrl = gallery.files[selectedIndex];
+    const fileName = fileUrl.split('/').pop() || `gallery_file_${selectedIndex + 1}`;
+    
+    try {
+      const toastId = toast.loading(`Downloading ${fileName}...`);
+      
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = fileName;
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.dismiss(toastId);
+      toast.success(`Downloaded: ${fileName}`);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast.error('Failed to download file. Please try again.');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-sm">
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col">
+        
+        {/* Close Button */}
+        <button 
+          onClick={onClose}
+          className="absolute top-5 right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90"
+        >
+          <IoClose size={24} />
+        </button>
+
+        {/* 1. Hero Image */}
+        <div className="relative h-[40vh] sm:h-[350px] w-full shrink-0">
+          {gallery.files && gallery.files[selectedIndex] ? (
+            <img
+              src={gallery.files[selectedIndex]}
+              alt={gallery.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className={`w-full h-full bg-gradient-to-r ${categoryStyle.gradient}`} />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20" />
+          
+          {/* Badge Overlays */}
+          <div className="absolute bottom-6 left-6 flex gap-2">
+            <span className="px-4 py-1.5 bg-white shadow-xl rounded-full text-xs font-bold uppercase tracking-widest text-slate-900">
+              {gallery.category.replace(/_/g, ' ')}
+            </span>
+            <span className="px-4 py-1.5 bg-slate-900 text-white rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-1">
+              <IoSparkles className="text-amber-400" /> {gallery.year}
+            </span>
+          </div>
+        </div>
+
+        {/* 2. Content Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-white">
+          <div className="max-w-2xl mx-auto space-y-8">
+            
+            {/* Title & Category */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-2xl bg-gradient-to-r ${categoryStyle.gradient}`}>
+                  <CategoryIcon className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tight">
+                    {gallery.title}
+                  </h2>
+                  <p className="text-slate-600 text-lg">{gallery.category.replace(/_/g, ' ')} Collection</p>
+                </div>
+              </div>
+
+              {/* Quick Info Bar */}
+              <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm font-semibold text-slate-500">
+                <div className="flex items-center gap-2">
+                  <IoCalendarClearOutline className="text-blue-500 text-lg" />
+                  {new Date(gallery.date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </div>
+                <div className="flex items-center gap-2">
+                  <IoPersonOutline className="text-emerald-500 text-lg" />
+                  {gallery.files?.length || 0} files
+                </div>
+                <div className="flex items-center gap-2">
+                  <IoLocationOutline className="text-rose-500 text-lg" />
+                  School Archives
+                </div>
+              </div>
+            </section>
+
+            {/* Tabs */}
+            <div className="border-b border-slate-200">
+              <div className="flex gap-8">
+                <button
+                  className={`pb-3 font-bold text-sm border-b-2 transition-colors ${
+                    activeTab === 'preview' 
+                      ? `border-blue-500 text-blue-600` 
+                      : 'border-transparent text-slate-500 hover:text-slate-700'
+                  }`}
+                  onClick={() => setActiveTab('preview')}
+                >
+                  <FiEye className="inline mr-2" />
+                  Preview
+                </button>
+                <button
+                  className={`pb-3 font-bold text-sm border-b-2 transition-colors ${
+                    activeTab === 'files' 
+                      ? `border-blue-500 text-blue-600` 
+                      : 'border-transparent text-slate-500 hover:text-slate-700'
+                  }`}
+                  onClick={() => setActiveTab('files')}
+                >
+                  <FiImage className="inline mr-2" />
+                  All Files ({gallery.files?.length || 0})
+                </button>
+                <button
+                  className={`pb-3 font-bold text-sm border-b-2 transition-colors ${
+                    activeTab === 'info' 
+                      ? `border-blue-500 text-blue-600` 
+                      : 'border-transparent text-slate-500 hover:text-slate-700'
+                  }`}
+                  onClick={() => setActiveTab('info')}
+                >
+                  <FiInfo className="inline mr-2" />
+                  Info
+                </button>
+              </div>
+            </div>
+
+            {/* Tab Content */}
+            {activeTab === 'preview' && (
+              <section className="space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Gallery Preview</h3>
+                
+                {/* Thumbnail Grid */}
+                {gallery.files && gallery.files.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3 mt-6">
+                    {gallery.files.slice(0, 6).map((file, index) => (
+                      <div
+                        key={index}
+                        onClick={() => setSelectedIndex(index)}
+                        className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 ${
+                          selectedIndex === index ? 'border-blue-500' : 'border-transparent'
+                        }`}
+                      >
+                        {isVideoFile(file) ? (
+                          <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+                            <FiVideo className="text-white text-xl" />
+                          </div>
+                        ) : (
+                          <img
+                            src={file}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="text-slate-700 leading-snug sm:leading-relaxed text-sm sm:text-base md:text-lg break-words">
+                  {gallery.description || 'No description available.'}
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'files' && (
+              <section className="space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">All Files</h3>
+                <div className="space-y-3">
+                  {gallery.files?.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100"
+                    >
+                      <div className="p-2 bg-white rounded-lg">
+                        {isVideoFile(file) ? (
+                          <FiVideo className="text-blue-600" />
+                        ) : (
+                          <FiImage className="text-emerald-600" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-900 truncate">
+                          {file.split('/').pop()}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {isVideoFile(file) ? 'Video File' : 'Image File'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedIndex(index);
+                            setActiveTab('preview');
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const fileName = file.split('/').pop() || `file_${index + 1}`;
+                            try {
+                              const link = document.createElement('a');
+                              link.href = file;
+                              link.download = fileName;
+                              link.style.display = 'none';
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              toast.success(`Downloaded: ${fileName}`);
+                            } catch (error) {
+                              toast.error('Failed to download file');
+                            }
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium text-emerald-600 hover:bg-emerald-50 rounded-lg"
+                        >
+                          Download
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'info' && (
+              <section className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Gallery Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <h4 className="font-bold text-slate-900 mb-1">Category</h4>
+                      <p className="text-slate-700">{gallery.category.replace(/_/g, ' ')}</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <h4 className="font-bold text-slate-900 mb-1">Year</h4>
+                      <p className="text-slate-700">{gallery.year}</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <h4 className="font-bold text-slate-900 mb-1">Total Files</h4>
+                      <p className="text-slate-700">{gallery.files?.length || 0}</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <h4 className="font-bold text-slate-900 mb-1">Date Added</h4>
+                      <p className="text-slate-700">{new Date(gallery.date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">File Types</h3>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <span className="text-sm text-slate-600">Images: {gallery.files?.filter(f => isImageFile(f)).length || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                      <span className="text-sm text-slate-600">Videos: {gallery.files?.filter(f => isVideoFile(f)).length || 0}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Gallery Stats */}
+            <section className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-2 h-2 rounded-full bg-emerald-500`} />
+                  <p className="text-[10px] uppercase font-bold text-slate-400">Status</p>
+                </div>
+                <p className="font-bold text-slate-900 capitalize">Published</p>
+              </div>
+              
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-2">
+                  <FiImage size={16} />
+                </div>
+                <p className="text-[10px] uppercase font-bold text-slate-400">Images</p>
+                <p className="font-bold text-slate-900">{gallery.files?.filter(f => isImageFile(f)).length || 0}</p>
+              </div>
+
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-2">
+                  <FiVideo size={16} />
+                </div>
+                <p className="text-[10px] uppercase font-bold text-slate-400">Videos</p>
+                <p className="font-bold text-slate-900">{gallery.files?.filter(f => isVideoFile(f)).length || 0}</p>
+              </div>
+
+              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-2">
+                  <FiStar size={16} />
+                </div>
+                <p className="text-[10px] uppercase font-bold text-slate-400">Quality</p>
+                <p className="font-bold text-slate-900">High</p>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        {/* 3. Action Footer - Sticky */}
+ <div className="shrink-0 p-4 sm:p-6 bg-slate-50/80 backdrop-blur-md border-t border-slate-100">
+  <div className="max-w-2xl mx-auto flex flex-row gap-2 sm:gap-3 px-1">
+    
+
+
+    {/* Download Selected Button */}
+    <button
+      onClick={downloadSelectedFile}
+      disabled={!gallery.files || !gallery.files[selectedIndex]}
+      className={`
+        flex-1 min-w-0
+        h-11 sm:h-14
+        rounded-xl sm:rounded-2xl
+        font-semibold sm:font-bold
+        text-[10px] sm:text-sm
+        flex items-center justify-center gap-1.5 sm:gap-2
+        transition-all
+        ${
+          (!gallery.files || !gallery.files[selectedIndex])
+            ? "opacity-50 cursor-not-allowed bg-slate-200 text-slate-500"
+            : "bg-white border-2 border-slate-200 text-slate-900 active:scale-95"
+        }
+      `}
+    >
+      <FiDownload className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+      <span className="truncate">Download Selected</span>
+    </button>
+
+    {/* Share Button */}
+    <button
+      onClick={() => onShare(gallery)}
+      className="
+        flex-1 min-w-0
+        h-11 sm:h-14
+        bg-white border-2 border-slate-200
+        text-slate-900
+        rounded-xl sm:rounded-2xl
+        font-semibold sm:font-bold
+        text-[10px] sm:text-sm
+        flex items-center justify-center gap-1.5 sm:gap-2
+        active:scale-95 transition-all
+      "
+    >
+      <FiShare2 className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+      <span className="truncate">Share</span>
+    </button>
+
+  </div>
+</div>
+
+      </div>
+    </div>
+  );
 };
 
 export default function ModernGallery() {
   const [activeCategory, setActiveCategory] = useState('GENERAL');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMedia, setSelectedMedia] = useState(null);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [favorites, setFavorites] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('Mary-Immaculate-gallery-favorites');
-      return saved ? new Set(JSON.parse(saved)) : new Set();
-    }
-    return new Set();
-  });
-  const [sortBy, setSortBy] = useState('newest');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [selectedGallery, setSelectedGallery] = useState(null);
+  const [favorites, setFavorites] = useState(new Set());
   const [galleries, setGalleries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [autoPlay, setAutoPlay] = useState(true);
-  const [showShareModal, setShowShareModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
   const [selectedYear, setSelectedYear] = useState('all');
   const [showSidebar, setShowSidebar] = useState(false);
-  const [expandedCategory, setExpandedCategory] = useState('GENERAL');
-  const [downloadingAll, setDownloadingAll] = useState(false);
-  const [categorySearch, setCategorySearch] = useState('');
-  
-  const videoRef = useRef(null);
-  const autoPlayRef = useRef(null);
-  const sidebarRef = useRef(null);
+  const [categories, setCategories] = useState([]);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [galleryToShare, setGalleryToShare] = useState(null);
 
-  // School Information
-  const schoolInfo = {
-    name: "Mary ImmaculateSecondary School",
-    motto: "Discipline, Diligence, Excellence",
-    established: 1982,
-    students: 1450,
-    teachers: 95,
-    classrooms: 52,
-    motto2: "Education for Life"
-  };
+  // Categories for filtering
+  const categoryOptions = [
+    { id: 'all', name: 'All Galleries', icon: FiGlobe, gradient: 'from-slate-500 to-slate-600' },
+    { id: 'GENERAL', name: 'General', icon: FiGlobe, gradient: 'from-blue-500 to-cyan-500' },
+    { id: 'CLASSROOMS', name: 'Classrooms', icon: FiBookOpen, gradient: 'from-emerald-500 to-green-500' },
+    { id: 'TEACHING', name: 'Teaching', icon: FiBook, gradient: 'from-purple-500 to-pink-500' },
+    { id: 'LABORATORIES', name: 'Laboratories', icon: FiTarget, gradient: 'from-indigo-500 to-purple-500' },
+    { id: 'SPORTS_DAY', name: 'Sports Day', icon: FiAward, gradient: 'from-amber-500 to-orange-500' },
+    { id: 'GRADUATION', name: 'Graduation', icon: FiAward, gradient: 'from-rose-500 to-red-500' }
+  ];
 
-  // Save favorites to localStorage whenever they change
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('Mary-Immaculate-gallery-favorites', JSON.stringify(Array.from(favorites)));
+  const [stats, setStats] = useState([
+    { 
+      icon: FiImage, 
+      number: '0', 
+      label: 'Media Files', 
+      sublabel: 'Total files',
+      gradient: 'from-blue-500 to-cyan-500'
+    },
+    { 
+      icon: FiFolder, 
+      number: '0', 
+      label: 'Galleries', 
+      sublabel: 'Collections',
+      gradient: 'from-emerald-500 to-green-500'
+    },
+    { 
+      icon: FiGrid, 
+      number: '0', 
+      label: 'Categories', 
+      sublabel: 'Available',
+      gradient: 'from-purple-500 to-pink-500'
+    },
+    { 
+      icon: FiCalendar, 
+      number: new Date().getFullYear().toString(),
+      label: 'Latest', 
+      sublabel: 'This year',
+      gradient: 'from-amber-500 to-orange-500'
     }
-  }, [favorites]);
+  ]);
 
   // Fetch galleries from API
   useEffect(() => {
     const fetchGalleries = async () => {
       try {
-        setLoading(true);
         const response = await fetch('/api/gallery');
         const data = await response.json();
-        if (data.success) {
-          setGalleries(data.galleries || []);
+        
+        if (data.success && data.galleries) {
+          setGalleries(data.galleries);
+          
+          // Extract unique categories
+          const uniqueCategories = [...new Set(data.galleries.map(g => g?.category).filter(Boolean))];
+          setCategories(uniqueCategories);
+          
+          // Calculate file count
+          const totalFiles = data.galleries.reduce((acc, gallery) => acc + (gallery?.files?.length || 0), 0);
+          
+          // Update stats
+          setStats([
+            { 
+              icon: FiImage, 
+              number: totalFiles.toString(), 
+              label: 'Media Files', 
+              sublabel: 'Total files',
+              gradient: 'from-blue-500 to-cyan-500'
+            },
+            { 
+              icon: FiFolder, 
+              number: data.galleries.length.toString(), 
+              label: 'Galleries', 
+              sublabel: 'Collections',
+              gradient: 'from-emerald-500 to-green-500'
+            },
+            { 
+              icon: FiGrid, 
+              number: uniqueCategories.length.toString(), 
+              label: 'Categories', 
+              sublabel: 'Available',
+              gradient: 'from-purple-500 to-pink-500'
+            },
+            { 
+              icon: FiCalendar, 
+              number: '2024', 
+              label: 'Latest', 
+              sublabel: 'This year',
+              gradient: 'from-amber-500 to-orange-500'
+            }
+          ]);
         }
       } catch (error) {
-        console.error('Failed to fetch galleries:', error);
+        console.error('Error fetching galleries:', error);
+        toast.error('Failed to load galleries');
       } finally {
         setLoading(false);
       }
@@ -185,332 +1260,6 @@ export default function ModernGallery() {
 
     fetchGalleries();
   }, []);
-
-  // Calculate statistics
-  const stats = useMemo(() => {
-    const totalFiles = galleries.reduce((acc, gallery) => acc + (gallery?.files?.length || 0), 0);
-    const uniqueCategories = new Set(galleries.map(g => g?.category).filter(Boolean)).size;
-    const thisMonth = galleries.filter(g => {
-      if (!g?.createdAt) return false;
-      const galleryDate = new Date(g.createdAt);
-      const now = new Date();
-      return galleryDate.getMonth() === now.getMonth() && galleryDate.getFullYear() === now.getFullYear();
-    }).length;
-
-    return {
-      totalGalleries: galleries.length,
-      totalFiles,
-      totalCategories: uniqueCategories,
-      thisMonth
-    };
-  }, [galleries]);
-
-  // Auto-slide functionality
-  useEffect(() => {
-    if (selectedMedia && autoPlay && selectedMedia.files && selectedMedia.files.length > 1) {
-      autoPlayRef.current = setInterval(() => {
-        setLightboxIndex(prev => (prev + 1) % selectedMedia.files.length);
-      }, 4000);
-    }
-
-    return () => {
-      if (autoPlayRef.current) {
-        clearInterval(autoPlayRef.current);
-      }
-    };
-  }, [selectedMedia, autoPlay, lightboxIndex]);
-
-  // Close sidebar when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && 
-          !event.target.closest('.mobile-sidebar-toggle')) {
-        setShowSidebar(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Category structure based on your API valid categories
-  const categoryStructure = [
-    {
-      title: "General",
-      categories: [
-        { 
-          id: 'GENERAL', 
-          name: 'General Gallery', 
-          icon: FiGlobe,
-          color: 'from-blue-700 to-blue-600',
-          emoji: '🏫'
-        }
-      ]
-    },
-    {
-      title: "Academic Activities",
-      categories: [
-        { 
-          id: 'CLASSROOMS', 
-          name: 'Classrooms', 
-          icon: FiBookOpen,
-          color: 'from-emerald-600 to-emerald-500',
-          emoji: '📚'
-        },
-        { 
-          id: 'TEACHING', 
-          name: 'Teaching Activities', 
-          icon: FiBook,
-          color: 'from-green-600 to-green-500',
-          emoji: '👨‍🏫'
-        }
-      ]
-    },
-    {
-      title: "Laboratories",
-      categories: [
-        { 
-          id: 'LABORATORIES', 
-          name: 'Laboratories', 
-          icon: FiTarget,
-          color: 'from-teal-600 to-teal-500',
-          emoji: '🔬'
-        },
-        { 
-          id: 'SCIENCE_LAB', 
-          name: 'Science Lab', 
-          icon: FiTarget,
-          color: 'from-teal-700 to-teal-600',
-          emoji: '🧪'
-        },
-        { 
-          id: 'COMPUTER_LAB', 
-          name: 'Computer Lab', 
-          icon: FiTarget,
-          color: 'from-cyan-600 to-cyan-500',
-          emoji: '💻'
-        }
-      ]
-    },
-    {
-      title: "Administration",
-      categories: [
-        { 
-          id: 'ADMIN_OFFICES', 
-          name: 'Admin Offices', 
-          icon: FiTarget,
-          color: 'from-slate-600 to-slate-500',
-          emoji: '🏢'
-        },
-        { 
-          id: 'PRINCIPAL', 
-          name: 'Principal\'s Office', 
-          icon: FiUser,
-          color: 'from-blue-800 to-blue-700',
-          emoji: '👑'
-        },
-        { 
-          id: 'STAFF', 
-          name: 'Teaching Staff', 
-          icon: FiUsers,
-          color: 'from-blue-700 to-blue-600',
-          emoji: '👨‍🏫'
-        },
-        { 
-          id: 'BOARD', 
-          name: 'Board of Management', 
-          icon: FiTarget,
-          color: 'from-blue-900 to-blue-800',
-          emoji: '👥'
-        }
-      ]
-    },
-    {
-      title: "Co-curricular Activities",
-      categories: [
-        { 
-          id: 'SPORTS_FACILITIES', 
-          name: 'Sports Facilities', 
-          icon: FiTarget,
-          color: 'from-orange-600 to-orange-500',
-          emoji: '⚽'
-        },
-        { 
-          id: 'SPORTS_DAY', 
-          name: 'Sports Day', 
-          icon: FiAward,
-          color: 'from-red-600 to-red-500',
-          emoji: '🏆'
-        },
-        { 
-          id: 'CLUBS', 
-          name: 'Clubs & Societies', 
-          icon: FiUsers,
-          color: 'from-purple-600 to-purple-500',
-          emoji: '🎭'
-        },
-        { 
-          id: 'STUDENT_ACTIVITIES', 
-          name: 'Student Activities', 
-          icon: FiTarget,
-          color: 'from-pink-600 to-pink-500',
-          emoji: '🎪'
-        }
-      ]
-    },
-    {
-      title: "Arts & Culture",
-      categories: [
-        { 
-          id: 'MUSIC_FESTIVAL', 
-          name: 'Music Festival', 
-          icon: FiMusic,
-          color: 'from-rose-600 to-rose-500',
-          emoji: '🎵'
-        },
-        { 
-          id: 'DRAMA_PERFORMANCE', 
-          name: 'Drama Performances', 
-          icon: FiMic,
-          color: 'from-amber-600 to-amber-500',
-          emoji: '🎭'
-        },
-        { 
-          id: 'ART_EXHIBITION', 
-          name: 'Art Exhibitions', 
-          icon: FiCamera,
-          color: 'from-purple-600 to-purple-500',
-          emoji: '🎨'
-        }
-      ]
-    },
-    {
-      title: "Academic Competitions",
-      categories: [
-        { 
-          id: 'DEBATE_COMPETITION', 
-          name: 'Debate Competitions', 
-          icon: FiMic,
-          color: 'from-indigo-600 to-indigo-500',
-          emoji: '🗣️'
-        },
-        { 
-          id: 'SCIENCE_FAIR', 
-          name: 'Science Fair', 
-          icon: FiTarget,
-          color: 'from-cyan-700 to-cyan-600',
-          emoji: '🔭'
-        }
-      ]
-    },
-    {
-      title: "Events & Ceremonies",
-      categories: [
-        { 
-          id: 'GRADUATION', 
-          name: 'Graduation', 
-          icon: FiAward,
-          color: 'from-purple-700 to-purple-600',
-          emoji: '🎓'
-        },
-        { 
-          id: 'AWARD_CEREMONY', 
-          name: 'Award Ceremonies', 
-          icon: FiStar,
-          color: 'from-amber-600 to-amber-500',
-          emoji: '🏅'
-        },
-        { 
-          id: 'PARENTS_DAY', 
-          name: 'Parents Day', 
-          icon: FiUsers,
-          color: 'from-blue-600 to-blue-500',
-          emoji: '👨‍👩‍👧‍👦'
-        },
-        { 
-          id: 'OPEN_DAY', 
-          name: 'Open Day', 
-          icon: FiGlobe,
-          color: 'from-teal-600 to-teal-500',
-          emoji: '🚪'
-        }
-      ]
-    },
-    {
-      title: "Campus Facilities",
-      categories: [
-        { 
-          id: 'DORMITORIES', 
-          name: 'Dormitories', 
-          icon: FiHome,
-          color: 'from-blue-500 to-blue-400',
-          emoji: '🛏️'
-        },
-        { 
-          id: 'DINING_HALL', 
-          name: 'Dining Hall', 
-          icon: FiCalendar,
-          color: 'from-orange-500 to-orange-400',
-          emoji: '🍽️'
-        }
-      ]
-    },
-    {
-      title: "Leadership",
-      categories: [
-        { 
-          id: 'COUNCIL', 
-          name: 'School Council', 
-          icon: FiTarget,
-          color: 'from-indigo-600 to-indigo-500',
-          emoji: '🤝'
-        },
-        { 
-          id: 'LEADERSHIP', 
-          name: 'Leadership', 
-          icon: FiTarget,
-          color: 'from-blue-900 to-blue-800',
-          emoji: '🌟'
-        }
-      ]
-    },
-    {
-      title: "Others",
-      categories: [
-        { 
-          id: 'VISITORS', 
-          name: 'Visitors', 
-          icon: FiUser,
-          color: 'from-slate-600 to-slate-500',
-          emoji: '👋'
-        },
-        { 
-          id: 'OTHER', 
-          name: 'Other Activities', 
-          icon: FiGrid,
-          color: 'from-gray-500 to-gray-400',
-          emoji: '📦'
-        }
-      ]
-    }
-  ];
-
-  // Flatten all categories for search
-  const allCategories = useMemo(() => {
-    return categoryStructure.flatMap(layer => layer.categories);
-  }, []);
-
-  // Get available years from galleries
-  const years = useMemo(() => {
-    const yearSet = new Set();
-    galleries.forEach(gallery => {
-      if (gallery?.createdAt) {
-        const year = new Date(gallery.createdAt).getFullYear();
-        yearSet.add(year);
-      }
-    });
-    return Array.from(yearSet).sort((a, b) => b - a);
-  }, [galleries]);
 
   // Transform API data
   const transformedGalleries = useMemo(() => {
@@ -525,1286 +1274,522 @@ export default function ModernGallery() {
     }));
   }, [galleries]);
 
-  // Filter function for galleries
-  const filteredImages = useMemo(() => {
-    let filtered = transformedGalleries.filter(item => {
-      // Filter by category
-      const matchesCategory = activeCategory === 'GENERAL' || item.category === activeCategory;
-      
-      // Filter by year
-      const matchesYear = selectedYear === 'all' || item.year.toString() === selectedYear;
-      
-      // Search in title and description
+  // Get available years
+  const years = useMemo(() => {
+    const yearSet = new Set();
+    galleries.forEach(gallery => {
+      if (gallery?.createdAt) {
+        const year = new Date(gallery.createdAt).getFullYear();
+        yearSet.add(year);
+      }
+    });
+    return Array.from(yearSet).sort((a, b) => b - a);
+  }, [galleries]);
+
+  // Filter galleries
+  const filteredGalleries = useMemo(() => {
+    let filtered = transformedGalleries.filter(gallery => {
+      const matchesCategory = activeCategory === 'all' || gallery.category === activeCategory;
+      const matchesYear = selectedYear === 'all' || gallery.year.toString() === selectedYear;
       const matchesSearch = searchTerm === '' || 
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()));
-      
+        gallery.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (gallery.description && gallery.description.toLowerCase().includes(searchTerm.toLowerCase()));
       return matchesCategory && matchesYear && matchesSearch;
     });
-
-    // Sort by selected option
-    switch (sortBy) {
-      case 'newest':
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-        break;
-      case 'oldest':
-        filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-        break;
-      case 'name':
-        filtered.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case 'mostFiles':
-        filtered.sort((a, b) => (b.files?.length || 0) - (a.files?.length || 0));
-        break;
-      default:
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-    }
-
+    
+    // Sort by newest first
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
     return filtered;
-  }, [activeCategory, searchTerm, sortBy, selectedYear, transformedGalleries]);
+  }, [activeCategory, searchTerm, selectedYear, transformedGalleries]);
 
-  // Filter categories based on search
-  const filteredCategoryStructure = useMemo(() => {
-    if (!categorySearch.trim()) return categoryStructure;
-    
-    const searchLower = categorySearch.toLowerCase();
-    return categoryStructure.map(layer => {
-      const filteredCategories = layer.categories.filter(category => 
-        category.name.toLowerCase().includes(searchLower) ||
-        category.id.toLowerCase().includes(searchLower)
-      );
-      
-      if (filteredCategories.length === 0) return null;
-      
-      return {
-        ...layer,
-        categories: filteredCategories
-      };
-    }).filter(Boolean);
-  }, [categorySearch, categoryStructure]);
-
-  // Check if file is video
-  const isVideoFile = (filename) => {
-    if (!filename) return false;
-    const videoExtensions = ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.webm', '.mkv', '.m4v', '.3gp'];
-    return videoExtensions.some(ext => filename.toLowerCase().endsWith(ext));
-  };
-
-  // Check if file is image
-  const isImageFile = (filename) => {
-    if (!filename) return false;
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.avif', '.svg'];
-    return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
-  };
-
-  const clearAllFilters = () => {
-    setSearchTerm('');
-    setCategorySearch('');
-    setSortBy('newest');
-    setSelectedYear('all');
-    setActiveCategory('GENERAL');
-    setExpandedCategory('GENERAL');
-  };
-
-  // Media functions
-  const openLightbox = (media, index) => {
-    if (!media?.files || media.files.length === 0) return;
-    
-    setSelectedMedia(media);
-    setLightboxIndex(index);
-    setIsPlaying(false);
-    setAutoPlay(true);
-  };
-
-  const closeLightbox = () => {
-    setSelectedMedia(null);
-    setIsPlaying(false);
-    setAutoPlay(false);
-    if (videoRef.current) {
-      videoRef.current.pause();
-    }
-    if (autoPlayRef.current) {
-      clearInterval(autoPlayRef.current);
-    }
-  };
-
-  const nextMedia = () => {
-    if (selectedMedia && selectedMedia.files && selectedMedia.files.length > 1) {
-      const nextIndex = (lightboxIndex + 1) % selectedMedia.files.length;
-      setLightboxIndex(nextIndex);
-      setIsPlaying(false);
-      setAutoPlay(true);
-      if (videoRef.current) {
-        videoRef.current.pause();
-      }
-    }
-  };
-
-  const prevMedia = () => {
-    if (selectedMedia && selectedMedia.files && selectedMedia.files.length > 1) {
-      const prevIndex = (lightboxIndex - 1 + selectedMedia.files.length) % selectedMedia.files.length;
-      setLightboxIndex(prevIndex);
-      setIsPlaying(false);
-      setAutoPlay(true);
-      if (videoRef.current) {
-        videoRef.current.pause();
-      }
-    }
-  };
-
-  const toggleFavorite = (id) => {
+  const handleFavorite = (gallery) => {
     const newFavorites = new Set(favorites);
-    if (newFavorites.has(id)) {
-      newFavorites.delete(id);
+    if (newFavorites.has(gallery.id)) {
+      newFavorites.delete(gallery.id);
+      toast.success('Removed from favorites');
     } else {
-      newFavorites.add(id);
+      newFavorites.add(gallery.id);
+      toast.success('Added to favorites');
     }
     setFavorites(newFavorites);
   };
 
-  const togglePlayPause = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
+  const handleViewGallery = (gallery) => {
+    setSelectedGallery(gallery);
   };
 
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
+  const handleDownload = (gallery) => {
+    // Download all files function will be called from the modal
+    setSelectedGallery(gallery);
   };
 
-  // Download single file
-  const downloadFile = async (fileUrl) => {
-    try {
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = fileUrl.split('/').pop();
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Download failed:', error);
-      alert('Failed to download file. Please try again.');
-    }
+  const handleShare = (gallery) => {
+    setGalleryToShare(gallery);
+    setShareModalOpen(true);
   };
 
-  // Download all files from selected gallery
-  const downloadAllFiles = async () => {
-    if (!selectedMedia || !selectedMedia.files || selectedMedia.files.length === 0) {
-      alert('No files to download');
-      return;
-    }
-
-    setDownloadingAll(true);
-    
-    try {
-      for (let i = 0; i < selectedMedia.files.length; i++) {
-        const fileUrl = selectedMedia.files[i];
-        try {
-          const response = await fetch(fileUrl);
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = fileUrl.split('/').pop();
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
-          
-          // Small delay between downloads to avoid browser issues
-          if (i < selectedMedia.files.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
-        } catch (error) {
-          console.error(`Failed to download file ${i + 1}:`, error);
-        }
-      }
-      
-      alert(`Downloaded ${selectedMedia.files.length} files successfully!`);
-    } catch (error) {
-      console.error('Download all failed:', error);
-      alert('Failed to download all files. Please try again.');
-    } finally {
-      setDownloadingAll(false);
-    }
+  const refreshData = async () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      window.location.reload();
+      toast.success('Gallery refreshed!');
+    }, 1000);
   };
-
-  // Share functions
-  const shareOnWhatsApp = () => {
-    if (!selectedMedia) return;
-    const text = `Check out "${selectedMedia.title}" from Mary Immaculate GirlsSchool Gallery!`;
-    const url = window.location.href;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
-  };
-
-  const shareOnFacebook = () => {
-    const url = window.location.href;
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-  };
-
-  const shareOnTwitter = () => {
-    if (!selectedMedia) return;
-    const text = `Check out "${selectedMedia.title}" from Mary Immaculate GirlsSchool Gallery!`;
-    const url = window.location.href;
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-  };
-
-  const copyToClipboard = async () => {
-    const url = window.location.href;
-    try {
-      await navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
-    } catch (err) {
-      console.error('Failed to copy: ', err);
-      alert('Failed to copy link. Please try again.');
-    }
-  };
-
-  // Modern Button Component
-  const ModernButton = ({ 
-    children, 
-    variant = 'primary', 
-    size = 'md', 
-    icon: Icon, 
-    onClick, 
-    disabled, 
-    className = '',
-    type = 'button'
-  }) => {
-    const sizeClasses = {
-      sm: 'px-3 py-2 text-sm',
-      md: 'px-4 py-3 text-sm',
-      lg: 'px-6 py-4 text-base'
-    };
-
-    const baseClasses = 'rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2';
-    
-    const variantClasses = {
-      primary: 'bg-gradient-to-r from-blue-700 to-blue-600 text-white shadow-md',
-      secondary: 'bg-white text-slate-800 border border-slate-200 shadow-sm',
-      outline: 'border border-slate-200 text-slate-700 bg-transparent',
-      ghost: 'text-slate-700 bg-transparent hover:bg-slate-100/50',
-      danger: 'bg-gradient-to-r from-red-600 to-red-500 text-white shadow-md'
-    };
-
-    return (
-      <button
-        type={type}
-        onClick={onClick}
-        disabled={disabled}
-        className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
-      >
-        {Icon && <Icon className="text-current" />}
-        {children}
-      </button>
-    );
-  };
-
-  // Modern Card Component
-  const ModernCard = ({ children, className = '', elevation = 'md' }) => (
-    <div className={`bg-white rounded-xl ${ELEVATION[elevation]} border border-slate-100 ${className}`}>
-      {children}
-    </div>
-  );
-
-  // Modern Badge Component
-  const ModernBadge = ({ children, color = 'blue', className = '', icon: Icon }) => {
-    const colorClasses = {
-      blue: 'bg-blue-100 text-blue-700',
-      green: 'bg-emerald-100 text-emerald-700',
-      red: 'bg-red-100 text-red-700',
-      yellow: 'bg-amber-100 text-amber-700',
-      purple: 'bg-purple-100 text-purple-700',
-      slate: 'bg-slate-100 text-slate-700'
-    };
-
-    return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${colorClasses[color]} ${className}`}>
-        {Icon && <Icon className="text-xs" />}
-        {children}
-      </span>
-    );
-  };
-
-  // Gallery Card Component
-  const GalleryCard = ({ item, viewMode, allCategories, favorites, toggleFavorite, openLightbox, activeCategory }) => {
-    const category = allCategories.find(c => c.id === item.category);
-    const Icon = category?.icon || FiImage;
-    const isActiveCategory = activeCategory === item.category;
-    const isFavorite = favorites.has(item.id);
-    
-    if (viewMode === 'grid') {
-      return (
-        <ModernCard elevation="sm" className="overflow-hidden transition-all duration-200">
-          <div 
-            className="cursor-pointer"
-            onClick={() => openLightbox(item, 0)}
-          >
-            {/* Media Container */}
-            <div className="relative aspect-square overflow-hidden">
-              {item.files && item.files.length > 0 && isImageFile(item.files[0]) ? (
-                <Image
-                  src={item.files[0]}
-                  alt={item.title}
-                  fill
-                  className="object-cover"
-                  unoptimized={item.files[0]?.includes('/gallery/')}
-                />
-              ) : item.files && item.files.length > 0 && isVideoFile(item.files[0]) ? (
-                <div className="w-full h-full bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <FiVideo className="text-2xl text-white mb-2 mx-auto" />
-                    <span className="text-white font-medium text-xs">Video</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <FiImage className="text-2xl text-slate-400 mb-2 mx-auto" />
-                    <span className="text-slate-500 font-medium text-xs">Media</span>
-                  </div>
-                </div>
-              )}
-              
-              {/* Category Badge */}
-              <div className="absolute top-3 left-3">
-                <ModernBadge 
-                  color={isActiveCategory ? 'blue' : 'slate'}
-                  icon={Icon}
-                >
-                  {category?.name || item.category}
-                </ModernBadge>
-              </div>
-
-              {/* Favorite Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFavorite(item.id);
-                }}
-                className="absolute top-3 right-3 bg-white p-2 rounded-lg shadow-sm"
-              >
-                <FiHeart className={`text-sm ${isFavorite ? 'text-red-500 fill-current' : 'text-slate-400'}`} />
-              </button>
-
-              {/* File Count Badge */}
-              {item.files && item.files.length > 1 && (
-                <div className="absolute bottom-3 right-3">
-                  <ModernBadge color="slate" icon={FiImage}>
-                    {item.files.length}
-                  </ModernBadge>
-                </div>
-              )}
-            </div>
-
-            {/* Content */}
-            <div className="p-4">
-              <h3 className="text-base font-semibold text-slate-800 mb-2 line-clamp-1">
-                {item.title}
-              </h3>
-              
-              {/* Description */}
-              <p className="text-slate-600 text-sm leading-relaxed line-clamp-2 mb-3">
-                {item.description || 'No description available'}
-              </p>
-              
-              {/* Meta Info */}
-              <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <FiCalendar className="text-xs" />
-                    <span>{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                  </div>
-                  <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">
-                    {item.year}
-                  </span>
-                </div>
-                
-                <div className="text-xs">
-                  {item.files?.length || 0} file{item.files?.length !== 1 ? 's' : ''}
-                </div>
-              </div>
-            </div>
-          </div>
-        </ModernCard>
-      );
-    } else {
-      // List View
-      return (
-        <ModernCard elevation="sm" className="p-4">
-          <div 
-            className="flex flex-col md:flex-row gap-4 cursor-pointer"
-            onClick={() => openLightbox(item, 0)}
-          >
-            {/* Thumbnail */}
-            <div className="md:w-32 md:h-32 w-full aspect-square md:aspect-auto rounded-lg overflow-hidden relative">
-              {item.files && item.files.length > 0 && isImageFile(item.files[0]) ? (
-                <Image
-                  src={item.files[0]}
-                  alt={item.title}
-                  width={500}
-                  height={300}
-                  className="w-full h-full object-cover"
-                  unoptimized={item.files[0]?.includes('/gallery/')}
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-                  <FiImage className="text-xl text-slate-400" />
-                </div>
-              )}
-            </div>
-            
-            {/* Content */}
-            <div className="flex-1">
-              <div className="flex flex-col md:flex-row md:items-start justify-between mb-3">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-slate-800 mb-2">
-                    {item.title}
-                  </h3>
-                  <div className="flex items-center gap-2 mb-2">
-                    <ModernBadge 
-                      color={isActiveCategory ? 'blue' : 'slate'}
-                      icon={Icon}
-                    >
-                      {category?.name || item.category}
-                    </ModernBadge>
-                    <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">
-                      {item.year}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3 mt-2 md:mt-0">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(item.id);
-                    }}
-                    className="p-2 rounded-lg"
-                  >
-                    <FiHeart className={`text-sm ${isFavorite ? 'text-red-500 fill-current' : 'text-slate-400'}`} />
-                  </button>
-                  <div className="text-right">
-                    <div className="text-xs text-slate-500">Files</div>
-                    <div className="font-semibold text-slate-800">{item.files?.length || 0}</div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Description */}
-              <p className="text-slate-600 text-sm mb-4 line-clamp-2">
-                {item.description || 'No description available'}
-              </p>
-              
-              <div className="flex items-center justify-between text-xs text-slate-500">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    <FiCalendar className="text-xs" />
-                    <span>{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {item.files?.some(isVideoFile) && (
-                    <ModernBadge color="blue" icon={FiVideo}>
-                      Video
-                    </ModernBadge>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </ModernCard>
-      );
-    }
-  };
-
-// In your main component file, replace your existing LoadingSpinner with this:
-
-// Loading Spinner Component
-const LoadingSpinner = () => (
-  <Backdrop
-    sx={{ 
-      color: '#fff', 
-      zIndex: (theme) => theme.zIndex.drawer + 1,
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(8px)',
-    }}
-    open={loading}
-  >
-    <div className="text-center">
-      <div className="relative inline-flex mb-6">
-        <CircularProgress
-          variant="determinate"
-          value={100}
-          size={80}
-          thickness={4}
-          sx={{ color: 'rgba(0, 0, 0, 0.1)' }}
-        />
-        <CircularProgress
-          color="primary"
-          size={80}
-          thickness={4}
-          className="absolute left-0"
-        />
-      </div>
-      
-      <div className="text-gray-800 text-lg font-semibold mb-2">
-       Mary Immaculate GirlsSchool
-      </div>
-      <div className="text-gray-600">
-        Loading Gallery...
-      </div>
-    </div>
-  </Backdrop>
-);
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <Box 
+        className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6"
+      >
+        <Stack 
+          spacing={3} 
+          alignItems="center"
+          className="bg-white p-10 rounded-[32px] shadow-sm border border-gray-100"
+        >
+          {/* Modern Layered Loader */}
+          <Box className="relative flex items-center justify-center">
+            {/* Background Ring */}
+            <CircularProgress
+              variant="determinate"
+              value={100}
+              size={64}
+              thickness={4}
+              sx={{ color: '#f1f5f9' }}
+            />
+            {/* Actual Animated Loader */}
+            <CircularProgress
+              variant="indeterminate"
+              disableShrink
+              size={64}
+              thickness={4}
+              sx={{
+                color: '#2563eb',
+                animationDuration: '800ms',
+                position: 'absolute',
+                left: 0,
+                [`& .MuiCircularProgress-circle`]: {
+                  strokeLinecap: 'round',
+                },
+              }}
+            />
+            {/* Center Icon */}
+            <Box className="absolute">
+              <IoSparkles className="text-blue-500 text-xl animate-pulse" />
+            </Box>
+          </Box>
+
+          {/* Clean Typography */}
+          <Stack spacing={0.5} alignItems="center">
+            <Typography 
+              variant="body1" 
+              fontWeight="600" 
+              color="text.primary"
+              sx={{ letterSpacing: '-0.01em' }}
+            >
+              Loading School Gallery...
+            </Typography>
+            <Typography 
+              variant="caption" 
+              color="text.secondary"
+              className="flex items-center gap-1"
+            >
+              Fetching memories and moments
+            </Typography>
+          </Stack>
+        </Stack>
+      </Box>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Mobile Sidebar Overlay */}
-      {showSidebar && (
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300"
-          onClick={() => setShowSidebar(false)}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 p-4 md:p-6">
+      <Toaster position="top-right" richColors />
+      
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Modern Hero Banner */}
+        <ModernHeroBanner 
+          stats={{
+            totalFiles: stats[0].number,
+            totalCategories: stats[2].number,
+            thisMonth: transformedGalleries.length
+          }} 
+          onRefresh={refreshData}
         />
-      )}
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Fixed Sidebar - Modern Design */}
-          <div 
-            ref={sidebarRef}
-            className={`
-              fixed lg:sticky 
-              top-0 lg:top-6
-              h-screen lg:h-[calc(100vh-3rem)] 
-              w-80 lg:w-72 
-              bg-white 
-              rounded-xl 
-              shadow-xl 
-              border border-slate-200 
-              p-5 
-              transform transition-transform duration-300 ease-out
-              ${showSidebar ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} 
-              z-40 lg:z-auto
-              overflow-y-auto
-              [scrollbar-width:none]
-              [-ms-overflow-style:none]
-              [&::-webkit-scrollbar]:hidden
-            `}
-          >
-            {/* Close button for mobile */}
-            <button
-              onClick={() => setShowSidebar(false)}
-              className="absolute top-4 right-4 lg:hidden text-slate-500 p-2 rounded-lg hover:bg-slate-100 transition-colors"
-            >
-              <IoClose className="text-xl" />
-            </button>
+        {/* Dynamic Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-10">
+          {stats.map((stat, index) => (
+            <ModernStatCard key={index} stat={stat} />
+          ))}
+        </div>
 
-            {/* Sidebar Header */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-2 flex items-center gap-2">
-                <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg">
-                  <FiFilter className="text-white text-sm" />
+        {/* Main Content Layout */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Column: Galleries */}
+          <div className="flex-1 min-w-0 space-y-8">
+            
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-purple-900 rounded-2xl shadow-lg">
+                  <FiImage className="text-white text-2xl" />
                 </div>
-                <span>Gallery Categories</span>
-              </h3>
-              <p className="text-slate-500 text-sm">Filter by school activities</p>
-            </div>
-
-            {/* Search Categories */}
-            <div className="mb-6">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiSearch className="text-slate-400 text-sm" />
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">School Galleries</h2>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    {filteredGalleries.length} Galleries Available
+                  </p>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Search categories..."
-                  value={categorySearch}
-                  onChange={(e) => setCategorySearch(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                {categorySearch && (
-                  <button
-                    onClick={() => setCategorySearch('')}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  >
-                    <FiX className="text-slate-400 text-sm" />
-                  </button>
-                )}
               </div>
             </div>
 
-            {/* Category Layers */}
-            <div className="space-y-4 mb-6">
-              {filteredCategoryStructure.map((layer, layerIndex) => {
-                const isExpanded = expandedCategory === layer.categories[0]?.id;
-                
-                return (
-                  <div key={layerIndex} className="border border-slate-200 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => setExpandedCategory(isExpanded ? '' : layer.categories[0]?.id)}
-                      className="w-full text-left p-3 bg-slate-50 flex items-center justify-between transition-colors"
-                    >
-                      <div>
-                        <div className="font-semibold text-slate-800 text-sm">{layer.title}</div>
-                        <div className="text-xs text-slate-500 mt-0.5">{layer.categories.length} categories</div>
-                      </div>
-                      {isExpanded ? (
-                        <FiChevronUp className="text-slate-500" />
-                      ) : (
-                        <FiChevronDown className="text-slate-500" />
-                      )}
-                    </button>
-                    
-                    {isExpanded && (
-                      <div className="p-2 bg-white">
-                        {layer.categories.map((category) => {
-                          const Icon = category.icon;
-                          const count = transformedGalleries.filter(g => g.category === category.id).length;
-                          const isActive = activeCategory === category.id;
-                          
-                          return (
-                            <button
-                              key={category.id}
-                              onClick={() => {
-                                setActiveCategory(category.id);
-                                if (window.innerWidth < 1024) {
-                                  setShowSidebar(false);
-                                }
-                              }}
-                              className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center gap-3 mb-1 ${
-                                isActive
-                                  ? `bg-gradient-to-r ${category.color} text-white shadow-md`
-                                  : 'text-slate-700 hover:bg-slate-50'
-                              }`}
-                            >
-                              <div className={`p-2 rounded ${
-                                isActive 
-                                  ? 'bg-white/20' 
-                                  : 'bg-slate-100 text-slate-600'
-                              }`}>
-                                <Icon className="text-sm" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-sm truncate">{category.name}</div>
-                              </div>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
-                                isActive
-                                  ? 'bg-white/20 text-white'
-                                  : 'bg-slate-100 text-slate-600'
-                              }`}>
-                                {count}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
+            {/* Modern Search & Filter Section */}
+            <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 p-3 rounded-[28px] shadow-sm">
+              <div className="flex flex-col md:flex-row items-center gap-3">
+                {/* Search */}
+                <div className="relative w-full flex-1 group">
+                  <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl shadow-sm transition-all focus-within:border-slate-900 focus-within:ring-4 focus-within:ring-slate-900/5">
+                    <div className="pl-5 pr-3 flex items-center justify-center pointer-events-none">
+                      <FiSearch className="text-slate-400 group-focus-within:text-slate-900 transition-colors" size={18} />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search galleries, categories, or years..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full py-4 bg-transparent text-slate-900 placeholder:text-slate-400 font-semibold text-sm focus:outline-none"
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="pr-4 text-slate-400 hover:text-slate-600"
+                      >
+                        <FiX size={18} />
+                      </button>
                     )}
                   </div>
+                </div>
+
+                {/* Category Selector */}
+                <div className="relative w-full md:w-auto">
+                  <select 
+                    value={activeCategory}
+                    onChange={(e) => setActiveCategory(e.target.value)}
+                    className="w-full md:w-48 appearance-none px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-semibold text-slate-600 text-sm cursor-pointer focus:ring-2 focus:ring-purple-500/20 transition-all"
+                  >
+                    {categoryOptions.map((category) => {
+                      const Icon = category.icon;
+                      return (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                </div>
+
+                {/* Year Selector */}
+                <div className="relative w-full md:w-auto">
+                  <select 
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="w-full md:w-36 appearance-none px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-semibold text-slate-600 text-sm cursor-pointer focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  >
+                    <option value="all">All Years</option>
+                    {years.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                </div>
+
+                {/* Reset Button */}
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setActiveCategory('all');
+                    setSelectedYear('all');
+                  }}
+                  className="px-6 py-3.5 bg-purple-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-purple-200 hover:bg-purple-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <FiFilter size={16} />
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            {/* Modern Category Pills */}
+            <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
+              {categoryOptions.map((category) => {
+                const Icon = category.icon;
+                const isActive = activeCategory === category.id;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setActiveCategory(category.id)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all border ${
+                      isActive 
+                        ? "bg-purple-600 border-purple-600 text-white shadow-md shadow-purple-100" 
+                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {Icon && <Icon className={isActive ? "text-white" : "text-slate-400"} />}
+                    {category.name}
+                  </button>
                 );
               })}
             </div>
 
-            {/* Year Filter */}
-            <div className="mb-6">
-              <h4 className="font-semibold text-slate-800 mb-3 text-sm flex items-center gap-2">
-                <FiCalendar className="text-slate-500" />
-                Filter by Year
-              </h4>
-              <div className="flex flex-wrap gap-2">
+            {/* View Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-slate-600">
+                <span className="font-semibold text-slate-800">{filteredGalleries.length}</span> galleries found
+              </div>
+              <div className="flex bg-white rounded-xl border border-slate-200 overflow-hidden">
                 <button
-                  onClick={() => setSelectedYear('all')}
-                  className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                    selectedYear === 'all'
-                      ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-700'
-                  }`}
+                  onClick={() => setViewMode('grid')}
+                  className={`p-3 ${viewMode === 'grid' ? 'bg-purple-50 text-purple-600' : 'text-slate-600 hover:text-slate-900'}`}
                 >
-                  All Years
+                  <FiGrid />
                 </button>
-                {years.map(year => (
-                  <button
-                    key={year}
-                    onClick={() => setSelectedYear(year.toString())}
-                    className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                      selectedYear === year.toString()
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-sm'
-                        : 'bg-slate-100 text-slate-700'
-                    }`}
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-3 ${viewMode === 'list' ? 'bg-purple-50 text-purple-600' : 'text-slate-600 hover:text-slate-900'}`}
+                >
+                  <FiList />
+                </button>
+              </div>
+            </div>
+
+            {/* Galleries Grid/List */}
+            <div className="relative">
+              {filteredGalleries.length === 0 ? (
+                <div className="bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 py-16 text-center">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                    <FiImage className="text-slate-300 text-2xl" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">No galleries found</h3>
+                  <p className="text-slate-500 text-sm mt-1 mb-6">Try adjusting your filters or search.</p>
+                  <button 
+                    onClick={() => { setSearchTerm(''); setActiveCategory('all'); setSelectedYear('all'); }}
+                    className="px-6 py-2.5 bg-white border border-slate-200 rounded-full font-bold text-slate-700 hover:bg-slate-50 transition-all text-sm"
                   >
-                    {year}
+                    Reset Filters
                   </button>
+                </div>
+              ) : (
+                <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+                  {filteredGalleries.map((gallery, index) => (
+                    <ModernGalleryCard 
+                      key={gallery.id || index} 
+                      gallery={gallery} 
+                      onView={handleViewGallery}
+                      onFavorite={handleFavorite}
+                      onShare={handleShare}
+                      viewMode={viewMode}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Quick Actions & Info */}
+          <div className="lg:w-[380px] space-y-6">
+            <div className="lg:sticky lg:top-24 space-y-6">
+              
+              {/* Quick Actions Card */}
+              <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                    <FiZap className="text-purple-600 text-xl" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900">Quick Actions</h2>
+                </div>
+
+                <div className="space-y-3">
+
+
+                  <button
+                    onClick={() => {
+                      const mostRecent = filteredGalleries[0];
+                      if (mostRecent) {
+                        handleViewGallery(mostRecent);
+                      }
+                    }}
+                    className="w-full p-4 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100 flex items-center justify-between hover:bg-emerald-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-emerald-100 rounded-xl">
+                        <FiEye className="text-emerald-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold">Latest Gallery</p>
+                        <p className="text-xs text-emerald-600">View most recent</p>
+                      </div>
+                    </div>
+                    <FiArrowRight className="text-emerald-400" />
+                  </button>
+
+                  <button
+                    onClick={() => toast.info('Favorites feature coming soon!')}
+                    className="w-full p-4 bg-amber-50 text-amber-700 rounded-2xl border border-amber-100 flex items-center justify-between hover:bg-amber-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-amber-100 rounded-xl">
+                        <FiHeart className="text-amber-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold">My Favorites</p>
+                        <p className="text-xs text-amber-600">{favorites.size} saved</p>
+                      </div>
+                    </div>
+                    <FiArrowRight className="text-amber-400" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Year Info Banner */}
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-[32px] p-6 border border-blue-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2.5 bg-blue-100 rounded-xl">
+                    <FiCalendar className="text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">Gallery Years</h4>
+                    <p className="text-sm text-slate-600">Browse by year</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-blue-100">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="text-sm font-medium text-slate-700">All Years</span>
+                    </div>
+                    <span className="text-xs font-bold text-blue-600">{transformedGalleries.length}</span>
+                  </div>
+                  
+                  {years.slice(0, 3).map(year => (
+                    <div key={year} className="flex items-center justify-between p-3 bg-white rounded-xl border border-blue-100">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="text-sm font-medium text-slate-700">{year}</span>
+                      </div>
+                      <span className="text-xs font-bold text-blue-600">
+                        {transformedGalleries.filter(g => g.year === year).length}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Confidentiality Banner */}
+              <div className="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-[32px] p-6 text-white overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[50px]" />
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-4">
+                    <FiLock className="text-white text-xl" />
+                  </div>
+                  <h4 className="text-lg font-bold mb-2">School Memories</h4>
+                  <p className="text-sm text-purple-200 mb-4">
+                    Preserving our school's legacy through photos and videos.
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                      <span>High quality media</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                      <span>Organized by category</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                      <span>Easy to download & share</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Feature Banner */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-purple-900 to-indigo-800 rounded-3xl p-5 md:p-8 shadow-xl">
+          {/* Abstract Background */}
+          <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 blur-[80px] rounded-full -mr-24 -mt-24" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 blur-[80px] rounded-full -ml-24 -mb-24" />
+
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            
+            {/* Icon */}
+            <div className="shrink-0">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white flex items-center justify-center shadow-lg">
+                <FiImage className="text-purple-600 text-2xl md:text-3xl" />
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">
+                Preserving School History.
+              </h3>
+              <p className="text-purple-200 text-sm md:text-base leading-relaxed max-w-xl mx-auto md:mx-0">
+                Every photo tells a story. Explore decades of academic excellence, achievements, and memories.
+              </p>
+
+              {/* Feature Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+                {[
+                  { label: 'High Quality', icon: FiStar, color: 'text-blue-300', bg: 'bg-blue-400/10' },
+                  { label: 'Organized', icon: FiFolder, color: 'text-emerald-300', bg: 'bg-emerald-400/10' },
+                  { label: 'Downloadable', icon: FiDownload, color: 'text-purple-300', bg: 'bg-purple-400/10' },
+                  { label: 'Shareable', icon: FiShare2, color: 'text-pink-300', bg: 'bg-pink-400/10' }
+                ].map((feature, idx) => (
+                  <div 
+                    key={idx} 
+                    className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10"
+                  >
+                    <div className={`p-1.5 rounded-md ${feature.bg} ${feature.color} shrink-0`}>
+                      <feature.icon size={16} />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-purple-200 truncate">
+                      {feature.label}
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>
-
-            {/* Sort Options */}
-            <div className="mb-6">
-              <h4 className="font-semibold text-slate-800 mb-3 text-sm flex items-center gap-2">
-                <FiFilter className="text-slate-500" />
-                Sort By
-              </h4>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="name">Alphabetical</option>
-                <option value="mostFiles">Most Files</option>
-              </select>
-            </div>
-
-            {/* Clear Filters */}
-            <ModernButton
-              variant="outline"
-              size="md"
-              icon={FiX}
-              onClick={clearAllFilters}
-              className="w-full"
-            >
-              Clear All Filters
-            </ModernButton>
-          </div>
-
-          {/* Main Content Area */}
-          <div className="flex-1">
-            {/* School Hero Section */}
-            <ModernCard className="overflow-hidden mb-6">
-              <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 text-white">
-                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between">
-                  <div className="lg:w-2/3 mb-4 lg:mb-0">
-                    <div className="flex items-start justify-between lg:block">
-                      <div>
-                        <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-                         Mary Immaculate GirlsSchool Gallery
-                        </h1>
-                        <p className="text-lg opacity-90 mb-3">
-                          <span className="font-bold">{schoolInfo.motto}</span> • {schoolInfo.motto2}
-                        </p>
-                        <p className="opacity-80 text-sm">
-                          A visual journey through {schoolInfo.students}+ students' academic excellence, 
-                          co-curricular achievements, and memorable moments since {schoolInfo.established}.
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => setShowSidebar(!showSidebar)}
-                        className="lg:hidden p-2 rounded-lg bg-white/10"
-                      >
-                        <FiFilter className="text-white text-lg" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="text-center lg:text-right mt-4 lg:mt-0">
-                    <div className="text-4xl lg:text-5xl font-bold mb-2">{stats.totalFiles.toLocaleString()}+</div>
-                    <div className="text-sm opacity-80">Media Files</div>
-                  </div>
-                </div>
-              </div>
-            </ModernCard>
-
-            {/* Search Bar */}
-            <div className="mb-6">
-              <ModernCard className="p-1">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiSearch className="text-slate-400 text-sm" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search galleries by title or description..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 text-sm focus:outline-none"
-                  />
-                  {searchTerm && (
-                    <button
-                      onClick={() => setSearchTerm('')}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    >
-                      <FiX className="text-slate-400 text-sm" />
-                    </button>
-                  )}
-                </div>
-              </ModernCard>
-            </div>
-
-            {/* Controls Bar */}
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-3 w-full lg:w-auto">
-                <div className="flex bg-slate-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === 'grid' 
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-sm' 
-                        : 'text-slate-600'
-                    }`}
-                  >
-                    <FiGrid className="text-lg" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === 'list' 
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-sm' 
-                        : 'text-slate-600'
-                    }`}
-                  >
-                    <FiList className="text-lg" />
-                  </button>
-                </div>
-                
-                <div className="text-sm text-slate-600 flex-1 lg:flex-none">
-                  <span className="font-semibold text-slate-800">{filteredImages.length}</span> galleries
-                  {activeCategory !== 'GENERAL' && (
-                    <span className="hidden sm:inline"> in <span className="font-semibold text-slate-800">
-                      {allCategories.find(c => c.id === activeCategory)?.name || activeCategory}
-                    </span></span>
-                  )}
-                </div>
-              </div>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setShowSidebar(!showSidebar)}
-                className="mobile-sidebar-toggle lg:hidden w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2 shadow-md"
-              >
-                <FiFilter />
-                Filter Categories
-              </button>
-            </div>
-
-            {/* Hierarchical Gallery Display */}
-            {filteredImages.length > 0 ? (
-              <div className="space-y-8">
-                {/* Show hierarchical sections when not searching or when in "General" category */}
-                {(searchTerm === '' && activeCategory === 'GENERAL') ? (
-                  <>
-                    {categoryStructure.map((layer, layerIndex) => {
-                      const layerGalleries = filteredImages.filter(gallery =>
-                        layer.categories.some(cat => cat.id === gallery.category)
-                      );
-                      
-                      if (layerGalleries.length === 0) return null;
-                      
-                      return (
-                        <div key={layerIndex} className={`${layerIndex === 0 ? '' : 'mt-8'}`}>
-                          {/* Layer Header */}
-                          <div className="flex items-center gap-4 mb-6">
-                            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl">
-                              <span className="text-white text-xl">{layer.emoji }</span>
-                            </div>
-                            <div>
-                              <h2 className="text-xl font-semibold text-slate-800">{layer.title}</h2>
-                              <p className="text-slate-500 text-sm">{layerGalleries.length} galler{layerGalleries.length !== 1 ? 'ies' : 'y'}</p>
-                            </div>
-                          </div>
-                          
-                          {/* Gallery Grid/List for this layer */}
-                          {viewMode === 'grid' ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {layerGalleries.map((item) => (
-                                <GalleryCard 
-                                  key={item.id} 
-                                  item={item} 
-                                  viewMode={viewMode} 
-                                  allCategories={allCategories}
-                                  favorites={favorites}
-                                  toggleFavorite={toggleFavorite}
-                                  openLightbox={openLightbox}
-                                  activeCategory={activeCategory}
-                                />
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="space-y-4">
-                              {layerGalleries.map((item) => (
-                                <GalleryCard 
-                                  key={item.id} 
-                                  item={item} 
-                                  viewMode={viewMode} 
-                                  allCategories={allCategories}
-                                  favorites={favorites}
-                                  toggleFavorite={toggleFavorite}
-                                  openLightbox={openLightbox}
-                                  activeCategory={activeCategory}
-                                />
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </>
-                ) : (
-                  /* Flat list when a specific category is selected or searching */
-                  viewMode === 'grid' ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {filteredImages.map((item) => (
-                        <GalleryCard 
-                          key={item.id} 
-                          item={item} 
-                          viewMode={viewMode} 
-                          allCategories={allCategories}
-                          favorites={favorites}
-                          toggleFavorite={toggleFavorite}
-                          openLightbox={openLightbox}
-                          activeCategory={activeCategory}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {filteredImages.map((item) => (
-                        <GalleryCard 
-                          key={item.id} 
-                          item={item} 
-                          viewMode={viewMode} 
-                          allCategories={allCategories}
-                          favorites={favorites}
-                          toggleFavorite={toggleFavorite}
-                          openLightbox={openLightbox}
-                          activeCategory={activeCategory}
-                        />
-                      ))}
-                    </div>
-                  )
-                )}
-              </div>
-            ) : (
-              // Empty State
-              <ModernCard className="text-center py-12">
-                <div className="text-6xl mb-4 opacity-20 text-slate-400">📷</div>
-                <h3 className="text-xl font-semibold text-slate-800 mb-3">No galleries found</h3>
-                <p className="text-slate-600 mb-6 max-w-md mx-auto text-sm">
-                  {searchTerm || selectedYear !== 'all' || activeCategory !== 'GENERAL' 
-                    ? 'Try adjusting your search criteria or filters to find what you\'re looking for.'
-                    : 'No galleries available yet. Check back soon!'}
-                </p>
-                {(searchTerm || selectedYear !== 'all' || activeCategory !== 'GENERAL') && (
-                  <ModernButton
-                    variant="primary"
-                    onClick={clearAllFilters}
-                    className="mx-auto"
-                  >
-                    Clear All Filters
-                  </ModernButton>
-                )}
-              </ModernCard>
-            )}
-
-            {/* Load More */}
-            {filteredImages.length > 0 && (
-              <div className="mt-8 text-center">
-                <p className="text-xs text-slate-500">
-                  Showing {filteredImages.length} of {transformedGalleries.length} galleries
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Modern Lightbox Modal */}
-      {selectedMedia && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="relative w-full h-full max-w-7xl max-h-[90vh] flex flex-col">
-            {/* Header Bar */}
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-md border-b border-slate-700">
-              <div className="flex items-center gap-3">
-                <ModernButton
-                  variant="ghost"
-                  size="sm"
-                  icon={IoClose}
-                  onClick={closeLightbox}
-                  className="text-white/80"
-                />
-                <div>
-                  <h2 className="text-lg font-semibold text-white">{selectedMedia.title}</h2>
-                  <p className="text-white/60 text-xs">
-                    {allCategories.find(c => c.id === selectedMedia.category)?.name || selectedMedia.category}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <ModernButton
-                  variant={favorites.has(selectedMedia.id) ? 'danger' : 'ghost'}
-                  size="sm"
-                  icon={FiHeart}
-                  onClick={() => toggleFavorite(selectedMedia.id)}
-                  className={favorites.has(selectedMedia.id) ? '' : 'text-white/60'}
-                />
-                
-                <ModernButton
-                  variant="primary"
-                  size="sm"
-                  icon={FiShare2}
-                  onClick={() => setShowShareModal(true)}
-                >
-                  Share
-                </ModernButton>
-              </div>
-            </div>
-
-            {/* Main Content Area */}
-            <div className="flex-1 flex flex-col lg:flex-row gap-4 p-2 lg:p-4 overflow-hidden">
-              {/* Media Display */}
-              <div className="flex-1 relative rounded-lg overflow-hidden bg-black flex items-center justify-center min-h-[40vh] lg:min-h-0">
-                {selectedMedia.files && selectedMedia.files[lightboxIndex] && (
-                  isVideoFile(selectedMedia.files[lightboxIndex]) ? (
-                    <div className="relative w-full h-full">
-                      <video
-                        ref={videoRef}
-                        src={selectedMedia.files[lightboxIndex]}
-                        className="w-full h-full object-contain"
-                        controls={false}
-                        muted={isMuted}
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
-                        onEnded={() => setIsPlaying(false)}
-                      />
-                      {/* Custom Video Controls */}
-                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-3 bg-black/50 p-3 rounded-lg backdrop-blur-md border border-white/10">
-                        <ModernButton
-                          variant="ghost"
-                          size="sm"
-                          icon={isPlaying ? FiPause : FiPlay}
-                          onClick={togglePlayPause}
-                          className="text-white"
-                        />
-                        <ModernButton
-                          variant="ghost"
-                          size="sm"
-                          icon={isMuted ? FiVolumeX : FiVolume2}
-                          onClick={toggleMute}
-                          className="text-white"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <Image
-                      src={selectedMedia.files[lightboxIndex]}
-                      alt={selectedMedia.title}
-                      fill
-                      className="object-contain"
-                      unoptimized={selectedMedia.files[lightboxIndex]?.includes('/gallery/')}
-                    />
-                  )
-                )}
-
-                {/* Navigation Arrows */}
-                {selectedMedia.files && selectedMedia.files.length > 1 && (
-                  <>
-                    <ModernButton
-                      variant="ghost"
-                      size="sm"
-                      icon={FiChevronLeft}
-                      onClick={prevMedia}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/80"
-                    />
-
-                    <ModernButton
-                      variant="ghost"
-                      size="sm"
-                      icon={FiChevronRight}
-                      onClick={nextMedia}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/80"
-                    />
-                  </>
-                )}
-              </div>
-
-              {/* Side Panel */}
-              <ModernCard className="lg:w-80 w-full h-auto lg:h-full flex flex-col">
-                {/* Description */}
-                <div className="flex-1 overflow-y-auto p-4">
-                  <h3 className="font-semibold text-slate-800 mb-2 text-sm">Description</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                    {selectedMedia.description || 'No description available'}
-                  </p>
-
-                  {/* File List */}
-                  {selectedMedia.files && selectedMedia.files.length > 1 && (
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold text-slate-800 text-sm">Current File</h4>
-                        <button
-                          onClick={() => setAutoPlay(!autoPlay)}
-                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                            autoPlay 
-                              ? 'bg-emerald-100 text-emerald-700' 
-                              : 'bg-slate-100 text-slate-600'
-                          }`}
-                        >
-                          {autoPlay ? 'Auto: ON' : 'Auto: OFF'}
-                        </button>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="p-3 rounded-lg bg-slate-50 text-slate-700 flex items-center gap-2 text-sm">
-                          {isVideoFile(selectedMedia.files[lightboxIndex]) ? (
-                            <FiVideo className="text-slate-500 flex-shrink-0" />
-                          ) : (
-                            <FiImage className="text-slate-500 flex-shrink-0" />
-                          )}
-                          <span className="truncate flex-1 text-left">
-                            {cleanFileName(selectedMedia.files[lightboxIndex])}
-                          </span>
-                          <span className="text-slate-500 text-xs">
-                            {lightboxIndex + 1}/{selectedMedia.files.length}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Meta Info */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-500">Date:</span>
-                      <span className="text-slate-800">{new Date(selectedMedia.date).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-500">Year:</span>
-                      <span className="text-slate-800">{selectedMedia.year}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-500">Total Files:</span>
-                      <span className="text-slate-800">{selectedMedia.files?.length || 0}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="p-4 border-t border-slate-200">
-                  <ModernButton 
-                    variant="primary"
-                    size="md"
-                    icon={FiDownload}
-                    onClick={downloadAllFiles}
-                    disabled={downloadingAll}
-                    className="w-full mb-3"
-                  >
-                    {downloadingAll ? 'Downloading...' : 'Download All Files'}
-                  </ModernButton>
-                  
-                  <ModernButton 
-                    variant="secondary"
-                    size="md"
-                    icon={FiDownload}
-                    onClick={() => downloadFile(selectedMedia.files[lightboxIndex])}
-                    className="w-full"
-                  >
-                    Download Current
-                  </ModernButton>
-                </div>
-              </ModernCard>
-            </div>
-
-            {/* Footer Bar */}
-            <div className="p-3 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-md border-t border-slate-700">
-              <div className="flex items-center justify-between">
-                <div className="text-white/60 text-xs">
-                  {selectedMedia.files && `${lightboxIndex + 1} of ${selectedMedia.files.length}`}
-                </div>
-                
-                {autoPlay && selectedMedia.files && selectedMedia.files.length > 1 && (
-                  <div className="flex items-center gap-2 text-emerald-400 text-xs">
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                    Auto-playing
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Gallery Detail Modal */}
+      {selectedGallery && (
+        <ModernGalleryDetailModal
+          gallery={selectedGallery}
+          onClose={() => setSelectedGallery(null)}
+          onDownload={handleDownload}
+          onShare={handleShare}
+        />
       )}
 
       {/* Share Modal */}
-      {showShareModal && selectedMedia && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-          <ModernCard className="max-w-sm w-full mx-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-800">Share Gallery</h3>
-                <ModernButton
-                  variant="ghost"
-                  size="sm"
-                  icon={IoClose}
-                  onClick={() => setShowShareModal(false)}
-                />
-              </div>
-              
-              <p className="text-slate-600 mb-6 text-center text-sm">
-                Share "{selectedMedia.title}" from Mary Immaculate Girls School Gallery
-              </p>
-      
-<div className="grid grid-cols-2 gap-3">
-  <ModernButton
-    variant="secondary"
-    size="md"
-    icon={FaWhatsapp}
-    onClick={shareOnWhatsApp}
-    className="text-green-600 hover:text-green-700"
-  >
-    WhatsApp
-  </ModernButton>
-  
-  <ModernButton
-    variant="secondary"
-    size="md"
-    icon={FaFacebookF}
-    onClick={shareOnFacebook}
-    className="text-blue-600 hover:text-blue-700"
-  >
-    Facebook
-  </ModernButton>
-  
-  <ModernButton
-    variant="secondary"
-    size="md"
-    icon={FaTwitter}
-    onClick={shareOnTwitter}
-    className="text-sky-500 hover:text-sky-600"
-  >
-    Twitter
-  </ModernButton>
-  
-  <ModernButton
-    variant="secondary"
-    size="md"
-    icon={FaCopy}
-    onClick={copyToClipboard}
-    className="text-gray-600 hover:text-gray-700"
-  >
-    Copy Link
-  </ModernButton>
-</div>
-            </div>
-          </ModernCard>
-        </div>
-      )}
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => {
+          setShareModalOpen(false);
+          setGalleryToShare(null);
+        }}
+        gallery={galleryToShare}
+      />
     </div>
   );
 }

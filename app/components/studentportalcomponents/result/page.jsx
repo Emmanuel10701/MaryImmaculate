@@ -474,12 +474,21 @@ function DocumentCard({ document, type = 'additional' }) {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric' 
+    });
+  };
+
   return (
-    <div className="group relative bg-white rounded-2xl p-3 sm:p-4 border border-gray-200 shadow-sm hover:shadow-sm transition-all duration-300">
+    <div className="group relative bg-white rounded-2xl p-3 sm:p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
       
-      {/* Top Section: Icon & Info - Mobile Stacking */}
+      {/* Top Section: Icon & Info */}
       <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
-        {/* Modern Icon Container */}
         <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl bg-gray-50 flex items-center justify-center">
           {getIcon()}
         </div>
@@ -489,12 +498,23 @@ function DocumentCard({ document, type = 'additional' }) {
             <h5 className="font-bold text-gray-800 text-sm sm:text-base leading-tight truncate pr-1">
               {document.name || document.filename}
             </h5>
+            {document.year && (
+              <span className="flex-shrink-0 text-[10px] xs:text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full ml-1">
+                {document.year}
+              </span>
+            )}
           </div>
           
           <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1 sm:mt-2">
             <span className="inline-flex items-center px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-full bg-slate-100 text-slate-600 text-[9px] xs:text-[10px] sm:text-xs font-bold uppercase tracking-wider truncate">
-              {type === 'exam' ? `Form ${document.form}` : document.year || 'General'}
+              {type === 'exam' ? `Form ${document.form}` : document.term || 'General'}
             </span>
+            {document.uploadDate && (
+              <span className="inline-flex items-center text-gray-400 text-[9px] xs:text-[10px] sm:text-xs font-medium">
+                <FiCalendar className="mr-0.5 text-xs" />
+                {formatDate(document.uploadDate)}
+              </span>
+            )}
             <span className="inline-flex items-center text-gray-400 text-[9px] xs:text-[10px] sm:text-xs font-medium truncate">
               <FiDownloadCloud className="mr-0.5 sm:mr-1 text-xs" />
               {formatSize(document.size || document.filesize)}
@@ -505,9 +525,11 @@ function DocumentCard({ document, type = 'additional' }) {
 
       {/* Description Section */}
       {document.description && (
-        <p className="text-gray-500 text-xs mt-2 sm:mt-3 leading-relaxed line-clamp-2 italic">
-          "{document.description}"
-        </p>
+        <div className="mt-2 sm:mt-3">
+          <p className="text-gray-600 text-xs leading-relaxed line-clamp-2">
+            {document.description}
+          </p>
+        </div>
       )}
 
       {/* Action Button */}
@@ -538,9 +560,9 @@ export default function ModernResultsView({
   const [viewMode, setViewMode] = useState('list');
   const [selectedResult, setSelectedResult] = useState(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [schoolData, setSchoolData] = useState(null);
-  const [schoolLoading, setSchoolLoading] = useState(true);
-  const [schoolError, setSchoolError] = useState(null);
+  const [documentData, setDocumentData] = useState(null);
+  const [documentLoading, setDocumentLoading] = useState(true);
+  const [documentError, setDocumentError] = useState(null);
   
   // CHANGED: Updated stats to match second code (4 cards, student-specific)
   const [stats, setStats] = useState({
@@ -569,28 +591,28 @@ export default function ModernResultsView({
     }));
   }, [studentResults]);
 
-  // Fetch school data
+  // Fetch school document data from API
   useEffect(() => {
-    const fetchSchoolData = async () => {
+    const fetchDocumentData = async () => {
       try {
-        setSchoolLoading(true);
-        const response = await fetch('/api/school');
+        setDocumentLoading(true);
+        const response = await fetch('/api/schooldocuments');
         const data = await response.json();
         
-        if (data.success) {
-          setSchoolData(data.school);
+        if (data.success && data.document) {
+          setDocumentData(data.document);
         } else {
-          throw new Error('Failed to load school data');
+          throw new Error('Failed to load document data');
         }
       } catch (error) {
-        console.error('Error fetching school data:', error);
-        setSchoolError(error.message);
+        console.error('Error fetching document data:', error);
+        setDocumentError(error.message);
       } finally {
-        setSchoolLoading(false);
+        setDocumentLoading(false);
       }
     };
 
-    fetchSchoolData();
+    fetchDocumentData();
   }, []);
 
   // CHANGED: Calculate statistics from transformed results - STUDENT-SPECIFIC ONLY (from second code)
@@ -682,49 +704,97 @@ export default function ModernResultsView({
     return ['all', ...years];
   }, [transformedResults]);
 
-  // Process school exam results
+  // Process exam results from documentData API
   const prioritizedExamResults = useMemo(() => {
-    if (!schoolData?.examResults) return [];
+    if (!documentData) return [];
     
     const results = [];
-    const examResults = schoolData.examResults;
-    const studentForm = student?.form || '4';
+    const studentForm = student?.form?.replace('Form ', '') || '4';
     
-    // Add student's own form first
-    const studentFormKey = `form${studentForm}`;
-    if (examResults[studentFormKey]) {
-      results.push({
-        ...examResults[studentFormKey],
-        form: studentForm,
-        type: 'exam',
-        priority: 1
-      });
-    }
+    // Map Form results
+    const formResults = [
+      { key: 'form1ResultsPdf', form: '1', name: 'Form 1 Results', priority: 1 },
+      { key: 'form2ResultsPdf', form: '2', name: 'Form 2 Results', priority: 2 },
+      { key: 'form3ResultsPdf', form: '3', name: 'Form 3 Results', priority: 3 },
+      { key: 'form4ResultsPdf', form: '4', name: 'Form 4 Results', priority: 4 }
+    ];
     
-    // Add other forms
-    const forms = ['form4', 'form3', 'form2', 'form1', 'mockExams', 'kcse'];
-    forms.forEach(formKey => {
-      if (formKey !== studentFormKey && examResults[formKey]) {
+    formResults.forEach(({ key, form, name, priority }) => {
+      if (documentData[key]) {
         results.push({
-          ...examResults[formKey],
-          form: formKey.replace('form', ''),
+          name: documentData[`${key.split('Pdf')[0]}PdfName`] || name,
+          pdf: documentData[key],
+          form: form,
           type: 'exam',
-          priority: formKey === 'mockExams' || formKey === 'kcse' ? 3 : 2
+          priority: form === studentForm ? 0 : priority,
+          description: documentData[`form${form}ResultsDescription`],
+          year: documentData[`form${form}ResultsYear`],
+          term: documentData[`form${form}ResultsTerm`],
+          size: documentData[`form${form}ResultsPdfSize`],
+          uploadDate: documentData[`form${form}ResultsUploadDate`]
         });
       }
     });
     
-    return results.sort((a, b) => a.priority - b.priority);
-  }, [schoolData, student]);
-
-  // Process additional results files
-  const additionalResultsFiles = useMemo(() => {
-    if (!schoolData?.additionalResultsFiles) return [];
+    // Add Mock Exams
+    if (documentData.mockExamsResultsPdf) {
+      results.push({
+        name: documentData.mockExamsPdfName || 'Mock Exams Results',
+        pdf: documentData.mockExamsResultsPdf,
+        form: '4', // Usually Form 4
+        type: 'exam',
+        priority: 5,
+        description: documentData.mockExamsDescription,
+        year: documentData.mockExamsYear,
+        term: documentData.mockExamsTerm,
+        size: documentData.mockExamsPdfSize,
+        uploadDate: documentData.mockExamsUploadDate
+      });
+    }
     
-    return [...schoolData.additionalResultsFiles]
-      .sort((a, b) => parseInt(b.year) - parseInt(a.year))
-      .slice(0, 6);
-  }, [schoolData]);
+    // Add KCSE Results
+    if (documentData.kcseResultsPdf) {
+      results.push({
+        name: documentData.kcsePdfName || 'KCSE Results',
+        pdf: documentData.kcseResultsPdf,
+        form: '4', // KCSE is for Form 4
+        type: 'exam',
+        priority: 6,
+        description: documentData.kcseDescription,
+        year: documentData.kcseYear,
+        term: documentData.kcseTerm,
+        size: documentData.kcsePdfSize,
+        uploadDate: documentData.kcseUploadDate
+      });
+    }
+    
+    // Sort by priority (student's own form first, then others)
+    return results.sort((a, b) => a.priority - b.priority);
+  }, [documentData, student]);
+
+  // Process additional documents from documentData API
+  const additionalResultsFiles = useMemo(() => {
+    if (!documentData?.additionalDocuments) return [];
+    
+    return [...documentData.additionalDocuments]
+      .sort((a, b) => {
+        // Sort by year descending, then by upload date
+        if (a.year && b.year && a.year !== b.year) {
+          return parseInt(b.year) - parseInt(a.year);
+        }
+        return new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0);
+      })
+      .map(doc => ({
+        filename: doc.filename,
+        filepath: doc.filepath,
+        filetype: doc.filetype,
+        description: doc.description,
+        year: doc.year,
+        term: doc.term,
+        filesize: doc.filesize,
+        uploadedAt: doc.uploadedAt
+      }));
+  }, [documentData]);
 
   const handleViewSubjects = (result) => {
     setSelectedResult(result);
@@ -1062,16 +1132,16 @@ export default function ModernResultsView({
               </p>
             </div>
 
-            {schoolLoading ? (
+            {documentLoading ? (
               <div className="text-center py-6 sm:py-8">
                 <CircularProgress size={20}  className="text-purple-600" />
                 <p className="text-gray-600 text-xs sm:text-sm mt-2">Loading school documents...</p>
               </div>
-            ) : schoolError ? (
+            ) : documentError ? (
               <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl border-2 border-red-300 p-3 sm:p-4 text-center">
                 <FiAlertTriangle className="text-red-500 text-lg sm:text-xl mx-auto mb-1.5 sm:mb-2" />
                 <p className="text-red-700 font-bold text-xs sm:text-sm mb-0.5 sm:mb-1">Unable to load documents</p>
-                <p className="text-red-600 text-[10px] sm:text-xs">{schoolError}</p>
+                <p className="text-red-600 text-[10px] sm:text-xs">{documentError}</p>
               </div>
             ) : (
               <div className="space-y-3 sm:space-y-4 md:space-y-6">
@@ -1085,6 +1155,29 @@ export default function ModernResultsView({
                       {prioritizedExamResults.map((result, index) => (
                         <DocumentCard key={index} document={result} type="exam" />
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Curriculum Documents */}
+                {documentData?.curriculumPDF && (
+                  <div>
+                    <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 mb-1.5 sm:mb-2 md:mb-3">
+                      Curriculum & Syllabus
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
+                      <DocumentCard 
+                        document={{
+                          name: documentData.curriculumPdfName || 'School Curriculum',
+                          pdf: documentData.curriculumPDF,
+                          description: documentData.curriculumDescription,
+                          year: documentData.curriculumYear,
+                          term: documentData.curriculumTerm,
+                          size: documentData.curriculumPdfSize,
+                          uploadDate: documentData.curriculumPdfUploadDate
+                        }}
+                        type="curriculum"
+                      />
                     </div>
                   </div>
                 )}

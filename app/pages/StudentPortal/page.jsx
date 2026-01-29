@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, React, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Toaster, toast } from 'sonner';
 import StudentLoginModal from '../../components/studentloginmodel/page';
 import NavigationSidebar from '../../components/studentportalcomponents/aside/page.jsx';
@@ -18,7 +18,7 @@ import {
   FaLightbulb, FaBrain, FaHandshake, FaHeart, FaLock, FaGlobe, 
   FaArrowRight, FaFire, FaBolt, FaCalendarCheck, FaUserPlus, 
   FaUserCheck, FaRoute, FaDirections, FaQrcode, FaFingerprint, 
-  FaIdCard, FaDesktop, FaWandMagic, FaUser, FaGraduationCap 
+  FaIdCard, FaDesktop, FaWandMagic, FaUser
 } from 'react-icons/fa6';
 
 import { useRouter } from 'next/navigation';
@@ -361,7 +361,7 @@ function ModernHomeView({ student, feeBalance, feeLoading, token }) {
             </span>
             <span className="inline-flex items-center gap-1 sm:gap-2 bg-white bg-opacity-20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full backdrop-blur-sm text-xs sm:text-sm font-bold">
               <FaCalendarCheck className="text-blue-200 text-xs sm:text-sm md:text-base" />
-              MIGS
+              Katz
             </span>
           </div>
         </div>
@@ -380,13 +380,13 @@ function ModernHomeView({ student, feeBalance, feeLoading, token }) {
       <div className="relative bg-white/95 sm:bg-white/90 md:bg-white/80 backdrop-blur-xs sm:backdrop-blur-sm md:backdrop-blur-xl rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl p-2.5 sm:p-3 md:p-4 lg:p-5 xl:p-6 border border-gray-100 sm:border-gray-150 md:border-white shadow-sm sm:shadow-md hover:shadow-md transition-all duration-300 overflow-hidden h-full">
         
         {/* Decorative Pattern - Smaller on mobile */}
-        <div className="absolute -right-1.5 -top-1.5 sm:-right-2 sm:-top-2 md:-right-3 md:-top-3 lg:-right-4 lg:-top-4 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-gray-50/30 to-transparent rounded-full opacity-40 md:opacity-50 group-hover:scale-105 transition-transform duration-500" />
+        <div className="absolute -right-1.5 -top-1.5 sm:-right-2 sm:-top-2 md:-right-3 md:-top-3 lg:-right-4 lg:-top-4 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-gray-50/30 to-transparent rounded-full opacity-40 md:opacity-50 group-hover:scale-100 transition-transform duration-500" />
 
         <div className="flex flex-col h-full">
           {/* Top Row: Icon and Trends - Stacked vertically on mobile */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-1.5 sm:mb-2 md:mb-3 lg:mb-4">
             {/* Icon Container - Centered on mobile */}
-            <div className={`flex justify-center sm:justify-start p-1.5 sm:p-2 md:p-2.5 lg:p-3 bg-gradient-to-br ${stat.gradient} rounded-lg sm:rounded-xl md:rounded-2xl text-white shadow-xs sm:shadow-sm md:shadow-lg group-hover:scale-105 transition-transform duration-300 self-center sm:self-auto mb-1 sm:mb-0`}>
+            <div className={`flex justify-center sm:justify-start p-1.5 sm:p-2 md:p-2.5 lg:p-3 bg-gradient-to-br ${stat.gradient} rounded-lg sm:rounded-xl md:rounded-2xl text-white shadow-xs sm:shadow-sm md:shadow-lg group-hover:scale-100 transition-transform duration-300 self-center sm:self-auto mb-1 sm:mb-0`}>
               <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7">
                 {stat.icon}
               </div>
@@ -838,39 +838,39 @@ if (!student || !token) {
   // Define features array here since it's only used in the login view
   const features = [
     { 
-      icon: <FaBook className="w-5 h-5 text-blue-600" />, 
+      icon: <FaBook className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />, 
       title: "Learning Resources", 
       desc: "Access digital notes, revision e-books, and past papers." 
     },
     { 
-      icon: <FaAward className="w-5 h-5 text-emerald-600" />, 
+      icon: <FaAward className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />, 
       title: "Assignments", 
       desc: "View and submit your subject tasks and holiday projects." 
     },
     { 
-      icon: <FaChartBar className="w-5 h-5 text-indigo-600" />, 
+      icon: <FaChartBar className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />, 
       title: "Academic Results", 
       desc: "Personalized performance tracking vs class & KCSE targets." 
     },
     { 
-      icon: <FaDollarSign className="w-5 h-5 text-amber-600" />, 
+      icon: <FaDollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />, 
       title: "Fee Structures", 
       desc: "Check balance, download statements, and payment slips." 
     },
     { 
-      icon: <FaCalendar className="w-5 h-5 text-rose-600" />, 
+      icon: <FaCalendar className="w-4 h-4 sm:w-5 sm:h-5 text-rose-600" />, 
       title: "School Events", 
       desc: "Academic calendar, sports days, and parent-teacher meets." 
     },
     { 
-      icon: <FaComments className="w-5 h-5 text-purple-600" />, 
+      icon: <FaComments className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />, 
       title: "School News", 
       desc: "Latest updates from the administration and student body." 
     }
   ];
 
-return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 text-slate-900 font-sans overflow-x-hidden">
+  return (
+    <div className="min-h-screen bg-[#FDFDFD] text-slate-900 font-sans overflow-x-hidden">
       {/* Dynamic Background Pattern */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.03]" 
            style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
@@ -878,210 +878,237 @@ return (
       <Toaster position="top-right" expand={true} richColors theme="light" />
       
       <main className="relative z-10 flex flex-col min-h-screen">
-  {/* Navigation Bar */}
-<nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 py-4 md:px-12">
-  <div className="max-w-7xl mx-auto flex justify-between items-center">
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-3">
-        {/* Logo Image */}
-        <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
-          <Image
-            src="/ll.png"
-            alt="Mary Immaculate Girls High School Logo"
-            width={40}
-            height={40}
-            className="object-cover w-full h-full"
-            priority
-          />
-        </div>
-        <div>
-          <span className="text-lg font-black tracking-tighter block leading-none">
-            MARY IMMACULATE
-          </span>
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase">
-            Girls High School • Mweiga
-          </span>
-        </div>
-      </div>
-    </div>
+        {/* Navigation Bar - Enhanced Mobile */}
+        <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-slate-200/60 px-3 py-2.5 sm:px-4 sm:py-3 md:px-6 md:py-4 lg:px-12">
+          <div className="max-w-7xl mx-auto flex justify-between items-center">
+            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
+              <Image
+                src="/katz.png"
+                alt="Katwanyaa High School Logo"
+                width={32}
+                height={32}
+                className="rounded-md w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12"
+                priority
+              />
 
-    {/* Desktop Navigation */}
-    <div className="hidden md:flex items-center gap-8">
-      <div className="flex items-center gap-2 px-3 py-1 bg-pink-50 rounded-full border border-pink-100">
-        <div className="w-1.5 h-1.5 bg-pink-500 rounded-full animate-pulse" />
-        <span className="text-[10px] font-black text-pink-700 uppercase tracking-wider">Secure Student Portal</span>
-      </div>
-      <button 
-        onClick={() => router.push('/pages/contact')}
-        className="text-sm font-bold text-slate-500 hover:text-pink-600 transition-colors hover:underline"
-      >
-        Help Desk
-      </button>
-    </div>
-  </div>
-</nav>
-
-        {/* Hero Section with Login */}
-        <section className="px-6 md:px-12 py-12 lg:py-20 max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-pink-50 rounded-lg border border-pink-200 text-[10px] font-bold tracking-widest uppercase text-pink-600">
-                <HiSparkles className="w-3 h-3 text-purple-600" />
-                Empowering Girls Since 1985
+              <div>
+                <span className="text-sm xs:text-base sm:text-lg md:text-xl font-black tracking-tighter block leading-none">
+                  KATWANYAA
+                </span>
+                <span className="text-[7px] xs:text-[8px] sm:text-[9px] md:text-[10px] font-bold text-blue-600 
+                  tracking-[0.1em] xs:tracking-[0.15em] sm:tracking-[0.2em] uppercase">
+                  High School Portal
+                </span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] text-slate-950">
-                EXCELLENCE  <br />
-                <span className="text-pink-600 italic">WITH  PURITY.</span>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-full border border-blue-100">
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                <span className="text-[10px] font-black text-blue-700 uppercase tracking-wider">Secure Login</span>
+              </div>
+              <button className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">Help Desk</button>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button className="md:hidden flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg 
+              bg-slate-100 hover:bg-slate-200 transition-colors active:scale-95">
+              <FaBars className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+            </button>
+          </div>
+        </nav>
+
+        {/* Hero Section with Login - Enhanced Mobile */}
+        <section className="px-3 xs:px-4 sm:px-6 md:px-8 lg:px-12 py-6 sm:py-8 md:py-12 lg:py-20 max-w-7xl mx-auto w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xs:gap-8 sm:gap-10 md:gap-12 lg:gap-16 items-center">
+            <div className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-8">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-lg border border-slate-200 
+                text-[8px] xs:text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-slate-500 whitespace-nowrap">
+                <HiSparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-blue-600" />
+                Empowering Excellence Since 1978
+              </div>
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 
+                font-black tracking-tighter leading-[0.85] xs:leading-[0.9] text-slate-950">
+                EDUCATION  
+                <span className="block text-blue-600 italic mt-1 xs:mt-2">IS LIGHT.</span>
               </h1>
-              <p className="text-xl text-slate-500 font-medium max-w-md leading-snug">
-                Welcome to the Mary Immaculate Girls High School Student Portal in Mweninga. Your digital gateway to academic excellence and holistic development.
+              <p className="text-sm xs:text-base sm:text-lg md:text-xl text-slate-500 font-medium 
+                max-w-full xs:max-w-xs sm:max-w-md leading-relaxed xs:leading-snug">
+                Welcome to the Katwanyaa High School Digital Student Portal. Your unified hub for academics, finance, and communication.
               </p>
               
-              {/* Login Button */}
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md">
+              {/* Login Button - Enhanced Mobile */}
+              <div className="flex flex-col xs:flex-row gap-3 xs:gap-4 max-w-full xs:max-w-xs sm:max-w-md">
                 <button
                   onClick={() => setShowLoginModal(true)}
-                  className="flex items-center w-full text-white justify-center gap-3 px-8 py-4  t rounded-2xl font-bo transition-all bg-slate-500 hover:bg-slate-600 shadow-2xl shadow-pink-200 group"
+                  className="flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-3 
+                    px-5 xs:px-6 sm:px-8 py-2.5 xs:py-3 sm:py-4 
+                    bg-slate-950 text-white rounded-lg xs:rounded-xl sm:rounded-2xl font-bold 
+                    hover:bg-blue-600 transition-all duration-300 active:scale-[0.98]
+                    shadow-lg sm:shadow-xl shadow-slate-200/50 
+                    group w-full xs:w-auto"
                 >
-                  Access Student Portal <FaArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <span className="text-xs xs:text-sm sm:text-base">Access Portal</span>
+                  <FaArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+                
+            {/* Mobile Help Desk Button */}
+<button
+  onClick={() => router.push("/pages/contact")}
+  className="
+    md:hidden
+    flex items-center justify-center gap-2
+    px-6 xs:px-7
+    py-3 xs:py-3.5
+    bg-white border border-slate-200
+    text-slate-700
+    rounded-xl
+    font-semibold
+    hover:bg-slate-50
+    transition-all
+    active:scale-[0.98]
+    text-sm
+    w-[70%] mx-auto
+  "
+>
+  Help Desk
+</button>
+
+              </div>
+            </div>
+
+            {/* Quick Status / Communication Box - Enhanced Mobile */}
+            <div className="relative group mt-4 xs:mt-6 sm:mt-0">
+              <div className="absolute -inset-2 xs:-inset-3 sm:-inset-4 bg-blue-100/40 rounded-[2rem] xs:rounded-[2.5rem] 
+                blur-xl xs:blur-2xl sm:blur-3xl opacity-40 group-hover:opacity-60 transition-opacity duration-300" />
+              <div className="relative bg-white border border-slate-200 shadow-lg xs:shadow-xl 
+                rounded-[1.5rem] xs:rounded-[2rem] sm:rounded-[2.5rem] p-4 xs:p-5 sm:p-6 md:p-8 space-y-4 xs:space-y-5 sm:space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 xs:pb-4">
+                  <h3 className="font-black text-xs xs:text-sm uppercase tracking-widest text-slate-400 whitespace-nowrap">
+                    Portal Features
+                  </h3>
+                  <FaBrain className="w-4 h-4 xs:w-5 xs:h-5 text-blue-500" />
+                </div>
+                <div className="space-y-3 xs:space-y-4">
+                  <div className="p-3 xs:p-4 bg-slate-50/80 rounded-xl xs:rounded-2xl border border-slate-100">
+                    <p className="text-[10px] xs:text-xs font-bold text-blue-600 mb-0.5 xs:mb-1">Academic Resources</p>
+                    <p className="text-xs xs:text-sm font-semibold text-slate-800 leading-tight">
+                      Digital notes, e-books, and past papers available.
+                    </p>
+                  </div>
+                  <div className="p-3 xs:p-4 bg-slate-50/80 rounded-xl xs:rounded-2xl border border-slate-100">
+                    <p className="text-[10px] xs:text-xs font-bold text-emerald-600 mb-0.5 xs:mb-1">Performance Tracking</p>
+                    <p className="text-xs xs:text-sm font-semibold text-slate-800 leading-tight">
+                      Monitor your progress vs KCSE targets.
+                    </p>
+                  </div>
+                  <div className="p-3 xs:p-4 bg-slate-50/80 rounded-xl xs:rounded-2xl border border-slate-100">
+                    <p className="text-[10px] xs:text-xs font-bold text-purple-600 mb-0.5 xs:mb-1">Fee Management</p>
+                    <p className="text-xs xs:text-sm font-semibold text-slate-800 leading-tight">
+                      Check balance and download payment slips.
+                    </p>
+                  </div>
+                </div>
+                <button className="w-full py-2.5 xs:py-3 text-center text-[10px] xs:text-xs font-black 
+                  uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors duration-300">
+                  View All Features
                 </button>
               </div>
-              
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 max-w-md pt-4">
-                <div className="text-center">
-                  <div className="text-2xl font-black text-pink-600">best </div>
-<div className="text-xs font-bold text-slate-500">
-  KCSE {new Date().getFullYear() - 1}
-</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-black text-purple-600">1200+</div>
-                  <div className="text-xs font-bold text-slate-500">Students</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-black text-indigo-600">30+</div>
-                  <div className="text-xs font-bold text-slate-500">Talented Staff</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Status / Communication Box */}
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-pink-100/50 rounded-[3rem] blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
-              <div className="relative bg-white border border-slate-200 shadow-xl rounded-[2.5rem] p-8 space-y-6">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                  <h3 className="font-black text-sm uppercase tracking-widest text-slate-400">Portal Features</h3>
-                  <FaGraduationCap className="w-5 h-5 text-pink-500" />
-                </div>
-                <div className="space-y-4">
-                  <div className="p-4 bg-pink-50/50 rounded-2xl border border-pink-100">
-                    <p className="text-xs font-bold text-pink-600 mb-1">Academic Resources</p>
-                    <p className="text-sm font-semibold text-slate-800">Access notes, e-books, and past papers anytime.</p>
-                  </div>
-                  <div className="p-4 bg-purple-50/50 rounded-2xl border border-purple-100">
-                    <p className="text-xs font-bold text-purple-600 mb-1">Performance Dashboard</p>
-                    <p className="text-sm font-semibold text-slate-800">Track your academic progress in real-time.</p>
-                  </div>
-                  <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
-                    <p className="text-xs font-bold text-indigo-600 mb-1">Fee Management</p>
-                    <p className="text-sm font-semibold text-slate-800">View balance, statements & payment history.</p>
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-slate-100">
-                  <p className="text-xs text-slate-400 text-center">
-                    <span className="font-bold text-pink-600">Note:</span> Use your admission number and school password
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Feature Grid: School Features */}
-        <section className="bg-gradient-to-b from-white to-pink-50/30 border-y border-slate-200/60 py-20 px-6 md:px-12">
+        {/* Feature Grid: School Features - Enhanced Mobile */}
+        <section className="bg-slate-50/50 border-y border-slate-200/60 py-8 xs:py-12 sm:py-16 md:py-20 
+          px-3 xs:px-4 sm:px-6 md:px-8 lg:px-12">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-12 text-center">
-              <h2 className="text-3xl font-black tracking-tight mb-2">Student Portal Modules</h2>
-              <p className="text-slate-500 font-medium">Everything you need for academic success at Mary Immaculate Girls</p>
+            <div className="mb-6 xs:mb-8 sm:mb-10 md:mb-12 px-2">
+              <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-1 xs:mb-2">
+                Portal Modules
+              </h2>
+              <p className="text-slate-500 font-medium text-sm xs:text-base">
+                Everything you need to navigate your school journey.
+              </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-{features.map((feature, i) => (
-  <div key={i} className="group p-8 bg-white border border-slate-200/80 rounded-[2rem] hover:shadow-2xl hover:shadow-pink-200/50 hover:-translate-y-1 transition-all duration-300">
-    <div className="w-12 h-12 bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-      {/* Simply render the icon directly */}
-      {feature.icon}
-    </div>
-    <h3 className="text-xl font-bold text-slate-950 mb-3">{feature.title}</h3>
-    <p className="text-slate-500 text-sm leading-relaxed mb-6">{feature.desc}</p>
-    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-pink-600 transition-colors cursor-pointer">
-      Login to Access <FaArrowRight className="w-4 h-4" />
-    </div>
-  </div>
-))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 xs:gap-4 sm:gap-5 md:gap-6 px-2">
+              {features.map((feature, i) => (
+                <div key={i} className="group p-4 xs:p-5 sm:p-6 md:p-8 
+                  bg-white border border-slate-200/80 
+                  rounded-[1.5rem] xs:rounded-[1.75rem] sm:rounded-[2rem] 
+                  hover:shadow-xl hover:shadow-slate-200/30 
+                  hover:-translate-y-0.5 active:translate-y-0
+                  transition-all duration-300">
+                  <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 
+                    bg-slate-50 rounded-lg xs:rounded-xl sm:rounded-2xl 
+                    flex items-center justify-center mb-3 xs:mb-4 sm:mb-6 
+                    group-hover:scale-105 transition-transform duration-300">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-base xs:text-lg sm:text-xl md:text-2xl 
+                    font-bold text-slate-950 mb-1.5 xs:mb-2 sm:mb-3 leading-tight">
+                    {feature.title}
+                  </h3>
+                  <p className="text-slate-500 text-xs xs:text-sm leading-relaxed mb-3 xs:mb-4 sm:mb-6 
+                    line-clamp-2 xs:line-clamp-3">
+                    {feature.desc}
+                  </p>
+                  <div className="flex items-center gap-1.5 xs:gap-2 text-[10px] xs:text-xs font-black 
+                    uppercase tracking-widest text-slate-400 
+                    group-hover:text-blue-600 transition-colors duration-300 cursor-pointer">
+                    Login to Access 
+                    <FaArrowRight className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4" />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* School Motto Section */}
-        <section className="px-6 md:px-12 py-16">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-50 to-purple-50 rounded-full border border-pink-100 mb-6">
-              <span className="text-xs font-bold text-pink-600 uppercase tracking-widest">Our Motto</span>
-            </div>
-            <h3 className="text-2xl md:text-3xl font-black text-slate-900 mb-4">
-              "Virtue and Knowledge for Excellence"
-            </h3>
-            <p className="text-slate-600 font-medium">
-              At Mary Immaculate Girls High School Mweninga, we nurture holistic development through academic excellence, 
-              moral integrity, and spiritual growth, preparing young women for leadership in society.
-            </p>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="px-6 py-12 md:px-12 bg-gradient-to-b from-white to-slate-50">
-          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-12">
-            <div className="flex flex-col items-center lg:items-start gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">MIG</span>
+        {/* Footer - Enhanced Mobile */}
+        <footer className="px-3 xs:px-4 sm:px-6 md:px-8 lg:px-12 py-6 xs:py-8 sm:py-10 md:py-12 bg-white">
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center 
+            gap-6 xs:gap-8 sm:gap-10 md:gap-12">
+            <div className="flex flex-col items-center lg:items-start gap-3 xs:gap-4 text-center lg:text-left">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 bg-slate-100 rounded-lg 
+                  flex items-center justify-center">
+                  <FaBrain className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                 </div>
-                <div>
-                  <span className="text-sm font-bold tracking-tight">Mary Immaculate Girls</span>
-                  <p className="text-xs text-slate-400">High School • Mweninga</p>
-                </div>
+                <span className="text-sm xs:text-base font-bold tracking-tight">Katwanyaa Technical Lab</span>
               </div>
-              <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">©2024 Mary Immaculate Girls High School. All Rights Reserved.</p>
+              <p className="text-[9px] xs:text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                ©2024 Katwanyaa High School. All Rights Reserved.
+              </p>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-10">
-              <div className="space-y-2">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Academic</p>
-                <p className="text-xs font-bold hover:text-pink-600 cursor-pointer transition-colors">KNEC Portal</p>
-                <p className="text-xs font-bold hover:text-pink-600 cursor-pointer transition-colors">Library</p>
+            <div className="flex flex-wrap justify-center gap-4 xs:gap-6 sm:gap-8 md:gap-10">
+              <div className="space-y-1 xs:space-y-2 text-center">
+                <p className="text-[9px] xs:text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                  Academic Hub
+                </p>
+                <p className="text-xs font-bold hover:text-blue-600 cursor-pointer transition-colors duration-300">
+                  KNEC Portal
+                </p>
               </div>
-              <div className="space-y-2">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Administration</p>
-                <p className="text-xs font-bold hover:text-pink-600 cursor-pointer transition-colors">Fee Payments</p>
-                <p className="text-xs font-bold hover:text-pink-600 cursor-pointer transition-colors">Hostel Booking</p>
+              <div className="space-y-1 xs:space-y-2 text-center">
+                <p className="text-[9px] xs:text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                  Financials
+                </p>
+                <p className="text-xs font-bold hover:text-blue-600 cursor-pointer transition-colors duration-300">
+                  Payment Gateways
+                </p>
               </div>
-              <div className="space-y-2">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Support</p>
-                <p className="text-xs font-bold hover:text-pink-600 cursor-pointer transition-colors">IT Service Desk</p>
-                <p className="text-xs font-bold hover:text-pink-600 cursor-pointer transition-colors">Guidance & Counseling</p>
+              <div className="space-y-1 xs:space-y-2 text-center">
+                <p className="text-[9px] xs:text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                  Support
+                </p>
+                <p className="text-xs font-bold hover:text-blue-600 cursor-pointer transition-colors duration-300">
+                  IT Service Desk
+                </p>
               </div>
             </div>
-          </div>
-          
-          {/* Contact Info */}
-          <div className="mt-12 pt-8 border-t border-slate-100 text-center">
-            <p className="text-sm text-slate-500">
-              <span className="font-bold">Address:</span> P.O Box 123-40200, Mweninga • 
-              <span className="font-bold ml-4">Email:</span> info@maryimmaculategirls.ac.ke • 
-              <span className="font-bold ml-4">Phone:</span> +254 700 000 000
-            </p>
           </div>
         </footer>
       </main>
@@ -1213,10 +1240,10 @@ return (
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
                 <div className="text-center md:text-left">
                   <p className="text-gray-700 text-sm font-bold">
-                    © {new Date().getFullYear()} Mary Immaculate Girls School
+                    © {new Date().getFullYear()} Katwanyaa High  School
                   </p>
                   <p className="text-gray-500 text-xs mt-1 sm:mt-2">
-                    Student Portal v3.0 • Prayer, Discipline and Hardwork in Education
+                    Student Portal v3.0 • Education is Light
                   </p>
                   <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
                     <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>

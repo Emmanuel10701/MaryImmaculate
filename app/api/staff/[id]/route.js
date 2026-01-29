@@ -1,21 +1,62 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../libs/prisma";
-import path from "path";
-import fs from "fs";
-import { randomUUID } from "crypto";
+import cloudinary from "../../../../libs/cloudinary";
 
-// Ensure upload folder exists
-const uploadDir = path.join(process.cwd(), "public", "staff");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Helper: Upload image to Cloudinary
+const uploadImageToCloudinary = async (file) => {
+  if (!file?.name || file.size === 0) return null;
 
-// Helper: remove image safely
-const removeImage = (imagePath) => {
-  if (!imagePath) return;
-  const fullPath = path.join(process.cwd(), "public", imagePath);
-  if (fs.existsSync(fullPath)) {
-    fs.unlinkSync(fullPath);
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const timestamp = Date.now();
+    const originalName = file.name;
+    const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.'));
+    const sanitizedFileName = nameWithoutExt.replace(/[^a-zA-Z0-9.-]/g, "_");
+    
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "image",
+          folder: "school_staff",
+          public_id: `${timestamp}-${sanitizedFileName}`,
+          transformation: [
+            { width: 500, height: 500, crop: "fill", gravity: "face" },
+            { quality: "auto:good" }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(buffer);
+    });
+    
+    return result.secure_url;
+  } catch (error) {
+    console.error("❌ Cloudinary upload error:", error);
+    return null;
+  }
+};
+
+// Helper: Delete image from Cloudinary
+const deleteImageFromCloudinary = async (imageUrl) => {
+  if (!imageUrl || !imageUrl.includes('cloudinary.com')) return;
+
+  try {
+    // Extract public ID from Cloudinary URL
+    const urlParts = imageUrl.split('/');
+    const uploadIndex = urlParts.indexOf('upload');
+    
+    if (uploadIndex === -1) return;
+    
+    const pathAfterUpload = urlParts.slice(uploadIndex + 1).join('/');
+    const publicId = pathAfterUpload.replace(/\.[^/.]+$/, '');
+    
+    await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    console.error("❌ Error deleting image from Cloudinary:", error);
+    // Silent fail - don't block operation if delete fails
   }
 };
 
@@ -141,20 +182,40 @@ export async function PUT(req, { params }) {
     
     // Check if it's an actual file upload
     if (file && typeof file !== "string" && file.size > 0) {
-      // Remove old image if it exists
+      // Validate image type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        return NextResponse.json(
+          { success: false, error: "Invalid image format. Only JPEG, PNG, WebP, and GIF are allowed." },
+          { status: 400 }
+        );
+      }
+      
+      // Validate image size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        return NextResponse.json(
+          { success: false, error: "Image size too large. Maximum size is 5MB." },
+          { status: 400 }
+        );
+      }
+      
+      // Remove old image from Cloudinary if it exists
       if (existingStaff.image) {
-        removeImage(existingStaff.image);
+        await deleteImageFromCloudinary(existingStaff.image);
       }
 
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const ext = path.extname(file.name) || ".png";
-      const fileName = `${randomUUID()}${ext}`;
-      const filePath = path.join(uploadDir, fileName);
-
-      fs.writeFileSync(filePath, buffer);
-      data.image = `/staff/${fileName}`;
+      // Upload new image to Cloudinary
+      const cloudinaryUrl = await uploadImageToCloudinary(file);
+      if (!cloudinaryUrl) {
+        return NextResponse.json(
+          { success: false, error: "Failed to upload image" },
+          { status: 500 }
+        );
+      }
+      data.image = cloudinaryUrl;
     } else if (typeof file === "string" && file.trim() !== "") {
-      // It's a string (either existing path or default)
+      // It's a string (either existing Cloudinary URL or default)
       data.image = file;
     }
     // If file is null/undefined, keep existing image
@@ -202,9 +263,9 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    // Remove image from disk
+    // Remove image from Cloudinary
     if (staff.image) {
-      removeImage(staff.image);
+      await deleteImageFromCloudinary(staff.image);
     }
 
     await prisma.staff.delete({

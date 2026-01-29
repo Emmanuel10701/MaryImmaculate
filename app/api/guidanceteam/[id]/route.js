@@ -1,37 +1,65 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/libs/prisma";
-import path from "path";
-import fs from "fs";
-import { writeFile, unlink } from "fs/promises";
-import { randomUUID } from "crypto";
+import { prisma } from "../../../../libs/prisma";
+import cloudinary from "../../../../libs/cloudinary"; // Changed from supabase to cloudinary
 
-// Upload folder setup
-const uploadDir = path.join(process.cwd(), "public/uploads");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-// Helper: upload file
-async function uploadFile(file) {
-  if (!file || !file.name || file.size === 0) return null;
-  
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const fileName = `${randomUUID()}-${file.name.replace(/\s+/g, "-")}`;
-  const filePath = path.join(uploadDir, fileName);
-  await writeFile(filePath, buffer);
-  return `/uploads/${fileName}`;
-}
+// Helper: Upload image to Cloudinary
+const uploadImageToCloudinary = async (file) => {
+  if (!file?.name || file.size === 0) return null;
 
-// Helper: delete file
-async function deleteFile(filePath) {
-  if (!filePath) return;
   try {
-    const fullPath = path.join(process.cwd(), "public", filePath.replace(/^\//, ""));
-    if (fs.existsSync(fullPath)) {
-      await unlink(fullPath);
-    }
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const timestamp = Date.now();
+    const originalName = file.name;
+    const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.'));
+    const sanitizedFileName = nameWithoutExt.replace(/[^a-zA-Z0-9.-]/g, "_");
+    
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "image",
+          folder: "school_team",
+          public_id: `${timestamp}-${sanitizedFileName}`,
+          transformation: [
+            { width: 400, height: 400, crop: "fill", gravity: "face" },
+            { quality: "auto:good" }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(buffer);
+    });
+    
+    return result.secure_url;
   } catch (error) {
-    console.error(`Error deleting file ${filePath}:`, error);
+    console.error("❌ Cloudinary upload error:", error);
+    return null;
   }
-}
+};
+
+// Helper: Delete image from Cloudinary
+const deleteImageFromCloudinary = async (imageUrl) => {
+  if (!imageUrl || !imageUrl.includes('cloudinary.com')) return;
+
+  try {
+    // Extract public ID from Cloudinary URL
+    const urlParts = imageUrl.split('/');
+    const uploadIndex = urlParts.indexOf('upload');
+    
+    if (uploadIndex === -1) return;
+    
+    const pathAfterUpload = urlParts.slice(uploadIndex + 1).join('/');
+    const publicId = pathAfterUpload.replace(/\.[^/.]+$/, '');
+    
+    await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    console.error("❌ Error deleting image from Cloudinary:", error);
+    // Silent fail
+  }
+};
 
 // 🔹 GET single team member
 export async function GET(req, { params }) {
@@ -62,7 +90,7 @@ export async function GET(req, { params }) {
   } catch (error) {
     console.error("❌ GET Single Error:", error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: "Failed to fetch team member" },
       { status: 500 }
     );
   }
@@ -109,23 +137,50 @@ export async function PUT(req, { params }) {
     }
     
     // Handle image update
-    let image = existingMember.image; // Keep existing image by default
+    let image = existingMember.image;
     const imageFile = formData.get("image");
     
     // Check if new image is uploaded
     if (imageFile && imageFile.size > 0) {
-      // Delete old image if exists
-      if (existingMember.image) {
-        await deleteFile(existingMember.image);
+      // Validate image type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(imageFile.type)) {
+        return NextResponse.json(
+          { success: false, error: "Invalid image format. Only JPEG, PNG, WebP, and GIF are allowed." },
+          { status: 400 }
+        );
       }
-      // Upload new image
-      image = await uploadFile(imageFile);
+      
+      // Validate image size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (imageFile.size > maxSize) {
+        return NextResponse.json(
+          { success: false, error: "Image size too large. Maximum size is 5MB." },
+          { status: 400 }
+        );
+      }
+      
+      // Delete old image from Cloudinary if exists
+      if (existingMember.image) {
+        await deleteImageFromCloudinary(existingMember.image);
+      }
+      
+      // Upload new image to Cloudinary
+      const imageUrl = await uploadImageToCloudinary(imageFile);
+      if (imageUrl) {
+        image = imageUrl;
+      } else {
+        return NextResponse.json(
+          { success: false, error: "Failed to upload image" },
+          { status: 500 }
+        );
+      }
     }
     
     // Check if image should be removed
     const removeImage = formData.get("removeImage") === "true";
     if (removeImage && existingMember.image) {
-      await deleteFile(existingMember.image);
+      await deleteImageFromCloudinary(existingMember.image);
       image = null;
     }
     
@@ -149,8 +204,16 @@ export async function PUT(req, { params }) {
     });
   } catch (error) {
     console.error("❌ PUT Error:", error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { success: false, error: "Team member not found" },
+        { status: 404 }
+      );
+    }
+    
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: "Failed to update team member" },
       { status: 500 }
     );
   }
@@ -179,9 +242,9 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    // Delete image file if exists
+    // Delete image from Cloudinary if exists
     if (existingMember.image) {
-      await deleteFile(existingMember.image);
+      await deleteImageFromCloudinary(existingMember.image);
     }
 
     // Delete member from database
@@ -195,8 +258,16 @@ export async function DELETE(req, { params }) {
     });
   } catch (error) {
     console.error("❌ DELETE Error:", error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { success: false, error: "Team member not found" },
+        { status: 404 }
+      );
+    }
+    
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: "Failed to delete team member" },
       { status: 500 }
     );
   }

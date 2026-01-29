@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../libs/prisma";
 import nodemailer from "nodemailer";
-import path from "path";
-import fs from "fs";
+import cloudinary from "../../../libs/cloudinary";
 import { v4 as uuidv4 } from "uuid";
 
 // ====================================================================
@@ -25,40 +24,110 @@ const transporter = nodemailer.createTransport({
 });
 
 // School Information
-const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Mary Immaculate Girls Secondary School';
-const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Mweiga, Nyeri County';
-const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Prayer, Discipline and Hardwork';
+const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Katwanyaa High School';
+const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Matungulu, Machakos County';
+const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Education is Light';
 const CONTACT_PHONE = process.env.CONTACT_PHONE || '+254720123456';
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@maryimmaculategirls.sc.ke';
-const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://maryimmaculategirls.sc.ke';
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@katwanyaahighschool.sc.ke';
+const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://katwanyaa.vercel.app';
 
-// Social Media Configuration (Removed TikTok and Instagram as requested)
+// Social Media Configuration
 const SOCIAL_MEDIA = {
   facebook: {
-    url: process.env.SCHOOL_FACEBOOK || 'https://facebook.com/maryimmaculategirls',
+    url: process.env.SCHOOL_FACEBOOK || 'https://facebook.com/katwanyaa-highschool',
     color: '#1877F2',
   },
   youtube: {
-    url: process.env.SCHOOL_YOUTUBE || 'https://youtube.com/c/maryimmaculategirls',
+    url: process.env.SCHOOL_YOUTUBE || 'https://youtube.com/c/katwanyaahighschool',
     color: '#FF0000',
   },
   linkedin: {
-    url: process.env.SCHOOL_LINKEDIN || 'https://linkedin.com/school/maryimmaculategirls',
+    url: process.env.SCHOOL_LINKEDIN || 'https://linkedin.com/school/katwanyaa-high',
     color: '#0A66C2',
   },
   twitter: {
-    url: process.env.SCHOOL_TWITTER || 'https://twitter.com/maryimmaculategirls',
+    url: process.env.SCHOOL_TWITTER || 'https://twitter.com/katwanyaaschool',
     color: '#1DA1F2',
   }
 };
 
-// Path for attachments storage
-const ATTACHMENTS_DIR = path.join(process.cwd(), 'public', 'emailattachments');
+// ====================================================================
+// CLOUDINARY HELPER FUNCTIONS
+// ====================================================================
 
-// Ensure attachments directory exists
-if (!fs.existsSync(ATTACHMENTS_DIR)) {
-  fs.mkdirSync(ATTACHMENTS_DIR, { recursive: true });
-}
+// Helper: Upload file to Cloudinary
+const uploadFileToCloudinary = async (file) => {
+  if (!file?.name || file.size === 0) return null;
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const timestamp = Date.now();
+    const originalName = file.name;
+    const fileExtension = originalName.substring(originalName.lastIndexOf('.'));
+    const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.'));
+    const sanitizedFileName = nameWithoutExt.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const uniqueFileName = `${timestamp}-${sanitizedFileName}`;
+    
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "auto", // "auto" for any file type
+          folder: "school/email-campaigns/attachments",
+          public_id: uniqueFileName,
+          use_filename: true,
+          unique_filename: false,
+          overwrite: false,
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(buffer);
+    });
+    
+    return {
+      filename: result.public_id,
+      originalName: originalName,
+      fileType: fileExtension.substring(1), // Remove dot from extension
+      fileSize: file.size,
+      uploadedAt: new Date().toISOString(),
+      url: result.secure_url,
+      publicId: result.public_id,
+      format: result.format,
+      storageType: 'cloudinary'
+    };
+  } catch (error) {
+    console.error("❌ Cloudinary upload error:", error);
+    return null;
+  }
+};
+
+// Helper: Delete file from Cloudinary
+const deleteFileFromCloudinary = async (publicId) => {
+  if (!publicId) return;
+
+  try {
+    await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    console.error("❌ Error deleting file from Cloudinary:", error);
+  }
+};
+
+// Helper to delete files from Cloudinary based on attachments data
+const deleteCloudinaryFiles = async (attachments) => {
+  if (!attachments || !Array.isArray(attachments)) return;
+
+  try {
+    const deletePromises = attachments
+      .filter(attachment => attachment.storageType === 'cloudinary' && attachment.publicId)
+      .map(attachment => deleteFileFromCloudinary(attachment.publicId));
+    
+    await Promise.all(deletePromises);
+  } catch (error) {
+    console.error("❌ Error deleting Cloudinary files:", error);
+  }
+};
 
 // ====================================================================
 // HELPER FUNCTIONS
@@ -98,688 +167,734 @@ function sanitizeContent(content) {
 
   return safeContent;
 }
+
+// COMPLETE EMAIL TEMPLATE FUNCTION
 function getModernEmailTemplate({ 
   subject = '', 
   content = '',
   senderName = 'School Administration',
   recipientType = 'all'
 }) {
-  
   const recipientTypeLabel = getRecipientTypeLabel(recipientType);
-  const safeContent = sanitizeContent(content);
-  const currentYear = new Date().getFullYear();
+  const sanitizedContent = sanitizeContent(content);
   
   return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-      <meta name="x-apple-disable-message-reformatting">
-      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <title>${subject} | ${SCHOOL_NAME}</title>
-      <style>
-        /* RESET & BASE STYLES */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${subject} • ${SCHOOL_NAME}</title>
+    <style>
+        /* Reset and Base Styles */
         * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          -webkit-text-size-adjust: 100%;
-          -ms-text-size-adjust: 100%;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-          line-height: 1.6;
-          color: #333333;
-          margin: 0;
-          padding: 20px;
-          width: 100% !important;
-          background-color: #f5f7fa;
-          -webkit-text-size-adjust: 100%;
-          -ms-text-size-adjust: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+            padding: 16px;
+            margin: 0;
         }
         
-        /* CONTAINER - RESPONSIVE */
-        .container {
-          max-width: 600px !important;
-          width: 100% !important;
-          margin: 0 auto !important;
-          background: #ffffff;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
         }
         
-        /* HEADER - FIXED FOR MOBILE */
+        /* Header Styles */
         .header {
-          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-          color: #ffffff;
-          padding: 40px 25px;
-          text-align: center;
-          position: relative;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 32px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
-        .school-name {
-          font-size: 26px !important;
-          font-weight: 700;
-          line-height: 1.3;
-          margin: 0 0 15px 0;
-          letter-spacing: -0.3px;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.1;
         }
         
-        .email-subject {
-          font-size: 20px !important;
-          font-weight: 600;
-          opacity: 0.95;
-          margin: 0 0 15px 0;
-          color: #f0f7ff;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
+        .school-logo {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
         }
         
         .school-motto {
-          font-size: 15px !important;
-          font-style: italic;
-          font-weight: 400;
-          opacity: 0.9;
-          margin: 15px 0 0 0;
-          color: #dbeafe;
+            font-size: 14px;
+            opacity: 0.95;
+            margin-bottom: 16px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
         }
         
-        /* CONTENT SECTION - RESPONSIVE */
+        .email-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 6px 16px;
+            border-radius: 24px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Content Styles */
         .content {
-          padding: 30px 25px !important;
+            padding: 28px 20px;
         }
         
-        /* CAMPAIGN BADGE - SMALLER FOR MOBILE */
-        .campaign-badge {
-          display: inline-flex;
-          align-items: center;
-          background: linear-gradient(135deg, #f0f7ff 0%, #dbeafe 100%);
-          padding: 10px 20px;
-          border-radius: 50px;
-          margin-bottom: 20px;
-          border: 1px solid #e5e7eb;
-          font-size: 14px !important;
+        .subject {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            border-left: 4px solid #4c7cf3;
+            padding-left: 16px;
         }
         
-        .badge-icon {
-          margin-right: 8px;
-          font-size: 16px;
-          color: #1e3c72;
+        .message-content {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+            line-height: 1.7;
+            font-size: 14px;
         }
         
-        .recipient-type {
-          color: #1e3c72;
-          font-weight: 600;
-          letter-spacing: 0.3px;
+        .message-content p {
+            margin-bottom: 14px;
+            word-break: break-word;
         }
         
-        /* MESSAGE CARD - RESPONSIVE */
-        .message-card {
-          background: #ffffff;
-          padding: 30px 25px !important;
-          border-radius: 12px;
-          margin: 20px 0 30px 0;
-          border: 1px solid #e5e7eb;
-          font-size: 16px !important;
-          line-height: 1.7;
-          color: #4b5563;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
+        .message-content p:last-child {
+            margin-bottom: 0;
         }
         
-        .message-card p {
-          margin: 0 0 20px 0;
-          font-size: 16px !important;
-          line-height: 1.7;
+        /* Recipient Info */
+        .recipient-info {
+            background: linear-gradient(135deg, #f0f7ff 0%, #f8fafc 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            border: 1px solid #dbeafe;
         }
         
-        .message-card p:last-child {
-          margin-bottom: 0;
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
         }
         
-        /* ATTACHMENTS SECTION */
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-icon {
+            width: 18px;
+            height: 18px;
+            color: #4c7cf3;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .info-text {
+            font-size: 13px;
+            color: #475569;
+        }
+        
+        /* Attachments Section */
         .attachments-section {
-          background: #f8fafc;
-          padding: 20px;
-          border-radius: 8px;
-          margin: 20px 0;
-          border: 1px solid #e5e7eb;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
         }
         
         .attachments-title {
-          font-size: 16px !important;
-          color: #1e3c72;
-          font-weight: 600;
-          margin-bottom: 15px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 14px;
         }
         
         .attachments-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
+            list-style: none;
         }
         
         .attachment-item {
-          display: flex;
-          align-items: center;
-          padding: 10px;
-          margin-bottom: 8px;
-          background: white;
-          border-radius: 6px;
-          border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .attachment-item:last-child {
+            margin-bottom: 0;
         }
         
         .attachment-icon {
-          margin-right: 12px;
-          font-size: 18px;
-          color: #1e3c72;
+            font-size: 18px;
         }
         
         .attachment-name {
-          flex: 1;
-          font-size: 14px !important;
-          color: #374151;
+            flex: 1;
+            min-width: 0;
         }
         
-        /* CONTACT INFO - STACK ON MOBILE */
-        .contact-info {
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-          padding: 25px !important;
-          border-radius: 12px;
-          margin: 30px 0;
-          text-align: center;
+        .attachment-name a {
+            color: #1e3c72;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 13px;
+            word-break: break-word;
         }
         
-        .contact-title {
-          font-size: 16px !important;
-          color: #1e3c72;
-          font-weight: 600;
-          margin-bottom: 15px;
+        .attachment-name a:hover {
+            text-decoration: underline;
         }
         
-        .contact-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          margin: 20px 0;
+        .attachment-name small {
+            color: #64748b;
+            font-size: 12px;
+            display: block;
+            margin-top: 2px;
         }
         
-        .contact-item {
-          flex: 1;
-          min-width: 0;
+        /* Footer Styles */
+        .footer {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #cbd5e1;
+            padding: 28px 20px;
+            text-align: center;
+        }
+        
+        .school-header {
+            margin-bottom: 20px;
+        }
+        
+        .school-header h3 {
+            font-size: 20px;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 6px;
+            letter-spacing: -0.025em;
+        }
+        
+        .location-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .contact-card {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .contact-card:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .contact-icon.email {
+            background: #e0f2fe;
+            color: #0ea5e9;
+        }
+        
+        .contact-icon.phone {
+            background: #f0fdf4;
+            color: #22c55e;
+        }
+        
+        .contact-icon.web {
+            background: #fce7f3;
+            color: #db2777;
+        }
+        
+        .contact-content {
+            min-width: 0;
+            flex: 1;
         }
         
         .contact-label {
-          font-size: 12px !important;
-          color: #6b7280;
-          margin: 0 0 5px 0;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+            margin-bottom: 2px;
         }
         
         .contact-value {
-          font-size: 15px !important;
-          color: #1e3c72;
-          font-weight: 600;
-          margin: 0;
-          word-break: break-all;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            word-break: break-word;
         }
         
-        /* SENDER INFO - RESPONSIVE */
-        .sender-info {
-          text-align: center;
-          margin-top: 30px;
-          padding: 25px;
-          background: #f8fafc;
-          border-radius: 12px;
-          border-left: 4px solid #3b82f6;
+        .contact-card.email .contact-label {
+            color: #0ea5e9;
         }
         
-        .sender-name {
-          font-size: 16px !important;
-          color: #1e3c72;
-          font-weight: 600;
-          margin-bottom: 10px;
+        .contact-card.phone .contact-label {
+            color: #22c55e;
         }
         
-        .sender-title {
-          font-size: 15px !important;
-          color: #333;
-          margin: 0 0 8px 0;
-          line-height: 1.5;
+        .contact-card.web .contact-label {
+            color: #db2777;
         }
         
-        .sender-note {
-          margin-top: 15px;
-          font-size: 13px !important;
-          color: #6b7280;
-          line-height: 1.6;
+        /* Social Media */
+        .social-media {
+            margin-bottom: 20px;
+            padding: 16px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* FOOTER - RESPONSIVE */
-        .footer {
-          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-          color: #b0b0b0;
-          padding: 40px 25px 30px;
-          text-align: center;
-          position: relative;
+        .social-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 14px;
+            font-weight: 700;
+            color: #94a3b8;
         }
         
-        .footer-school {
-          font-size: 20px !important;
-          font-weight: 700;
-          color: #ffffff;
-          margin: 0 0 10px 0;
-          letter-spacing: 0.3px;
-        }
-        
-        .footer-location {
-          font-size: 15px !important;
-          color: #d1d5db;
-          margin: 0 0 8px 0;
-        }
-        
-        .footer-motto {
-          font-size: 14px !important;
-          font-style: italic;
-          color: #9ca3af;
-          margin: 0 0 25px 0;
-          font-weight: 400;
-        }
-        
-        /* SOCIAL MEDIA LINKS - TEXT-ONLY VERSION */
-        .social-links {
-          display: flex;
-          justify-content: center;
-          flex-wrap: wrap;
-          gap: 15px;
-          margin: 25px 0;
-          padding: 0;
-          list-style: none;
-        }
-        
-        .social-link {
-          display: inline-block;
-        }
-        
-        .social-link a {
-          display: inline-block;
-          padding: 8px 16px;
-          background-color: #2d3748;
-          color: #ffffff !important;
-          text-decoration: none;
-          border-radius: 4px;
-          font-size: 14px !important;
-          font-weight: 500;
-          transition: all 0.2s ease;
-          border: 1px solid #4a5568;
-        }
-        
-        .social-link a:hover {
-          background-color: #4a5568;
-          transform: translateY(-1px);
-        }
-        
-        /* Social media specific colors */
-        .social-facebook a {
-          background-color: #1877F2;
-          border-color: #1877F2;
-        }
-        
-        .social-facebook a:hover {
-          background-color: #0d65d9;
-        }
-        
-        .social-youtube a {
-          background-color: #FF0000;
-          border-color: #FF0000;
-        }
-        
-        .social-youtube a:hover {
-          background-color: #cc0000;
-        }
-        
-        .social-linkedin a {
-          background-color: #0A66C2;
-          border-color: #0A66C2;
-        }
-        
-        .social-linkedin a:hover {
-          background-color: #0959a6;
-        }
-        
-        .social-twitter a {
-          background-color: #1DA1F2;
-          border-color: #1DA1F2;
-        }
-        
-        .social-twitter a:hover {
-          background-color: #0c8bd9;
-        }
-        
-        /* COPYRIGHT */
-        .copyright {
-          margin-top: 30px;
-          padding-top: 20px;
-          border-top: 1px solid #374151;
-          font-size: 12px !important;
-          color: #9ca3af;
-          line-height: 1.6;
-        }
-        
-        /* RESPONSIVE MEDIA QUERIES */
-        @media only screen and (max-width: 480px) {
-          body {
-            padding: 10px !important;
-          }
-          
-          .container {
-            border-radius: 8px;
-          }
-          
-          .header {
-            padding: 30px 20px !important;
-          }
-          
-          .school-name {
-            font-size: 22px !important;
-            margin-bottom: 12px;
-          }
-          
-          .email-subject {
-            font-size: 18px !important;
-            margin-bottom: 12px;
-          }
-          
-          .school-motto {
-            font-size: 14px !important;
-          }
-          
-          .content {
-            padding: 25px 20px !important;
-          }
-          
-          .message-card {
-            padding: 25px 20px !important;
-            font-size: 14px !important;
-            line-height: 1.6;
-          }
-          
-          .message-card p {
-            font-size: 14px !important;
-            line-height: 1.6;
-          }
-          
-          .contact-info {
-            padding: 20px !important;
-          }
-          
-          .contact-title {
-            font-size: 15px !important;
-          }
-          
-          .contact-value {
-            font-size: 14px !important;
-          }
-          
-          .social-link a {
-            padding: 4.2px 8.4px !important;
-            font-size: 9.1px !important;
-            transform: scale(0.7);
-            transform-origin: center;
-            margin: -3px;
-          }
-          
-          .social-links {
-            gap: 7px !important;
-          }
-          
-          .footer {
-            padding: 30px 20px 25px !important;
-          }
-          
-          .footer-school {
-            font-size: 18px !important;
-          }
-          
-          .footer-location {
-            font-size: 14px !important;
-          }
-          
-          .footer-motto {
-            font-size: 13px !important;
-          }
-        }
-        
-        @media only screen and (min-width: 481px) and (max-width: 600px) {
-          .social-link a {
-            padding: 5.6px 11.2px !important;
-            font-size: 9.8px !important;
-            transform: scale(0.7);
-            transform-origin: center;
-            margin: -3px;
-          }
-          
-          .social-links {
-            gap: 10.5px !important;
-          }
-          
-          .contact-grid {
-            flex-direction: row;
+        .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
             flex-wrap: wrap;
+        }
+        
+        .social-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 2px solid #334155;
+            display: flex;
+            align-items: center;
             justify-content: center;
-          }
-          
-          .contact-item {
-            min-width: 150px;
-          }
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            color: white;
         }
         
-        @media only screen and (min-width: 601px) {
-          .social-link a {
-            padding: 5.6px 11.2px !important;
-            font-size: 9.8px !important;
-          }
-          
-          .social-links {
-            gap: 14px !important;
-          }
-          
-          .contact-grid {
-            flex-direction: row;
-            justify-content: center;
-            gap: 30px;
-          }
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         
-        /* PRINT STYLES */
-        @media print {
-          body {
-            background: white !important;
-            padding: 0 !important;
-          }
-          
-          .container {
-            box-shadow: none !important;
-            border-radius: 0 !important;
-            max-width: 100% !important;
-          }
-          
-          .social-links {
-            display: none !important;
-          }
+        .social-btn.facebook {
+            background: #1877F2;
+            border-color: #1877F2;
         }
         
-        /* OUTLOOK SPECIFIC FIXES */
-        .ExternalClass {
-          width: 100%;
+        .social-btn.youtube {
+            background: #FF0000;
+            border-color: #FF0000;
         }
         
-        .ExternalClass,
-        .ExternalClass p,
-        .ExternalClass span,
-        .ExternalClass font,
-        .ExternalClass td,
-        .ExternalClass div {
-          line-height: 100%;
+        .social-btn.linkedin {
+            background: #0A66C2;
+            border-color: #0A66C2;
         }
         
-        /* FORCE TABLES ON OLD EMAIL CLIENTS */
-        table {
-          border-collapse: collapse;
-          mso-table-lspace: 0pt;
-          mso-table-rspace: 0pt;
+        .social-btn.twitter {
+            background: #000000;
+            border-color: #000000;
         }
         
-        img {
-          -ms-interpolation-mode: bicubic;
-          border: 0;
-          height: auto;
-          line-height: 100%;
-          outline: none;
-          text-decoration: none;
+        /* Sender Info */
+        .sender-info {
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            color: #94a3b8;
         }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <!-- HEADER -->
+        
+        .sender-info p {
+            margin-bottom: 3px;
+        }
+        
+        .important-notice {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 8px;
+            padding: 14px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .important-notice p {
+            font-size: 12px;
+            color: #92400e;
+            margin: 0;
+            word-break: break-word;
+        }
+        
+        /* Mobile Responsive Design */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .email-container {
+                border-radius: 12px;
+            }
+            
+            .header {
+                padding: 24px 16px;
+            }
+            
+            .school-logo {
+                font-size: 20px;
+                margin-bottom: 6px;
+            }
+            
+            .school-motto {
+                font-size: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .email-badge {
+                font-size: 10px;
+                padding: 5px 12px;
+            }
+            
+            .content {
+                padding: 20px 16px;
+            }
+            
+            .subject {
+                font-size: 18px;
+                margin-bottom: 16px;
+                padding-left: 12px;
+                border-left-width: 3px;
+            }
+            
+            .message-content {
+                padding: 16px;
+                margin: 16px 0;
+                font-size: 13px;
+            }
+            
+            .message-content p {
+                margin-bottom: 12px;
+            }
+            
+            .recipient-info {
+                padding: 14px;
+                margin: 16px 0;
+            }
+            
+            .info-item {
+                gap: 8px;
+                margin-bottom: 8px;
+                font-size: 12px;
+            }
+            
+            .attachments-section {
+                padding: 16px;
+                margin: 16px 0;
+            }
+            
+            .attachments-title {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            
+            .attachment-item {
+                padding: 8px;
+                margin-bottom: 6px;
+                gap: 8px;
+            }
+            
+            .attachment-icon {
+                font-size: 16px;
+            }
+            
+            .attachment-name a {
+                font-size: 12px;
+            }
+            
+            .footer {
+                padding: 20px 16px;
+            }
+            
+            .school-header h3 {
+                font-size: 18px;
+                margin-bottom: 4px;
+            }
+            
+            .location-info {
+                font-size: 12px;
+            }
+            
+            .contact-details {
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+            
+            .contact-card {
+                padding: 12px;
+                gap: 10px;
+                border-radius: 10px;
+            }
+            
+            .contact-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+            }
+            
+            .contact-label {
+                font-size: 10px;
+            }
+            
+            .contact-value {
+                font-size: 13px;
+            }
+            
+            .social-media {
+                margin-bottom: 16px;
+                padding: 12px 0;
+            }
+            
+            .social-title {
+                font-size: 11px;
+                margin-bottom: 12px;
+            }
+            
+            .social-buttons {
+                gap: 8px;
+            }
+            
+            .social-btn {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                font-size: 10px;
+            }
+            
+            .sender-info {
+                font-size: 11px;
+            }
+            
+            .important-notice {
+                padding: 12px;
+                margin: 16px 0;
+            }
+            
+            .important-notice p {
+                font-size: 11px;
+            }
+        }
+        
+        /* Tablet/Medium Screens */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            
+            .header {
+                padding: 28px 18px;
+            }
+            
+            .school-logo {
+                font-size: 24px;
+            }
+            
+            .content {
+                padding: 24px 18px;
+            }
+            
+            .subject {
+                font-size: 20px;
+                margin-bottom: 18px;
+            }
+            
+            .contact-details {
+                gap: 11px;
+            }
+            
+            .footer {
+                padding: 24px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
         <div class="header">
-          <h1 class="school-name">${SCHOOL_NAME}</h1>
-          <h2 class="email-subject">${subject}</h2>
-          <p class="school-motto">"${SCHOOL_MOTTO}"</p>
+            <h1 class="school-logo">${SCHOOL_NAME}</h1>
+            <p class="school-motto">${SCHOOL_MOTTO}</p>
+            <div class="email-badge">${recipientTypeLabel}</div>
         </div>
         
-        <!-- CONTENT -->
+        <!-- Content -->
         <div class="content">
-          <!-- Campaign Badge -->
-          <div class="campaign-badge">
-            <span class="badge-icon">📨</span>
-            <span class="recipient-type">${recipientTypeLabel}</span>
-          </div>
-          
-          <!-- Message Content -->
-          <div class="message-card">
-            ${safeContent}
-          </div>
-          
-          <!-- Sender Info -->
-          <div class="sender-info">
-            <p class="sender-name">Best Regards,</p>
-            <p class="sender-title">
-              <strong>${senderName}</strong><br>
-              <span>${SCHOOL_NAME} Administration</span>
-            </p>
-            <p class="sender-note">
-              This is an official communication from ${SCHOOL_NAME}.<br>
-              Please do not reply directly to this automated message.
-            </p>
-          </div>
+            <h2 class="subject">${subject}</h2>
+            
+            <!-- Recipient Information -->
+            <div class="recipient-info">
+                <div class="info-item">
+                    <span class="info-icon">👤</span>
+                    <span class="info-text">For: <strong>${recipientTypeLabel}</strong></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">📅</span>
+                    <span class="info-text">Date: <strong>${new Date().toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    })}</strong></span>
+                </div>
+            </div>
+            
+            <!-- Message Content -->
+            <div class="message-content">
+                ${sanitizedContent}
+            </div>
+            
+            <!-- Important Notice -->
+            <div class="important-notice">
+                <p>📧 Official communication from ${SCHOOL_NAME}. Do not reply to this email.</p>
+            </div>
         </div>
         
-        <!-- FOOTER -->
+        <!-- Footer -->
         <div class="footer">
-          <h3 class="footer-school">${SCHOOL_NAME}</h3>
-          <p class="footer-location">${SCHOOL_LOCATION}</p>
-          <p class="footer-motto">"${SCHOOL_MOTTO}"</p>
-          
-          <!-- Social Media Links - TEXT ONLY VERSION -->
-          <ul class="social-links">
-            <li class="social-link social-facebook">
-              <a href="${SOCIAL_MEDIA.facebook.url}" target="_blank" title="Follow us on Facebook">
-                Facebook
-              </a>
-            </li>
+            <!-- School Information -->
+            <div class="school-header">
+                <h3>${SCHOOL_NAME}</h3>
+                <div class="location-info">
+                    📍 ${SCHOOL_LOCATION}
+                </div>
+            </div>
             
-            <li class="social-link social-youtube">
-              <a href="${SOCIAL_MEDIA.youtube.url}" target="_blank" title="Subscribe on YouTube">
-                YouTube
-              </a>
-            </li>
+            <!-- Contact Details -->
+            <div class="contact-details">
+                <a href="mailto:${CONTACT_EMAIL}" class="contact-card email">
+                    <div class="contact-icon email">✉</div>
+                    <div class="contact-content">
+                        <div class="contact-label">Email</div>
+                        <div class="contact-value">${CONTACT_EMAIL}</div>
+                    </div>
+                </a>
+                
+                <a href="tel:${CONTACT_PHONE}" class="contact-card phone">
+                    <div class="contact-icon phone">☎</div>
+                    <div class="contact-content">
+                        <div class="contact-label">Call Us</div>
+                        <div class="contact-value">${CONTACT_PHONE}</div>
+                    </div>
+                </a>
+                
+                <a href="${SCHOOL_WEBSITE}" target="_blank" class="contact-card web">
+                    <div class="contact-icon web">🌐</div>
+                    <div class="contact-content">
+                        <div class="contact-label">Visit</div>
+                        <div class="contact-value">Our Website</div>
+                    </div>
+                </a>
+            </div>
             
-            <li class="social-link social-linkedin">
-              <a href="${SOCIAL_MEDIA.linkedin.url}" target="_blank" title="Connect on LinkedIn">
-                LinkedIn
-              </a>
-            </li>
+            <!-- Social Media Buttons -->
+            <div class="social-media">
+                <div class="social-title">Follow Us</div>
+                <div class="social-buttons">
+                    <a href="${SOCIAL_MEDIA.facebook.url}" target="_blank" class="social-btn facebook" title="Facebook">f</a>
+                    <a href="${SOCIAL_MEDIA.youtube.url}" target="_blank" class="social-btn youtube" title="YouTube">▶</a>
+                    <a href="${SOCIAL_MEDIA.linkedin.url}" target="_blank" class="social-btn linkedin" title="LinkedIn">in</a>
+                    <a href="${SOCIAL_MEDIA.twitter.url}" target="_blank" class="social-btn twitter" title="Twitter">𝕏</a>
+                </div>
+            </div>
             
-            <li class="social-link social-twitter">
-              <a href="${SOCIAL_MEDIA.twitter.url}" target="_blank" title="Follow us on Twitter">
-                X (Twitter)
-              </a>
-            </li>
-          </ul>
-          
-          <!-- Copyright -->
-          <div class="copyright">
-            © ${currentYear} ${SCHOOL_NAME}. All rights reserved.<br>
-            <span>This email was sent to you as an important member of our school community.</span>
-          </div>
+            <!-- Sender Information -->
+            <div class="sender-info">
+                <p>Sent by: <strong>${senderName}</strong></p>
+                <p>${SCHOOL_NAME}</p>
+                <p style="margin-top: 8px; color: #64748b;"><em>Confidential communication for authorized recipients only.</em></p>
+            </div>
         </div>
-      </div>
-    </body>
-    </html>
-  `;
-}
-function getFileIcon(fileType) {
-  const icons = {
-    'pdf': '📄',
-    'doc': '📝',
-    'docx': '📝',
-    'xls': '📊',
-    'xlsx': '📊',
-    'ppt': '📽️',
-    'pptx': '📽️',
-    'jpg': '🖼️',
-    'jpeg': '🖼️',
-    'png': '🖼️',
-    'gif': '🖼️',
-    'txt': '📃',
-    'zip': '🗜️',
-    'rar': '🗜️',
-    'mp3': '🎵',
-    'mp4': '🎬',
-    'avi': '🎬',
-    'mov': '🎬'
-  };
-  
-  const ext = fileType.toLowerCase();
-  return icons[ext] || '📎';
+    </div>
+</body>
+</html>`;
 }
 
-function generateAttachmentHTML(attachments) {
-  if (!attachments || attachments.length === 0) return '';
-  
-  try {
-    const attachmentsArray = JSON.parse(attachments);
-    if (!Array.isArray(attachmentsArray) || attachmentsArray.length === 0) return '';
-    
-    return `
-      <div class="attachments-section">
-        <h3 class="attachments-title">📎 Attachments</h3>
-        <ul class="attachments-list">
-          ${attachmentsArray.map(attachment => `
-            <li class="attachment-item">
-              <span class="attachment-icon">${getFileIcon(attachment.fileType)}</span>
-              <span class="attachment-name">
-                ${attachment.originalName || attachment.filename}
-                ${attachment.fileSize ? `<br><small>${formatFileSize(attachment.fileSize)}</small>` : ''}
-              </span>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    `;
-  } catch (error) {
-    console.error('Error parsing attachments:', error);
-    return '';
-  }
-}
+
+
 
 function formatFileSize(bytes) {
   if (bytes === 0) return '0 Bytes';
@@ -802,18 +917,19 @@ async function sendModernEmails(campaign) {
   let attachmentsArray = [];
   try {
     if (campaign.attachments) {
-      attachmentsArray = JSON.parse(campaign.attachments);
+      attachmentsArray = Array.isArray(campaign.attachments) ? 
+        campaign.attachments : 
+        JSON.parse(campaign.attachments);
     }
   } catch (error) {
     console.error('Error parsing attachments:', error);
   }
   
-  // Prepare email attachments for nodemailer
+  // Prepare email attachments for nodemailer (Cloudinary URLs as links, not attachments)
   const emailAttachments = attachmentsArray.map(attachment => {
-    const filePath = path.join(ATTACHMENTS_DIR, attachment.filename);
     return {
       filename: attachment.originalName || attachment.filename,
-      path: filePath,
+      path: attachment.url,
       contentType: getContentType(attachment.fileType)
     };
   });
@@ -830,14 +946,7 @@ async function sendModernEmails(campaign) {
       });
 
       // Add attachments section if there are attachments
-      if (campaign.attachments) {
-        const attachmentsSection = generateAttachmentHTML(campaign.attachments);
-        // Insert attachments section before sender info
-        htmlContent = htmlContent.replace(
-          '<!-- Sender Info -->',
-          `${attachmentsSection}\n<!-- Sender Info -->`
-        );
-      }
+
 
       const mailOptions = {
         from: `"${SCHOOL_NAME} Administration" <${process.env.EMAIL_USER}>`,
@@ -928,7 +1037,9 @@ function getContentType(fileType) {
     'zip': 'application/zip',
     'rar': 'application/x-rar-compressed',
     'mp3': 'audio/mpeg',
-    'mp4': 'video/mp4'
+    'mp4': 'video/mp4',
+    'webp': 'image/webp',
+    'svg': 'image/svg+xml'
   };
   
   return mimeTypes[fileType.toLowerCase()] || 'application/octet-stream';
@@ -951,27 +1062,24 @@ function validateEmailList(emailList) {
   return { validEmails, invalidEmails };
 }
 
-// Helper to save uploaded file
+// Helper to save uploaded file to Cloudinary
 async function saveUploadedFile(file) {
   if (!file || file.size === 0) return null;
   
-  const originalName = file.name;
-  const fileExtension = path.extname(originalName).toLowerCase();
-  const uniqueFilename = `${uuidv4()}${fileExtension}`;
-  const filePath = path.join(ATTACHMENTS_DIR, uniqueFilename);
+  // Validate file size (max 20MB for Cloudinary)
+  const maxSize = 20 * 1024 * 1024; // 20MB (Cloudinary supports up to 100MB)
+  if (file.size > maxSize) {
+    throw new Error(`File ${file.name} is too large. Maximum size is 20MB.`);
+  }
   
-  // Convert file to buffer and save
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  fs.writeFileSync(filePath, buffer);
+  // Upload to Cloudinary
+  const cloudinaryResult = await uploadFileToCloudinary(file);
   
-  return {
-    filename: uniqueFilename,
-    originalName: originalName,
-    fileType: fileExtension.replace('.', ''),
-    fileSize: file.size,
-    uploadedAt: new Date().toISOString()
-  };
+  if (!cloudinaryResult) {
+    throw new Error(`Failed to upload file ${file.name} to Cloudinary`);
+  }
+  
+  return cloudinaryResult;
 }
 
 // Validate attachment size before saving
@@ -986,7 +1094,7 @@ function validateAttachmentSize(attachmentsArray) {
 }
 
 // ====================================================================
-// API HANDLERS
+// API HANDLERS - POST AND GET ONLY
 // ====================================================================
 
 // 🔹 POST - Create a new email campaign with FormData
@@ -1086,7 +1194,10 @@ export async function POST(req) {
         originalName: attachment.originalName,
         fileType: attachment.fileType,
         fileSize: attachment.fileSize,
-        uploadedAt: attachment.uploadedAt
+        uploadedAt: attachment.uploadedAt,
+        url: attachment.url,
+        publicId: attachment.publicId,
+        storageType: attachment.storageType || 'cloudinary'
       }));
       
       // Create campaign in database
@@ -1479,301 +1590,5 @@ export async function GET(req) {
       success: false, 
       error: error.message || "Failed to retrieve campaigns"
     }, { status: 500 });
-  }
-}
-
-// 🔹 PUT - Update an existing campaign
-export async function PUT(req) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-    
-    if (!id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Campaign ID is required" 
-      }, { status: 400 });
-    }
-    
-    const contentType = req.headers.get('content-type') || '';
-    
-    if (contentType.includes('multipart/form-data')) {
-      // Handle FormData update with file uploads
-      const formData = await req.formData();
-      
-      // Extract text fields
-      const title = formData.get('title')?.toString();
-      const subject = formData.get('subject')?.toString();
-      const content = formData.get('content')?.toString();
-      const recipients = formData.get('recipients')?.toString();
-      const status = formData.get('status')?.toString();
-      const recipientType = formData.get('recipientType')?.toString();
-      const existingAttachmentsJson = formData.get('existingAttachments')?.toString();
-      
-      // Parse existing attachments if provided
-      let existingAttachments = [];
-      if (existingAttachmentsJson) {
-        try {
-          existingAttachments = JSON.parse(existingAttachmentsJson);
-        } catch (error) {
-          console.error('Error parsing existing attachments:', error);
-        }
-      }
-      
-      // Process new file uploads
-      const newAttachments = [];
-      const attachmentFiles = formData.getAll('attachments');
-      
-      for (const file of attachmentFiles) {
-        if (file && file.size > 0) {
-          const savedFile = await saveUploadedFile(file);
-          if (savedFile) {
-            newAttachments.push(savedFile);
-          }
-        }
-      }
-      
-      // Combine existing and new attachments
-      const allAttachments = [...existingAttachments, ...newAttachments];
-      
-      // Validate attachment size
-      if (allAttachments.length > 0) {
-        validateAttachmentSize(allAttachments);
-      }
-      
-      // Build update data
-      const updateData = {};
-      
-      if (title !== undefined) updateData.title = title;
-      if (subject !== undefined) updateData.subject = subject;
-      if (content !== undefined) {
-        // Validate content length
-        const MAX_CONTENT_LENGTH = 65535;
-        if (content.length > MAX_CONTENT_LENGTH) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Content is too long. Maximum ${MAX_CONTENT_LENGTH} characters allowed.`,
-            currentLength: content.length
-          }, { status: 400 });
-        }
-        updateData.content = content;
-      }
-      if (recipients !== undefined) {
-        // Validate recipients
-        const emailList = recipients.split(",").map(r => r.trim()).filter(r => r.length > 0);
-        if (emailList.length === 0) {
-          return NextResponse.json({ 
-            success: false, 
-            error: "At least one valid email address is required" 
-          }, { status: 400 });
-        }
-        
-        const { validEmails, invalidEmails } = validateEmailList(emailList);
-        if (invalidEmails.length > 0) {
-          return NextResponse.json({ 
-            success: false, 
-            error: "Invalid email addresses detected",
-            invalidEmails 
-          }, { status: 400 });
-        }
-        
-        const uniqueEmails = [...new Set(validEmails)];
-        updateData.recipients = uniqueEmails.join(', ');
-      }
-      if (recipientType !== undefined) updateData.recipientType = recipientType;
-      if (status !== undefined) updateData.status = status;
-      
-      // Optimize and add attachments
-      if (allAttachments.length > 0) {
-        const optimizedAttachments = allAttachments.map(attachment => ({
-          filename: attachment.filename,
-          originalName: attachment.originalName,
-          fileType: attachment.fileType,
-          fileSize: attachment.fileSize,
-          uploadedAt: attachment.uploadedAt
-        }));
-        updateData.attachments = JSON.stringify(optimizedAttachments);
-      } else {
-        updateData.attachments = null;
-      }
-      
-      // Update campaign in database
-      const updatedCampaign = await prisma.emailCampaign.update({
-        where: { id },
-        data: updateData,
-      });
-      
-      // Send emails if status changed to published
-      let emailResults = null;
-      if (status === 'published' && updateData.recipients) {
-        try {
-          emailResults = await sendModernEmails(updatedCampaign);
-        } catch (emailError) {
-          console.error(`Email sending failed:`, emailError);
-          emailResults = {
-            error: emailError.message,
-            summary: {
-              successful: 0,
-              failed: updatedCampaign.recipients.split(',').length
-            }
-          };
-        }
-      }
-      
-      const response = {
-        success: true,
-        campaign: updatedCampaign,
-        emailResults,
-        message: status === 'published' 
-          ? `Campaign updated and ${emailResults?.summary?.successful || 0} emails sent successfully`
-          : 'Campaign updated successfully'
-      };
-      
-      return NextResponse.json(response);
-      
-    } else {
-      // Handle JSON update
-      const data = await req.json();
-      const { id: bodyId, ...updateData } = data;
-      
-      const campaignId = id || bodyId;
-      
-      if (!campaignId) {
-        return NextResponse.json({ 
-          success: false, 
-          error: "Campaign ID is required" 
-        }, { status: 400 });
-      }
-      
-      // Validate content length if provided
-      if (updateData.content && updateData.content.length > 65535) {
-        return NextResponse.json({ 
-          success: false, 
-          error: "Content is too long. Maximum 65535 characters allowed." 
-        }, { status: 400 });
-      }
-      
-      // Validate recipients if provided
-      if (updateData.recipients) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const emailList = updateData.recipients.split(",").map(r => r.trim()).filter(r => r.length > 0);
-        
-        if (emailList.length === 0) {
-          return NextResponse.json({ 
-            success: false, 
-            error: "At least one valid email address is required" 
-          }, { status: 400 });
-        }
-        
-        const invalidEmails = emailList.filter(email => !emailRegex.test(email));
-        
-        if (invalidEmails.length > 0) {
-          return NextResponse.json({ 
-            success: false, 
-            error: "Invalid email addresses detected",
-            invalidEmails 
-          }, { status: 400 });
-        }
-        
-        // Deduplicate emails
-        const uniqueEmails = [...new Set(emailList)];
-        updateData.recipients = uniqueEmails.join(', ');
-      }
-      
-      // Update campaign
-      const updatedCampaign = await prisma.emailCampaign.update({
-        where: { id: campaignId },
-        data: updateData,
-      });
-      
-      const response = {
-        success: true,
-        campaign: updatedCampaign,
-        message: 'Campaign updated successfully'
-      };
-      
-      return NextResponse.json(response);
-    }
-    
-  } catch (error) {
-    console.error(`PUT Error:`, error);
-    
-    let statusCode = 500;
-    let errorMessage = error.message || "Failed to update campaign";
-    
-    if (error.code === 'P2000') {
-      statusCode = 400;
-      errorMessage = "Data too long for database column. Please shorten your content.";
-    } else if (error.code === 'P2025') {
-      statusCode = 404;
-      errorMessage = "Campaign not found";
-    }
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: errorMessage
-    }, { status: statusCode });
-  }
-}
-
-// 🔹 DELETE - Delete a campaign
-export async function DELETE(req) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-    
-    if (!id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Campaign ID is required" 
-      }, { status: 400 });
-    }
-    
-    // First, get the campaign to check for attachments
-    const campaign = await prisma.emailCampaign.findUnique({
-      where: { id },
-      select: { attachments: true }
-    });
-    
-    // Delete physical attachment files if they exist
-    if (campaign?.attachments) {
-      try {
-        const attachments = JSON.parse(campaign.attachments);
-        for (const attachment of attachments) {
-          const filePath = path.join(ATTACHMENTS_DIR, attachment.filename);
-          if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-          }
-        }
-      } catch (error) {
-        console.error('Error deleting attachment files:', error);
-      }
-    }
-    
-    // Delete campaign from database
-    await prisma.emailCampaign.delete({
-      where: { id },
-    });
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Campaign deleted successfully' 
-    });
-    
-  } catch (error) {
-    console.error(`DELETE Error:`, error);
-    
-    let statusCode = 500;
-    let errorMessage = error.message || "Failed to delete campaign";
-    
-    if (error.code === 'P2025') {
-      statusCode = 404;
-      errorMessage = "Campaign not found";
-    }
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: errorMessage
-    }, { status: statusCode });
   }
 }

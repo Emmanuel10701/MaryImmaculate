@@ -11,9 +11,9 @@ const transporter = nodemailer.createTransport({
 });
 
 // School information
-const SCHOOL_NAME = 'Mary Immaculate Girls Secondary School';
-const SCHOOL_LOCATION = 'Mweiga, Nyeri County';
-const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork';
+const SCHOOL_NAME = 'Katwanyaa High  School';
+const SCHOOL_LOCATION = 'Matungulu, Machakos County';
+const SCHOOL_MOTTO = 'Education is Light';
 
 // Email templates
 const emailTemplates = {
@@ -47,14 +47,14 @@ const emailTemplates = {
             <h2 style="color:#1e293b; font-size: 24px; font-weight: 600; margin: 0 0 20px;">Begin Your Educational Journey</h2>
             <p style="color:#475569; font-size: 16px; line-height: 1.6;">
               We are thrilled to announce that admissions for the <strong>${data.schoolYear || '2025'}</strong> academic year are now open! 
-              Join our community of excellence and embark on an educational journey that shapes futures at our public day school.
+              Join our community of excellence and embark on an educational journey that shapes futures at our Public Mixed  Day and Boarding School.
             </p>
             
             <div style="background: #f0f9ff; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid #3b82f6;">
               <h3 style="color:#1e40af; font-size: 18px; font-weight: 600; margin: 0 0 10px;">Quick Facts:</h3>
               <ul style="color:#475569; font-size: 14px; line-height: 1.6; margin: 0; padding-left: 20px;">
-                <li>Public Day School in Kiganjo, Nyeri</li>
-                <li>400+ students community</li>
+                <li>Public Mixed  Day and Boarding School in Matungulu, Machakos</li>
+                <li>1200+ students community</li>
                 <li>8-4-4 Curriculum System</li>
                 <li>Quality education for all</li>
               </ul>
@@ -67,7 +67,7 @@ const emailTemplates = {
             </div>
             
             <p style="color:#64748b; font-size: 14px; line-height: 1.6; margin: 20px 0 0;">
-              For more information, contact our admissions office at <strong>+254720123456</strong> or email <strong>admissions@maryimmaculategirls.sc.ke</strong>
+              For more information, contact our admissions office at <strong>+254720123456</strong> or email <strong>admissions@katwanyaahighSchool.sc.ke</strong>
             </p>
           </div>
 
@@ -110,7 +110,7 @@ const emailTemplates = {
           <div class="content">
             <h2 style="color:#1e293b; font-size: 24px; font-weight: 600; margin: 0 0 20px;">What's Happening at Our School</h2>
             <p style="color:#475569; font-size: 16px; line-height: 1.6;">
-              ${data.customMessage || 'Stay updated with the latest news, events, and achievements from our school community of 400+ students.'}
+              ${data.customMessage || 'Stay updated with the latest news, events, and achievements from our school community of 1200+ students.'}
             </p>
             
             ${data.events ? `
@@ -171,7 +171,7 @@ const emailTemplates = {
           <div class="content">
             <h2 style="color:#1e293b; font-size: 24px; font-weight: 600; margin: 0 0 20px;">Join Us for a Special Event</h2>
             <p style="color:#475569; font-size: 16px; line-height: 1.6;">
-              ${data.customMessage || `We cordially invite you to join us for this special occasion at our school in ${SCHOOL_LOCATION}. Your presence would mean a lot to our community of 400+ students.`}
+              ${data.customMessage || `We cordially invite you to join us for this special occasion at our school in ${SCHOOL_LOCATION}. Your presence would mean a lot to our community of 1200+ students.`}
             </p>
             
             <div style="background: #faf5ff; border-radius: 12px; padding: 20px; margin: 25px 0; border-left: 4px solid #7c3aed;">
@@ -183,7 +183,7 @@ const emailTemplates = {
             </div>
             
             <p style="color:#64748b; font-size: 14px; line-height: 1.6; margin: 20px 0 0;">
-              Please RSVP by calling <strong>+254720123456</strong> or emailing <strong>info@maryimmaculategirls.sc.ke</strong>
+              Please RSVP by calling <strong>+254720123456</strong> or emailing <strong>info@katwanyaa highSchool.sc.ke</strong>
             </p>
           </div>
 

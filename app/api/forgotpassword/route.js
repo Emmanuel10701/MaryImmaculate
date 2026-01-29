@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import { prisma } from '../../../libs/prisma'; // ✅ named import
+import { prisma } from '../../../libs/prisma';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 
@@ -13,10 +13,11 @@ const transporter = nodemailer.createTransport({
 });
 
 // School Information
-const SCHOOL_NAME = 'Mary Immaculate Girls Secondary School';
-const SCHOOL_LOCATION = 'Mweiga, Nyeri County';
-const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork';
-const CONTACT_EMAIL = 'admissions@maryimmaculategirls.sc.ke';
+const SCHOOL_NAME = 'Katwanyaa High School';
+const SCHOOL_LOCATION = 'Matungulu, Machakos County';
+const SCHOOL_MOTTO = 'Education is Light';
+const CONTACT_PHONE = '+254720123456';
+const CONTACT_EMAIL = 'info@katwanyaa highSchool.sc.ke';
 
 export async function POST(req) {
   try {
@@ -40,257 +41,686 @@ export async function POST(req) {
     });
 
     const token = uuidv4();
-    
-    // Hash the token before storing (for security)
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    const expires = new Date(Date.now() + 3600000); // 1 hour
+    const expires = new Date(Date.now() + 3600000);
 
     await prisma.passwordReset.create({
       data: {
         userId: user.id,
-        token: hashedToken, // Store hashed token
+        token: hashedToken,
         expires,
       },
     });
 
-    // Use NEXT_PUBLIC_URL for dynamic URL
     const baseUrl = process.env.NEXT_PUBLIC_URL || 
                    process.env.NEXTAUTH_URL || 
-                   'http://localhost:3001';
+                   'https://katwanyaa.vercel.app';
     
-    // Updated reset link structure to match your app
     const resetLink = `${baseUrl}/pages/resetpassword?token=${token}`;
     
-    // For debugging
     console.log('🔐 Password Reset Request -', SCHOOL_NAME);
     console.log('User email:', email);
-    console.log('Generated token (raw):', token);
-    console.log('Generated token (hashed):', hashedToken);
     console.log('Reset link:', resetLink);
-    console.log('Base URL:', baseUrl);
 
-    // Enhanced email template
+    // Modern email template
     await transporter.sendMail({
       from: {
-        name: `${SCHOOL_NAME} Support`,
+        name: `${SCHOOL_NAME} Security`,
         address: process.env.EMAIL_USER
       },
       to: email,
-      subject: `Password Reset Request - ${SCHOOL_NAME}`,
+      subject: `🔐 Password Reset Request - ${SCHOOL_NAME}`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="x-apple-disable-message-reformatting">
           <title>Password Reset - ${SCHOOL_NAME}</title>
           <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-              background-color: #f8fafc;
+            * {
               margin: 0;
               padding: 0;
+              box-sizing: border-box;
+              -webkit-text-size-adjust: 100%;
+              -ms-text-size-adjust: 100%;
             }
+            
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              padding: 20px;
+              margin: 0;
+              -webkit-font-smoothing: antialiased;
+            }
+            
             .container {
               max-width: 600px;
               margin: 0 auto;
-              background-color: #ffffff;
-              border-radius: 12px;
+              background: white;
+              border-radius: 16px;
               overflow: hidden;
-              box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+              box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             }
+            
             .header {
-              background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+              background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
               color: white;
               padding: 40px 30px;
               text-align: center;
+              position: relative;
+              overflow: hidden;
             }
+            
+            .header::before {
+              content: '';
+              position: absolute;
+              top: -50%;
+              left: -50%;
+              width: 200%;
+              height: 200%;
+              background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+              background-size: 20px 20px;
+              opacity: 0.1;
+            }
+            
             .header h1 {
-              margin: 0;
-              font-size: 28px;
-              font-weight: 700;
+              font-size: 26px;
+              font-weight: 800;
+              margin: 0 0 8px 0;
+              position: relative;
+              z-index: 1;
             }
+            
             .header p {
-              margin: 10px 0 0;
-              opacity: 0.9;
-              font-size: 16px;
-            }
-            .school-info {
-              margin: 5px 0 0;
               font-size: 14px;
-              opacity: 0.8;
+              opacity: 0.95;
+              margin: 4px 0;
+              position: relative;
+              z-index: 1;
             }
+            
+            .alert-banner {
+              background: #fef2f2;
+              border-bottom: 3px solid #dc2626;
+              padding: 16px 30px;
+              text-align: center;
+            }
+            
+            .alert-text {
+              color: #991b1b;
+              font-size: 14px;
+              font-weight: 600;
+              margin: 0;
+            }
+            
             .content {
               padding: 40px 30px;
             }
-            .content h2 {
-              color: #1a202c;
-              margin: 0 0 20px;
-              font-size: 22px;
-              font-weight: 600;
-            }
-            .content p {
-              color: #4a5568;
-              line-height: 1.6;
-              margin: 0 0 20px;
+            
+            .greeting {
+              color: #333;
               font-size: 16px;
+              line-height: 1.7;
+              margin: 0 0 20px 0;
             }
-            .reset-button {
+            
+            .info-card {
+              background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+              padding: 20px;
+              border-radius: 12px;
+              margin: 20px 0;
+              border: 1px solid #fecaca;
+            }
+            
+            .info-row {
+              display: flex;
+              padding: 8px 0;
+              font-size: 14px;
+              color: #4b5563;
+            }
+            
+            .info-label {
+              font-weight: 600;
+              color: #991b1b;
+              width: 40%;
+            }
+            
+            .info-value {
+              color: #333;
+              width: 60%;
+              word-break: break-word;
+            }
+            
+            .reset-section {
+              background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+              padding: 28px;
+              border-radius: 12px;
+              margin: 28px 0;
+              text-align: center;
+              border: 1px solid #86efac;
+            }
+            
+            .reset-title {
+              color: #15803d;
+              font-size: 17px;
+              font-weight: 700;
+              margin: 0 0 12px 0;
+            }
+            
+            .reset-btn {
               display: inline-block;
-              background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+              background: linear-gradient(135deg, #059669 0%, #047857 100%);
               color: white;
-              padding: 16px 32px;
+              padding: 16px 40px;
               text-decoration: none;
-              border-radius: 8px;
-              font-weight: 600;
+              border-radius: 10px;
+              font-weight: 700;
               font-size: 16px;
-              text-align: center;
-              margin: 25px 0;
-              transition: transform 0.2s, box-shadow 0.2s;
+              transition: all 0.2s ease;
+              border: none;
+              cursor: pointer;
             }
-            .reset-button:hover {
-              transform: translateY(-2px);
-              box-shadow: 0 8px 20px rgba(30, 60, 114, 0.2);
+            
+            .reset-btn:hover {
+              transform: translateY(-3px);
+              box-shadow: 0 15px 30px rgba(5, 150, 105, 0.3);
             }
-            .warning {
-              background-color: #fff8e1;
-              border-left: 4px solid #ffb300;
-              padding: 15px;
-              margin: 25px 0;
-              border-radius: 4px;
-            }
-            .warning p {
-              color: #5d4037;
-              margin: 0;
-              font-size: 14px;
-            }
-            .footer {
-              background-color: #f7fafc;
-              padding: 30px;
-              text-align: center;
-              border-top: 1px solid #e2e8f0;
-            }
-            .footer p {
-              color: #718096;
-              margin: 0 0 10px;
-              font-size: 14px;
-            }
-            .token-info {
-              background-color: #f1f8ff;
-              padding: 12px;
-              border-radius: 6px;
+            
+            .expiry-box {
+              background: #fff7ed;
+              border: 1px solid #fed7aa;
+              border-radius: 10px;
+              padding: 16px;
               margin: 20px 0;
-              font-family: 'Courier New', monospace;
+              text-align: center;
+            }
+            
+            .expiry-title {
+              color: #d97706;
+              font-weight: 700;
+              font-size: 14px;
+              margin: 0 0 4px 0;
+            }
+            
+            .expiry-text {
+              color: #92400e;
               font-size: 13px;
-              color: #0366d6;
+              margin: 0;
+            }
+            
+            .link-box {
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 16px;
+              margin: 20px 0;
               word-break: break-all;
+              font-size: 12px;
+              color: #0369a1;
+              font-family: 'Courier New', monospace;
+              line-height: 1.4;
             }
-            .expiry-note {
-              background-color: #f3e5f5;
-              padding: 12px;
-              border-radius: 6px;
+            
+            .warning-box {
+              background: linear-gradient(135deg, #fef3c7 0%, #fef08a 100%);
+              border-left: 4px solid #f59e0b;
+              padding: 16px;
               margin: 20px 0;
-              font-size: 14px;
-              color: #7b1fa2;
-              border-left: 4px solid #9c27b0;
-            }
-            .school-details {
-              background-color: #f0f9ff;
-              padding: 15px;
               border-radius: 8px;
-              margin: 20px 0;
-              border-left: 4px solid #1e3c72;
             }
-            .school-details p {
-              margin: 0;
+            
+            .warning-title {
+              color: #92400e;
+              font-weight: 700;
+              font-size: 14px;
+              margin: 0 0 6px 0;
+            }
+            
+            .warning-text {
+              color: #78350f;
               font-size: 13px;
-              color: #1e40af;
+              margin: 0;
+              line-height: 1.5;
             }
-            @media (max-width: 600px) {
-              .container {
-                margin: 10px;
-                border-radius: 8px;
+            
+            .security-tips {
+              background: #f0f7ff;
+              border: 1px solid #dbeafe;
+              border-radius: 10px;
+              padding: 16px;
+              margin: 20px 0;
+            }
+            
+            .security-title {
+              color: #075985;
+              font-weight: 700;
+              font-size: 14px;
+              margin: 0 0 10px 0;
+            }
+            
+            .security-list {
+              list-style: none;
+              padding: 0;
+              margin: 0;
+            }
+            
+            .security-list li {
+              color: #4b5563;
+              font-size: 13px;
+              padding: 6px 0;
+              display: flex;
+              gap: 8px;
+            }
+            
+            .support-box {
+              background: #f0f9ff;
+              border: 1px solid #dbeafe;
+              border-radius: 10px;
+              padding: 16px;
+              margin: 20px 0;
+              text-align: center;
+            }
+            
+            .support-title {
+              color: #0369a1;
+              font-weight: 600;
+              font-size: 14px;
+              margin: 0 0 8px 0;
+            }
+            
+            .support-text {
+              color: #4b5563;
+              font-size: 13px;
+              margin: 0;
+            }
+            
+            .footer {
+              background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+              color: #cbd5e1;
+              padding: 28px 30px;
+              text-align: center;
+              border-top: 1px solid #334155;
+            }
+            
+            .footer-title {
+              font-size: 15px;
+              font-weight: 700;
+              color: white;
+              margin: 0 0 6px 0;
+            }
+            
+            .footer-text {
+              font-size: 12px;
+              margin: 4px 0;
+            }
+            
+            .footer-small {
+              font-size: 11px;
+              opacity: 0.7;
+              margin-top: 8px;
+            }
+            
+            @media (max-width: 768px) {
+              body {
+                padding: 12px;
               }
-              .header, .content, .footer {
-                padding: 25px 20px;
+              
+              .header {
+                padding: 32px 20px;
               }
+              
               .header h1 {
                 font-size: 24px;
               }
-              .content h2 {
+              
+              .alert-banner {
+                padding: 14px 20px;
+              }
+              
+              .alert-text {
+                font-size: 13px;
+              }
+              
+              .content {
+                padding: 28px 20px;
+              }
+              
+              .greeting {
+                font-size: 15px;
+                margin-bottom: 16px;
+              }
+              
+              .info-card {
+                padding: 16px;
+                margin: 16px 0;
+              }
+              
+              .info-row {
+                font-size: 13px;
+                padding: 6px 0;
+              }
+              
+              .reset-section {
+                padding: 24px;
+                margin: 24px 0;
+              }
+              
+              .reset-title {
+                font-size: 16px;
+              }
+              
+              .reset-btn {
+                padding: 14px 36px;
+                font-size: 15px;
+              }
+              
+              .expiry-box {
+                padding: 14px;
+              }
+              
+              .expiry-title {
+                font-size: 13px;
+              }
+              
+              .expiry-text {
+                font-size: 12px;
+              }
+              
+              .link-box {
+                font-size: 11px;
+                padding: 14px;
+              }
+              
+              .warning-box {
+                padding: 14px;
+              }
+              
+              .warning-title {
+                font-size: 13px;
+              }
+              
+              .warning-text {
+                font-size: 12px;
+              }
+              
+              .security-tips {
+                padding: 14px;
+              }
+              
+              .security-title {
+                font-size: 13px;
+              }
+              
+              .security-list li {
+                font-size: 12px;
+                padding: 5px 0;
+              }
+              
+              .support-box {
+                padding: 14px;
+              }
+              
+              .support-title {
+                font-size: 13px;
+              }
+              
+              .support-text {
+                font-size: 12px;
+              }
+              
+              .footer {
+                padding: 24px 20px;
+              }
+            }
+            
+            @media (max-width: 480px) {
+              body {
+                padding: 8px;
+              }
+              
+              .header {
+                padding: 24px 12px;
+              }
+              
+              .header h1 {
                 font-size: 20px;
+                margin-bottom: 6px;
+              }
+              
+              .header p {
+                font-size: 12px;
+                margin: 3px 0;
+              }
+              
+              .alert-banner {
+                padding: 12px 12px;
+              }
+              
+              .alert-text {
+                font-size: 12px;
+              }
+              
+              .content {
+                padding: 20px 12px;
+              }
+              
+              .greeting {
+                font-size: 14px;
+                margin-bottom: 14px;
+                line-height: 1.6;
+              }
+              
+              .info-card {
+                padding: 14px;
+                margin: 14px 0;
+              }
+              
+              .info-row {
+                flex-direction: column;
+                font-size: 12px;
+                padding: 5px 0;
+              }
+              
+              .info-label {
+                width: 100%;
+                margin-bottom: 2px;
+              }
+              
+              .info-value {
+                width: 100%;
+              }
+              
+              .reset-section {
+                padding: 20px;
+                margin: 20px 0;
+              }
+              
+              .reset-title {
+                font-size: 15px;
+                margin-bottom: 12px;
+              }
+              
+              .reset-btn {
+                padding: 12px 28px;
+                font-size: 14px;
+              }
+              
+              .expiry-box {
+                padding: 12px;
+                margin: 16px 0;
+              }
+              
+              .expiry-title {
+                font-size: 12px;
+              }
+              
+              .expiry-text {
+                font-size: 11px;
+              }
+              
+              .link-box {
+                font-size: 10px;
+                padding: 12px;
+              }
+              
+              .warning-box {
+                padding: 12px;
+              }
+              
+              .warning-title {
+                font-size: 12px;
+              }
+              
+              .warning-text {
+                font-size: 11px;
+              }
+              
+              .security-tips {
+                padding: 12px;
+              }
+              
+              .security-title {
+                font-size: 12px;
+                margin-bottom: 8px;
+              }
+              
+              .security-list li {
+                font-size: 11px;
+                padding: 4px 0;
+                gap: 6px;
+              }
+              
+              .support-box {
+                padding: 12px;
+              }
+              
+              .support-title {
+                font-size: 12px;
+              }
+              
+              .support-text {
+                font-size: 11px;
+              }
+              
+              .footer {
+                padding: 16px;
+              }
+              
+              .footer-title {
+                font-size: 13px;
+              }
+              
+              .footer-text {
+                font-size: 11px;
+              }
+              
+              .footer-small {
+                font-size: 9px;
               }
             }
           </style>
         </head>
         <body>
           <div class="container">
+            <!-- HEADER -->
             <div class="header">
-              <h1>🏫 ${SCHOOL_NAME}</h1>
+              <h1>🔐 Password Reset</h1>
+              <p>${SCHOOL_NAME}</p>
               <p>${SCHOOL_MOTTO}</p>
-              <p class="school-info">${SCHOOL_LOCATION}</p>
             </div>
             
+            <!-- ALERT BANNER -->
+            <div class="alert-banner">
+              <p class="alert-text">⚠️ You requested a password reset. This link expires in 1 hour.</p>
+            </div>
+            
+            <!-- CONTENT -->
             <div class="content">
-              <h2>Hello ${user.name || 'User'},</h2>
+              <p class="greeting">
+                Hello <strong>${user.name || 'User'}</strong>,
+                <br><br>
+                We received a request to reset the password for your <strong>${SCHOOL_NAME}</strong> account associated with <strong>${email}</strong>.
+              </p>
               
-              <p>We received a request to reset the password for your <strong>${SCHOOL_NAME}</strong> account associated with <strong>${email}</strong>.</p>
-              
-              <div class="school-details">
-                <p><strong>School Portal:</strong> ${SCHOOL_NAME} Administrative System<br>
-                <strong>Account Type:</strong> ${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}<br>
-                <strong>Request Time:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'Africa/Nairobi' })}</p>
+              <div class="info-card">
+                <div class="info-row">
+                  <span class="info-label">📧 Account Email:</span>
+                  <span class="info-value">${email}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">👤 Account Type:</span>
+                  <span class="info-value">${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase() : 'User'}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">🕐 Request Time:</span>
+                  <span class="info-value">${new Date().toLocaleString('en-US', { timeZone: 'Africa/Nairobi' })}</span>
+                </div>
               </div>
               
-              <p>To set a new password, please click the button below:</p>
-              
-              <div style="text-align: center;">
-                <a 
-                  href="${resetLink}" 
-                  class="reset-button"
-                  style="color: white; text-decoration: none;"
-                >
-                  🔑 Reset Your Password
+              <div class="reset-section">
+                <h3 class="reset-title">Click the button below to reset your password:</h3>
+                <a href="${resetLink}" class="reset-btn">
+                  🔑 Reset Password
                 </a>
               </div>
               
-              <div class="expiry-note">
-                <p><strong>⚠️ Link Expires:</strong> This link will expire in <strong>1 hour</strong> for security reasons.</p>
+              <div class="expiry-box">
+                <p class="expiry-title">⏰ Security Notice</p>
+                <p class="expiry-text">This link will expire in <strong>1 hour</strong>. After that, you'll need to request a new password reset.</p>
               </div>
               
-              <div class="warning">
-                <p><strong>Important:</strong> If you didn't request this password reset, please ignore this email. Your account remains secure, and no changes have been made.</p>
-              </div>
+              <p style="font-size: 14px; color: #333; margin: 0 0 12px 0;">
+                If the button above doesn't work, copy and paste this link into your browser:
+              </p>
               
-              <p>If the button above doesn't work, copy and paste this link into your browser:</p>
-              
-              <div class="token-info">
+              <div class="link-box">
                 ${resetLink}
               </div>
               
-              <p>For security reasons, this link is one-time use only and will be invalidated after you reset your password.</p>
+              <div class="warning-box">
+                <p class="warning-title">❌ Didn't Request This?</p>
+                <p class="warning-text">If you didn't request a password reset, please ignore this email. Your account is secure, and no changes have been made.</p>
+              </div>
               
-              <p>Best regards,<br>
-              <strong>The ${SCHOOL_NAME} Administration Team</strong><br>
-              <span style="font-size: 14px; color: #6b7280;">${SCHOOL_LOCATION}</span></p>
+              <div class="security-tips">
+                <p class="security-title">🛡️ Security Tips:</p>
+                <ul class="security-list">
+                  <li><span>✓</span> Use a strong, unique password</li>
+                  <li><span>✓</span> Never share your password with anyone</li>
+                  <li><span>✓</span> Don't click reset links in unexpected emails</li>
+                  <li><span>✓</span> Log out from other devices after resetting</li>
+                </ul>
+              </div>
+              
+              <div class="support-box">
+                <p class="support-title">💬 Need Help?</p>
+                <p class="support-text">
+                  Contact IT Support:<br>
+                  <strong>${CONTACT_PHONE}</strong> | <strong>${CONTACT_EMAIL}</strong>
+                </p>
+              </div>
             </div>
             
+            <!-- FOOTER -->
             <div class="footer">
-              <p>© ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.</p>
-              <p>This email was sent to ${email} for ${SCHOOL_NAME} portal password reset.</p>
-              <p>If you need assistance, contact school administration at ${CONTACT_EMAIL}</p>
-              <p style="font-size: 12px; color: #9ca3af; margin-top: 15px;">
-                Public Day School | 400+ Students | 8-4-4 Curriculum System
-              </p>
+              <p class="footer-title">${SCHOOL_NAME}</p>
+              <p class="footer-text">${SCHOOL_LOCATION}</p>
+              <p class="footer-text">Public Mixed Day and Boarding School</p>
+              <p class="footer-small">© ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.</p>
+              <p class="footer-small">This email was sent to ${email} for your account security.</p>
             </div>
           </div>
         </body>
         </html>
       `,
-      text: `Password Reset Request - ${SCHOOL_NAME}\n\nHello ${user.name || 'User'},\n\nWe received a request to reset your password for ${SCHOOL_NAME} portal.\n\nPlease use this link to reset your password:\n\n${resetLink}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nThe ${SCHOOL_NAME} Administration Team\n${SCHOOL_LOCATION}`
+      text: `Password Reset Request - ${SCHOOL_NAME}\n\nHello ${user.name || 'User'},\n\nWe received a request to reset your password for ${SCHOOL_NAME}.\n\nPlease click this link to reset your password:\n${resetLink}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nThe ${SCHOOL_NAME} Security Team\n${SCHOOL_LOCATION}`
     });
 
-    console.log(`✅ Password reset email sent successfully to ${email} for ${SCHOOL_NAME}`);
+    console.log(`✅ Password reset email sent successfully to ${email}`);
 
     return NextResponse.json({ 
       message: 'Password reset link sent successfully.',
@@ -303,11 +733,10 @@ export async function POST(req) {
     });
 
   } catch (error) {
-    console.error(`❌ Error in password reset API for ${SCHOOL_NAME}:`, error);
+    console.error(`❌ Error in password reset API:`, error);
     return NextResponse.json({ 
       message: 'Internal server error',
       error: error.message,
-      school: SCHOOL_NAME
     }, { status: 500 });
   }
 }

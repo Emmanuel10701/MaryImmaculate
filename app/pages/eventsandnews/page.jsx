@@ -261,7 +261,7 @@ if (viewMode === 'grid') {
           <img
             src={event.image || '/default-event.jpg'}
             alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-100 transition-transform duration-500"
           />
           {event.featured && (
             <div className="absolute top-1 right-1">
@@ -720,7 +720,7 @@ const ModernDetailModal = ({ item, type = 'event', onClose, onAddToCalendar, onS
     } catch { return dateString || 'Date not set'; }
   };
 
-  return (
+return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-sm">
       {/* Modal Container */}
       <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col">
@@ -728,13 +728,13 @@ const ModernDetailModal = ({ item, type = 'event', onClose, onAddToCalendar, onS
         {/* Close Button - Floating & Premium */}
         <button 
           onClick={onClose}
-          className="absolute top-5 right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90"
         >
-          <IoClose size={24} />
+          <IoClose size={20}  />
         </button>
 
         {/* 1. Full-Bleed Hero Image */}
-        <div className="relative h-[40vh] sm:h-[350px] w-full shrink-0">
+        <div className="relative h-[30vh] sm:h-[350px] w-full shrink-0">
           <img
             src={item.image || (type === 'event' ? '/default-event.jpg' : '/default-news.jpg')}
             alt={item.title}
@@ -743,43 +743,45 @@ const ModernDetailModal = ({ item, type = 'event', onClose, onAddToCalendar, onS
           <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20" />
           
           {/* Badge Overlays */}
-          <div className="absolute bottom-6 left-6 flex gap-2">
-            <span className="px-4 py-1.5 bg-white shadow-xl rounded-full text-xs font-bold uppercase tracking-widest text-blue-600">
+          <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex gap-2">
+            <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-white shadow-xl rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest text-blue-600">
               {item.category || type}
             </span>
             {item.featured && (
-              <span className="px-4 py-1.5 bg-slate-900 text-white rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-1">
-                <IoSparkles className="text-amber-400" /> Featured
+              <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-slate-900 text-white rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest flex items-center gap-1">
+                <IoSparkles className="text-amber-400 w-3 h-3 sm:w-4 sm:h-4" /> 
+                <span className="hidden sm:inline">Featured</span>
+                <span className="sm:hidden">★</span>
               </span>
             )}
           </div>
         </div>
 
         {/* 2. Content Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar bg-white">
-          <div className="max-w-2xl mx-auto space-y-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 custom-scrollbar bg-white">
+          <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
             
             {/* Title & Metadata */}
-            <section className="space-y-4">
-              <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tight">
+            <section className="space-y-3 sm:space-y-4">
+              <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tight">
                 {item.title}
               </h2>
               
               {/* Quick Info Bar */}
-              <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm font-semibold text-slate-500">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-y-2 sm:gap-y-3 gap-x-6 text-xs sm:text-sm font-semibold text-slate-500">
                 <div className="flex items-center gap-2">
-                  <IoCalendarClearOutline className="text-blue-500 text-lg" />
+                  <IoCalendarClearOutline className="text-blue-500 text-base sm:text-lg" />
                   {formatFullDate(item.date)}
                 </div>
                 {type === 'event' && item.location && (
                   <div className="flex items-center gap-2">
-                    <IoLocationOutline className="text-rose-500 text-lg" />
+                    <IoLocationOutline className="text-rose-500 text-base sm:text-lg" />
                     {item.location}
                   </div>
                 )}
                 {type === 'news' && (
                   <div className="flex items-center gap-2">
-                    <IoPersonOutline className="text-purple-500 text-lg" />
+                    <IoPersonOutline className="text-purple-500 text-base sm:text-lg" />
                     By {item.author || 'School Admin'}
                   </div>
                 )}
@@ -787,15 +789,17 @@ const ModernDetailModal = ({ item, type = 'event', onClose, onAddToCalendar, onS
             </section>
 
             {/* Description Block */}
-            <section className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">About this {type}</h3>
-              <div className="text-slate-700 leading-relaxed text-lg">
+            <section className="space-y-3 sm:space-y-4">
+              <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-400">
+                About this {type}
+              </h3>
+              <div className="text-slate-700 leading-relaxed text-sm sm:text-base md:text-lg">
                 {item.description || item.excerpt || 'No description available.'}
               </div>
               
               {/* If news has full content, show it here without tabs */}
               {type === 'news' && item.fullContent && (
-                <div className="pt-4 mt-4 border-t border-slate-100 text-slate-600 whitespace-pre-line italic">
+                <div className="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-slate-100 text-slate-600 text-xs sm:text-sm md:text-base whitespace-pre-line italic">
                   {item.fullContent}
                 </div>
               )}
@@ -803,22 +807,22 @@ const ModernDetailModal = ({ item, type = 'event', onClose, onAddToCalendar, onS
 
             {/* Event Specific Specs (Stats grid style) */}
             {type === 'event' && (
-              <section className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4">
-                <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
-                  <IoTimeOutline className="text-blue-600 mb-2" />
-                  <p className="text-[10px] uppercase font-bold text-slate-400">Time</p>
-                  <p className="font-bold text-slate-900">{item.time || 'All Day'}</p>
+              <section className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 pt-4">
+                <div className="p-3 sm:p-4 bg-slate-50 rounded-2xl sm:rounded-3xl border border-slate-100">
+                  <IoTimeOutline className="text-blue-600 mb-1 sm:mb-2 w-4 h-4 sm:w-5 sm:h-5" />
+                  <p className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 mb-0.5 sm:mb-1">Time</p>
+                  <p className="font-bold text-slate-900 text-xs sm:text-sm md:text-base truncate">{item.time || 'All Day'}</p>
                 </div>
-                <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
-                  <IoPersonOutline className="text-purple-600 mb-2" />
-                  <p className="text-[10px] uppercase font-bold text-slate-400">Attendees</p>
-                  <p className="font-bold text-slate-900 truncate">{item.attendees || 'Open'}</p>
+                <div className="p-3 sm:p-4 bg-slate-50 rounded-2xl sm:rounded-3xl border border-slate-100">
+                  <IoPersonOutline className="text-purple-600 mb-1 sm:mb-2 w-4 h-4 sm:w-5 sm:h-5" />
+                  <p className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 mb-0.5 sm:mb-1">Attendees</p>
+                  <p className="font-bold text-slate-900 text-xs sm:text-sm md:text-base truncate">{item.attendees || 'Open'}</p>
                 </div>
                 {item.speaker && (
-                  <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100 col-span-2 md:col-span-1">
-                    <IoSparkles className="text-amber-500 mb-2" />
-                    <p className="text-[10px] uppercase font-bold text-slate-400">Special Guest</p>
-                    <p className="font-bold text-slate-900">{item.speaker}</p>
+                  <div className="p-3 sm:p-4 bg-slate-50 rounded-2xl sm:rounded-3xl border border-slate-100 col-span-2 sm:col-span-1">
+                    <IoSparkles className="text-amber-500 mb-1 sm:mb-2 w-4 h-4 sm:w-5 sm:h-5" />
+                    <p className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 mb-0.5 sm:mb-1">Special Guest</p>
+                    <p className="font-bold text-slate-900 text-xs sm:text-sm md:text-base truncate">{item.speaker}</p>
                   </div>
                 )}
               </section>
@@ -826,39 +830,36 @@ const ModernDetailModal = ({ item, type = 'event', onClose, onAddToCalendar, onS
           </div>
         </div>
 
-        {/* 3. Action Footer - Sticky at bottom */}
-        <div className="shrink-0 p-6 bg-slate-50/80 backdrop-blur-md border-t border-slate-100">
-          <div className="max-w-2xl mx-auto flex gap-3">
-            {type === 'event' ? (
-              <button
-                onClick={onAddToCalendar}
-                className="flex-[2] h-14 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
-              >
-                <IoCalendarClearOutline size={20} />
-                Add to Calendar
-              </button>
-            ) : (
-              <button
-                 className="flex-[2] h-14 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2"
-                onClick={onClose}
-
-              >
-                <IoNewspaperOutline size={20} />
-
-                See other articles 
-                
-              </button>
-            )}
-            
-            <button
-              onClick={onShare}
-              className="flex-1 h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
-            >
-              <IoShareOutline size={20} />
-              Share
-            </button>
-          </div>
-        </div>
+{/* 3. Action Footer - Sticky at bottom */}
+<div className="shrink-0 p-4 sm:p-6 bg-slate-50/80 backdrop-blur-md border-t border-slate-100">
+  <div className="max-w-2xl mx-auto flex flex-row items-center gap-2 sm:gap-3">
+    {type === 'event' ? (
+      <button
+        onClick={onAddToCalendar}
+        className="flex-[2] min-w-0 h-11 sm:h-14 bg-slate-900 text-white rounded-xl sm:rounded-2xl font-bold text-[11px] sm:text-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+      >
+        <IoCalendarClearOutline size={16} className="shrink-0 sm:size-[20px]" />
+        <span className="truncate">Add to Calendar</span>
+      </button>
+    ) : (
+      <button
+        className="flex-[2] min-w-0 h-11 sm:h-14 bg-slate-900 text-white rounded-xl sm:rounded-2xl font-bold text-[11px] sm:text-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+        onClick={onClose}
+      >
+        <IoNewspaperOutline size={16} className="shrink-0 sm:size-[20px]" />
+        <span className="truncate">See articles</span>
+      </button>
+    )}
+    
+    <button
+      onClick={onShare}
+      className="flex-1 min-w-0 h-11 sm:h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-xl sm:rounded-2xl font-bold text-[11px] sm:text-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+    >
+      <IoShareOutline size={16} className="shrink-0 sm:size-[20px]" />
+      <span className="truncate">Share</span>
+    </button>
+  </div>
+</div>
 
       </div>
     </div>
@@ -960,7 +961,7 @@ export default function ModernEventsNewsPage() {
 
   // Categories
   const categories = [
-    { id: 'all', name: 'All Events', icon: IoCalendarClearOutline, color: 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900' },
+    { id: 'all', name: 'All Events', icon: IoCalendarClearOutline, color: 'bg-gradient-to-r from-blue-500 to-cyan-500' },
     { id: 'academic', name: 'Academic', icon: IoNewspaperOutline, color: 'bg-gradient-to-r from-blue-500 to-purple-500' },
     { id: 'cultural', name: 'Cultural', icon: FiMusic, color: 'bg-gradient-to-r from-purple-500 to-pink-500' },
     { id: 'sports', name: 'Sports', icon: FiTrendingUp, color: 'bg-gradient-to-r from-emerald-500 to-green-500' },
@@ -1021,22 +1022,28 @@ export default function ModernEventsNewsPage() {
     }
   };
 
-  const fetchNews = async (showRefresh = false) => {
-    try {
-      const response = await fetch('/api/news');
-      const data = await response.json();
-      if (data.success) {
-        setNewsData(data.news || getSampleNews());
-        if (showRefresh) toast.success('News refreshed!');
-      } else {
-        throw new Error(data.error);
-      }
-    } catch (error) {
-      console.error('Error fetching news:', error);
-      toast.error('Failed to load news');
-      setNewsData(getSampleNews());
+const fetchNews = async (showRefresh = false) => {
+  try {
+    const response = await fetch('/api/news');
+    const data = await response.json();
+    
+    // FIX HERE: Use data.data instead of data.news
+    if (data.success && Array.isArray(data.data)) {
+      setNewsData(data.data || getSampleNews());
+      if (showRefresh) toast.success('News refreshed!');
+    } else if (data.success && Array.isArray(data.news)) {
+      // Fallback to data.news if data.data doesn't exist
+      setNewsData(data.news || getSampleNews());
+      if (showRefresh) toast.success('News refreshed!');
+    } else {
+      throw new Error(data.error || 'Invalid response format');
     }
-  };
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    toast.error('Failed to load news');
+    setNewsData(getSampleNews());
+  }
+};
 
   const fetchData = async (showRefresh = false) => {
     if (!showRefresh) setLoading(true);
@@ -1309,63 +1316,63 @@ Loading for our school latest news and events to stay updated
   })}
 </div>
 
-     <div className="relative mb-8">
+<div className="relative mb-6 sm:mb-8">
   {/* The Main Container: Switched from GlassCard to a cleaner, floating bar aesthetic */}
-  <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 p-2 md:p-3 rounded-[28px] md:rounded-full shadow-lg shadow-slate-200/40">
-    <div className="flex flex-col md:flex-row items-center gap-2">
+  <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 p-2 sm:p-3 rounded-2xl sm:rounded-[28px] md:rounded-full shadow-lg shadow-slate-200/40">
+    <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3">
       
-   {/* Modernized Search Section */}
-<div className="relative w-full flex-1 group">
-  {/* The Search Container */}
-  <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl shadow-sm transition-all focus-within:border-slate-900 focus-within:ring-4 focus-within:ring-slate-900/5">
-    
-    {/* Search Icon - Always Static */}
-    <div className="pl-5 pr-3 flex items-center justify-center pointer-events-none">
-      <FiSearch className="text-slate-400 group-focus-within:text-slate-900 transition-colors" size={18} />
-    </div>
+      {/* Modernized Search Section */}
+      <div className="relative w-full flex-1 group">
+        {/* The Search Container */}
+        <div className="relative flex items-center bg-white border border-slate-200 rounded-xl sm:rounded-2xl shadow-sm transition-all focus-within:border-slate-900 focus-within:ring-2 sm:focus-within:ring-4 focus-within:ring-slate-900/5">
+          
+          {/* Search Icon - Always Static */}
+          <div className="pl-3 sm:pl-4 md:pl-5 pr-2 sm:pr-3 flex items-center justify-center pointer-events-none">
+            <FiSearch className="text-slate-400 group-focus-within:text-slate-900 transition-colors" size={16}  />
+          </div>
 
-    <input
-      type="text"
-      placeholder="Search events, news, or resources..."
-      value={searchTerm}
-      onChange={(e) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1);
-      }}
-      className="w-full py-4 bg-transparent text-slate-900 placeholder:text-slate-400 font-semibold text-sm focus:outline-none"
-    />
+          <input
+            type="text"
+            placeholder="Search events, news, or resources..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full py-3 sm:py-4 bg-transparent text-slate-900 placeholder:text-slate-400 font-medium sm:font-semibold text-sm focus:outline-none placeholder:text-xs sm:placeholder:text-sm"
+          />
 
-    {/* Dynamic Action Area */}
-    <div className="pr-2 flex items-center gap-2">
-      {searchTerm ? (
-        <button
-          onClick={() => setSearchTerm('')}
-          className="p-2 bg-slate-100 text-slate-900 rounded-xl active:scale-90 transition-transform"
-        >
-          <FiX className="w-4 h-4" />
-        </button>
-      ) : (
-        /* Subtle "Command K" style hint for Desktop */
-        <div className="hidden md:flex items-center gap-1 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Search</span>
+          {/* Dynamic Action Area */}
+          <div className="pr-2 flex items-center gap-1 sm:gap-2">
+            {searchTerm ? (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="p-1.5 sm:p-2 bg-slate-100 text-slate-900 rounded-lg sm:rounded-xl active:scale-90 transition-transform"
+              >
+                <FiX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </button>
+            ) : (
+              /* Subtle "Command K" style hint for Desktop */
+              <div className="hidden md:flex items-center gap-1 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Search</span>
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </div>
-  </div>
-</div>
+      </div>
 
       {/* Action Buttons: Stacked on mobile, Inline on desktop */}
-      <div className="flex items-center w-full md:w-auto gap-2 border-t md:border-t-0 md:border-l border-slate-100 pt-2 md:pt-0 md:pl-3">
+      <div className="flex items-center w-full md:w-auto gap-2 sm:gap-3 border-t border-slate-100 md:border-t-0 md:border-l md:border-slate-100 pt-2 sm:pt-3 md:pt-0 md:pl-3">
         
         {/* Category Selector: Styled as a modern button-menu */}
-        <div className="relative flex-1 md:flex-none">
+        <div className="relative flex-1 md:flex-none min-w-0">
           <select 
             value={activeTab}
             onChange={(e) => {
               setActiveTab(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full md:w-40 appearance-none px-5 py-3.5 md:py-3 bg-slate-50 md:bg-transparent border-none rounded-2xl md:rounded-full font-semibold text-slate-600 text-sm cursor-pointer focus:ring-2 focus:ring-blue-500/20 transition-all"
+            className="w-full md:w-40 appearance-none px-3 sm:px-4 md:px-5 py-2.5 sm:py-3 md:py-3 bg-slate-50 md:bg-transparent border-none rounded-xl sm:rounded-2xl md:rounded-full font-medium sm:font-semibold text-slate-600 text-xs sm:text-sm cursor-pointer focus:ring-1 sm:focus:ring-2 focus:ring-blue-500/20 transition-all"
           >
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
@@ -1374,8 +1381,10 @@ Loading for our school latest news and events to stay updated
             ))}
           </select>
           {/* Custom Chevron for a cleaner look */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+          <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
         </div>
 
@@ -1386,11 +1395,12 @@ Loading for our school latest news and events to stay updated
             setActiveTab('all');
             setCurrentPage(1);
           }}
-          className="p-3.5 md:px-6 md:py-3 bg-blue-600 text-white rounded-2xl md:rounded-full font-bold text-sm shadow-md shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+          className="p-2.5 sm:p-3 md:px-6 md:py-3 bg-blue-600 text-white rounded-xl sm:rounded-2xl md:rounded-full font-bold text-xs sm:text-sm shadow-md shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-1.5 sm:gap-2 flex-shrink-0"
           title="Reset Filters"
         >
-          <FiFilter className="w-4 h-4" />
+          <FiFilter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           <span className="hidden md:inline">Reset</span>
+          <span className="md:hidden text-[10px] font-bold">Clear</span>
         </button>
       </div>
     </div>

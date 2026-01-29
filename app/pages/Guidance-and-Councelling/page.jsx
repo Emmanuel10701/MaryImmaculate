@@ -476,7 +476,7 @@ const ModernSupportTeamCard = ({ member, onView, onContact, viewMode = 'grid' })
           <img
             src={member.image || '/default-avatar.jpg'}
             alt={member.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-100 transition-transform duration-500"
           />
           
           {/* Gradient Overlay */}
@@ -1100,211 +1100,136 @@ const ModernDetailModal = ({ session, onClose, onContact }) => {
     toast.success('Opening Google Calendar to add this session...');
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-sm">
-      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col">
+return (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-sm">
+    <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col">
+      
+      {/* Close Button - Scaled for mobile */}
+      <button 
+        onClick={onClose}
+        className="absolute top-4 right-4 sm:top-5 sm:right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90"
+      >
+        <IoClose size={20} className="sm:size-[24px]" />
+      </button>
+
+      {/* 1. Hero Image - Reduced height on mobile */}
+      <div className="relative h-[30vh] sm:h-[350px] w-full shrink-0">
+        {session.image ? (
+          <img
+            src={session.image}
+            alt={session.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className={`w-full h-full bg-gradient-to-r ${categoryStyle.gradient}`} />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20" />
         
-        {/* Close Button */}
-        <button 
-          onClick={onClose}
-          className="absolute top-5 right-5 z-50 p-2 bg-black/20 backdrop-blur-md text-white rounded-full border border-white/20 transition-all active:scale-90"
-        >
-          <IoClose size={24} />
-        </button>
-
-        {/* 1. Hero Image */}
-        <div className="relative h-[40vh] sm:h-[350px] w-full shrink-0">
-          {session.image ? (
-            <img
-              src={session.image}
-              alt={session.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className={`w-full h-full bg-gradient-to-r ${categoryStyle.gradient}`} />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20" />
-          
-          {/* Badge Overlays */}
-          <div className="absolute bottom-6 left-6 flex gap-2">
-            <span className="px-4 py-1.5 bg-white shadow-xl rounded-full text-xs font-bold uppercase tracking-widest text-slate-900">
-              {session.category || 'Counseling'}
+        {/* Badge Overlays - Smaller on mobile */}
+        <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex flex-wrap gap-2">
+          <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-white shadow-xl rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-900">
+            {session.category || 'Counseling'}
+          </span>
+          {session.featured && (
+            <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-slate-900 text-white rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest flex items-center gap-1">
+              <IoSparkles className="text-amber-400" /> Featured
             </span>
-            {session.featured && (
-              <span className="px-4 py-1.5 bg-slate-900 text-white rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-1">
-                <IoSparkles className="text-amber-400" /> Featured
-              </span>
-            )}
-            {session.isSupport && (
-              <span className="px-4 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-bold uppercase tracking-widest">
-                24/7 Support
-              </span>
-            )}
-          </div>
+          )}
         </div>
+      </div>
 
-        {/* 2. Content Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-white">
-          <div className="max-w-2xl mx-auto space-y-8">
-            
-            {/* Title & Category */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className={`p-3 rounded-2xl bg-gradient-to-r ${categoryStyle.gradient}`}>
-                  <CategoryIcon className="text-white text-2xl" />
-                </div>
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight tracking-tight">
-                    {session.title}
-                  </h2>
-                  <p className="text-slate-600 text-lg">{session.type || 'Counseling Session'}</p>
-                </div>
+      {/* 2. Content Area - Adjusted padding */}
+      <div className="flex-1 overflow-y-auto p-5 sm:p-10 bg-white">
+        <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
+          
+          {/* Title & Category - Scaled text */}
+          <section className="space-y-3 sm:space-y-4">
+            <div className="flex items-center gap-3">
+              <div className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-r ${categoryStyle.gradient}`}>
+                <CategoryIcon className="text-white text-xl sm:text-2xl" />
               </div>
+              <div>
+                <h2 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight tracking-tight">
+                  {session.title}
+                </h2>
+                <p className="text-slate-600 text-sm sm:text-lg">{session.type || 'Counseling Session'}</p>
+              </div>
+            </div>
 
-              {/* Quick Info Bar */}
-              <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm font-semibold text-slate-500">
-                <div className="flex items-center gap-2">
-                  <IoCalendarClearOutline className="text-blue-500 text-lg" />
-                  {formatFullDate(session.date)}
-                </div>
-                <div className="flex items-center gap-2">
-                  <IoTimeOutline className="text-emerald-500 text-lg" />
-                  {session.time || 'Flexible'}
-                </div>
-                <div className="flex items-center gap-2">
-                  <IoPersonOutline className="text-purple-500 text-lg" />
-                  {session.counselor || 'School Counselor'}
-                </div>
-                {session.location && (
-                  <div className="flex items-center gap-2">
-                    <IoLocationOutline className="text-rose-500 text-lg" />
-                    {session.location}
-                  </div>
-                )}
+            {/* Quick Info Bar - Compact on mobile */}
+            <div className="flex flex-wrap gap-y-2 gap-x-4 sm:gap-x-6 text-[11px] sm:text-sm font-semibold text-slate-500">
+              <div className="flex items-center gap-1.5">
+                <IoCalendarClearOutline className="text-blue-500 text-base sm:text-lg" />
+                {formatFullDate(session.date)}
               </div>
-            </section>
+              <div className="flex items-center gap-1.5">
+                <IoTimeOutline className="text-emerald-500 text-base sm:text-lg" />
+                {session.time || 'Flexible'}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <IoPersonOutline className="text-purple-500 text-base sm:text-lg" />
+                <span className="truncate max-w-[120px] sm:max-w-none">{session.counselor || 'Counselor'}</span>
+              </div>
+            </div>
+          </section>
 
-            {/* Description Block */}
-            <section className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">About this session</h3>
-              <div className="text-slate-700 leading-relaxed text-lg">
-                {session.description || 'Professional counseling and support session.'}
-              </div>
-              
-              {/* Additional Notes */}
-              {session.notes && (
-                <div className="pt-4 mt-4 border-t border-slate-100 text-slate-600 whitespace-pre-line">
-                  {session.notes}
-                </div>
-              )}
-            </section>
+          {/* Description Block - Scaled text */}
+          <section className="space-y-3 sm:space-y-4">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">About this session</h3>
+            <div className="text-slate-700 leading-relaxed text-sm sm:text-lg">
+              {session.description || 'Professional counseling and support session.'}
+            </div>
+          </section>
 
-            {/* Session Stats Grid */}
-            <section className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className={`w-2 h-2 rounded-full ${
-                    session.priority === 'high' ? 'bg-red-500' :
-                    session.priority === 'medium' ? 'bg-yellow-500' :
-                    'bg-green-500'
-                  }`} />
-                  <p className="text-[10px] uppercase font-bold text-slate-400">Priority</p>
+          {/* Session Stats Grid - Smaller cards on mobile */}
+          <section className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-2">
+            {[
+              { label: 'Priority', val: session.priority || 'medium', icon: null, color: session.priority === 'high' ? 'bg-red-500' : 'bg-green-500' },
+              { label: 'Status', val: session.status || 'scheduled', icon: <FiCalendar size={14} />, color: 'bg-green-100 text-green-600' },
+              { label: 'Security', val: 'Secure', icon: <FiShield size={14} />, color: 'bg-purple-100 text-purple-600' },
+              { label: 'Rating', val: '4.8/5.0', icon: <FiStar size={14} />, color: 'bg-amber-100 text-amber-600' }
+            ].map((stat, i) => (
+              <div key={i} className="p-3 sm:p-4 bg-slate-50 rounded-2xl sm:rounded-3xl border border-slate-100">
+                <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                  {stat.icon ? (
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl ${stat.color} flex items-center justify-center`}>
+                      {stat.icon}
+                    </div>
+                  ) : (
+                    <div className={`w-2 h-2 rounded-full ${stat.color}`} />
+                  )}
+                  <p className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400">{stat.label}</p>
                 </div>
-                <p className="font-bold text-slate-900 capitalize">{session.priority || 'medium'}</p>
+                <p className="font-bold text-xs sm:text-base text-slate-900 capitalize">{stat.val}</p>
               </div>
-              
-              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
-                <div className={`w-8 h-8 rounded-xl ${
-                  session.status === 'active' ? 'bg-green-100 text-green-600' :
-                  session.status === 'completed' ? 'bg-blue-100 text-blue-600' :
-                  'bg-yellow-100 text-yellow-600'
-                } flex items-center justify-center mb-2`}>
-                  <FiCalendar size={16} />
-                </div>
-                <p className="text-[10px] uppercase font-bold text-slate-400">Status</p>
-                <p className="font-bold text-slate-900 capitalize">{session.status || 'scheduled'}</p>
-              </div>
-
-              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
-                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-2">
-                  <FiShield size={16} />
-                </div>
-                <p className="text-[10px] uppercase font-bold text-slate-400">Confidentiality</p>
-                <p className="font-bold text-slate-900">100% Secure</p>
-              </div>
-
-              <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100">
-                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-2">
-                  <FiStar size={16} />
-                </div>
-                <p className="text-[10px] uppercase font-bold text-slate-400">Rating</p>
-                <p className="font-bold text-slate-900">4.8/5.0</p>
-              </div>
-            </section>
-
-            {/* Support Session Info */}
-            {session.isSupport && (
-              <section className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-3xl p-6 border border-emerald-100">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-emerald-500 rounded-2xl">
-                    <FiPhoneCall className="text-white text-2xl" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-slate-900">24/7 Support Available</h3>
-                    <p className="text-slate-600">Immediate assistance whenever you need it</p>
-                  </div>
-                </div>
-                <div className="space-y-2 text-slate-700">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                    <span>Available round the clock for emergencies</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                    <span>Confidential and secure conversations</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                    <span>Trained professional counselors</span>
-                  </div>
-                </div>
-              </section>
-            )}
-          </div>
+            ))}
+          </section>
         </div>
+      </div>
 
-        {/* 3. Action Footer - Sticky */}
-        <div className="shrink-0 p-6 bg-slate-50/80 backdrop-blur-md border-t border-slate-100">
-          <div className="max-w-2xl mx-auto flex gap-3">
-            <button
-              onClick={session.isSupport ? onContact : addSessionToGoogleCalendar}
-              className="flex-[2] h-14 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
-            >
-              {session.isSupport ? (
-                <>
-                  <FiPhoneCall size={20} />
-                  Contact Support
-                </>
-              ) : (
-                <>
-                  <FiCalendar size={20} />
-                  Join Session
-                </>
-              )}
-            </button>
-            
-            <button
-              onClick={onClose}
-              className="flex-1 h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
-            >
-              <IoClose size={20} />
-              Close
-            </button>
-          </div>
+      {/* 3. Action Footer - Fluid buttons */}
+      <div className="shrink-0 p-4 sm:p-6 bg-slate-50/80 backdrop-blur-md border-t border-slate-100">
+        <div className="max-w-2xl mx-auto flex gap-2 sm:gap-3">
+          <button
+            onClick={session.isSupport ? onContact : addSessionToGoogleCalendar}
+            className="flex-[2] h-12 sm:h-14 bg-slate-900 text-white rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+          >
+            {session.isSupport ? <FiPhoneCall size={18} /> : <FiCalendar size={18} />}
+            {session.isSupport ? 'Contact Support' : 'Join Session'}
+          </button>
+          
+          <button
+            onClick={onClose}
+            className="flex-1 h-12 sm:h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+          >
+            <IoClose size={18} />
+            Close
+          </button>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 // Stats Card Component (Modernized)
@@ -1466,7 +1391,7 @@ const DEFAULT_SESSIONS = [
     priority: 'high',
     image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
     featured: true,
-    location: 'Mary Immaculate Catholic Church'
+    location: 'Katwanyaa Church'
   }
 ];
 

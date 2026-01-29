@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../../../libs/prisma';
 
 // Constants
-const JWT_SECRET = process.env.JWT_SECRET || 'mary-immaculate-student-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'Katwanyaa-student-secret-key-2024';
 const STUDENT_TOKEN_EXPIRY = '2h'; // Changed from 15m to 2 hours
 
 // Generate student JWT token

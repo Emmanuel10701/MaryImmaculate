@@ -22,6 +22,7 @@ import {
   FiEdit,
   FiTrash2,
   FiEye,
+  FiInfo, 
   FiCheck,
   FiCheckCircle,
   FiGlobe,
@@ -573,27 +574,50 @@ function ModernItemDetailModal({ item, type, onClose, onEdit }) {
 }
 
 // MODERN CARD COMPONENT (Matching Staff Style)
+// Modern Item Card Component with better data handling
 function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
   const [imageError, setImageError] = useState(false)
 
+  // Helper function to get image URL
   const getImageUrl = (imagePath) => {
     if (!imagePath || typeof imagePath !== 'string') {
-      return '/default-image.jpg';
+      return type === 'news' ? '/default-news.jpg' : '/default-event.jpg';
     }
     
-    if (imagePath.startsWith('http') || imagePath.startsWith('/')) {
+    // Handle Cloudinary URLs
+    if (imagePath.includes('cloudinary.com')) {
       return imagePath;
     }
     
+    // Handle local paths
+    if (imagePath.startsWith('/') || imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    
+    // Handle base64 images
     if (imagePath.startsWith('data:image')) {
       return imagePath;
     }
     
-    if (imagePath.startsWith('news/') || imagePath.startsWith('events/')) {
-      return `/${imagePath}`;
-    }
-    
-    return '/default-image.jpg';
+    // Default fallback
+    return type === 'news' ? '/default-news.jpg' : '/default-event.jpg';
+  };
+
+  // Safely get item properties with fallbacks
+  const itemData = {
+    id: item?.id || '',
+    title: item?.title || 'Untitled',
+    excerpt: item?.excerpt || item?.description || 'No description available.',
+    description: item?.description || item?.excerpt || '',
+    date: item?.date || new Date().toISOString(),
+    category: item?.category || (type === 'news' ? 'general' : 'academic'),
+    author: item?.author || 'School Admin',
+    image: item?.image || '',
+    featured: item?.featured || false,
+    time: item?.time || '',
+    location: item?.location || '',
+    speaker: item?.speaker || '',
+    attendees: item?.attendees || 'students'
   };
 
   const categories = {
@@ -602,35 +626,39 @@ function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
       'sports': { label: 'Sports', color: 'blue' },
       'academic': { label: 'Academic', color: 'purple' },
       'infrastructure': { label: 'Infrastructure', color: 'orange' },
-      'community': { label: 'Community', color: 'rose' }
+      'community': { label: 'Community', color: 'rose' },
+      'general': { label: 'General', color: 'gray' }
     },
     events: {
       'academic': { label: 'Academic', color: 'purple' },
       'sports': { label: 'Sports', color: 'blue' },
       'cultural': { label: 'Cultural', color: 'emerald' },
-      'social': { label: 'Social', color: 'orange' }
+      'social': { label: 'Social', color: 'orange' },
+      'general': { label: 'General', color: 'gray' }
     }
   };
 
-  const categoryInfo = categories[type][item.category];
-  const imageUrl = getImageUrl(item.image);
+  const categoryInfo = categories[type][itemData.category] || categories[type]['general'];
+  const imageUrl = getImageUrl(itemData.image);
 
+  // Rest of your ModernItemCard component remains the same...
+  // Just replace all references to `item` with `itemData`
+  
   return (
     <div className="bg-white rounded-[2rem] shadow-xl border border-gray-100 w-full max-w-md overflow-hidden transition-none">
-      
       {/* Image Section */}
       <div className="relative h-64 w-full bg-gray-50 overflow-hidden">
         {!imageError ? (
           <img 
             src={imageUrl} 
-            alt={item.title} 
-            onClick={() => onView(item)}
-            className="w-full h-full object-cover object-top cursor-pointer hover:scale-105 transition-transform duration-300"
+            alt={itemData.title} 
+            onClick={() => onView(itemData)}
+            className="w-full h-full object-cover object-top cursor-pointer hover:scale-100 transition-transform duration-300"
             onError={() => setImageError(true)} 
           />
         ) : (
           <div 
-            onClick={() => onView(item)} 
+            onClick={() => onView(itemData)} 
             className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 text-gray-400 cursor-pointer"
           >
             {type === 'news' ? (
@@ -648,11 +676,11 @@ function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
             <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
               categoryInfo ? `bg-${categoryInfo.color}-100 text-${categoryInfo.color}-800 border border-${categoryInfo.color}-200` : 'bg-gray-100 text-gray-800 border border-gray-200'
             }`}>
-              {categoryInfo?.label || item.category}
+              {categoryInfo?.label || itemData.category}
             </span>
           </div>
           
-          {item.featured && (
+          {itemData.featured && (
             <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm border border-yellow-200 pointer-events-auto">
               Featured
             </span>
@@ -660,18 +688,17 @@ function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
         </div>
       </div>
 
-      {/* Information Section - Modernized */}
+      {/* Information Section */}
       <div className="p-6">
         <div className="mb-6">
           <h3 
-            onClick={() => onView(item)} 
+            onClick={() => onView(itemData)} 
             className="text-2xl font-black text-slate-900 leading-tight cursor-pointer line-clamp-2 hover:text-purple-600 transition-colors"
           >
-            {item.title}
+            {itemData.title}
           </h3>
-          {/* Excerpt/Description */}
           <p className="text-sm font-medium text-slate-400 mt-2 line-clamp-2">
-            {item.excerpt || item.description || 'No description available.'}
+            {itemData.excerpt}
           </p>
         </div>
         
@@ -683,36 +710,36 @@ function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></div>
               <span className="text-xs font-bold text-slate-700">
-                {new Date(item.date).toLocaleDateString()}
+                {new Date(itemData.date).toLocaleDateString()}
               </span>
             </div>
           </div>
           
           {/* Time for Events */}
-          {type === 'events' && item.time && (
+          {type === 'events' && itemData.time && (
             <div className="space-y-1">
               <span className="block text-[9px] text-slate-400 font-black uppercase tracking-[0.1em]">Time</span>
-              <span className="text-xs font-bold text-slate-700">{item.time}</span>
+              <span className="text-xs font-bold text-slate-700">{itemData.time}</span>
             </div>
           )}
 
           {/* Location for Events - Full width */}
-          {type === 'events' && item.location && (
+          {type === 'events' && itemData.location && (
             <div className="col-span-2 p-3 bg-slate-50 rounded-2xl flex items-center justify-between border border-slate-100/50">
               <div className="flex flex-col min-w-0">
                 <span className="text-[9px] text-slate-400 font-black uppercase tracking-[0.1em]">Location</span>
-                <span className="text-xs font-bold text-slate-800 truncate">{item.location}</span>
+                <span className="text-xs font-bold text-slate-800 truncate">{itemData.location}</span>
               </div>
               <FiMapPin className="text-slate-300 text-lg shrink-0 ml-2" />
             </div>
           )}
 
           {/* Author for News */}
-          {type === 'news' && item.author && (
+          {type === 'news' && itemData.author && (
             <div className="col-span-2 p-3 bg-blue-50 rounded-2xl flex items-center justify-between border border-blue-100/50">
               <div className="flex flex-col min-w-0">
                 <span className="text-[9px] text-blue-400 font-black uppercase tracking-[0.1em]">Author</span>
-                <span className="text-xs font-bold text-blue-800 truncate">{item.author}</span>
+                <span className="text-xs font-bold text-blue-800 truncate">{itemData.author}</span>
               </div>
               <FiUser className="text-blue-300 text-lg shrink-0 ml-2" />
             </div>
@@ -722,21 +749,21 @@ function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
         {/* Modern Action Bar */}
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => onView(item)} 
+            onClick={() => onView(itemData)} 
             className="px-5 py-3 bg-slate-100 text-slate-600 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-none active:bg-slate-200"
           >
             View
           </button>
           
           <button 
-            onClick={() => onEdit(item)} 
+            onClick={() => onEdit(itemData)} 
             className="flex-1 bg-slate-900 text-white py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-none active:scale-[0.98]"
           >
             Edit
           </button>
           
           <button 
-            onClick={() => onDelete(item)} 
+            onClick={() => onDelete(itemData)} 
             className="p-3 bg-red-50 text-red-500 rounded-2xl border border-red-100 transition-none active:bg-red-100"
           >
             <FiTrash2 size={18} />
@@ -744,9 +771,8 @@ function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
 // Modern Item Modal Component
 function ModernItemModal({ onClose, onSave, item, type, loading }) {
   const [formData, setFormData] = useState({
@@ -1217,22 +1243,37 @@ export default function NewsEventsManager() {
   };
 
   // Fetch news from API
-  const fetchNews = async () => {
-    try {
-      const response = await fetch('/api/news');
-      const data = await response.json();
-      if (data.success) {
-        setNews(data.news || []);
-      } else {
-        throw new Error(data.error || 'Failed to fetch news');
-      }
-    } catch (error) {
-      console.error('Error fetching news:', error);
-      setNews([]);
-      showNotification('error', 'Fetch Error', 'Failed to fetch news');
+const fetchNews = async () => {
+  try {
+    const response = await fetch('/api/news');
+    const data = await response.json();
+    
+    if (data.success) {
+      // Map API response to component expected structure
+      const mappedNews = (data.data || data.news || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.excerpt || item.description || '',
+        description: item.excerpt || item.description || '',
+        fullContent: item.fullContent || item.content || '',
+        date: item.date,
+        category: item.category || 'general',
+        author: item.author || 'Admin',
+        image: item.image || '',
+        featured: item.featured || false,
+        status: item.status || 'published'
+      }));
+      
+      setNews(mappedNews);
+    } else {
+      throw new Error(data.error || 'Failed to fetch news');
     }
-  };
-
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    setNews([]);
+    showNotification('error', 'Fetch Error', 'Failed to fetch news');
+  }
+};
   // Fetch events from API
   const fetchEvents = async () => {
     try {
@@ -1345,47 +1386,51 @@ export default function NewsEventsManager() {
     }
   };
 
-  const handleSubmit = async (formData, id) => {
-    setSaving(true);
-    try {
-      let response;
-      let endpoint;
-      
-      if (id) {
-        endpoint = activeSection === 'news' ? `/api/news/${id}` : `/api/events/${id}`;
-        response = await fetch(endpoint, {
-          method: 'PUT',
-          body: formData,
-        });
-      } else {
-        endpoint = activeSection === 'news' ? '/api/news' : '/api/events';
-        response = await fetch(endpoint, {
-          method: 'POST',
-          body: formData,
-        });
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        await fetchData();
-        setShowModal(false);
-        showNotification(
-          'success',
-          id ? 'Updated' : 'Created',
-          `${activeSection === 'news' ? 'News' : 'Event'} ${id ? 'updated' : 'created'} successfully!`
-        );
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error(`Error saving ${activeSection}:`, error);
-      showNotification('error', 'Save Failed', error.message || `Failed to ${id ? 'update' : 'create'} ${activeSection}`);
-    } finally {
-      setSaving(false);
+const handleSubmit = async (formData, id) => {
+  setSaving(true);
+  try {
+    let response;
+    let endpoint;
+    
+    // Add loading notification
+    showNotification('info', 'Saving', `${id ? 'Updating' : 'Creating'} ${activeSection}...`);
+    
+    if (id) {
+      endpoint = activeSection === 'news' ? `/api/news/${id}` : `/api/events/${id}`;
+      response = await fetch(endpoint, {
+        method: 'PUT',
+        body: formData,
+      });
+    } else {
+      endpoint = activeSection === 'news' ? '/api/news' : '/api/events';
+      response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+      });
     }
-  };
 
+    const result = await response.json();
+    
+    console.log('API Response:', result); // Debug log
+
+    if (result.success) {
+      await fetchData();
+      setShowModal(false);
+      showNotification(
+        'success',
+        id ? 'Updated' : 'Created',
+        `${activeSection === 'news' ? 'News' : 'Event'} ${id ? 'updated' : 'created'} successfully!`
+      );
+    } else {
+      throw new Error(result.error || `Failed to ${id ? 'update' : 'create'} ${activeSection}`);
+    }
+  } catch (error) {
+    console.error(`Error saving ${activeSection}:`, error);
+    showNotification('error', 'Save Failed', error.message || `Failed to ${id ? 'update' : 'create'} ${activeSection}`);
+  } finally {
+    setSaving(false);
+  }
+};
   useEffect(() => {
     const calculatedStats = {
       totalNews: news.length,
@@ -1433,7 +1478,7 @@ export default function NewsEventsManager() {
                   currentPage === page
                     ? activeSection === 'news'
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white shadow-lg'
+                      : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
                     : 'text-gray-700'
                 }`}
               >
@@ -1500,9 +1545,21 @@ export default function NewsEventsManager() {
             <p className="text-gray-600 text-sm lg:text-base">Manage school news articles and events</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={fetchData} className="flex items-center gap-2 bg-gray-600 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-bold shadow-lg cursor-pointer text-sm">
-              <FiRotateCw className={`text-xs ${loading ? 'animate-spin' : ''}`} /> Refresh
-            </button>
+   <button
+  onClick={fetchData}
+  className={`flex items-center gap-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 
+              text-white px-5 py-3 rounded-2xl font-semibold shadow-lg 
+              hover:scale-105 hover:shadow-xl transition-transform duration-300
+              cursor-pointer text-sm`}
+>
+  {/* Loading spinner */}
+  {loading && (
+    <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+  )}
+  
+  {loading ? 'Refreshing...' : 'Refresh'}
+</button>
+
             <button onClick={handleCreate} className={`flex items-center gap-2 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-bold shadow-lg cursor-pointer text-sm ${
               activeSection === 'news' 
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
@@ -1608,7 +1665,7 @@ export default function NewsEventsManager() {
                   isActive
                     ? tab.id === 'news'
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-gradient-to-br from-amber-900 via-orange-900 to-red-900 text-white shadow-lg'
+                      : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >

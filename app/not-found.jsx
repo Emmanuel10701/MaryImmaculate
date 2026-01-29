@@ -23,14 +23,17 @@ const Modern404 = () => {
   const quickLinks = [
     { name: 'Home Base', href: '/', icon: FiHome, description: 'Back to assembly' },
     { name: 'Academics', href: '/pages/academics', icon: FiBook, description: 'Course directory' },
-    { name: 'Library', href: '/pages/gallery', icon: FiBookOpen, description: 'School resources' },
+    { name: 'Gallery', href: '/pages/gallery', icon: FiBookOpen, description: 'School resources' },
     { name: 'Admissions', href: '/pages/admissions', icon: FiUsers, description: 'Join our family' },
-    { name: 'Schedule', href: '/pages/eventsandnews', icon: FiCalendar, description: 'Upcoming terms' },
+    { name: 'Events & News', href: '/pages/eventsandnews', icon: FiCalendar, description: 'Upcoming terms' },
     { name: 'Support', href: '/pages/contact', icon: FiMail, description: 'Talk to the office' },
+        { name: 'Portal', href: '/pages/StudentPortal', icon: FiMail, description: 'Navigate to Portal' },
+    { name: 'Guidance', href: '/pages/Guidance-and-Coucelling', icon: FiMail, description: 'Guidance sessions' },
+
   ];
 
   const errorMessages = [
-    "Looks like this page skipped class!",
+    "Looks like this page does not exist!",
     "This page is on a field trip!",
     "Assignment not found!",
     "This lesson hasn't been scheduled yet!",
@@ -89,7 +92,6 @@ const Modern404 = () => {
                 </p>
               </div>
 <div className="flex flex-nowrap gap-3 sm:gap-4 pt-4 w-full">
-  {/* Back to Assembly */}
   <a
     href="/"
     className="
@@ -295,9 +297,9 @@ const Modern404 = () => {
           {/* Footer */}
           <footer className="mt-8 md:mt-12 lg:mt-16 text-center">
             <p className="text-slate-500 text-sm font-medium">
-              &copy; {new Date().getFullYear()} Mary Immaculate Girls in Mweiga Nyeri
+              &copy; {new Date().getFullYear()} Katwanyaa High in Matungulu 
               <span className="mx-2 text-slate-300">•</span>
-              Excellence in Education
+               Education is Light 
               <span className="mx-2 text-slate-300">•</span>
               <a href="/" className="text-rose-600 hover:text-rose-800 transition-colors font-medium">
                 Site Map

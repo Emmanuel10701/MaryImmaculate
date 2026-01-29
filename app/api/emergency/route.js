@@ -12,11 +12,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const SCHOOL_NAME = 'Mary Immaculate Girls Secondary School';
-const SCHOOL_LOCATION = 'Mweiga, Nyeri County';
-const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork';
+const SCHOOL_NAME = 'Katwanyaa High School';
+const SCHOOL_LOCATION = 'Matungulu, Machakos County';
+const SCHOOL_MOTTO = 'Education is Light';
 const CONTACT_PHONE = '+254720123456';
-const CONTACT_EMAIL = 'admissions@maryimmaculategirls.sc.ke';
+const CONTACT_EMAIL = 'info@katwanyaa highSchool.sc.ke';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || CONTACT_EMAIL;
 const COUNSELOR_EMAIL = process.env.COUNSELOR_EMAIL || 'guidance@school.edu';
 

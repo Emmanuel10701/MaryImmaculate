@@ -14,7 +14,9 @@ import {
   User,
   GraduationCap,
   AlertCircle,
-  DollarSign
+  DollarSign,
+  RefreshCw,
+  Phone
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CircularProgress } from '@mui/material';
@@ -63,7 +65,7 @@ const FeesView = ({ student, token }) => {
       } catch (err) {
         console.error('Error:', err);
         setError(err.message);
-        toast.error('Failed to load fees');
+        // Don't show toast - just show the "no records" state
       } finally {
         setLoading(false);
       }
@@ -164,41 +166,139 @@ const FeesView = ({ student, token }) => {
     );
   }
 
-  // Error State
-  if (error) {
+  // Show "No Fee Records" state for both error and no data
+  if (error || !feeData?.feeBalances?.length) {
     return (
-      <div className=" bg-slate-50 p-4 md:p-8 font-sans text-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-rose-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-slate-800 mb-2">Unable to Load Fees</h3>
-          <p className="text-slate-600 mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-sm"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // No Data State
-  if (!feeData?.feeBalances?.length) {
-    return (
-      <div className=" bg-slate-50 p-4 md:p-8 font-sans text-slate-900">
+      <div className="bg-slate-50 p-4 md:p-8 font-sans text-slate-900">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center py-12">
-            <CreditCard className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-slate-800 mb-2">No Fee Records</h3>
-            <p className="text-slate-600">No fee statements found for your account.</p>
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-slate-50 to-indigo-50 p-6 md:p-8 border-b border-slate-100">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 md:w-8 md:h-8 text-indigo-600" />
+                </div>
+                <div>
+                  <h1 className="text-lg md:text-xl font-bold text-slate-900">Fee Statement</h1>
+                  <p className="text-slate-600 text-sm md:text-base mt-1">
+                    {student?.firstName} {student?.lastName} • {student?.admissionNumber}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="p-6 md:p-8">
+              <div className="max-w-2xl mx-auto text-center">
+                {/* Icon */}
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 md:w-24 md:h-24 mx-auto rounded-3xl bg-gradient-to-br from-slate-100 to-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 flex items-center justify-center">
+                      <Clock className="w-6 h-6 md:w-8 md:h-8 text-indigo-400" />
+                    </div>
+                  </div>
+                  {/* Decorative elements */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-4 h-4 rounded-full bg-blue-100"></div>
+                  </div>
+                  <div className="absolute bottom-0 right-1/4 translate-x-1/2 translate-y-1/2">
+                    <div className="w-3 h-3 rounded-full bg-indigo-100"></div>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
+                  Current Term Fees Coming Soon
+                </h2>
+
+                {/* Message */}
+                <div className="space-y-4 mb-8">
+                  <p className="text-slate-600 text-sm md:text-base max-w-md mx-auto">
+                    The school bursar has not yet posted the fee records for this term.
+                    Please check back later for your updated fee statement.
+                  </p>
+                  <div className="bg-gradient-to-r from-slate-50 to-indigo-50 rounded-2xl p-4 md:p-6 border border-slate-100">
+                    <p className="text-sm md:text-base text-slate-700 font-medium">
+                      <span className="font-bold">Note:</span> Fee statements are typically updated at the beginning of each term.
+                      For any urgent inquiries, please contact the accounts office.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <Wallet className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Bursar's Office</p>
+                        <p className="text-sm font-semibold text-slate-900">Accounts Department</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                        <User className="w-4 h-4 text-indigo-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Support Contact</p>
+                        <p className="text-sm font-semibold text-slate-900">+254 700 123 456</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Refresh Page
+                  </button>
+                  
+                  <button
+                    onClick={() => window.location.href = 'tel:+254700123456'}
+                    className="px-6 py-3 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Phone className="w-4 h-4" />
+                    Call Support
+                  </button>
+                </div>
+
+                {/* Timeline Indicator */}
+                <div className="mt-8 pt-8 border-t border-slate-200">
+                  <div className="flex items-center justify-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+                      <span className="text-xs text-slate-500">Term Start</span>
+                    </div>
+                    <div className="flex-1 h-px bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200"></div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
+                      <span className="text-xs font-semibold text-indigo-600">Fees Posted Soon</span>
+                    </div>
+                    <div className="flex-1 h-px bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200"></div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+                      <span className="text-xs text-slate-500">Payment Deadline</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  // Success State
+  // Success State (only shown when we have data)
   const { feeBalances, summary } = feeData;
   const firstStudent = feeBalances[0]?.student || student;
   const paidPercentage = summary?.totalAmount > 0 
@@ -415,13 +515,12 @@ const FeesView = ({ student, token }) => {
                 : 'If you notice any discrepancies in your fee balance, please contact the accounts office.'
               }
             </p>
-         <button
-  onClick={() => window.location.href = 'tel:+254700123456'}
-  className="mt-4 text-xs font-bold text-indigo-600 hover:underline"
->
-  Contact Support
-</button>
-
+            <button
+              onClick={() => window.location.href = 'tel:+254700123456'}
+              className="mt-4 text-xs font-bold text-indigo-600 hover:underline"
+            >
+              Contact Support
+            </button>
           </div>
         </div>
       </div>

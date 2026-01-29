@@ -31,17 +31,17 @@ const Circle = dynamic(
   { ssr: false }
 );
 
-// School location - Mary Immaculate Girls Secondary in Mweiga, Nyeri
-const schoolLocation = [-0.352, 36.923];
+// School location - Katwanyaa High School in Kambusu, Matungulu, Machakos
+const schoolLocation = [-1.312, 37.266];
 
-// Nearby landmarks in Mweiga area
+// Nearby landmarks in Kambusu/Matungulu area
 const nearbyLandmarks = [
-  { position: [-0.351, 36.924], name: 'Mweiga Town Center', type: 'commercial' },
-  { position: [-0.353, 36.922], name: 'Mweiga Police Station', type: 'security' },
-  { position: [-0.350, 36.921], name: 'Mweiga Health Center', type: 'health' },
-  { position: [-0.349, 36.925], name: 'Mweiga-Nyeri Road', type: 'transport' },
-  { position: [-0.354, 36.926], name: 'Mweiga Market', type: 'market' },
-  { position: [-0.355, 36.920], name: 'St. Mary\'s Catholic Church', type: 'religious' },
+  { position: [-1.311, 37.267], name: 'Kambusu Trading Center', type: 'commercial' },
+  { position: [-1.313, 37.265], name: 'Kambusu Primary School', type: 'education' },
+  { position: [-1.310, 37.264], name: 'Matungulu Health Center', type: 'health' },
+  { position: [-1.309, 37.268], name: 'Tala-Kangundo Road', type: 'transport' },
+  { position: [-1.314, 37.269], name: 'Kambusu Market', type: 'market' },
+  { position: [-1.315, 37.263], name: 'A.I.C Kambusu Church', type: 'religious' },
 ];
 
 // LegendItem component
@@ -53,7 +53,7 @@ function LegendItem({ color, border, label }) {
           border ? 'border-2 border-orange-600' : color
         }`}
       ></span>
-      <span>{label}</span>
+      <span className="text-[10px] xs:text-xs">{label}</span>
     </div>
   );
 }
@@ -119,10 +119,10 @@ export default function MapComponent() {
   // Show loading state on server
   if (!isClient || !L) {
     return (
-      <div className="relative h-96 rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-gradient-to-r from-orange-50 to-amber-50 flex items-center justify-center">
+      <div className="relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-gradient-to-r from-orange-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mb-4"></div>
-          <p className="text-gray-600">Loading map of Mweiga...</p>
+          <p className="text-gray-600">Loading map of Katwanyaa High School...</p>
         </div>
       </div>
     );
@@ -138,11 +138,11 @@ export default function MapComponent() {
   };
 
   return (
-    <div className="relative h-96 rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
-      {/* TOP LEGEND */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000]">
-        <div className="bg-white rounded-xl shadow-xl border border-gray-200 px-4 py-3 flex flex-wrap gap-3 items-center text-xs">
-          <span className="font-semibold text-gray-700">Map Legend:</span>
+    <div className="relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
+      {/* TOP LEGEND - Reduced z-index to appear behind navbar */}
+      <div className="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-[40] w-[95%] max-w-xs sm:max-w-md">
+        <div className="bg-white/95 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-gray-200 px-3 py-2 sm:px-4 sm:py-3 flex flex-wrap gap-2 sm:gap-3 items-center justify-center text-[10px] xs:text-xs">
+          <span className="font-semibold text-gray-700 text-[10px] xs:text-xs">Map Legend:</span>
           <LegendItem color="bg-orange-600" label="School" />
           <LegendItem border label="200m Radius" />
           <LegendItem color="bg-green-500" label="Education" />
@@ -155,7 +155,7 @@ export default function MapComponent() {
 
       <MapContainer
         center={schoolLocation}
-        zoom={15}
+        zoom={14}
         scrollWheelZoom={false}
         className="h-full w-full"
       >
@@ -167,23 +167,23 @@ export default function MapComponent() {
         {/* School Marker */}
         <Marker position={schoolLocation}>
           <Popup>
-            <div className="p-3 min-w-[240px]">
-              <h3 className="font-bold text-gray-800 text-lg">
-                🏫 Mary Immaculate Girls Secondary School
+            <div className="p-3 min-w-[200px] sm:min-w-[240px]">
+              <h3 className="font-bold text-gray-800 text-base sm:text-lg">
+                🏫 A.I.C Katwanyaa High School
               </h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Mweiga, Nyeri County
+              <p className="text-xs sm:text-sm text-gray-600 mb-3">
+                Kambusu, Matungulu, Machakos County
               </p>
               <p className="text-xs text-gray-500 mb-3">
-                Along Mweiga-Nyeri Road, Mweiga Township
+                Along Tala-Kangundo Road, Kambusu Village
               </p>
               <a
-                href="https://maps.google.com/?q=Mary+Immaculate+Girls+Secondary+School,Mweiga+Nyeri"
+                href="https://maps.google.com/?q=AIC+Katwanyaa+High+School,Kambusu+Matungulu+Machakos"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition"
+                className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:opacity-90 transition"
               >
-                <FiNavigation />
+                <FiNavigation className="w-3 h-3 sm:w-4 sm:h-4" />
                 Get Directions
               </a>
             </div>
@@ -211,7 +211,7 @@ export default function MapComponent() {
           >
             <Popup>
               <div className="p-3">
-                <h4 className="font-semibold text-gray-800">
+                <h4 className="font-semibold text-gray-800 text-sm sm:text-base">
                   {landmark.name}
                 </h4>
                 <p className="text-xs text-gray-500 capitalize">
@@ -227,15 +227,15 @@ export default function MapComponent() {
         ))}
       </MapContainer>
 
-      {/* Bottom Info Bar */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000]">
-        <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 px-4 py-2 flex items-center gap-3">
+      {/* Bottom Info Bar - Reduced z-index */}
+      <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 z-[40] w-[95%] max-w-xs sm:max-w-md">
+        <div className="bg-white/95 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-gray-200 px-3 py-1.5 sm:px-4 sm:py-2 flex flex-col xs:flex-row items-center justify-center gap-1.5 xs:gap-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="text-xs font-medium text-gray-700">Located in Mweiga</span>
+            <span className="text-[10px] xs:text-xs font-medium text-gray-700">Located in Kambusu, Matungulu</span>
           </div>
-          <div className="w-px h-4 bg-gray-300"></div>
-          <span className="text-xs text-gray-600">Coordinates: -0.352, 36.923</span>
+          <div className="hidden xs:block w-px h-4 bg-gray-300"></div>
+          <span className="text-[10px] xs:text-xs text-gray-600 text-center xs:text-left">Coordinates: -1.312, 37.266</span>
         </div>
       </div>
     </div>

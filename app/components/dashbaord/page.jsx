@@ -40,7 +40,8 @@ import {
   FiCpu,
   FiTrendingUp as FiTrendingUpSolid,
   FiTrendingDown as FiTrendingDownSolid,
-  FiActivity as FiActivitySolid
+  FiActivity as FiActivitySolid,
+  FiBriefcase  // Added for careers
 } from 'react-icons/fi';
 import { 
   IoPeopleCircle,
@@ -643,23 +644,23 @@ const listenForRecentActivity = async () => {
     return sortedActivities;
 
   } catch (error) {
-    console.error('🚨 Critical error in listenForRecentActivity:', error);
+console.error('🚨 Critical error in listenForRecentActivity:', error);
     
     // Return fallback activities if everything fails
-    return [{
-      id: 'fallback-activity',
-      action: 'System online',
-      target: 'Dashboard is monitoring activities',
-      time: 'Just now',
-      formattedDate: 'Today',
-      type: 'system',
-      icon: FiActivity,
-      color: 'blue',
-      timestamp: new Date(),
-      details: {
-        note: 'Activities will appear here as they occur'
-      }
-    }];
+return [{
+  id: 'fallback-activity',
+  action: 'System online',
+  target: 'Dashboard is monitoring activities',
+  time: 'Just now',
+  formattedDate: 'Today',
+  type: 'system',
+  icon: FiActivity,
+  color: 'blue',
+  timestamp: new Date(),
+  details: {
+    note: 'Activities will appear here as they occur'
+  }
+}];
   }
 };
 
@@ -771,7 +772,7 @@ export default function DashboardOverview() {
     totalSubscribers: 0,
     pendingEmails: 0,
     activeAssignments: 0,
-    upcomingEvents: 0,
+    totalCareers: 0, // Changed from upcomingEvents to totalCareers
     galleryItems: 0,
     guidanceSessions: 0,
     totalNews: 0,
@@ -970,7 +971,7 @@ const fetchAllData = useCallback(async () => {
       staffRes,
       subscribersRes,
       assignmentsRes,
-      eventsRes,
+      careersRes, // Replaced eventsRes with careersRes
       galleryRes,
       guidanceRes,
       newsRes,
@@ -978,7 +979,6 @@ const fetchAllData = useCallback(async () => {
       adminsRes,
       admissionsRes,
       resourcesRes,
-      careersRes,
       emailCampaignsRes,
       resultsRes // Results data for engagement calculation
     ] = await Promise.allSettled([
@@ -986,7 +986,7 @@ const fetchAllData = useCallback(async () => {
       fetch('/api/staff'),
       fetch('/api/subscriber'),
       fetch('/api/assignment'),
-      fetch('/api/events'),
+      fetch('/api/career'), // Changed from events to career
       fetch('/api/gallery'),
       fetch('/api/guidance'),
       fetch('/api/news'),
@@ -994,7 +994,6 @@ const fetchAllData = useCallback(async () => {
       fetch('/api/register'),
       fetch('/api/applyadmission'),
       fetch('/api/resources'),
-      fetch('/api/career'),
       fetch('/api/emails'),
       fetch('/api/results?limit=1000&includeStudent=true') // Get all results with student data
     ]);
@@ -1011,7 +1010,7 @@ const fetchAllData = useCallback(async () => {
     const staff = staffRes.status === 'fulfilled' ? await staffRes.value.json() : { staff: [] };
     const subscribers = subscribersRes.status === 'fulfilled' ? await subscribersRes.value.json() : { subscribers: [] };
     const assignments = assignmentsRes.status === 'fulfilled' ? await assignmentsRes.value.json() : { assignments: [] };
-    const events = eventsRes.status === 'fulfilled' ? await eventsRes.value.json() : { events: [] };
+    const careersData = careersRes.status === 'fulfilled' ? await careersRes.value.json() : { jobs: [] };
     const gallery = galleryRes.status === 'fulfilled' ? await galleryRes.value.json() : { galleries: [] };
     const guidance = guidanceRes.status === 'fulfilled' ? await guidanceRes.value.json() : { events: [] };
     const news = newsRes.status === 'fulfilled' ? await newsRes.value.json() : { news: [] };
@@ -1019,7 +1018,6 @@ const fetchAllData = useCallback(async () => {
     const admins = adminsRes.status === 'fulfilled' ? await adminsRes.value.json() : { users: [] };
     const admissions = admissionsRes.status === 'fulfilled' ? await admissionsRes.value.json() : { applications: [] };
     const resources = resourcesRes.status === 'fulfilled' ? await resourcesRes.value.json() : { resources: [] };
-    const careersData = careersRes.status === 'fulfilled' ? await careersRes.value.json() : { jobs: [] };
     const emailCampaignsData = emailCampaignsRes.status === 'fulfilled' ? await emailCampaignsRes.value.json() : { campaigns: [] };
     
     // Store school video for quick tour
@@ -1104,6 +1102,7 @@ const fetchAllData = useCallback(async () => {
     }
     
     // Set careers data
+    const totalCareers = careersData.jobs?.length || careersData.careers?.length || 0;
     if (careersData.jobs && careersData.jobs.length > 0) {
       setCareers(careersData.jobs.slice(0, 3));
     }
@@ -1122,11 +1121,6 @@ const fetchAllData = useCallback(async () => {
     const activeAssignments = assignments.assignments?.filter(a => 
       (a.status || '').toLowerCase() === 'assigned'
     ).length || 0;
-    
-    const upcomingEvents = events.events?.filter(e => {
-      if (!e.date) return false;
-      return new Date(e.date) > new Date();
-    }).length || 0;
     
     const guidanceSessionsCount = guidance.events?.length || 0;
     const completedAssignments = assignments.assignments?.filter(a => 
@@ -1180,7 +1174,7 @@ const fetchAllData = useCallback(async () => {
     setEngagementStats(calculatedEngagementStats);
     setStudentEngagements(engagements.slice(0, 10));
     
-    // Update stats with engagement data
+    // Update stats with careers data
     const updatedStats = {
       totalStudents: studentList.length || 0,
       activeStudents,
@@ -1189,7 +1183,7 @@ const fetchAllData = useCallback(async () => {
       totalSubscribers: subscribers.subscribers?.length || 0,
       pendingEmails: 0,
       activeAssignments,
-      upcomingEvents,
+      totalCareers, // Changed from upcomingEvents to totalCareers
       galleryItems: gallery.galleries?.length || 0,
       guidanceSessions: guidanceSessionsCount,
       totalNews: news.news?.length || 0,
@@ -1334,7 +1328,6 @@ const fetchAllData = useCallback(async () => {
     
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
-    sooner.error('Failed to load dashboard data');
   } finally {
     setLoading(false);
   }
@@ -1370,8 +1363,7 @@ const fetchAllData = useCallback(async () => {
     setRefreshing(false);
   };
   
-  // Quick Tour Modal Component
- // Quick Tour Modal Component
+// Quick Tour Modal Component
 const QuickTourModal = () => (
   showQuickTour && (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
@@ -1394,10 +1386,10 @@ const QuickTourModal = () => (
             <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
             <div>
               <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
-                Mary Immaculate Girls
+                Katwanyaa High School
               </h2>
               <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
-                "Prayer, Discipline, and Hardwork"
+                "Education is Light"
               </p>
             </div>
           </div>
@@ -1909,10 +1901,10 @@ const QuickTourModal = () => (
                   <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
                   <div>
                     <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
-                      Mary Immaculate Girls 
+                      Katwanyaa High School
                     </h2>
                     <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
-                      "Prayer, Discipline, and Hardwork"
+                      "Education is Light"
                     </p>
                   </div>
                 </div>
@@ -1943,7 +1935,7 @@ const QuickTourModal = () => (
               <p className="text-blue-100/80 text-base sm:text-md font-medium leading-relaxed">
                 Currently overseeing <span className="text-white font-bold underline decoration-blue-500/50 decoration-2 underline-offset-4">{stats.totalStudents} students</span> and <span className="text-white font-bold underline decoration-purple-500/50 decoration-2 underline-offset-4">{stats.totalStaff} staff</span>. 
                 You have <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-lg bg-yellow-400/20 text-yellow-300 border border-yellow-400/20 mx-1">{stats.activeAssignments} active tasks</span> 
-                and <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-lg bg-orange-500/20 text-orange-400 border border-orange-500/20 mx-1">{stats.upcomingEvents} events</span> scheduled.
+                and <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-lg bg-green-500/20 text-green-400 border border-green-500/20 mx-1">{stats.totalCareers} career opportunities</span> listed.
               </p>
             </div>
             
@@ -2268,16 +2260,16 @@ const QuickTourModal = () => (
           </div>
         </div>
         
-        {/* Additional Stat Cards */}
+        {/* Additional Stat Cards - UPDATED with Total Careers */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard 
-            icon={FiCalendar} 
-            label="Upcoming Events" 
-            value={stats.upcomingEvents} 
-            change={parseFloat(growthMetrics.eventGrowth)} 
-            trend={parseFloat(growthMetrics.eventGrowth) >= 0 ? "up" : "down"}
-            color="red" 
-            subtitle="Scheduled events" 
+            icon={FiBriefcase} // Changed from FiCalendar to FiBriefcase
+            label="Total Careers" // Changed from "Upcoming Events" to "Total Careers"
+            value={stats.totalCareers} // Changed from stats.upcomingEvents to stats.totalCareers
+            change={0} // You can add career growth calculation if needed
+            trend="up" // You can adjust this based on your logic
+            color="green" // Changed color to green for careers
+            subtitle="Career opportunities" // Changed subtitle
           />
           <StatCard 
             icon={FiMessageCircle} 
