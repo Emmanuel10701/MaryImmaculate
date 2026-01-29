@@ -596,53 +596,53 @@ We welcome parents and guardians for consultations during office hours.`,
   };
 };
 
-// Format message content with orange theme
+// Format message content with light dark theme
 const formatMessage = (content) => {
   return content
     .split('\n')
     .map((line, index) => {
       if (line.startsWith('**') && line.endsWith('**')) {
         return (
-          <div key={index} className="font-bold text-sm text-white mb-1 mt-2 first:mt-0">
+          <div key={index} className="font-black text-sm text-slate-50 mb-2 mt-3 first:mt-0">
             {line.replace(/\*\*/g, '')}
           </div>
         );
       }
       else if (line.endsWith(':') && !line.startsWith('•') && !line.startsWith('*')) {
         return (
-          <div key={index} className="font-semibold text-amber-300 mt-2 mb-1 text-xs">
+          <div key={index} className="font-black text-slate-200 mt-3 mb-1 text-xs uppercase tracking-wide">
             {line}
           </div>
         );
       }
       else if (line.startsWith('•')) {
         return (
-          <div key={index} className="flex items-start ml-1 mb-0.5">
-            <span className="text-amber-400 mr-1 text-xs">•</span>
-            <span className="text-gray-100 text-xs">{line.substring(1).trim()}</span>
+          <div key={index} className="flex items-start ml-1 mb-1">
+            <span className="text-sky-300 mr-2 text-xs font-bold flex-shrink-0">•</span>
+            <span className="text-slate-100 text-sm">{line.substring(1).trim()}</span>
           </div>
         );
       }
       else if (/^\d+\./.test(line)) {
         return (
-          <div key={index} className="flex items-start ml-1 mb-0.5">
-            <span className="text-orange-400 mr-1 text-xs font-semibold">
+          <div key={index} className="flex items-start ml-1 mb-1">
+            <span className="text-sky-300 mr-2 text-xs font-black flex-shrink-0">
               {line.match(/^\d+/)[0]}.
             </span>
-            <span className="text-gray-100 text-xs">{line.replace(/^\d+\.\s*/, '')}</span>
+            <span className="text-slate-100 text-sm">{line.replace(/^\d+\.\s*/, '')}</span>
           </div>
         );
       }
       else if (line.startsWith('*') && line.endsWith('*')) {
         return (
-          <div key={index} className="text-amber-100 italic text-xs mt-1">
+          <div key={index} className="text-slate-200 italic text-sm mt-1">
             {line.replace(/\*/g, '')}
           </div>
         );
       }
       else if (line.trim()) {
         return (
-          <div key={index} className="text-gray-100 text-xs mb-1">
+          <div key={index} className="text-slate-200 text-sm mb-1 leading-relaxed">
             {line}
           </div>
         );
@@ -718,23 +718,11 @@ export default function ChatBot() {
   // Handle responsive behavior
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
+      setIsMobile(window.innerWidth < 768);
     };
     
     const handleResize = () => {
       checkMobile();
-      if (chatContainerRef.current) {
-        const chatRect = chatContainerRef.current.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        
-        if (chatRect.right > viewportWidth - 10) {
-          chatContainerRef.current.style.right = '10px';
-        }
-        if (chatRect.bottom > viewportHeight - 10) {
-          chatContainerRef.current.style.bottom = '10px';
-        }
-      }
     };
 
     checkMobile();
@@ -891,7 +879,7 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
   return (
     <div 
       ref={chatContainerRef}
-      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50"
+      className="fixed bottom-4 right-4 z-50"
       style={{
         maxWidth: 'calc(100vw - 32px)',
         maxHeight: 'calc(100vh - 32px)'
@@ -900,12 +888,8 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-full p-4 shadow-xl transition-all hover:scale-110 active:scale-95 border border-white/20 backdrop-blur-sm"
+          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-full p-3 shadow-lg transition-all hover:scale-110 active:scale-95 border border-blue-500/30 backdrop-blur-sm"
           aria-label="Open chat assistant"
-          style={{
-            transform: 'translateZ(0)',
-            willChange: 'transform'
-          }}
         >
           <SafeIcon name="colored-message" className="w-6 h-6" />
         </button>
@@ -913,74 +897,54 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
 
       {isOpen && (
         <div 
-          className="bg-gradient-to-br from-amber-700 via-orange-700 to-red-700 rounded-xl shadow-2xl flex flex-col border-2 border-amber-500/20 backdrop-blur-xl"
+          className="bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 rounded-2xl shadow-2xl flex flex-col border border-slate-600/50 backdrop-blur-xl overflow-hidden"
           style={{
-            width: isMobile ? 'calc(100vw - 32px)' : '500px',
-            height: isMobile ? 'calc(100vh - 100px)' : '600px',
-            maxWidth: '500px',
-            maxHeight: '600px',
-            overflow: 'hidden',
-            transform: 'translateZ(0)',
-            willChange: 'transform'
+            width: isMobile ? 'min(100vw - 32px, 480px)' : '520px',
+            height: isMobile ? 'min(100vh - 120px, 600px)' : '680px',
+            maxWidth: '520px',
+            maxHeight: '680px',
           }}
         >
-          {/* Header with logo */}
-          <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 text-white p-4 flex-shrink-0 border-b border-amber-500/30">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-3">
-                <div
-                  className="
-                    w-8 h-8
-                    xs:w-9 xs:h-9
-                    sm:w-10 sm:h-10
-                    md:w-12 md:h-12
-                    rounded-lg sm:rounded-xl
-                    flex items-center justify-center
-                    shadow-lg
-                    overflow-hidden
-                    bg-white
-                    flex-shrink-0
-                    border border-white/30
-                  "
-                >
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-3 flex-shrink-0 border-b border-blue-600/30">
+            <div className="flex justify-between items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg overflow-hidden bg-white flex-shrink-0">
                   <img
                     src="/ll.png"
                     alt="Mary Immaculate Girls Secondary Logo"
                     className="w-full h-full object-cover"
-                    style={{ imageRendering: 'auto' }}
                   />
                 </div>
 
                 <div className="min-w-0">
-                  <h3 className="text-lg sm:text-md font-black text-white truncate">
+                  <h3 className="text-base font-black text-white truncate">
                     {schoolData?.name || 'Mary Immaculate Girls Secondary'}
                   </h3>
-                  <p className="text-amber-200 text-xs sm:text-sm truncate flex items-center gap-1">
-                    <SafeIcon name="target" className="w-3 h-3" />
-                    {schoolData?.motto || 'Prayer, Discipline and Hardwork'}
+                  <p className="text-blue-100 text-xs truncate flex items-center gap-1">
+                    <SafeIcon name="target" className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate">{schoolData?.motto || 'Prayer, Discipline and Hardwork'}</span>
                   </p>
                 </div>
               </div>
-              <div className="flex space-x-2 flex-shrink-0">
+              <div className="flex gap-2 flex-shrink-0">
                 {isFetchingData && (
-                  <div className="flex items-center mr-2">
-                    <div className="w-2 h-2 bg-amber-300 rounded-full animate-pulse"></div>
-                  </div>
+                  <div className="w-2 h-2 bg-blue-300 rounded-full animate-pulse"></div>
                 )}
                 <button
                   onClick={clearChat}
-                  className="text-white/80 hover:text-white transition p-1.5 hover:bg-white/10 rounded-lg"
+                  className="text-blue-100 hover:text-white transition p-2 hover:bg-white/10 rounded-lg"
                   title="Clear chat"
                   aria-label="Clear chat"
                 >
-                  <SafeIcon name="trash" className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <SafeIcon name="trash" className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-white/80 hover:text-white transition p-1.5 hover:bg-white/10 rounded-lg"
+                  className="text-blue-100 hover:text-white transition p-2 hover:bg-white/10 rounded-lg"
                   aria-label="Close chat"
                 >
-                  <SafeIcon name="close" className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <SafeIcon name="close" className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -989,10 +953,10 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
           {/* Messages Container */}
           <div 
             ref={messagesContainerRef}
-            className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3 bg-gradient-to-b from-amber-800/30 to-red-800/20"
+            className="flex-1 overflow-y-auto px-3 py-4 space-y-3 bg-slate-800/50"
             style={{
               scrollbarWidth: 'thin',
-              scrollbarColor: 'rgba(255, 255, 255, 0.3) transparent',
+              scrollbarColor: 'rgba(148, 163, 184, 0.3) transparent',
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'contain'
             }}
@@ -1005,13 +969,8 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
                 background: transparent;
               }
               .flex-1::-webkit-scrollbar-thumb {
-                background-color: rgba(255, 255, 255, 0.3);
+                background-color: rgba(148, 163, 184, 0.3);
                 border-radius: 10px;
-              }
-              @media (max-width: 640px) {
-                .flex-1::-webkit-scrollbar {
-                  width: 4px;
-                }
               }
             `}</style>
             
@@ -1021,30 +980,26 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[95%] w-full rounded-xl px-3 py-2 sm:px-4 sm:py-3 border backdrop-blur-sm ${
+                  className={`max-w-[90%] rounded-xl px-3 py-2.5 border backdrop-blur-sm ${
                     message.role === 'user'
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-br-none border-amber-400/30'
-                      : 'bg-gradient-to-r from-amber-800/70 to-orange-800/70 text-white rounded-bl-none border-amber-700/30'
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-none border-blue-500/30'
+                      : 'bg-slate-700 text-slate-100 rounded-bl-none border-slate-600/50'
                   }`}
-                  style={{
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word'
-                  }}
                 >
                   {message.role === 'assistant' && isTyping && message.id === messages[messages.length - 1]?.id ? (
-                    <div className="text-xs sm:text-sm leading-relaxed text-white w-full">
+                    <div className="text-sm leading-relaxed">
                       {formatMessage(typedMessage)}
                     </div>
                   ) : (
-                    <div className="text-xs sm:text-sm leading-relaxed text-white w-full">
+                    <div className="text-sm leading-relaxed">
                       {formatMessage(message.content)}
                     </div>
                   )}
                   
                   {/* Links Section */}
                   {message.links && message.role === 'assistant' && !isTyping && (
-                    <div className="mt-2 sm:mt-3 pt-2 border-t border-amber-500/30 w-full">
-                      <p className="text-xs text-amber-300 mb-2 font-medium flex items-center gap-1">
+                    <div className="mt-2.5 pt-2.5 border-t border-slate-600/50">
+                      <p className="text-xs text-sky-300 mb-2 font-black flex items-center gap-1">
                         <SafeIcon name="star" className="w-3 h-3 flex-shrink-0" />
                         Quick Links:
                       </p>
@@ -1053,10 +1008,10 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
                           <button
                             key={index}
                             onClick={() => handleLinkClick(link)}
-                            className={`inline-flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg transition-all font-medium whitespace-nowrap flex-shrink-0 border ${
+                            className={`inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg transition-all font-black whitespace-nowrap flex-shrink-0 border ${
                               link.action === 'download'
-                                ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white border-emerald-600/30'
-                                : 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-amber-600/30'
+                                ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white border-emerald-500/30'
+                                : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-blue-500/30'
                             }`}
                           >
                             {link.icon && <SafeIcon name={link.icon} className="w-3 h-3" />}
@@ -1067,7 +1022,7 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
                     </div>
                   )}
                   
-                  <p className={`text-xs mt-1 sm:mt-2 ${message.role === 'user' ? 'text-amber-100' : 'text-amber-200/70'}`}>
+                  <p className={`text-xs mt-1.5 ${message.role === 'user' ? 'text-blue-100' : 'text-slate-400'}`}>
                     {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -1077,14 +1032,14 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
             {/* Typing Indicator */}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gradient-to-r from-amber-800/70 to-orange-800/70 text-white rounded-xl rounded-bl-none px-3 py-2 sm:px-4 sm:py-3 max-w-[95%] border border-amber-700/30 backdrop-blur-sm">
+                <div className="bg-slate-700 text-slate-100 rounded-xl rounded-bl-none px-3 py-2.5 max-w-[90%] border border-slate-600/50 backdrop-blur-sm">
                   <div className="flex space-x-2 items-center">
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
-                    <span className="text-xs text-amber-300">Typing...</span>
+                    <span className="text-xs text-sky-300 font-bold">Typing...</span>
                   </div>
                 </div>
               </div>
@@ -1094,30 +1049,24 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
 
           {/* Categories Section */}
           {showCategories && (
-            <div className="border-t border-amber-500/30 bg-gradient-to-r from-amber-700/80 to-red-700/80 p-3 sm:p-4 flex-shrink-0 backdrop-blur-sm">
-              <div className="w-full">
-                <p className="text-xs text-amber-300 font-medium mb-2 flex items-center gap-1">
-                  <SafeIcon name="help" className="w-3 h-3 flex-shrink-0" />
-                  What would you like to know?
-                </p>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 w-full">
-                  {Object.entries(categories).map(([key, category]) => (
-                    <button
-                      key={key}
-                      onClick={() => handleCategoryClick(key)}
-                      className="flex flex-col items-center justify-center space-y-1 px-2 py-2 sm:px-2 sm:py-3 rounded-lg text-xs font-medium transition-all text-amber-100 hover:bg-amber-600/60 hover:text-white border border-amber-500/30 backdrop-blur-sm w-full min-h-[60px] sm:min-h-[70px] hover:border-amber-400/50 hover:shadow-lg hover:scale-[1.02]"
-                      aria-label={`Learn about ${category.name}`}
-                      style={{
-                        transform: 'translateZ(0)',
-                        willChange: 'transform'
-                      }}
-                    >
-                      <SafeIcon name={category.icon} className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
-                      <span className="truncate w-full text-center text-[11px] sm:text-xs">{category.name}</span>
-                    </button>
-                  ))}
-                </div>
+            <div className="border-t border-slate-600/50 bg-slate-700/80 px-3 py-3 flex-shrink-0 backdrop-blur-sm">
+              <p className="text-xs text-slate-300 font-black mb-2.5 flex items-center gap-1">
+                <SafeIcon name="help" className="w-3.5 h-3.5 flex-shrink-0" />
+                What would you like to know?
+              </p>
+              
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 w-full">
+                {Object.entries(categories).map(([key, category]) => (
+                  <button
+                    key={key}
+                    onClick={() => handleCategoryClick(key)}
+                    className="flex flex-col items-center justify-center space-y-1 px-2 py-2.5 rounded-lg text-xs font-black transition-all text-slate-200 hover:bg-blue-600/50 hover:text-white border border-slate-600/50 backdrop-blur-sm w-full min-h-[70px] hover:border-blue-500/50 hover:shadow-lg hover:scale-[1.02]"
+                    aria-label={`Learn about ${category.name}`}
+                  >
+                    <SafeIcon name={category.icon} className="w-5 h-5 text-sky-400" />
+                    <span className="truncate w-full text-center text-xs leading-tight">{category.name}</span>
+                  </button>
+                ))}
               </div>
             </div>
           )}
