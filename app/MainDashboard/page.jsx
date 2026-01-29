@@ -263,7 +263,7 @@ const router =useRouter()
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center overflow-hidden">
               <img 
-                src="/katz.png" 
+                src="/ll.png" 
                 alt="School Logo" 
                 className="w-full h-full object-contain p-2"
               />
@@ -276,7 +276,7 @@ const router =useRouter()
           {/* School Name with Gradient */}
           <div>
             <h2 className="text-3xl font-bold text-white mb-2">
-              Katwanyaa High  School
+              Marry Immculate Girls High  School
             </h2>
             <div className="h-1 w-48 mx-auto bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
           </div>

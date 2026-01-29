@@ -265,7 +265,7 @@ const ModernStaffLeadership = () => {
           </h2>
           
           <p className="text-gray-500 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed max-w-xl mb-6 sm:mb-8 md:mb-10 lg:mb-12 px-2">
-            "Education is Light." We are currently updating our directory for the new term. 
+            "Prayer, Discipline and Hardwork ." We are currently updating our directory for the new term. 
             Please refresh to see the latest updates from Katwanya High.
           </p>
 

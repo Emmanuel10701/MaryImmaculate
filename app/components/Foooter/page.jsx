@@ -173,9 +173,9 @@ const socialLinks = [
   const contactInfo = [
     {
       icon: FiMapPin,
-      text: 'Matungulu, Machakos County, Kenya',
+      text: 'Mweiga, Nyeri County, Kenya',
       href: 'https://maps.google.com/?q=-0.416667,36.950000',
-      detail: 'Along Matungulu Road',
+      detail: 'Along Mweiga Nyahururu Road',
       color: 'text-amber-400'
     },
     {
@@ -216,7 +216,7 @@ const socialLinks = [
   ];
 
   const achievements = [
-    { text: 'Top Performing schhool School in Matungulu', color: 'text-amber-300' },
+    { text: 'Top Performing schhool School in Mweiga, Nyeri  ', color: 'text-amber-300' },
     { text: 'Excellence in Science & Mathematics', color: 'text-orange-300' },
     { text: '95% University Placement Rate', color: 'text-red-300' },
     { text: 'Sports Excellence Award 2023', color: 'text-yellow-300' },
@@ -259,19 +259,19 @@ const socialLinks = [
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-lg overflow-hidden">
                 <img 
-                  src="/katz.png" 
-                  alt="Katwanyaa High  Logo" 
+                  src="/ll.png" 
+                  alt="Marry Immculate Girls High  Logo" 
                   className="w-full h-full object-cover"
                 />
               </div>
               <div>
-                <h3 className="text-xl font-bold">Katwanyaa High school</h3>
-                <p className="text-amber-300 text-base">Education is Light</p>
+                <h3 className="text-xl font-bold">Marry Immculate Girls High school</h3>
+                <p className="text-amber-300 text-base">Prayer, Discipline and Hardwork </p>
               </div>
             </div>
 
             <p className="text-gray-300 text-base leading-relaxed">
-              A premier Mixed learning institution in Matungulu, Machakos, dedicated to academic excellence, 
+              A premier Girl learning institution in Mweiga, Nyeri, dedicated to academic excellence, 
               holistic development, and nurturing future women leaders through quality education.
             </p>
 
@@ -459,7 +459,7 @@ const socialLinks = [
         <div className="mt-8 pt-6 border-t border-white/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-gray-300 text-md text-center md:text-left">
-              <p>© {currentYear} Katwanyaa High school, Matungulu, Machakos. All rights reserved.</p>
+              <p>© {currentYear} Marry Immculate Girls High school, Mweiga, Nyeri. All rights reserved.</p>
             </div>
 
             <div className="flex items-center gap-4 text-md">
@@ -525,7 +525,7 @@ const socialLinks = [
                   Privacy Commitment
                 </h3>
                 <p className="text-gray-700 text-md">
-                  At Katwanyaa High school, we are committed to protecting the privacy and security 
+                  At Marry Immculate Girls High school, we are committed to protecting the privacy and security 
                   of all personal information collected from students, parents, staff, and visitors. 
                   This policy outlines our practices regarding data collection, usage, and protection 
                   in compliance with the Data Protection Act, 2019.
@@ -602,7 +602,7 @@ const socialLinks = [
                   </div>
                   <div className="mt-4 pt-4 border-t border-white/20">
                     <p className="text-md opacity-90">
-                      Katwanyaa High school, Matungulu, Machakos County, Kenya
+                      Marry Immculate Girls High school, Mweiga, Nyeri  County, Kenya
                     </p>
                   </div>
                 </div>

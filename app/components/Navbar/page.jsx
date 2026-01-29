@@ -211,8 +211,8 @@ export default function ModernNavbar() {
                 shadow-lg border border-white/30 overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
                 <Image
-                  src="/katz.png"
-                  alt="Katwanyaa High School Logo"
+                  src="/ll.png"
+                  alt="Marry Immculate Girls High School Logo"
                   width={48}
                   height={48}
                   className="relative z-10 filter drop-shadow-sm group-hover:scale-100 transition-transform duration-300 w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14"
@@ -222,10 +222,10 @@ export default function ModernNavbar() {
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent whitespace-nowrap tracking-tight">
-                   Katz
+                   MIGSS
                 </h1>
                 <p className="text-xs sm:text-sm text-white/90 font-medium tracking-wide whitespace-nowrap">
-                  Education is Light
+                  Prayer, Discipline and Hardwork 
                 </p>
               </div>
             </div>

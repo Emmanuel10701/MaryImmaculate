@@ -31,17 +31,17 @@ const Circle = dynamic(
   { ssr: false }
 );
 
-// School location - Katwanyaa High School in Kambusu, Matungulu, Machakos
-const schoolLocation = [-1.312, 37.266];
+// School location - Marry Immaculate Girls Secondary School in Mweiga, Nyeri
+const schoolLocation = [-0.4181, 36.8708];
 
-// Nearby landmarks in Kambusu/Matungulu area
 const nearbyLandmarks = [
-  { position: [-1.311, 37.267], name: 'Kambusu Trading Center', type: 'commercial' },
-  { position: [-1.313, 37.265], name: 'Kambusu Primary School', type: 'education' },
-  { position: [-1.310, 37.264], name: 'Matungulu Health Center', type: 'health' },
-  { position: [-1.309, 37.268], name: 'Tala-Kangundo Road', type: 'transport' },
-  { position: [-1.314, 37.269], name: 'Kambusu Market', type: 'market' },
-  { position: [-1.315, 37.263], name: 'A.I.C Kambusu Church', type: 'religious' },
+  { position: [-0.419, 36.871], name: 'Mweiga Town Center', type: 'commercial' },
+  { position: [-0.416, 36.868], name: 'Mweiga Boys Secondary', type: 'education' },
+  { position: [-0.415, 36.872], name: 'Mweiga Health Center', type: 'health' },
+  { position: [-0.420, 36.873], name: 'Nyeri-Nyahururu Highway', type: 'transport' },
+  { position: [-0.417, 36.869], name: 'Mweiga Market', type: 'market' },
+  { position: [-0.421, 36.867], name: ' Mweiga Church', type: 'religious' },
+  { position: [-0.422, 36.874], name: 'Mweiga Police Station', type: 'security' },
 ];
 
 // LegendItem component
@@ -122,7 +122,7 @@ export default function MapComponent() {
       <div className="relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-gradient-to-r from-orange-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mb-4"></div>
-          <p className="text-gray-600">Loading map of Katwanyaa High School...</p>
+          <p className="text-gray-600">Loading map of Marry Immaculate Girls Secondary School...</p>
         </div>
       </div>
     );
@@ -169,16 +169,16 @@ export default function MapComponent() {
           <Popup>
             <div className="p-3 min-w-[200px] sm:min-w-[240px]">
               <h3 className="font-bold text-gray-800 text-base sm:text-lg">
-                🏫 A.I.C Katwanyaa High School
+                🏫 Marry Immaculate Girls Secondary School
               </h3>
               <p className="text-xs sm:text-sm text-gray-600 mb-3">
-                Kambusu, Matungulu, Machakos County
+                Mweiga, Nyeri County
               </p>
               <p className="text-xs text-gray-500 mb-3">
-                Along Tala-Kangundo Road, Kambusu Village
+                Off Nyeri-Nyahururu Highway, Mweiga Town
               </p>
               <a
-                href="https://maps.google.com/?q=AIC+Katwanyaa+High+School,Kambusu+Matungulu+Machakos"
+                href="https://maps.google.com/?q=Marry+Immaculate+Girls+Secondary+School+Mweiga+Nyeri"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:opacity-90 transition"
@@ -232,10 +232,10 @@ export default function MapComponent() {
         <div className="bg-white/95 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-gray-200 px-3 py-1.5 sm:px-4 sm:py-2 flex flex-col xs:flex-row items-center justify-center gap-1.5 xs:gap-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="text-[10px] xs:text-xs font-medium text-gray-700">Located in Kambusu, Matungulu</span>
+            <span className="text-[10px] xs:text-xs font-medium text-gray-700">Located in Mweiga, Nyeri County</span>
           </div>
           <div className="hidden xs:block w-px h-4 bg-gray-300"></div>
-          <span className="text-[10px] xs:text-xs text-gray-600 text-center xs:text-left">Coordinates: -1.312, 37.266</span>
+          <span className="text-[10px] xs:text-xs text-gray-600 text-center xs:text-left">Coordinates: -0.4181, 36.8708</span>
         </div>
       </div>
     </div>

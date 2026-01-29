@@ -73,13 +73,13 @@ const staticCategories = {
   general: {
     name: "Overview",
     icon: 'school',
-    content: `🏫 A.I.C KATWANYAA HIGH SCHOOL
+    content: `🏫  MARY IMMACULATE 
 
 **A Public County School in Machakos**
 
 Quick Facts:
 • Established: 1976
-• Location: Kambusu, Matungulu, Machakos County
+• Location: Kambusu, Mweiga, Nyeri  County
 • Students: 1000+
 • Staff: 50+
 
@@ -321,8 +321,8 @@ Steps:
 • Admissions: katwanyaaschool@yahoo.com
 
 **Physical Address:**
-A.I.C Katwanyaa High School
-Kambusu, Matungulu Sub-County
+ Marry Immculate Girls High School
+ Mweiga, Nyeri   County
 Machakos County
 P.O. Box 363 – 90131 Tala, Kenya
 
@@ -359,7 +359,7 @@ const buildDynamicCategories = (schoolData, documentData) => {
       icon: 'school',
       content: `🏫 ${schoolData.name}
 
-**Motto:** ${schoolData.motto || 'Education is Light'}
+**Motto:** ${schoolData.motto || 'Prayer, Discipline and Hardwork '}
 
 **Vision:**
 ${schoolData.vision || 'To be a center of excellence in holistic education'}
@@ -368,7 +368,7 @@ ${schoolData.vision || 'To be a center of excellence in holistic education'}
 ${schoolData.mission || 'To provide quality education that nurtures intellectual, moral, and physical development'}
 
 **About Our School:**
-${schoolData.description || 'A public county school committed to academic excellence and holistic development'}
+${schoolData.description || 'A private county school committed to academic excellence and holistic development'}
 
 Quick Facts:
 • Students: ${schoolData.studentCount || '1000+'}
@@ -404,7 +404,7 @@ ${schoolData.admissionDocumentsRequired && schoolData.admissionDocumentsRequired
 **Contact Admissions:**
 • Email: ${schoolData.admissionContactEmail || 'katwanyaaschool@yahoo.com'}
 • Phone: ${schoolData.admissionContactPhone || '+254 729 370 590'}
-• Location: ${schoolData.admissionLocation || 'Kambusu, Matungulu, Machakos County'}
+• Location: ${schoolData.admissionLocation || ' Mweiga, Nyeri  County'}
 • Office Hours: ${schoolData.admissionOfficeHours || 'Mon-Fri: 8:00 AM - 5:00 PM'}
 
 **Admission Requirements:**
@@ -584,7 +584,7 @@ ${documentData?.mockExamsResultsPdf ? `• Mock Exams: ${documentData.mockExamsP
 **School Contacts:**
 • Phone: ${schoolData.admissionContactPhone || '+254 729 370 590'}
 • Email: ${schoolData.admissionContactEmail || 'katwanyaaschool@yahoo.com'}
-• Location: ${schoolData.admissionLocation || 'Kambusu, Matungulu, Machakos County'}
+• Location: ${schoolData.admissionLocation || ' Mweiga, Nyeri  County'}
 • Website: ${schoolData.admissionWebsite || 'Contact office for details'}
 
 **Office Hours:**
@@ -770,8 +770,8 @@ export default function ChatBot() {
   }, [schoolData, documentData]);
 
   const getWelcomeMessage = () => {
-    const schoolName = schoolData?.name || 'A.I.C KATWANYAA HIGH SCHOOL';
-    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**Education is Light** ✨';
+    const schoolName = schoolData?.name || ' MARY IMMACULATE ';
+    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**Prayer, Discipline and Hardwork ** ✨';
     const studentCount = schoolData?.studentCount || '1000+';
     const staffCount = schoolData?.staffCount || '50+';
     
@@ -785,7 +785,7 @@ Hello! I'm Katwa, your assistant.
 About Our School:
 • Public County School (Mixed - Day & Boarding)
 • Established: 1976
-• Location: Kambusu, Matungulu, Machakos County
+• Location:  Mweiga, Nyeri  County
 • Students: ${studentCount} | Teachers: ${staffCount}
 • Competency-Based Curriculum (CBE)
 • Angaza Center Technology Partnership
@@ -952,8 +952,8 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
                   "
                 >
                   <img
-                    src="/katz.png"
-                    alt="Katwanyaa High School Logo"
+                    src="/ll.png"
+                    alt="Marry Immculate Girls High School Logo"
                     className="w-full h-full object-cover"
                     style={{ imageRendering: 'auto' }}
                   />
@@ -961,10 +961,10 @@ ${schoolData ? 'For the most current information, choose a category below! 👇'
 
                 <div className="min-w-0">
                   <h3 className="text-lg sm:text-md font-bold text-white truncate">
-                    {schoolData?.name || 'A.I.C Katwanyaa High'}
+                    {schoolData?.name || ' Marry Immculate Girls High'}
                   </h3>
                   <p className="text-blue-200 text-xs sm:text-sm truncate">
-                    {schoolData?.motto || 'Education is Light'}
+                    {schoolData?.motto || 'Prayer, Discipline and Hardwork '}
                   </p>
                 </div>
               </div>

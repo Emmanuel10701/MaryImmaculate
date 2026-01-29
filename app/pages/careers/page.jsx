@@ -216,7 +216,7 @@ const ModernJobCard = ({ job, onView, onBookmark, onShare, viewMode = 'grid' }) 
 
           {/* Description */}
           <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
-            {job?.jobDescription || 'Join our dedicated team at Katwanyaa High School. We are looking for passionate individuals to contribute to our educational mission.'}
+            {job?.jobDescription || 'Join our dedicated team at Marry Immculate Girls High School. We are looking for passionate individuals to contribute to our educational mission.'}
           </p>
 
           {/* Info Grid */}
@@ -337,7 +337,7 @@ const ModernJobCard = ({ job, onView, onBookmark, onShare, viewMode = 'grid' }) 
             </div>
 
             <p className="text-slate-500 text-xs line-clamp-2 mb-3">
-              {job?.jobDescription || 'Join our dedicated team at Katwanyaa High School.'}
+              {job?.jobDescription || 'Join our dedicated team at Marry Immculate Girls High School.'}
             </p>
           </div>
 
@@ -529,7 +529,7 @@ return (
             <section className="space-y-3 sm:space-y-4">
               <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-400">Job Description</h3>
               <div className="text-slate-700 leading-relaxed text-sm sm:text-base md:text-lg bg-slate-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl md:rounded-3xl border border-slate-100">
-                {job.jobDescription || 'Join our dedicated team at Katwanyaa High School. We are looking for passionate individuals to contribute to our educational mission.'}
+                {job.jobDescription || 'Join our dedicated team at Marry Immculate Girls High School. We are looking for passionate individuals to contribute to our educational mission.'}
               </div>
             </section>
 
@@ -805,8 +805,8 @@ export default function ModernCareersPage() {
   const handleShare = (job) => {
     if (navigator.share) {
       navigator.share({
-        title: `${job.jobTitle} - Katwanyaa High School`,
-        text: `Check out this job opportunity at Katwanyaa High School: ${job.jobTitle}`,
+        title: `${job.jobTitle} - Marry Immculate Girls High School`,
+        text: `Check out this job opportunity at Marry Immculate Girls High School: ${job.jobTitle}`,
         url: window.location.href,
       });
     } else {
@@ -927,7 +927,7 @@ return (
               Join Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Academic Team</span>
             </h1>
             <p className="text-slate-600 text-sm sm:text-base md:text-lg max-w-2xl">
-              Shape the future of education at Katwanyaa High School
+              Shape the future of education at Marry Immculate Girls High School
             </p>
           </div>
           
@@ -1004,7 +1004,7 @@ return (
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 rounded-lg sm:rounded-xl flex items-center justify-center">
                   <IoSchoolOutline className="text-blue-600 text-lg sm:text-xl" />
                 </div>
-                <h2 className="text-lg sm:text-xl font-bold text-slate-900">Katwanyaa High School</h2>
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900">Marry Immculate Girls High School</h2>
               </div>
 
               <div className="space-y-3 sm:space-y-4">
@@ -1012,7 +1012,7 @@ return (
                   <FiMapPin className="text-rose-500 w-4 h-4 sm:w-5 sm:h-5" />
                   <div>
                     <p className="text-xs sm:text-sm font-bold text-slate-900">Location</p>
-                    <p className="text-[10px] sm:text-xs text-slate-500">Matungulu SUb County Machakos, Kenya</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500">Mweiga, Nyeri County, Kenya</p>
                   </div>
                 </div>
 

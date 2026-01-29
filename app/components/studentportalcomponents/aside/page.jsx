@@ -41,7 +41,7 @@ export default function NavigationSidebar({
               <div className="relative">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30">
                   <img 
-                    src="/katz.png" 
+                    src="/ll.png" 
                     alt="School Logo" 
                     className="w-full h-full object-contain p-2"
                   />
@@ -52,7 +52,7 @@ export default function NavigationSidebar({
                 <h2 className="font-bold text-gray-900 text-base sm:text-lg lg:text-xl truncate">
                   Student Portal
                 </h2>
-                <p className="text-gray-500 text-xs sm:text-sm truncate">Katwanyaa High</p>
+                <p className="text-gray-500 text-xs sm:text-sm truncate">Marry Immculate Girls High</p>
               </div>
             </div>
             

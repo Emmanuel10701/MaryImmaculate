@@ -37,7 +37,7 @@ export default function StaffProfilePage() {
   const [showShareModal, setShowShareModal] = useState(false);
 
   // School description - mobile shortened version
-  const schoolDescription = "Katwanyaa High School provides exceptional education through trained professionals dedicated to holistic student development and academic excellence.";
+  const schoolDescription = "Marry Immculate Girls High School provides exceptional education through trained professionals dedicated to holistic student development and academic excellence.";
 
   // Safe data transformation with defaults
   const transformStaffData = (apiData) => {
@@ -69,7 +69,7 @@ export default function StaffProfilePage() {
       email: apiData.email || '',
       phone: apiData.phone || '',
       image: imageUrl,
-      bio: apiData.bio || `A committed educator at Katwanyaa High School with a passion for student success and educational excellence.`,
+      bio: apiData.bio || `A committed educator at Marry Immculate Girls High School with a passion for student success and educational excellence.`,
       expertise: expertise,
       responsibilities: responsibilities,
       achievements: achievements,
@@ -123,8 +123,8 @@ export default function StaffProfilePage() {
   const SeoHead = () => {
     if (!staff) return null;
     
-    const profileTitle = `${staff.name} - ${staff.position} at Katwanyaa High School`;
-    const profileDescription = staff.bio || `Meet ${staff.name}, ${staff.position} at Katwanyaa High School. ${schoolDescription}`;
+    const profileTitle = `${staff.name} - ${staff.position} at Marry Immculate Girls High School`;
+    const profileDescription = staff.bio || `Meet ${staff.name}, ${staff.position} at Marry Immculate Girls High School. ${schoolDescription}`;
     const profileUrl = typeof window !== 'undefined' ? window.location.href : `https://katwanyaahighschool.edu.ke/staff/${staff.id}`;
     
     return (
@@ -132,8 +132,8 @@ export default function StaffProfilePage() {
         <title>{profileTitle}</title>
         <meta name="title" content={profileTitle} />
         <meta name="description" content={profileDescription} />
-        <meta name="keywords" content={`${staff.name}, ${staff.position}, Katwanyaa High School, teacher profile, ${staff.department}`} />
-        <meta name="author" content="Katwanyaa High School" />
+        <meta name="keywords" content={`${staff.name}, ${staff.position}, Marry Immculate Girls High School, teacher profile, ${staff.department}`} />
+        <meta name="author" content="Marry Immculate Girls High School" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="profile" />
@@ -141,7 +141,7 @@ export default function StaffProfilePage() {
         <meta property="og:title" content={profileTitle} />
         <meta property="og:description" content={profileDescription} />
         <meta property="og:image" content={staff.image} />
-        <meta property="og:site_name" content="Katwanyaa High School" />
+        <meta property="og:site_name" content="Marry Immculate Girls High School" />
         <meta property="profile:first_name" content={staff.name.split(' ')[0]} />
         <meta property="profile:last_name" content={staff.name.split(' ').slice(1).join(' ')} />
         
@@ -164,7 +164,7 @@ export default function StaffProfilePage() {
               "jobTitle": staff.position,
               "worksFor": {
                 "@type": "EducationalOrganization",
-                "name": "Katwanyaa High School",
+                "name": "Marry Immculate Girls High School",
                 "description": schoolDescription,
                 "url": "https://katwanyaahighschool.edu.ke"
               },
@@ -186,7 +186,7 @@ export default function StaffProfilePage() {
     if (!showShareModal || !staff) return null;
     
     const profileUrl = typeof window !== 'undefined' ? window.location.href : '';
-    const shareText = `Check out ${staff.name}'s profile - ${staff.position} at Katwanyaa High School`;
+    const shareText = `Check out ${staff.name}'s profile - ${staff.position} at Marry Immculate Girls High School`;
     const encodedText = encodeURIComponent(shareText);
     const encodedUrl = encodeURIComponent(profileUrl);
     
@@ -362,11 +362,11 @@ export default function StaffProfilePage() {
                 <FaGraduationCap className="text-white text-xs sm:text-sm" />
               </div>
               <span className="font-bold text-gray-800 text-xs sm:text-sm hidden xs:block sm:hidden md:block">
-                Katwanyaa HS
+                Marry Immculate Girls HS
               </span>
               <span className="font-bold text-gray-800 hidden sm:block md:hidden">KHS</span>
               <span className="font-bold text-gray-800 hidden md:block lg:hidden">Katwanyaa</span>
-              <span className="font-bold text-gray-800 hidden lg:block">Katwanyaa High School</span>
+              <span className="font-bold text-gray-800 hidden lg:block">Marry Immculate Girls High School</span>
             </div>
 
             <div className="flex gap-1 sm:gap-2">
@@ -398,7 +398,7 @@ export default function StaffProfilePage() {
                   <div className="relative w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 xl:w-56 xl:h-56 rounded-lg sm:rounded-xl lg:rounded-2xl overflow-hidden border-3 sm:border-4 border-white/30 sm:border-white/40 shadow-md sm:shadow-2xl">
                     <Image
                       src={staff.image}
-                      alt={`Professional portrait of ${staff.name} - ${staff.position} at Katwanyaa High School`}
+                      alt={`Professional portrait of ${staff.name} - ${staff.position} at Marry Immculate Girls High School`}
                       fill
                       className="object-cover"
                       priority
@@ -461,7 +461,7 @@ export default function StaffProfilePage() {
                     <FiHome className="text-white text-sm sm:text-base lg:text-lg" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 text-sm sm:text-base lg:text-lg">Katwanyaa High School</h3>
+                    <h3 className="font-bold text-gray-900 text-sm sm:text-base lg:text-lg">Marry Immculate Girls High School</h3>
                     <p className="text-blue-600 text-xs sm:text-sm font-medium">Excellence in Education</p>
                   </div>
                 </div>
@@ -679,7 +679,7 @@ export default function StaffProfilePage() {
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 rounded flex items-center justify-center">
                   <FaGraduationCap className="text-white text-xs sm:text-sm" />
                 </div>
-                <span className="font-bold text-gray-800 text-sm sm:text-base">Katwanyaa High School</span>
+                <span className="font-bold text-gray-800 text-sm sm:text-base">Marry Immculate Girls High School</span>
               </div>
               <p className="text-gray-600 text-xs sm:text-sm">
                 Excellence in Education • Professional Staff

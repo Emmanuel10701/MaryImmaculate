@@ -14,9 +14,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const SCHOOL_NAME = 'Katwanyaa High  School';
-const SCHOOL_LOCATION = 'Matungulu, Machakos County';
-const SCHOOL_MOTTO = 'Education is Light';
+const SCHOOL_NAME = 'Marry Immculate Girls High  School';
+const SCHOOL_LOCATION = 'Mweiga, Nyeri  County';
+const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork ';
 const CONTACT_PHONE = '+254720123456';
 const CONTACT_EMAIL = 'admissions@katwanyaahighSchool.sc.ke';
 
@@ -38,7 +38,7 @@ function calculateAge(dateOfBirth) {
 function generateApplicationNumber() {
   const year = new Date().getFullYear();
   const randomNum = randomBytes(4).toString('hex').toUpperCase();
-  return `Katz/${year}/${randomNum}`;
+  return `MIGSS/${year}/${randomNum}`;
 }
 
 function validatePhone(phone) {

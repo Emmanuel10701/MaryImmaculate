@@ -289,7 +289,7 @@ export default function AdminLoginPage() {
             <div className="relative z-10">
               {/* Title - School name updated */}
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-6 sm:mb-8 tracking-tighter leading-[0.95]">
-                Katz  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-white">Admin Portal</span>
+                MIGSS  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-white">Admin Portal</span>
               </h1>
 
               {/* Security Features Grid */}
@@ -356,7 +356,7 @@ export default function AdminLoginPage() {
                 </div>
               </div>
               {/* Mobile title updated */}
-              <h2 className="text-lg sm:text-xl font-black text-slate-900 text-center">Katz Admin Portal</h2>
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 text-center">MIGSS Admin Portal</h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2 text-center">Secure Admin Access</p>
             </div>
 
@@ -541,7 +541,7 @@ export default function AdminLoginPage() {
                   <div className="flex items-center gap-2 sm:gap-3">
                     <Globe className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400" />
                     <p className="text-xs text-slate-500 font-medium text-center sm:text-left">
-                      Data Center: Matungulu, Machakos
+                      School Center: MWEIGA, Nyeri
                     </p>
                   </div>
                   <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6">

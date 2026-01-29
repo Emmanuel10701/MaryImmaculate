@@ -51,7 +51,7 @@ const ModernSchoolLayout = () => {
     {
       title: "Modern Facilities",
       gradient: "from-orange-500 to-yellow-500",
-      description: "State-of-the-art laboratories, well-equipped classrooms, and serene learning environment in Matungulu's beautiful landscape.",
+      description: "State-of-the-art laboratories, well-equipped classrooms, and serene learning environment in Nyeri's beautiful landscape.",
       metrics: "Premier Infrastructure"
     }
   ];
@@ -60,7 +60,7 @@ const ModernSchoolLayout = () => {
     {
       title: "Proven Academic Excellence",
       gradient: "from-blue-500 to-cyan-500",
-      description: "Katwanyaa high  School maintains outstanding academic performance with consistent high KCSE results. Our dedicated faculty and rigorous curriculum ensure students excel in sciences, humanities, and technical subjects.",
+      description: "Marry Immculate Girls high  School maintains outstanding academic performance with consistent high KCSE results. Our dedicated faculty and rigorous curriculum ensure students excel in sciences, humanities, and technical subjects.",
       highlight: "Academic Distinction",
       details: ["High KCSE Performance", "University Scholarships", "National Recognition", "Science & Arts Excellence"],
       metrics: ["90%+ KCSE", "Merit Awards", "100+ Scholarships"]
@@ -76,7 +76,7 @@ const ModernSchoolLayout = () => {
     {
       title: "Modern Learning Environment",
       gradient: "from-purple-500 to-pink-500",
-      description: "Located in scenic Matungulu, our campus features well-equipped science laboratories, computer labs, digital resources, and spacious classrooms that create an ideal atmosphere for learning and innovation.",
+      description: "Located in scenic Nyeri, our school features well-equipped science laboratories, computer labs, digital resources, and spacious classrooms that create an ideal atmosphere for learning and innovation.",
       highlight: "Advanced Facilities",
       details: ["Science Laboratories", "Computer Labs", "Library Resources", "Sports Facilities"],
       metrics: ["4 Science Labs", "2 Computer Labs", "10,000+ Books"]
@@ -117,7 +117,7 @@ const ModernSchoolLayout = () => {
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 md:gap-16 items-center">
             <div>
               <span className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 mb-4 sm:mb-6 text-xs font-bold tracking-widest text-blue-600 uppercase bg-blue-50 rounded-full">
-                Why Choose Katwanyaa high School
+                Why Choose Marry Immculate Girls high School
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-[1.1] mb-4 sm:mb-6 md:mb-8">
                 Excellence in Education, <br/>
@@ -148,15 +148,15 @@ const ModernSchoolLayout = () => {
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent z-10"></div>
                <div className="absolute bottom-6 md:bottom-8 lg:bottom-10 left-6 md:left-8 lg:left-10 right-6 md:right-8 lg:right-10 z-20">
                   <div className="backdrop-blur-md bg-white/10 p-4 md:p-5 lg:p-6 rounded-xl md:rounded-2xl border border-white/20">
-                     <p className="text-white text-xl md:text-2xl lg:text-3xl font-black tracking-tighter">Katwanyaa high</p>
-                     <p className="text-white/70 text-xs md:text-sm font-bold uppercase tracking-wider">Matungulu, Machakos County</p>
+                     <p className="text-white text-xl md:text-2xl lg:text-3xl font-black tracking-tighter">Marry Immculate Girls high</p>
+                     <p className="text-white/70 text-xs md:text-sm font-bold uppercase tracking-wider">Mweiga, Nyeri  County</p>
                   </div>
                </div>
                <div className="overflow-hidden rounded-[1.5rem] md:rounded-[1.8rem]">
                   <img 
                     src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=1000" 
                     className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110" 
-                    alt="Katwanyaa  High School Tour"
+                    alt="Marry Immculate Girls Secondary School  Tour"
                     loading="lazy"
                   />
                </div>
@@ -171,7 +171,7 @@ const ModernSchoolLayout = () => {
               Our Educational Pillars
             </h3>
             <p className="text-slate-600 text-sm sm:text-base md:text-lg font-medium">
-              Building academic excellence, strong character, and future-ready skills at Katwanyaa  High School, Matungulu.
+              Building academic excellence, strong character, and future-ready skills at Marry Immculate Girls Secondary School , Mweiga.
             </p>
           </div>
 

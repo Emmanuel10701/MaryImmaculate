@@ -4,9 +4,9 @@ import { hashPassword, generateToken, sanitizeUser } from '../../../libs/auth';
 import nodemailer from 'nodemailer';
 
 // Constants
-const SCHOOL_NAME = 'Katwanyaa High School';
-const SCHOOL_LOCATION = 'Matungulu, Machakos County';
-const SCHOOL_MOTTO = 'Education is Light';
+const SCHOOL_NAME = 'Marry Immculate Girls High School';
+const SCHOOL_LOCATION = 'Mweiga, Nyeri  County';
+const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork ';
 const CONTACT_PHONE = '+254720123456';
 const CONTACT_EMAIL = 'info@katwanyaa highSchool.sc.ke';
 

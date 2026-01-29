@@ -716,7 +716,7 @@ export default function ModernGalleryManager() {
                   <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
                   <div>
                     <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
-                      Katwanyaa High School
+                      Marry Immculate Girls High School
                     </h2>
                     <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
                       "Media Gallery"

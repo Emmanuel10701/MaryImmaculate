@@ -406,7 +406,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
               <div className="relative">
                 <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30">
                   <img 
-                    src="/katz.png" 
+                    src="/ll.png" 
                     alt="School Logo" 
                     className="w-full h-full object-contain p-2"
                   />
@@ -415,7 +415,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
               </div>
               <div className="min-w-0">
                 <h1 className="text-sm lg:text-lg font-bold text-gray-800 truncate">
-                  Katz High School
+                  MIGSS High School
                 </h1>
                 <p className="text-gray-600 text-xs lg:text-sm font-medium truncate">Admin Portal</p>
               </div>
@@ -539,7 +539,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
             {/* Version Info */}
             <div className="text-center mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-gray-200">
               <p className="text-gray-400 text-[10px] lg:text-xs">
-                v2.1.0 • Katwanyaa High  School
+                v2.1.0 • Marry Immculate Girls High  School
               </p>
             </div>
           </div>

@@ -1941,10 +1941,10 @@ export default function ComprehensiveAdmissions() {
         <div className="h-10 w-1 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,99,235,0.5)]" />
         <div className="flex flex-col">
           <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 leading-none">
-            {schoolData?.name || 'Katwanyaa High School'}
+            {schoolData?.name || 'Marry Immculate Girls High School'}
           </h2>
           <p className="text-[9px] font-bold text-white/40 tracking-[0.2em] uppercase mt-1">
-            "Education is Light"
+            "Prayer, Discipline and Hardwork "
           </p>
         </div>
       </div>
@@ -2024,7 +2024,7 @@ export default function ComprehensiveAdmissions() {
             </h3>
             <p className={`text-sm font-bold leading-tight ${isOpen ? 'text-emerald-100' : 'text-slate-400'}`}>
               {isOpen 
-                ? 'Join Katwanyaa High School for the upcoming academic year.' 
+                ? 'Join Marry Immculate Girls High School for the upcoming academic year.' 
                 : 'The application window has officially ended for this period.'}
             </p>
           </div>
@@ -2200,7 +2200,7 @@ export default function ComprehensiveAdmissions() {
         </span>
       </div>
       <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none">
-        Why <span className="text-blue-600">Katwanyaa High?</span>
+        Why <span className="text-blue-600">Marry Immculate Girls High?</span>
       </h2>
     </div>
     
@@ -2306,7 +2306,7 @@ export default function ComprehensiveAdmissions() {
                       Academic <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Programs</span>
                     </h2>
                     <p className="text-slate-500 text-base md:text-xl font-medium leading-relaxed">
-                      Katwanyaa High School offers a future-ready curriculum designed to cultivate critical thinking, 
+                      Marry Immculate Girls High School offers a future-ready curriculum designed to cultivate critical thinking, 
                       innovation, and global leadership.
                     </p>
                   </div>

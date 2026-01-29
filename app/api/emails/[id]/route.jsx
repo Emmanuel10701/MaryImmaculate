@@ -22,9 +22,9 @@ const transporter = nodemailer.createTransport({
 });
 
 // School Information
-const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Katwanyaa High School';
-const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Matungulu, Machakos County';
-const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Education is Light';
+const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Marry Immculate Girls High School';
+const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Mweiga, Nyeri  County';
+const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Prayer, Discipline and Hardwork ';
 const CONTACT_PHONE = process.env.CONTACT_PHONE || '+254720123456';
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@katwanyaahighschool.sc.ke';
 const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://katwanyaa.vercel.app';
