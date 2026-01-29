@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { Toaster, toast } from 'sonner';
+// 1. Font Awesome Icons (Fa)
 import { 
   FaSchool, FaEdit, FaTrash, FaPlus, FaChartBar,
   FaGraduationCap, FaVideo, FaMapMarkerAlt, FaPhone, 
@@ -18,12 +19,16 @@ import {
   FaBusinessTime, FaHome, FaChurch, FaMosque,
   FaHandsHelping, FaCalculator, FaChartLine,
   FaUniversity, FaDoorOpen, FaDoorClosed,
-  FaIdCard, FaStethoscope, FaSyringe,
-  FiUsers, FiBook, FiCalendar, FiFileText, FiTrendingUp, FiTrendingDown,
+  FaIdCard, FaStethoscope, FaSyringe, FaExchangeAlt, FaMoneyBill
+} from 'react-icons/fa';
+
+// 2. Feather Icons (Fi)
+import { 
+  FiUsers, FiBook, FiCalendar, FiFileText, FiTrendingDown, FiTrendingUp,
   FiEye, FiDownload, FiMail, FiUserPlus, FiArrowUpRight, FiStar,
   FiUser, FiImage as FiImageIcon, FiMessageCircle, FiX, FiPlay as FiPlayIcon,
-  FiBarChart2, FiAward as FiAwardIcon, FiTarget, FiActivity, FiRefreshCw, FaExchangeAlt, FaMoneyBill
-} from 'react-icons/fa';
+  FiBarChart2, FiAward as FiAwardIcon, FiTarget, FiActivity, FiRefreshCw 
+} from 'react-icons/fi';
 import { CircularProgress, Modal, Box, TextareaAutosize } from '@mui/material';
 
 // Modern Loading Spinner Component
