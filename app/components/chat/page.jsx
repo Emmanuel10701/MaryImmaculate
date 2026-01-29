@@ -89,7 +89,7 @@ Quick Facts:
 • Staff: 40+
 
 School Type:
-• Girls Secondary School - Day & Boarding
+• Girls Secondary School - Boarding
 • Competency-Based Curriculum (CBE)
 
 Contact:
@@ -149,7 +149,6 @@ Steps:
     content: `💰 FEES STRUCTURE
 
 **School Fees (Per Term):**
-• Day School: KES 12,000 - 15,000
 • Boarding School: KES 25,000 - 30,000
 • Activities: KES 2,000 - 3,000
 
