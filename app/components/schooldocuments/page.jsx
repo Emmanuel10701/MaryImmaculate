@@ -3078,14 +3078,7 @@ const [formData, setFormData] = useState(() => {
       descriptionField: 'curriculumDescription',
       termField: 'curriculumTerm'
     },
-    { 
-      key: 'feesDayDistributionPdf',
-      nameField: 'feesDayPdfName',
-      sizeField: 'feesDayPdfSize',
-      yearField: 'feesDayYear',
-      descriptionField: 'feesDayDescription',
-      termField: 'feesDayTerm'
-    },
+
     { 
       key: 'feesBoardingDistributionPdf',
       nameField: 'feesBoardingPdfName',
@@ -3225,7 +3218,7 @@ const [formData, setFormData] = useState(() => {
       id: 'fees', 
       label: 'Fee Structures', 
       icon: FaMoneyBillWave, 
-      description: 'Day and boarding fee documents' 
+      description: 'Boarding fee documents' 
     },
     { 
       id: 'admission', 
@@ -3309,10 +3302,7 @@ const [formData, setFormData] = useState(() => {
         }
       });
       
-      // Add fee breakdowns as JSON
-      if (feeBreakdowns.feesDay && feeBreakdowns.feesDay.length > 0) {
-        data.append('feesDayDistributionJson', JSON.stringify(feeBreakdowns.feesDay));
-      }
+    
       if (feeBreakdowns.feesBoarding && feeBreakdowns.feesBoarding.length > 0) {
         data.append('feesBoardingDistributionJson', JSON.stringify(feeBreakdowns.feesBoarding));
       }
@@ -3551,22 +3541,7 @@ const getExistingPdfData = (field) => {
       case 1: // Fee Structures
         return (
           <div className="space-y-8">
-            <div className="w-full max-w-2xl">
-              <ModernPdfUpload
-                pdfFile={formData.feesDayDistributionPdf?.file || null}
-                onPdfChange={(file, year, description, term) => 
-                  handleFileChange('feesDayDistributionPdf', file, year, description, term)
-                }
-                onRemove={() => handleFileRemove('feesDayDistributionPdf')}
-                label="Day School Fees PDF"
-                existingPdf={getExistingPdfData('feesDayDistributionPdf')}
-                onCancelExisting={(existingFile) => handleCancelExisting('feesDayDistributionPdf', existingFile)}
-                onRemoveExisting={() => handleRemoveExisting('feesDayDistributionPdf')}
-                feeBreakdown={feeBreakdowns.feesDay}
-                onFeeBreakdownChange={(breakdown) => handleFeeBreakdownChange('feesDay', breakdown)}
-                type="day"
-              />
-            </div>
+  
             
             <div className="w-full max-w-2xl">
               <ModernPdfUpload
@@ -3702,7 +3677,6 @@ const getExistingPdfData = (field) => {
                     
                     const labels = {
                       curriculumPDF: 'Curriculum Document',
-                      feesDayDistributionPdf: 'Day School Fees',
                       feesBoardingDistributionPdf: 'Boarding School Fees',
                       admissionFeePdf: 'Admission Fees',
                       form1ResultsPdf: 'Form 1 Results',
@@ -4010,8 +3984,6 @@ const loadData = async () => {
 
 const hasDocuments = documents && (
   documents.curriculumPDF ||
-  documents.feesDayDistributionPdf ||
-  documents.feesBoardingDistributionPdf ||
   documents.admissionFeePdf ||
   documents.form1ResultsPdf ||
   documents.form2ResultsPdf ||
@@ -4151,28 +4123,6 @@ const hasDocuments = documents && (
                 />
               )}
               
-              {/* DAY SCHOOL FEES DOCUMENT */}
-              {documents.feesDayDistributionPdf && (
-                <ModernDocumentCard
-                  title="Day School Fee Structure"
-                  description="Day school fees breakdown and payment terms"
-                  pdfUrl={documents.feesDayDistributionPdf}
-                  pdfName={documents.feesDayPdfName || "day-fees.pdf"}
-                  year={documents.feesDayYear}
-                  term={documents.feesDayTerm}
-                  feeBreakdown={documents.feesDayDistributionJson || []}
-                  type="day"
-                  fileSize={documents.feesDayPdfSize}
-                  uploadDate={documents.feesDayUploadDate}
-                  existing={true}
-                  onReplace={() => setShowModal(true)}
-                  onRemove={() => {
-                    if (confirm("Remove day school fees document?")) {
-                      // Handle removal
-                    }
-                  }}
-                />
-              )}
               
               {/* BOARDING SCHOOL FEES DOCUMENT */}
               {documents.feesBoardingDistributionPdf && (
@@ -4390,7 +4340,6 @@ const hasDocuments = documents && (
 )}
             {/* EMPTY STATE IF NO DOCUMENTS IN GRID (edge case) */}
             {!documents.curriculumPDF && 
-             !documents.feesDayDistributionPdf && 
              !documents.feesBoardingDistributionPdf && 
              !documents.admissionFeePdf && 
              !documents.form1ResultsPdf && 

@@ -100,14 +100,7 @@ const cleanDocumentResponse = (document) => {
     curriculumYear: document.curriculumYear,
     curriculumTerm: document.curriculumTerm,
     
-    // Day School Fees PDF
-    feesDayDistributionPdf: document.feesDayDistributionPdf,
-    feesDayPdfName: document.feesDayPdfName,
-    feesDayPdfSize: document.feesDayPdfSize,
-    feesDayPdfUploadDate: document.feesDayPdfUploadDate,
-    feesDayDescription: document.feesDayDescription,
-    feesDayYear: document.feesDayYear,
-    feesDayTerm: document.feesDayTerm,
+    // REMOVED: Day School Fees PDF section
     
     // Boarding School Fees PDF
     feesBoardingDistributionPdf: document.feesBoardingDistributionPdf,
@@ -128,7 +121,6 @@ const cleanDocumentResponse = (document) => {
     admissionFeeTerm: document.admissionFeeTerm,
     
     // Fee breakdown JSON fields
-    feesDayDistributionJson: document.feesDayDistributionJson,
     feesBoardingDistributionJson: document.feesBoardingDistributionJson,
     admissionFeeDistribution: document.admissionFeeDistribution,
     
@@ -185,9 +177,6 @@ const cleanDocumentResponse = (document) => {
     kcseYear: document.kcseYear,
     kcseTerm: document.kcseTerm,
     kcseUploadDate: document.kcseUploadDate,
-    
-    // REMOVED: additionalDocuments
-    // additionalDocuments: document.additionalDocuments || [],
     
     createdAt: document.createdAt,
     updatedAt: document.updatedAt

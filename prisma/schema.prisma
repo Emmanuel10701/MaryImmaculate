@@ -248,15 +248,7 @@ model SchoolDocument {
   curriculumDescription   String?   @db.Text
   curriculumYear          Int?
   curriculumTerm          String?   @db.VarChar(50)
-  
-  // Day School Fees PDF
-  feesDayDistributionPdf      String?   @db.Text
-  feesDayPdfName              String?   @db.VarChar(255)
-  feesDayPdfSize              Int?
-  feesDayPdfUploadDate        DateTime?
-  feesDayDescription          String?   @db.Text
-  feesDayYear                 Int?
-  feesDayTerm                 String?   @db.VarChar(50)
+            
   
   // Boarding School Fees PDF
   feesBoardingDistributionPdf      String?   @db.Text
@@ -277,7 +269,6 @@ model SchoolDocument {
   admissionFeeTerm          String?   @db.VarChar(50)
   
   // Fee breakdown JSON fields
-  feesDayDistributionJson      Json?
   feesBoardingDistributionJson Json?
   admissionFeeDistribution     Json?
   // Form 1 Results PDF
@@ -332,11 +323,9 @@ model SchoolDocument {
   updatedAt DateTime @updatedAt
   // Add indexes for new term fields
   @@index([curriculumTerm])
-  @@index([feesDayTerm])
   @@index([feesBoardingTerm])
   @@index([admissionFeeTerm])
   @@index([curriculumYear])
-  @@index([feesDayYear])
   @@index([feesBoardingYear])
   @@index([admissionFeeYear])
   @@index([form1ResultsYear])
