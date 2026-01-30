@@ -602,14 +602,14 @@ export default function StaffDirectory() {
       {/* Mobile Filter Drawer Overlay - Fixed z-index and opacity */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden" // Reduced opacity to 30%
+    className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden" // Keep this at z-40 (below navbar)
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* ENHANCED HEADER SECTION */}
-      <header className="bg-white border-b border-gray-200/50 sticky top-0 z-50"> {/* Increased to z-50 */}
-        <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+<header className="bg-white border-b border-gray-200/50 sticky top-0 z-80"> {/* Increased from z-50 to z-60 */} 
+       <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           
           <div className="flex items-center gap-4 sm:gap-6">
             {/* Mobile Menu Trigger */}
