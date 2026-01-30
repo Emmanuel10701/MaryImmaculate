@@ -1225,10 +1225,7 @@ function AdmissionFeeBreakdownModal({
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="border-t border-gray-200 p-6 bg-white">
+               <div className="border-t border-gray-200 p-6 bg-white">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-600 font-bold">
               <p>Total Admission Fees: <span className="text-purple-700">KES {totalAmount.toLocaleString()}</span></p>
@@ -1262,6 +1259,10 @@ function AdmissionFeeBreakdownModal({
             </div>
           </div>
         </div>
+        </div>
+
+        {/* Footer Actions */}
+   
       </Box>
     </Modal>
   );
