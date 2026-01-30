@@ -676,32 +676,52 @@ function FeeBreakdownModal({
     </Modal>
   );
 }
-
 function AdmissionFeeBreakdownModal({ 
   open, 
   onClose, 
   onSave, 
   existingBreakdown = []
 }) {
-  // FIXED: Initialize with existing data in edit mode
+  // COMPLETE FIX: Completely separate initialization logic for admission fees
   const [categories, setCategories] = useState(() => {
     console.log('AdmissionFeeBreakdownModal initializing with:', existingBreakdown);
     
-    // Only use existingBreakdown if it's a valid array with admission-specific data
+    // Only use existingBreakdown if it's specifically for admission
     if (Array.isArray(existingBreakdown) && existingBreakdown.length > 0) {
-      console.log('Edit Mode: Loading existing admission fee breakdown', existingBreakdown);
-      // Filter out any non-admission specific fields that might have been inherited
+      // Validate that this is indeed admission data and not boarding data
+      const hasBoardingOnlyCategories = existingBreakdown.some(cat => cat.boardingOnly === true);
+      const hasAdmissionKeywords = existingBreakdown.some(cat => 
+        cat.name && (
+          cat.name.toLowerCase().includes('application') ||
+          cat.name.toLowerCase().includes('admission') ||
+          cat.name.toLowerCase().includes('registration') ||
+          cat.name.toLowerCase().includes('acceptance')
+        )
+      );
+      
+      // If it looks like boarding data, don't use it for admission
+      if (hasBoardingOnlyCategories && !hasAdmissionKeywords) {
+        console.log('⚠️ WARNING: Found boarding data in admission breakdown. Starting fresh.');
+        return [];
+      }
+      
+      console.log('✅ Edit Mode: Loading existing admission fee breakdown', existingBreakdown);
+      // Clean and transform existing data to ensure admission-specific structure
       return existingBreakdown.map((cat, index) => ({
-        ...cat,
-        boardingOnly: false, // Ensure boardingOnly is false for admission fees
-        optional: Boolean(cat.optional || false),
+        id: cat.id || `admission_cat_${Date.now()}_${index}`,
+        name: cat.name || '',
         amount: parseFloat(cat.amount) || 0,
-        id: cat.id || `admission_category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        order: cat.order || index
+        description: cat.description || '',
+        optional: Boolean(cat.optional || false),
+        boardingOnly: false, // Force false for ALL admission categories
+        order: cat.order || index,
+        // Add admission-specific flag
+        admissionOnly: true
       }));
     }
-    console.log('Add Mode: Starting with empty admission categories');
-    return []; // Start with empty array
+    
+    console.log('➕ Add Mode: Starting with empty admission categories');
+    return [];
   });
   
   const [totalAmount, setTotalAmount] = useState(0);
@@ -715,21 +735,27 @@ function AdmissionFeeBreakdownModal({
     setTotalAmount(total);
   }, [categories]);
 
-  // FIXED: Detect edit mode and load existing data
+  // FIXED: Proper edit mode detection with validation
   useEffect(() => {
     if (open) {
       if (Array.isArray(existingBreakdown) && existingBreakdown.length > 0) {
-        setIsEditMode(true);
-        console.log('Admission Edit Mode detected with', existingBreakdown.length, 'existing categories');
-        // Load existing data when modal opens
-        setCategories(existingBreakdown.map((cat, index) => ({
-          ...cat,
-          boardingOnly: false,
-          optional: Boolean(cat.optional || false),
-          amount: parseFloat(cat.amount) || 0,
-          id: cat.id || `admission_category_${Date.now()}_${index}`,
-          order: cat.order || index
-        })));
+        // Additional validation to ensure it's admission data
+        const hasAdmissionKeywords = existingBreakdown.some(cat => 
+          cat.name && (
+            cat.name.toLowerCase().includes('application') ||
+            cat.name.toLowerCase().includes('admission') ||
+            cat.name.toLowerCase().includes('registration')
+          )
+        );
+        
+        if (hasAdmissionKeywords) {
+          setIsEditMode(true);
+          console.log('✅ Admission Edit Mode detected');
+        } else {
+          console.log('⚠️ Detected non-admission data, not entering edit mode');
+          setIsEditMode(false);
+          setCategories([]);
+        }
       } else {
         setIsEditMode(false);
         setCategories([]);
@@ -737,26 +763,30 @@ function AdmissionFeeBreakdownModal({
     }
   }, [open, existingBreakdown]);
 
+  // FIXED: Admission-specific add category
   const handleAddCategory = () => {
     const newCategory = {
-      id: `admission_category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `admission_cat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       name: '',
       amount: 0,
       description: '',
       optional: false,
-      boardingOnly: false, // Explicitly false for admission fees
+      boardingOnly: false, // Explicitly false
+      admissionOnly: true, // Explicitly true
       order: categories.length
     };
     setCategories([...categories, newCategory]);
   };
 
+  // FIXED: Ensure no boardingOnly can be set
   const handleCategoryChange = (index, field, value) => {
     const updated = [...categories];
-    updated[index] = { ...updated[index], [field]: value };
     
-    // Ensure boardingOnly is always false for admission fees
+    // Prevent setting boardingOnly for admission fees
     if (field === 'boardingOnly') {
-      updated[index].boardingOnly = false;
+      updated[index] = { ...updated[index], [field]: false };
+    } else {
+      updated[index] = { ...updated[index], [field]: value };
     }
     
     setCategories(updated);
@@ -771,6 +801,7 @@ function AdmissionFeeBreakdownModal({
     setCategories(updated);
   };
 
+  // FIXED: Admission-specific validation
   const handleSave = () => {
     const validationErrors = [];
     
@@ -782,6 +813,11 @@ function AdmissionFeeBreakdownModal({
       if (!cat.amount || cat.amount <= 0) {
         validationErrors.push(`Category "${cat.name || index + 1}" requires a valid amount`);
       }
+      
+      // Validate no boarding categories in admission
+      if (cat.boardingOnly === true) {
+        validationErrors.push(`Admission category "${cat.name}" cannot be marked as boarding-only`);
+      }
     });
 
     if (validationErrors.length > 0) {
@@ -790,15 +826,16 @@ function AdmissionFeeBreakdownModal({
       return;
     }
 
-    // Clean up data before saving - remove boardingOnly flag and ensure proper structure
-    const cleanedCategories = categories.map(cat => ({
+    // Clean up data before saving - ensure admission-specific structure
+    const cleanedCategories = categories.map((cat, index) => ({
       id: cat.id,
-      name: cat.name,
+      name: cat.name.trim(),
       amount: parseFloat(cat.amount) || 0,
-      description: cat.description || '',
+      description: cat.description?.trim() || '',
       optional: Boolean(cat.optional),
-      boardingOnly: false, // Force false for admission
-      order: cat.order || 0
+      boardingOnly: false, // Force false for all admission categories
+      admissionOnly: true, // Mark as admission-specific
+      order: cat.order || index
     }));
 
     setErrors([]);
@@ -806,65 +843,74 @@ function AdmissionFeeBreakdownModal({
     onClose();
   };
 
-  const presetCategories = [
+  // FIXED: Admission-specific preset (completely separate from boarding)
+  const admissionPresetCategories = [
     { 
       name: 'Application Fee', 
       amount: 0, 
       description: 'Non-refundable application processing fee',
       optional: false,
-      boardingOnly: false
+      boardingOnly: false,
+      admissionOnly: true
     },
     { 
       name: 'Registration Fee', 
       amount: 0, 
-      description: 'Student registration fee',
+      description: 'Student registration and enrollment fee',
       optional: false,
-      boardingOnly: false
+      boardingOnly: false,
+      admissionOnly: true
     },
     { 
       name: 'Acceptance Fee', 
       amount: 0, 
       description: 'Fee to secure admission spot',
       optional: false,
-      boardingOnly: false
+      boardingOnly: false,
+      admissionOnly: true
+    },
+    { 
+      name: 'Development Levy', 
+      amount: 0, 
+      description: 'School infrastructure development',
+      optional: false,
+      boardingOnly: false,
+      admissionOnly: true
     },
     { 
       name: 'Uniform Deposit', 
       amount: 0, 
-      description: 'Uniform purchase deposit',
+      description: 'Uniform purchase deposit (refundable)',
       optional: true,
-      boardingOnly: false
+      boardingOnly: false,
+      admissionOnly: true
     },
     { 
-      name: 'Medical Fee', 
+      name: 'Medical Examination', 
       amount: 0, 
-      description: 'Medical examination and records',
+      description: 'Medical checkup and health records',
       optional: false,
-      boardingOnly: false
-    },
-    { 
-      name: 'Development Fee', 
-      amount: 0, 
-      description: 'School infrastructure development',
-      optional: false,
-      boardingOnly: false
-    },
+      boardingOnly: false,
+      admissionOnly: true
+    }
   ];
 
-  // FIXED: Prevent preset loading in edit mode
-  const loadPreset = (preset) => {
+  // FIXED: Prevent preset loading with any existing data
+  const loadPreset = () => {
+    // Only allow preset loading if there are NO existing categories at all
     if (categories.length === 0 && !isEditMode) {
-      const loaded = preset.map((cat, index) => ({
+      const loaded = admissionPresetCategories.map((cat, index) => ({
         ...cat,
         id: `admission_preset_${Date.now()}_${index}`,
-        order: index,
-        boardingOnly: false, // Ensure no boarding flags
-        optional: cat.optional || false
+        order: index
       }));
       setCategories(loaded);
-      toast.success('Preset admission categories loaded. Update amounts as needed.');
+      toast.success('Admission preset categories loaded. Update amounts as needed.');
     } else {
-      toast.warning('Cannot load preset when editing existing admission fees.');
+      toast.warning(isEditMode 
+        ? 'Cannot load preset when editing existing admission fees.' 
+        : 'Clear existing categories first to load preset.'
+      );
     }
   };
 
@@ -878,7 +924,8 @@ function AdmissionFeeBreakdownModal({
     const orderedItems = items.map((item, index) => ({ 
       ...item, 
       order: index,
-      boardingOnly: false // Maintain admission-specific structure
+      boardingOnly: false, // Maintain admission-specific structure
+      admissionOnly: true
     }));
     setCategories(orderedItems);
   };
@@ -908,13 +955,22 @@ function AdmissionFeeBreakdownModal({
                 <p className="text-white/90 text-sm mt-1 font-bold">
                   Define admission-related fees and charges
                 </p>
-                {isEditMode && (
+                {isEditMode ? (
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-xs bg-white/30 px-2 py-1 rounded-full font-bold">
                       📝 Edit Mode
                     </span>
                     <span className="text-xs text-white/80">
                       Editing {categories.length} existing admission fee categories
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs bg-emerald-500/30 px-2 py-1 rounded-full font-bold">
+                      ➕ Add Mode
+                    </span>
+                    <span className="text-xs text-white/80">
+                      Setting up new admission fees
                     </span>
                   </div>
                 )}
@@ -949,20 +1005,20 @@ function AdmissionFeeBreakdownModal({
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-900">Admission Fee Categories</h3>
               <div className="flex gap-2">
-                {/* FIXED: Show Load Preset only when NOT in edit mode */}
+                {/* Show Load Preset only when NOT in edit mode and NO categories */}
                 {!isEditMode && categories.length === 0 && (
                   <button
                     type="button"
-                    onClick={() => loadPreset(presetCategories)}
-                    className="px-4 py-2 text-sm font-bold bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
+                    onClick={loadPreset}
+                    className="px-4 py-2 text-sm font-bold bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-colors"
                   >
-                    Load Preset
+                    <FaFileAlt className="inline mr-2" /> Load Admission Preset
                   </button>
                 )}
                 <button
                   type="button"
                   onClick={handleAddCategory}
-                  className="px-4 py-2 text-sm font-bold bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-colors flex items-center gap-2"
+                  className="px-4 py-2 text-sm font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-colors flex items-center gap-2"
                 >
                   <FaPlus /> Add Category
                 </button>
@@ -972,7 +1028,9 @@ function AdmissionFeeBreakdownModal({
             {categories.length === 0 ? (
               <div className="text-center py-12 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border-2 border-dashed border-purple-300">
                 <FaUserCheck className="mx-auto text-4xl text-purple-400 mb-4" />
-                <h4 className="text-lg font-bold text-gray-700 mb-2">No Admission Fees</h4>
+                <h4 className="text-lg font-bold text-gray-700 mb-2">
+                  {isEditMode ? 'No Admission Fees Found' : 'Start Admission Fee Setup'}
+                </h4>
                 <p className="text-gray-600 text-sm mb-4 max-w-md mx-auto font-bold">
                   {isEditMode 
                     ? 'No existing admission fees found. Start by adding new categories.' 
@@ -981,15 +1039,15 @@ function AdmissionFeeBreakdownModal({
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   {!isEditMode && (
                     <button
-                      onClick={() => loadPreset(presetCategories)}
-                      className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-colors font-bold shadow-lg flex items-center gap-2"
+                      onClick={loadPreset}
+                      className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-colors font-bold shadow-lg flex items-center justify-center gap-2"
                     >
-                      <FaFileAlt /> Load Preset
+                      <FaFileAlt /> Load Admission Preset
                     </button>
                   )}
                   <button
                     onClick={handleAddCategory}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-colors font-bold shadow-lg flex items-center gap-2"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-colors font-bold shadow-lg flex items-center justify-center gap-2"
                   >
                     <FaPlus /> Add First Category
                   </button>
@@ -1027,7 +1085,14 @@ function AdmissionFeeBreakdownModal({
                                         <FaMoneyBillWave className="text-sm" />
                                       </div>
                                       <div>
-                                        <h4 className="text-sm font-bold text-gray-900">{category.name || `Admission Fee ${index + 1}`}</h4>
+                                        <h4 className="text-sm font-bold text-gray-900">
+                                          {category.name || `Admission Fee ${index + 1}`}
+                                          {category.admissionOnly && (
+                                            <span className="text-xs text-purple-600 ml-2 bg-purple-100 px-2 py-0.5 rounded-full">
+                                              Admission
+                                            </span>
+                                          )}
+                                        </h4>
                                         <p className="text-xs text-gray-600 font-bold">
                                           Amount: KES {category.amount?.toLocaleString() || '0'}
                                           {category.optional && <span className="text-gray-500 ml-2">(Optional)</span>}
@@ -1051,7 +1116,7 @@ function AdmissionFeeBreakdownModal({
                                         type="text"
                                         value={category.name || ''}
                                         onChange={(e) => handleCategoryChange(index, 'name', e.target.value)}
-                                        placeholder="e.g., Application Fee"
+                                        placeholder="e.g., Application Fee, Registration Fee"
                                         className="w-full px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none text-sm font-bold"
                                       />
                                     </div>
@@ -1080,7 +1145,7 @@ function AdmissionFeeBreakdownModal({
                                     />
                                   </div>
                                   
-                                  <div className="mt-3">
+                                  <div className="mt-3 flex items-center justify-between">
                                     <label className="flex items-center gap-2 text-xs font-bold text-gray-700">
                                       <input
                                         type="checkbox"
@@ -1090,6 +1155,9 @@ function AdmissionFeeBreakdownModal({
                                       />
                                       Optional Fee (Not required for admission)
                                     </label>
+                                    <div className="text-xs text-purple-600 font-bold bg-purple-50 px-2 py-1 rounded">
+                                      Admission Only
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -1116,7 +1184,7 @@ function AdmissionFeeBreakdownModal({
                   <h3 className="text-lg font-bold text-gray-900">Admission Fee Summary</h3>
                   <p className="text-sm text-gray-600 font-bold">
                     {categories.length} admission fee categories
-                    {isEditMode && <span className="text-blue-600 ml-2">(Editing existing)</span>}
+                    {isEditMode ? <span className="text-blue-600 ml-2">(Editing existing)</span> : <span className="text-emerald-600 ml-2">(New setup)</span>}
                   </p>
                 </div>
               </div>
@@ -1150,6 +1218,12 @@ function AdmissionFeeBreakdownModal({
                 </p>
               </div>
             </div>
+            
+            <div className="mt-4 text-center">
+              <div className="text-xs text-purple-600 font-bold bg-purple-50 inline-block px-3 py-1 rounded-full">
+                💰 Admission fees are completely separate from boarding fees
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1160,7 +1234,7 @@ function AdmissionFeeBreakdownModal({
               <p>Total Admission Fees: <span className="text-purple-700">KES {totalAmount.toLocaleString()}</span></p>
               <p className="text-xs mt-1 font-bold">
                 {categories.length} admission fee categories configured
-                {isEditMode && <span className="text-blue-600 ml-2">(Edit Mode)</span>}
+                {isEditMode ? <span className="text-blue-600 ml-2">(Edit Mode)</span> : <span className="text-emerald-600 ml-2">(New Setup)</span>}
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 {isEditMode 
@@ -1169,7 +1243,7 @@ function AdmissionFeeBreakdownModal({
               </p>
             </div>
             
-            <div className="flex gap-3 w-full sm:w-auto mb-6">
+            <div className="flex gap-3 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={onClose}
@@ -1183,7 +1257,7 @@ function AdmissionFeeBreakdownModal({
                 disabled={categories.length === 0}
                 className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition duration-200 font-bold shadow disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
-                {isEditMode ? 'Update Fees' : 'Save Fees'}
+                {isEditMode ? 'Update Admission Fees' : 'Save Admission Fees'}
               </button>
             </div>
           </div>
@@ -3171,11 +3245,19 @@ const [formData, setFormData] = useState(() => {
 });
 
   // COMPLETE FIX: Preload existing fee breakdowns
-  const [feeBreakdowns, setFeeBreakdowns] = useState({
-    feesDay: Array.isArray(documents?.feesDayDistributionJson) ? documents.feesDayDistributionJson : [],
-    feesBoarding: Array.isArray(documents?.feesBoardingDistributionJson) ? documents.feesBoardingDistributionJson : [],
-    admissionFee: Array.isArray(documents?.admissionFeeDistribution) ? documents.admissionFeeDistribution : []
-  });
+// In DocumentsModal component, update the feeBreakdowns initialization:
+const [feeBreakdowns, setFeeBreakdowns] = useState({
+  feesDay: Array.isArray(documents?.feesDayDistributionJson) ? 
+    documents.feesDayDistributionJson.map(cat => ({ ...cat, boardingOnly: false })) : [],
+  feesBoarding: Array.isArray(documents?.feesBoardingDistributionJson) ? 
+    documents.feesBoardingDistributionJson : [],
+  admissionFee: Array.isArray(documents?.admissionFeeDistribution) ? 
+    documents.admissionFeeDistribution.map(cat => ({ 
+      ...cat, 
+      boardingOnly: false, 
+      admissionOnly: true 
+    })) : []
+});
 
   // COMPLETE FIX: Preload existing exam metadata
   const [examMetadata, setExamMetadata] = useState({
