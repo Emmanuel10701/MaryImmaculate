@@ -360,7 +360,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
               <div>
                 <p className="text-orange-100 text-[9px] sm:text-xs uppercase font-black tracking-tighter mb-0.5 sm:mb-1 opacity-80">Campus Address</p>
                 <p className="text-white text-sm sm:text-base font-bold leading-snug sm:leading-relaxed">
-                  Main Campus, Mweiga, Nyeri
+                  Main School, Mweiga, Nyeri
                 </p>
               </div>
             </div>
@@ -463,17 +463,18 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
               </div>
             </div>
 
-         {/* SECONDARY ACTION ROW - Fixed Flex & Modern Tracking */}
-<div className="flex flex-row gap-2 sm:gap-4 justify-center items-center w-full max-w-full px-2 overflow-hidden">
+{/* SECONDARY ACTION ROW - Constrained Width & Modern Tracking */}
+<div className="flex flex-row gap-3 sm:gap-6 justify-center items-center w-full px-4 mt-6">
   
-  <Link href="/pages/TermsandPrivacy" className="flex-1 sm:w-auto">
-    <button className="w-full px-3 sm:px-8 py-3 bg-white text-slate-950 font-black text-[9px] sm:text-[10px] md:text-xs uppercase tracking-[0.1em] sm:tracking-[0.15em] rounded-xl shadow-lg active:scale-95 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap">
-      Policies <ArrowRight size={14} className="shrink-0" />
+  {/* Link width is now 'fit-content' (auto) instead of flex-1 */}
+  <Link href="/pages/TermsandPrivacy" className="w-auto">
+    <button className="px-5 sm:px-10 py-3.5 bg-white text-slate-950 font-black text-[9px] sm:text-[11px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-white/5 active:scale-95 flex items-center justify-center gap-2 transition-all hover:bg-slate-50 whitespace-nowrap border border-white">
+      Policies <ArrowRight size={14} className="shrink-0 opacity-70" />
     </button>
   </Link>
 
-  <Link href="/pages/Guidance-and-Coucelling" className="flex-1 sm:w-auto">
-    <button className="w-full px-3 sm:px-8 py-3 bg-slate-900/40 text-white font-black text-[9px] sm:text-[10px] md:text-xs uppercase tracking-[0.1em] sm:tracking-[0.15em] rounded-xl border border-white/10 backdrop-blur-md active:scale-95 transition-all whitespace-nowrap">
+  <Link href="/pages/Guidance-and-Coucelling" className="w-auto">
+    <button className="px-5 sm:px-10 py-3.5 bg-slate-900/40 text-white font-black text-[9px] sm:text-[11px] uppercase tracking-[0.2em] rounded-2xl border border-white/20 backdrop-blur-md active:scale-95 transition-all hover:bg-white/10 whitespace-nowrap">
       Guidance
     </button>
   </Link>
