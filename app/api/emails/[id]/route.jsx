@@ -559,8 +559,8 @@ function getModernEmailTemplate({
         }
         
         .social-btn {
-            width: 48px;
-            height: 48px;
+            width: 88px;
+            height: 88px;
             border-radius: 12px;
             display: flex;
             align-items: center;
