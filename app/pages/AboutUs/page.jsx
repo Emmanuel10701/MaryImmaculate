@@ -148,164 +148,121 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
         </div>
       </section>
 
-      {/* Vision Section */}
-      <section className="py-24 px-6 max-w-7xl mx-auto overflow-hidden">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          
-          {/* Left Side: Content & Feature Grid */}
-          <div className="order-2 lg:order-1">
-            <div className="mb-10">
-              <span className="inline-block px-4 py-1.5 mb-4 text-[10px] font-bold tracking-[0.2em] text-orange-600 uppercase bg-orange-50 rounded-full border border-orange-100">
-                Future Outlook
-              </span>
-              <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-[1.15]">
-                Empowering Minds, <br />
-                <span className="text-orange-600">Enriching Lives.</span>
-              </h3>
-              <p className="text-lg text-slate-600 max-w-xl leading-relaxed">
-                Our vision is to bridge traditional education with 21st-century needs through holistic development, creating a launchpad for the next generation of global thinkers.
-              </p>
-            </div>
+    {/* Vision Section */}
+<section className="py-12 sm:py-24 px-4 sm:px-6 max-w-7xl mx-auto overflow-hidden">
+  <div className="grid lg:grid-cols-2 gap-10 sm:gap-16 items-center">
+    
+    {/* Left Side: Content & Feature Grid */}
+    <div className="order-2 lg:order-1 text-center lg:text-left">
+      <div className="mb-8 sm:mb-10">
+        <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 mb-4 text-[9px] sm:text-[10px] font-black tracking-[0.2em] text-orange-600 uppercase bg-orange-50 rounded-full border border-orange-100">
+          Future Outlook
+        </span>
+        <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4 sm:mb-6 leading-[1.1]">
+          Empowering Minds, <br />
+          <span className="text-orange-600">Enriching Lives.</span>
+        </h3>
+        <p className="text-sm sm:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+          Our vision is to bridge traditional education with 21st-century needs through holistic development.
+        </p>
+      </div>
 
-            {/* Expanded Vision Items */}
-            <div className="grid gap-4 sm:grid-cols-1">
-              {[
-                { 
-                  title: "Elite Faculty", 
-                  icon: <Target size={20} />, 
-                  desc: "Mentors from world-class institutions and industry giants.",
-                  color: "orange"
-                },
-                { 
-                  title: "Holistic Growth", 
-                  icon: <Zap size={20} />, 
-                  desc: "Focusing on emotional intelligence alongside academic mastery.",
-                  color: "amber"
-                },
-                { 
-                  title: "Modern Infrastructure", 
-                  icon: <Globe size={20} />, 
-                  desc: "Smart classrooms and labs designed for collaborative research.",
-                  color: "orange"
-                }
-              ].map((item, i) => (
-                <div 
-                  key={i} 
-                  className="group flex gap-5 p-6 rounded-[2rem] bg-slate-50 border border-transparent transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-orange-900/5 hover:border-slate-100"
-                >
-                  <div className={`flex-shrink-0 w-12 h-12 rounded-2xl ${i % 2 === 0 ? 'bg-orange-600' : 'bg-amber-600'} text-white flex items-center justify-center shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
-                    {item.icon}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-lg mb-1">{item.title}</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
+      {/* Expanded Vision Items - Optimized Padding */}
+      <div className="grid gap-3 sm:gap-4 text-left">
+        {[
+          { title: "Elite Faculty", icon: <Target size={18} />, desc: "Mentors from world-class institutions.", color: "orange" },
+          { title: "Holistic Growth", icon: <Zap size={18} />, desc: "Emotional intelligence and academic mastery.", color: "amber" },
+          { title: "Infrastructure", icon: <Globe size={18} />, desc: "Smart classrooms and collaborative labs.", color: "orange" }
+        ].map((item, i) => (
+          <div key={i} className="group flex gap-4 p-4 sm:p-6 rounded-2xl bg-slate-50 border border-transparent transition-all hover:bg-white hover:shadow-xl hover:shadow-orange-900/5 hover:border-slate-100">
+            <div className={`shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${i % 2 === 0 ? 'bg-orange-600' : 'bg-amber-600'} text-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110`}>
+              {item.icon}
+            </div>
+            <div>
+              <h4 className="font-black text-slate-900 text-sm sm:text-lg mb-0.5">{item.title}</h4>
+              <p className="text-slate-500 text-xs sm:text-sm leading-tight sm:leading-relaxed">{item.desc}</p>
             </div>
           </div>
+        ))}
+      </div>
+    </div>
 
-          {/* Right Side: Image with Dynamic Zoom & Floating Elements */}
-          <div className="relative order-1 lg:order-2 group">
-            {/* Decorative Gradient Glow */}
-            <div className="absolute -inset-10 bg-gradient-to-tr from-orange-100 to-amber-100 rounded-full opacity-40 blur-3xl group-hover:opacity-60 transition-opacity duration-700 -z-10"></div>
-            
-            {/* Image Container with Zoom */}
-            <div className="relative overflow-hidden rounded-[2.5rem] shadow-2xl bg-white p-3">
-              <div className="overflow-hidden rounded-[1.8rem]">
-                <img 
-                  src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=1000" 
-                  className="w-full aspect-square object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110" 
-                  alt="Innovative Learning"
-                />
-              </div>
+    {/* Right Side: Image Container */}
+    <div className="relative order-1 lg:order-2 group px-2 sm:px-0">
+      <div className="absolute -inset-6 bg-gradient-to-tr from-orange-100 to-amber-100 rounded-full opacity-40 blur-3xl -z-10"></div>
+      
+      <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl bg-white p-2 sm:p-3">
+        <div className="overflow-hidden rounded-[1.6rem] sm:rounded-[1.8rem]">
+          <img 
+            src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=1000" 
+            className="w-full aspect-square object-cover transition-transform duration-[1.5s] group-hover:scale-110" 
+            alt="Innovative Learning"
+          />
+        </div>
 
-              {/* Floating Stat Card (Bottom Left) */}
-              <div className="absolute bottom-10 left-10 bg-white/90 backdrop-blur-md p-5 rounded-2xl shadow-xl border border-white/20 transform -rotate-3 group-hover:rotate-0 transition-all duration-500">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-10 bg-amber-600 rounded-full"></div>
-                  <div>
-                    <div className="text-2xl font-black text-slate-900 leading-none">{new Date().getFullYear()} </div>
-                    <div className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mt-1">Vision Target</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Badge (Top Right) */}
-              <div className="absolute top-10 right-10 w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center p-1 transform group-hover:scale-110 transition-transform duration-500">
-                <div className="w-full h-full rounded-full border-2 border-dashed border-amber-200 animate-spin-slow absolute"></div>
-                <Sparkles className="text-amber-600 w-6 h-6" />
-              </div>
+        {/* Scaled Stat Card for Mobile */}
+        <div className="absolute bottom-6 left-6 sm:bottom-10 sm:left-10 bg-white/95 backdrop-blur-md p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-xl border border-white/20 -rotate-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-1.5 h-8 sm:h-10 bg-amber-600 rounded-full"></div>
+            <div>
+              <div className="text-lg sm:text-2xl font-black text-slate-900 leading-none">2026</div>
+              <div className="text-[8px] sm:text-[10px] uppercase font-black text-slate-500 tracking-widest mt-1">Vision Target</div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
+</section>
 
-      {/* Mission Section */}
-      <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-[2.5rem] p-8 md:p-16 overflow-hidden">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            
-            {/* 1. Image Side: Modernized with Zoom and Floating Effects */}
-            <div className="relative group">
-              {/* Decorative background shape */}
-              <div className="absolute -inset-4 bg-orange-100/50 rounded-[3rem] -rotate-2 group-hover:rotate-1 transition-transform duration-500 -z-10"></div>
-              
-              {/* Image Container with Zoom */}
-              <div className="relative overflow-hidden rounded-[2rem] shadow-2xl aspect-square sm:aspect-video lg:aspect-square">
-                <img 
-                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1000" 
-                  className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
-                  alt="Students collaborating"
-                />
-                {/* Subtle Glassmorphism Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-            </div>
-
-            {/* 2. Content Side: Modernized Text and New Items */}
-            <div className="flex flex-col">
-              <h2 className="text-orange-600 font-bold uppercase text-xs tracking-[0.2em] mb-4 bg-orange-50 w-fit px-3 py-1 rounded-full">
-                Our Mission
-              </h2>
-              <h3 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-                Fostering Excellence <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">
-                  Through Innovation.
-                </span>
-              </h3>
-              <p className="text-slate-600 text-lg mb-10 leading-relaxed">
-                We provide a supportive environment where students solve real-world problems and lead with integrity in an ever-changing landscape.
-              </p>
-
-              {/* Dynamic Item List */}
-              <div className="grid gap-4">
-                {/* Item 1 */}
-                <div className="group flex gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-orange-900/5 border border-transparent hover:border-slate-100">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300">
-                    <Globe size={22} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-lg">Global Perspective</h4>
-                    <p className="text-slate-500 text-sm">Preparing students for a connected, borderless future.</p>
-                  </div>
-                </div>
-
-                {/* Item 2 - New Added Item */}
-                <div className="group flex gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-orange-900/5 border border-transparent hover:border-slate-100">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300">
-                    <Zap size={22} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-lg">Agile Learning</h4>
-                    <p className="text-slate-500 text-sm">Adapting quickly to new technologies and methodologies.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+{/* Mission Section */}
+<section className="py-12 sm:py-20 px-3 sm:px-8 max-w-7xl mx-auto">
+  <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-16 overflow-hidden">
+    <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+      
+      <div className="relative group px-2">
+        <div className="absolute -inset-2 bg-orange-100/50 rounded-[2.5rem] -rotate-1 -z-10"></div>
+        <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl aspect-square sm:aspect-video lg:aspect-square">
+          <img 
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1000" 
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+            alt="Students collaborating"
+          />
         </div>
-      </section>
+      </div>
+
+      <div className="flex flex-col text-center lg:text-left items-center lg:items-start">
+        <h2 className="text-orange-600 font-black uppercase text-[9px] sm:text-xs tracking-[0.2em] mb-4 bg-white/80 border border-orange-100 w-fit px-3 py-1 rounded-full shadow-sm">
+          Our Mission
+        </h2>
+        <h3 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4 sm:mb-6 leading-[1.2]">
+          Fostering Excellence <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">Through Innovation.</span>
+        </h3>
+        <p className="text-slate-600 text-sm sm:text-lg mb-8 sm:mb-10 leading-relaxed font-medium">
+          We provide a supportive environment where students lead with integrity.
+        </p>
+
+        <div className="grid gap-3 w-full text-left">
+          {[
+            { title: "Global Perspective", icon: <Globe size={20} />, text: "Preparing for a borderless future." },
+            { title: "Agile Learning", icon: <Zap size={20} />, text: "Adapting to new technologies." }
+          ].map((item, i) => (
+            <div key={i} className="group flex gap-4 p-4 rounded-xl sm:rounded-2xl transition-all hover:bg-white hover:shadow-xl hover:shadow-orange-900/5 border border-transparent">
+              <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white text-orange-600 flex items-center justify-center shadow-sm group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                {item.icon}
+              </div>
+              <div>
+                <h4 className="font-black text-slate-900 text-sm sm:text-lg">{item.title}</h4>
+                <p className="text-slate-500 text-xs sm:text-sm">{item.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
       
 {/* Values Section */}
 <section className="py-12 sm:py-24 px-4 sm:px-6 max-w-7xl mx-auto overflow-hidden">
