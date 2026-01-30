@@ -39,54 +39,77 @@ export default function StaffProfilePage() {
   // School description - mobile shortened version
   const schoolDescription = "Marry Immculate Girls High School provides exceptional education through trained professionals dedicated to holistic student development and academic excellence.";
 
-  // Safe data transformation with defaults
-  const transformStaffData = (apiData) => {
-    if (!apiData) return null;
-    
-    // Ensure arrays exist
-    const expertise = Array.isArray(apiData.expertise) ? apiData.expertise : [];
-    const responsibilities = Array.isArray(apiData.responsibilities) ? apiData.responsibilities : [];
-    const achievements = Array.isArray(apiData.achievements) ? apiData.achievements : [];
-    
-    // Generate skills safely
-    const skills = expertise.slice(0, 4).map((skill, index) => ({
-      name: skill || `Skill ${index + 1}`,
-      level: 75 + (index * 5)
-    }));
+// In the transformStaffData function, update the image handling:
+const transformStaffData = (apiData) => {
+  if (!apiData) return null;
+  
+  // Ensure arrays exist
+  const expertise = Array.isArray(apiData.expertise) ? apiData.expertise : [];
+  const responsibilities = Array.isArray(apiData.responsibilities) ? apiData.responsibilities : [];
+  const achievements = Array.isArray(apiData.achievements) ? apiData.achievements : [];
+  
+  // Generate skills safely
+  const skills = expertise.slice(0, 4).map((skill, index) => ({
+    name: skill || `Skill ${index + 1}`,
+    level: 75 + (index * 5)
+  }));
 
-    // Fallback image with larger dimensions
-    const imageUrl = apiData.image && typeof apiData.image === 'string' 
-      ? apiData.image.startsWith('/') 
-        ? apiData.image 
-        : `/images/staff/${apiData.image}`
-      : '/male.png';
-
-    return {
-      id: apiData.id || 'unknown',
-      name: apiData.name || 'Professional Educator',
-      position: apiData.position || 'Dedicated Teacher',
-      department: apiData.department || 'Academic Department',
-      email: apiData.email || '',
-      phone: apiData.phone || '',
-      image: imageUrl,
-      bio: apiData.bio || `A committed educator at Marry Immculate Girls High School with a passion for student success and educational excellence.`,
-      expertise: expertise,
-      responsibilities: responsibilities,
-      achievements: achievements,
-      quote: apiData.quote || 'Education is the most powerful weapon which you can use to change the world.',
-      joinDate: apiData.createdAt 
-        ? new Date(apiData.createdAt).getFullYear().toString() 
-        : '2020',
-      officeHours: 'Monday - Friday: 8:00 AM - 4:00 PM',
-      location: apiData.department ? `${apiData.department} Department` : 'Main Academic Building',
-      skills: skills.length > 0 ? skills : [
-        { name: 'Pedagogy', level: 92 },
-        { name: 'Curriculum', level: 85 },
-        { name: 'Mentorship', level: 88 },
-        { name: 'Tech Skills', level: 80 }
-      ]
-    };
+  // FIXED: Proper image URL handling
+  const getImageUrl = (imagePath) => {
+    if (!imagePath || typeof imagePath !== 'string') {
+      return '/male.png'; // Default fallback
+    }
+    
+    // Handle Cloudinary URLs
+    if (imagePath.includes('cloudinary.com')) {
+      return imagePath;
+    }
+    
+    // Handle local paths that already start with /
+    if (imagePath.startsWith('/')) {
+      return imagePath;
+    }
+    
+    // Handle external URLs
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    
+    // Handle base64 images
+    if (imagePath.startsWith('data:image')) {
+      return imagePath;
+    }
+    
+    // If it's just a filename, return as is (Next.js will handle it from public folder)
+    return imagePath;
   };
+
+  return {
+    id: apiData.id || 'unknown',
+    name: apiData.name || 'Professional Educator',
+    position: apiData.position || 'Dedicated Teacher',
+    department: apiData.department || 'Academic Department',
+    email: apiData.email || '',
+    phone: apiData.phone || '',
+    image: getImageUrl(apiData.image), // Use the helper function
+    bio: apiData.bio || `A committed educator at Marry Immculate Girls High School with a passion for student success and educational excellence.`,
+    expertise: expertise,
+    responsibilities: responsibilities,
+    achievements: achievements,
+    quote: apiData.quote || 'Education is the most powerful weapon which you can use to change the world.',
+    joinDate: apiData.createdAt 
+      ? new Date(apiData.createdAt).getFullYear().toString() 
+      : '2020',
+    officeHours: 'Monday - Friday: 8:00 AM - 4:00 PM',
+    location: apiData.department ? `${apiData.department} Department` : 'Main Academic Building',
+    skills: skills.length > 0 ? skills : [
+      { name: 'Pedagogy', level: 92 },
+      { name: 'Curriculum', level: 85 },
+      { name: 'Mentorship', level: 88 },
+      { name: 'Tech Skills', level: 80 }
+    ]
+  };
+};
 
   useEffect(() => {
     const fetchStaffData = async () => {
@@ -395,19 +418,29 @@ export default function StaffProfilePage() {
               <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
                 {/* Mobile Profile Image */}
                 <div className="relative">
-                  <div className="relative w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 xl:w-56 xl:h-56 rounded-lg sm:rounded-xl lg:rounded-2xl overflow-hidden border-3 sm:border-4 border-white/30 sm:border-white/40 shadow-md sm:shadow-2xl">
-                    <Image
-                      src={staff.image}
-                      alt={`Professional portrait of ${staff.name} - ${staff.position} at Marry Immculate Girls High School`}
-                      fill
-                      className="object-cover"
-                      priority
-                      sizes="(max-width: 640px) 80px, (max-width: 1024px) 112px, 160px, 224px"
-                      onError={(e) => {
-                        e.target.src = '/male.png';
-                      }}
-                    />
-                  </div>
+<div className="relative w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 xl:w-56 xl:h-56 rounded-lg sm:rounded-xl lg:rounded-2xl overflow-hidden border-3 sm:border-4 border-white/30 sm:border-white/40 shadow-md sm:shadow-2xl">
+  {staff.image && staff.image.startsWith('http') ? (
+    <img
+      src={staff.image}
+      alt={`Professional portrait of ${staff.name} - ${staff.position} at Marry Immculate Girls High School`}
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = '/male.png';
+      }}
+    />
+  ) : (
+    // For local images, use Next.js Image component
+    <Image
+      src={staff.image || '/male.png'}
+      alt={`Professional portrait of ${staff.name} - ${staff.position} at Marry Immculate Girls High School`}
+      fill
+      className="object-cover"
+      priority
+      sizes="(max-width: 640px) 80px, (max-width: 1024px) 112px, 160px, 224px"
+    />
+  )}
+</div>
                   {/* Status Badge - Smaller on mobile */}
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-emerald-400 sm:bg-gradient-to-br sm:from-emerald-500 sm:to-emerald-600 rounded-full border-2 sm:border-3 border-white shadow">
                     <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full m-auto mt-1 sm:mt-1.5"></div>
