@@ -338,7 +338,7 @@ Mary Immaculate Girls
         {/* Main Grid - Mobile: Stack, Desktop: Side-by-side */}
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 items-start">
 {/* Featured Hero Card (Principal by default) */}
-<div className="lg:col-span-8 w-[80%] mx-auto flex flex-col bg-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-lg sm:shadow-xl border border-slate-100 overflow-hidden min-h-[400px] sm:min-h-[550px] md:min-h-[500px] lg:min-h-[620px]">
+<div className="lg:col-span-8 w-[90%] mx-auto flex flex-col bg-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-lg sm:shadow-xl border border-slate-100 overflow-hidden min-h-[400px] sm:min-h-[550px] md:min-h-[500px] lg:min-h-[620px]">
   
   {/* Header with Back Button (when viewing other staff) */}
   {viewMode === 'other' && (
@@ -354,7 +354,7 @@ Mary Immaculate Girls
   )}
 
   {/* Image Section - 80% height */}
-  <div className="relative h-[80vh] overflow-hidden">
+  <div className="relative h-[70vh] overflow-hidden">
     <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent z-10"></div>
     
     {featuredStaff.image ? (
