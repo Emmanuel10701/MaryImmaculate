@@ -834,7 +834,7 @@ const isSubmitDisabled =
   !formData.subject || 
   !formData.className || 
   !formData.teacher ||
-  (files.length === 0 && existingFiles.length === filesToRemove.length && !resource) ||
+  (files.length === 0 && existingFiles.length === 0 && !resource) ||
   totalSizeMB > 4.5 ||
   fileSizeError;
 
