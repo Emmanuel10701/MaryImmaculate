@@ -4336,7 +4336,7 @@ return (
   duplicates={duplicates}
   onProceed={proceedWithUpload}
   loading={uploading}
-  uploadType={uploadStrategy?.uploadMode} // Make sure this is uploadType
+  uploadType={uploadStrategy?.uploadMode} 
   showNotification={showNotification}
   term={uploadStrategy?.term}
   academicYear={uploadStrategy?.academicYear}

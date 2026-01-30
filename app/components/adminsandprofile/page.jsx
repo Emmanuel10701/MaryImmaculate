@@ -215,69 +215,68 @@ export default function AdminManager() {
     checkAuth();
   }, [router]);
 
-  // Fetch admins from API
-  const fetchAdmins = async (showRefresh = false) => {
-    if (status !== 'authenticated') {
-      console.log('❌ Cannot fetch admins: Not authenticated');
-      return;
+const fetchAdmins = async (showRefresh = false) => {
+  if (status !== 'authenticated') {
+    console.log('❌ Cannot fetch admins: Not authenticated');
+    return;
+  }
+  
+  try {
+    console.log('📥 Fetching admins from API...');
+    if (showRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
     }
+
+    const token = localStorage.getItem('admin_token');
     
-    try {
-      console.log('📥 Fetching admins...');
-      if (showRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
+    // Fetch from your API endpoint
+    const response = await fetch('/api/register', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
+    });
 
-      // Check localStorage first for admin list
-      const storedAdmins = localStorage.getItem('adminList');
-      if (storedAdmins) {
-        console.log('📁 Found admins in localStorage');
-        const adminsData = JSON.parse(storedAdmins);
-        setAdmins(adminsData);
-        setFilteredAdmins(adminsData);
-      } else {
-        console.log('📝 Creating initial admin list from current user');
-        // Create initial list from current user
-        if (session?.user) {
-          const initialAdmins = [{
-            ...session.user,
-            id: session.user.id || 'current-user',
-            phone: session.user.phone || '+254700000000',
-            role: session.user.role || 'ADMIN',
-            status: 'active',
-            permissions: {
-              manageUsers: true,
-              manageContent: true,
-              manageSettings: true,
-              viewReports: true
-            },
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }];
-          setAdmins(initialAdmins);
-          setFilteredAdmins(initialAdmins);
-          localStorage.setItem('adminList', JSON.stringify(initialAdmins));
-          console.log('✅ Initial admin list created:', initialAdmins);
-        } else {
-          console.log('⚠️ No session user found');
-          setAdmins([]);
-          setFilteredAdmins([]);
-        }
-      }
-
-      if (showRefresh) {
-        toast.success('Admins refreshed successfully!');
-      }
-    } catch (error) {
-      console.error('❌ Error fetching admins:', error);
-      toast.error('Failed to load admins');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    const data = await response.json();
+    
+    if (data.success) {
+      // Map the data to match your expected format
+      const adminsData = (data.users || []).map(user => ({
+        ...user,
+        permissions: {
+          manageUsers: user.role === 'ADMIN' || user.role === 'SUPER_ADMIN',
+          manageContent: true,
+          manageSettings: user.role === 'SUPER_ADMIN',
+          viewReports: true
+        },
+        status: 'active' // You'll need to add status field to your User model
+      }));
+      
+      setAdmins(adminsData);
+      setFilteredAdmins(adminsData);
+      console.log('✅ Admins fetched successfully:', adminsData.length);
+    } else {
+      throw new Error(data.error || 'Failed to fetch admins');
+    }
+
+    if (showRefresh) {
+      toast.success('Admins refreshed successfully!');
+    }
+  } catch (error) {
+    console.error('❌ Error fetching admins:', error);
+    toast.error('Failed to load admins');
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+  }
+};
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -373,24 +372,43 @@ export default function AdminManager() {
     setAdminToDelete(admin);
     setShowDeleteConfirm(true);
   };
-
-  const confirmDelete = async () => {
-    if (!adminToDelete) return;
+const confirmDelete = async () => {
+  if (!adminToDelete) return;
+  
+  try {
+    const token = localStorage.getItem('admin_token');
     
-    try {
+    const response = await fetch(`/api/register/${adminToDelete.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to delete admin');
+    }
+
+    if (data.success) {
+      // Remove from local state
       const updatedAdmins = admins.filter(admin => admin.id !== adminToDelete.id);
       setAdmins(updatedAdmins);
-      localStorage.setItem('adminList', JSON.stringify(updatedAdmins));
       
       toast.success('Admin deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting admin:', error);
-      toast.error('Failed to delete admin');
-    } finally {
-      setShowDeleteConfirm(false);
-      setAdminToDelete(null);
+    } else {
+      throw new Error(data.error || 'Failed to delete admin');
     }
-  };
+  } catch (error) {
+    console.error('Error deleting admin:', error);
+    toast.error('Failed to delete admin');
+  } finally {
+    setShowDeleteConfirm(false);
+    setAdminToDelete(null);
+  }
+};
 
   const cancelDelete = () => {
     setShowDeleteConfirm(false);
@@ -436,91 +454,57 @@ export default function AdminManager() {
     setShowAdminModal(true);
   };
 
-  const handleSaveAdmin = async (e) => {
-    e.preventDefault();
-    setSavingAdmin(true);
+const handleSaveAdmin = async (e) => {
+  e.preventDefault();
+  setSavingAdmin(true);
 
-    try {
-      const token = localStorage.getItem('admin_token'); // Use correct key
-      const adminPayload = {
-        name: adminData.name,
-        email: adminData.email,
-        phone: adminData.phone,
-        role: adminData.role,
-        permissions: adminData.permissions,
-        status: adminData.status
-      };
+  try {
+    const token = localStorage.getItem('admin_token');
+    
+    const adminPayload = {
+      name: adminData.name,
+      email: adminData.email,
+      phone: adminData.phone,
+      role: adminData.role,
+      // Note: You'll need to add permissions and status to your User model
+      // or handle them separately
+      status: adminData.status
+    };
 
-      if (adminData.password) {
-        adminPayload.password = adminData.password;
-      }
+    if (adminData.password) {
+      adminPayload.password = adminData.password;
+    }
 
-      let response;
-      if (editingAdmin) {
-        const updatedAdmins = admins.map(admin => 
-          admin.id === editingAdmin.id 
-            ? { 
-                ...admin, 
-                ...adminPayload, 
-                updatedAt: new Date().toISOString(),
-                id: admin.id
-              }
-            : admin
-        );
-        setAdmins(updatedAdmins);
-        localStorage.setItem('adminList', JSON.stringify(updatedAdmins));
-        toast.success('Admin updated successfully!');
-      } else {
-        // For demo purposes, we'll simulate API call
-        // In production, uncomment the actual API call
-        /*
-        response = await fetch('/api/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(adminPayload),
-        });
+    let url = '/api/register';
+    let method = 'POST';
+    
+    if (editingAdmin) {
+      // Use the update endpoint for existing users
+      url = `/api/register/${editingAdmin.id}`;
+      method = 'PUT';
+    }
 
-        const data = await response.json();
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(adminPayload),
+    });
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to create admin');
-        }
+    const data = await response.json();
 
-        if (data.success) {
-          const newAdmin = {
-            ...data.user,
-            phone: adminData.phone,
-            role: adminData.role,
-            permissions: adminData.permissions,
-            status: adminData.status,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
-          const updatedAdmins = [...admins, newAdmin];
-          setAdmins(updatedAdmins);
-          localStorage.setItem('adminList', JSON.stringify(updatedAdmins));
-          toast.success('Admin created successfully!');
-        } else {
-          throw new Error(data.error || 'Failed to create admin');
-        }
-        */
-        
-        // Demo implementation
-        const newAdmin = {
-          id: `admin-${Date.now()}`,
-          ...adminPayload,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        const updatedAdmins = [...admins, newAdmin];
-        setAdmins(updatedAdmins);
-        localStorage.setItem('adminList', JSON.stringify(updatedAdmins));
-        toast.success('Admin created successfully!');
-      }
+    if (!response.ok) {
+      throw new Error(data.error || `Failed to ${editingAdmin ? 'update' : 'create'} admin`);
+    }
 
+    if (data.success) {
+      toast.success(`Admin ${editingAdmin ? 'updated' : 'created'} successfully!`);
+      
+      // Refresh the admin list
+      await fetchAdmins();
+      
       setShowAdminModal(false);
       setAdminData({
         name: '',
@@ -536,14 +520,17 @@ export default function AdminManager() {
         },
         status: 'active'
       });
-      
-    } catch (error) {
-      console.error('Error saving admin:', error);
-      toast.error(error.message);
-    } finally {
-      setSavingAdmin(false);
+    } else {
+      throw new Error(data.error || `Failed to ${editingAdmin ? 'update' : 'create'} admin`);
     }
-  };
+    
+  } catch (error) {
+    console.error('Error saving admin:', error);
+    toast.error(error.message);
+  } finally {
+    setSavingAdmin(false);
+  }
+};
 
   // Update permission
   const updatePermission = (permission, value) => {
