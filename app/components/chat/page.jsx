@@ -84,8 +84,8 @@ Quick Facts:
 • Staff: 50+
 
 School Type:
-• Public County School
-• Mixed (Boys & Girls) - Day & Boarding
+• Private  School
+• Girl's Boarding
 • Competency-Based Curriculum (CBE)
 
 Contact:
@@ -148,7 +148,6 @@ Steps:
     content: `💰 FEES STRUCTURE
 
 **School Fees (Per Term):**
-• Day School: KES 12,000 - 15,000
 • Boarding School: KES 25,000 - 30,000
 • Activities: KES 2,000 - 3,000
 
@@ -210,7 +209,7 @@ Steps:
 
 **Quality holistic education for all students!**`,
     links: [
-      { label: 'Academics', path: '/pages/academics', icon: 'book' },
+      { label: 'Academics', path: '/pages/admissions', icon: 'book' },
       { label: 'Guidance & Counselling', path: '/pages/Guidance-and-Councelling', icon: 'users' }
     ]
   },
@@ -425,16 +424,7 @@ ${schoolData.admissionRequirements || '• KCPE: 250+ Marks\n• Age: 13-16 year
       name: "Fees",
       icon: 'dollar',
       content: `💰 FEE STRUCTURE
-
-**Day School Fees (Per Term):** ${schoolData.feesDay ? `KES ${schoolData.feesDay.toLocaleString()}` : 'KES 12,000 - 15,000'}
-
-${documentData?.feesDayDistributionPdf ? `**Download Day School Fee Structure:** ${documentData.feesDayPdfName || 'Day School Fees'}` : ''}
-
-${documentData?.feesDayDistributionJson ? `**Day Fee Distribution:**
-${formatFeeDistribution(documentData.feesDayDistributionJson)}` : ''}
-
 **Boarding School Fees (Per Term):** ${schoolData.feesBoarding ? `KES ${schoolData.feesBoarding.toLocaleString()}` : 'KES 25,000 - 30,000'}
-
 ${documentData?.feesBoardingDistributionPdf ? `**Download Boarding Fee Structure:** ${documentData.feesBoardingPdfName || 'Boarding School Fees'}` : ''}
 
 ${documentData?.feesBoardingDistributionJson ? `**Boarding Fee Distribution:**
@@ -447,13 +437,6 @@ ${formatFeeDistribution(documentData.feesBoardingDistributionJson)}` : ''}
 
 **Note:** All fees are subject to review as per school policies.`,
       links: [
-        ...staticCategories.fees.links,
-        ...(documentData?.feesDayDistributionPdf ? [{ 
-          label: 'Download Day Fees', 
-          action: 'download', 
-          url: documentData.feesDayDistributionPdf,
-          icon: 'download' 
-        }] : []),
         ...(documentData?.feesBoardingDistributionPdf ? [{ 
           label: 'Download Boarding Fees', 
           action: 'download', 
