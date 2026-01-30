@@ -756,7 +756,7 @@ function getRegistrationSuccessTemplate(user) {
         <div class="footer">
           <p class="footer-title">${SCHOOL_NAME}</p>
           <p class="footer-text">${SCHOOL_LOCATION}</p>
-          <p class="footer-text">Public Mixed Day and Boarding School</p>
+          <p class="footer-text">Private Girl's Boarding School</p>
           <p class="footer-small">© ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.</p>
           <p class="footer-small">📞 ${CONTACT_PHONE} | 📧 ${CONTACT_EMAIL}</p>
         </div>
