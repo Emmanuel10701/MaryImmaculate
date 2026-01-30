@@ -43,10 +43,17 @@ const parseJsonField = (value, fieldName) => {
   if (!value || value.trim() === '') {
     return fieldName === 'subjects' || fieldName === 'departments' || fieldName === 'admissionDocumentsRequired' ? [] : null;
   }
+  
+  // Handle case where value is already an array
+  if (Array.isArray(value)) {
+    return value;
+  }
+  
   try {
     return JSON.parse(value);
   } catch (parseError) {
-    throw new Error(`Invalid JSON format in ${fieldName}: ${parseError.message}`);
+    console.warn(`Failed to parse ${fieldName}, using empty array:`, parseError);
+    return [];
   }
 };
 
@@ -281,16 +288,36 @@ const cleanSchoolResponse = (school) => {
   }
 };
 
-// Validate required fields
-const validateRequiredFields = (formData) => {
+// Validate required fields for CREATE operation
+const validateRequiredFieldsCreate = (formData) => {
   const required = [
     'name', 'studentCount', 'staffCount', 
     'openDate', 'closeDate'
   ];
   
-  const missing = required.filter(field => !formData.get(field));
+  const missing = required.filter(field => {
+    const value = formData.get(field);
+    return !value || value.trim() === '';
+  });
+  
   if (missing.length > 0) {
-    throw new Error(`Missing required fields: ${missing.join(', ')}`);
+    throw new Error(`Missing required fields for creation: ${missing.join(', ')}`);
+  }
+};
+
+// Validate required fields for UPDATE operation
+const validateRequiredFieldsUpdate = (formData) => {
+  const required = [
+    'name'
+  ];
+  
+  const missing = required.filter(field => {
+    const value = formData.get(field);
+    return !value || value.trim() === '';
+  });
+  
+  if (missing.length > 0) {
+    throw new Error(`Missing required fields for update: ${missing.join(', ')}`);
   }
 };
 
@@ -336,19 +363,30 @@ export async function GET() {
   }
 }
 
-// 🟢 CREATE School Info
+// 🟢 CREATE School Info (POST - CREATE ONLY)
 export async function POST(req) {
   try {
-    console.log("📝 POST /api/school - Creating or updating school info");
+    console.log("📝 POST /api/school - Creating school info");
     
     const formData = await req.formData();
     
-    // Check if school exists
+    // Check if school already exists
     const existing = await prisma.schoolInfo.findFirst();
     
-    // Validate required fields
+    if (existing) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "School information already exists. Use PUT to update.",
+          message: "School already exists. Use update instead."
+        },
+        { status: 409 } // Conflict
+      );
+    }
+
+    // Validate required fields for CREATE
     try {
-      validateRequiredFields(formData);
+      validateRequiredFieldsCreate(formData);
     } catch (validationError) {
       return NextResponse.json(
         { 
@@ -360,9 +398,9 @@ export async function POST(req) {
     }
 
     // Handle video upload
-    let videoUrl = existing?.videoTour || null;
-    let videoType = existing?.videoType || null;
-    let thumbnailUrl = existing?.videoThumbnail || null;
+    let videoUrl = null;
+    let videoType = null;
+    let thumbnailUrl = null;
     
     try {
       const youtubeLink = formData.get("youtubeLink");
@@ -373,8 +411,8 @@ export async function POST(req) {
         youtubeLink, 
         videoTour, 
         thumbnail, 
-        existing,
-        !!existing // isUpdateOperation
+        null, // No existing video for CREATE
+        false // Not an update operation
       );
       videoUrl = videoResult.videoUrl;
       videoType = videoResult.videoType;
@@ -411,7 +449,7 @@ export async function POST(req) {
       );
     }
 
-    // Use upsert - update if exists, create if not
+    // Create new school
     const schoolData = {
       name: formData.get("name"),
       description: formData.get("description") || null,
@@ -440,29 +478,17 @@ export async function POST(req) {
       admissionLocation: formData.get("admissionLocation") || null,
       admissionOfficeHours: formData.get("admissionOfficeHours") || null,
       admissionDocumentsRequired,
-      updatedAt: new Date(),
     };
 
-    let school;
+    const school = await prisma.schoolInfo.create({
+      data: schoolData,
+    });
     
-    if (existing) {
-      // Update existing
-      school = await prisma.schoolInfo.update({
-        where: { id: existing.id },
-        data: schoolData,
-      });
-      console.log("✅ School updated successfully:", school.name);
-    } else {
-      // Create new
-      school = await prisma.schoolInfo.create({
-        data: schoolData,
-      });
-      console.log("✅ School created successfully:", school.name);
-    }
+    console.log("✅ School created successfully:", school.name);
     
     return NextResponse.json({ 
       success: true, 
-      message: existing ? "School info updated successfully" : "School info created successfully",
+      message: "School information created successfully",
       school: cleanSchoolResponse(school)
     });
     
@@ -472,14 +498,14 @@ export async function POST(req) {
       { 
         success: false, 
         error: error.message || "Internal server error",
-        message: "Failed to save school information"
+        message: "Failed to create school information"
       }, 
       { status: 500 }
     );
   }
 }
 
-
+// 🔵 UPDATE School Info (PUT - UPDATE ONLY)
 export async function PUT(req) {
   try {
     console.log("✏️ PUT /api/school - Updating school info");
@@ -489,7 +515,8 @@ export async function PUT(req) {
       return NextResponse.json(
         { 
           success: false, 
-          message: "No school info to update." 
+          error: "No school information found to update.",
+          message: "No school info to update. Create school first."
         }, 
         { status: 404 }
       );
@@ -497,6 +524,20 @@ export async function PUT(req) {
 
     const formData = await req.formData();
     
+    // Validate required fields for UPDATE
+    try {
+      validateRequiredFieldsUpdate(formData);
+    } catch (validationError) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: validationError.message 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Handle video upload
     let videoUrl = existing.videoTour;
     let videoType = existing.videoType;
     let thumbnailUrl = existing.videoThumbnail;
@@ -516,7 +557,7 @@ export async function PUT(req) {
         videoTour, 
         thumbnail, 
         existing,
-        true
+        true // This is an update operation
       );
       
       videoUrl = videoResult.videoUrl !== undefined ? videoResult.videoUrl : existing.videoTour;
@@ -622,7 +663,7 @@ export async function PUT(req) {
     
     return NextResponse.json({ 
       success: true, 
-      message: "School info updated successfully",
+      message: "School information updated successfully",
       school: cleanSchoolResponse(updated)
     });
     
@@ -639,7 +680,7 @@ export async function PUT(req) {
   }
 }
 
-// 🔴 DELETE all info
+// 🔴 DELETE all school info
 export async function DELETE() {
   try {
     console.log("🗑️ DELETE /api/school - Deleting school info");
@@ -649,6 +690,7 @@ export async function DELETE() {
       return NextResponse.json(
         { 
           success: false, 
+          error: "No school information found to delete",
           message: "No school info to delete" 
         }, 
         { status: 404 }
@@ -671,7 +713,7 @@ export async function DELETE() {
     
     return NextResponse.json({ 
       success: true, 
-      message: "School info deleted successfully" 
+      message: "School information deleted successfully" 
     });
     
   } catch (error) {

@@ -753,9 +753,9 @@ function ModernDeleteModal({ onClose, onConfirm, loading }) {
   );
 }
 
-// School Info Modal Component
+// School Info Modal Component - DYNAMIC
 function ModernSchoolModal({ onClose, onSave, school, loading: parentLoading }) {
-  const isUpdateMode = !!school;
+  const isUpdateMode = !!school && school.id;
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState(() => ({
     name: school?.name || '',
@@ -841,39 +841,48 @@ function ModernSchoolModal({ onClose, onSave, school, loading: parentLoading }) 
         formDataObj.append('videoThumbnail', thumbnailToUpload);
       }
       
-      // Use PUT for updates, POST for creates
+      // ✅ DYNAMIC METHOD SELECTION: POST for CREATE, PUT for UPDATE
       const method = isUpdateMode ? 'PUT' : 'POST';
+      const endpoint = '/api/school';
       
       console.log(`Submitting school data with ${method} method`, {
         isUpdateMode,
+        hasSchoolId: school?.id,
         hasVideoFile: !!videoFile,
         hasThumbnail: !!videoThumbnail,
         formData: Object.fromEntries(formDataObj.entries())
       });
       
-      const response = await fetch('/api/school', {
+      const response = await fetch(endpoint, {
         method: method,
         body: formDataObj
       });
 
+      const responseData = await response.json();
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to ${isUpdateMode ? 'update' : 'save'} school information`);
+        // Handle API-specific errors
+        if (response.status === 409 && method === 'POST') {
+          throw new Error('School already exists. Please use Edit instead.');
+        }
+        if (response.status === 404 && method === 'PUT') {
+          throw new Error('School not found. Please create school first.');
+        }
+        throw new Error(responseData.error || `Failed to ${isUpdateMode ? 'update' : 'create'} school information`);
       }
 
-      const result = await response.json();
-      toast.success(result.message || (isUpdateMode ? 'School information updated successfully!' : 'School information created successfully!'));
+      toast.success(responseData.message || (isUpdateMode ? 'School updated successfully!' : 'School created successfully!'));
       
       // Call onSave with the updated/created school data
-      if (result.school) {
-        onSave(result.school);
+      if (responseData.school) {
+        onSave(responseData.school);
       }
       
       onClose();
       
     } catch (error) {
       console.error('Save failed:', error);
-      toast.error(error.message || 'Failed to save school information');
+      toast.error(error.message || `Failed to ${isUpdateMode ? 'update' : 'create'} school information`);
     } finally {
       setActionLoading(false);
     }
@@ -935,6 +944,7 @@ function ModernSchoolModal({ onClose, onSave, school, loading: parentLoading }) 
         overflow: 'hidden',
         background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
       }}>
+        {/* DYNAMIC HEADER - Green for CREATE, Blue for UPDATE */}
         <div className={`p-4 text-white ${isUpdateMode ? 'bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700' : 'bg-gradient-to-r from-green-600 via-emerald-700 to-teal-700'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -946,7 +956,7 @@ function ModernSchoolModal({ onClose, onSave, school, loading: parentLoading }) 
                   {isUpdateMode ? 'Update School Information' : 'Create School Information'}
                 </h2>
                 <p className="text-blue-100 opacity-90 text-xs mt-0.5">
-                  Step {currentStep + 1} of {steps.length}: {steps[currentStep].label}
+                  {isUpdateMode ? 'Modify existing school details' : 'Set up your school profile for the first time'}
                 </p>
               </div>
             </div>
@@ -1175,6 +1185,7 @@ function ModernSchoolModal({ onClose, onSave, school, loading: parentLoading }) 
                       onRemove={() => {
                         setVideoFile(null);
                         setVideoThumbnail(null);
+                        handleChange('youtubeLink', '');
                       }}
                       existingVideo={school?.videoTour}
                     />
@@ -1353,6 +1364,7 @@ function ModernSchoolModal({ onClose, onSave, school, loading: parentLoading }) 
                     Continue →
                   </button>
                 ) : (
+                  // ✅ DYNAMIC SUBMIT BUTTON - Changes based on mode
                   <button 
                     type="submit"
                     disabled={actionLoading || !isStepValid()}
@@ -1472,7 +1484,11 @@ export default function SchoolInfoPage() {
       const response = await fetch('/api/school');
       if (!response.ok) throw new Error('Failed to fetch school information');
       const data = await response.json();
-      setSchoolInfo(data.school || data);
+      
+      // ✅ CRITICAL: Properly handle school data - use school property from API
+      setSchoolInfo(data.school || null);
+      
+      console.log('School data loaded:', data.school ? 'Exists' : 'No school data');
     } catch (error) {
       console.error('Error loading school info:', error);
       setSchoolInfo(null);
@@ -1481,8 +1497,9 @@ export default function SchoolInfoPage() {
     }
   };
 
-  // Function to check if school info exists
+  // Function to check if school info exists - check for ID and required fields
   const hasSchoolInfo = schoolInfo && (
+    schoolInfo.id ||
     schoolInfo.name ||
     schoolInfo.description ||
     schoolInfo.studentCount ||
@@ -1491,8 +1508,12 @@ export default function SchoolInfoPage() {
 
   const handleSaveSchool = async (schoolData) => {
     try {
+      // Update local state with new school data
+      setSchoolInfo(schoolData);
+      
+      // Refresh data from server to ensure consistency
       await loadSchoolInfo();
-      setShowModal(false);
+      
       toast.success('School information saved successfully!');
     } catch (error) {
       console.error('Save failed:', error);
@@ -1503,7 +1524,10 @@ export default function SchoolInfoPage() {
   const handleDeleteSchool = async () => {
     try {
       const response = await fetch('/api/school', { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to delete');
+      }
       setSchoolInfo(null);
       setShowDeleteModal(false);
       toast.success('School information deleted successfully!');
@@ -1671,6 +1695,7 @@ export default function SchoolInfoPage() {
               </button>
             )}
             
+            {/* ✅ DYNAMIC MODAL BUTTON - "Add School Info" when none exists, "Edit School Info" when exists */}
             <button 
               onClick={() => setShowModal(true)} 
               className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-white text-blue-600 px-8 py-3 rounded-xl hover:bg-white/90 transition-all duration-200 font-bold text-sm shadow-lg active:scale-[0.98]"
@@ -1678,7 +1703,7 @@ export default function SchoolInfoPage() {
               {hasSchoolInfo ? (
                 <>
                   <FaEdit className="text-sm" />
-                  <span className="whitespace-nowrap font-bold">Edit Info</span>
+                  <span className="whitespace-nowrap font-bold">Edit School Info</span>
                 </>
               ) : (
                 <>
@@ -1713,7 +1738,7 @@ export default function SchoolInfoPage() {
                      transition-all duration-300 flex items-center justify-center gap-3 mx-auto text-base"
           >
             <FaPlus className="text-xl" /> 
-            <span>Add School Information</span>
+            <span>Create School Information</span>
           </button>
         </div>
       ) : (
@@ -2162,11 +2187,13 @@ export default function SchoolInfoPage() {
         </div>
       )}
 
+      {/* ✅ MODAL - Dynamically passes school data only when it exists */}
       {showModal && (
         <ModernSchoolModal 
           onClose={() => setShowModal(false)} 
           onSave={handleSaveSchool}
-          school={schoolInfo}
+          school={hasSchoolInfo ? schoolInfo : null} // ✅ Pass null when no school exists
+          loading={false}
         />
       )}
 
