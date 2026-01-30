@@ -358,7 +358,7 @@ const buildDynamicCategories = (schoolData, documentData) => {
       icon: 'school',
       content: `🏫 ${schoolData.name}
 
-**Motto:** ${schoolData.motto || 'Education is Light'}
+**Motto:** ${schoolData.motto || 'Prayer, Discipline and Hardwork'}
 
 **Vision:**
 ${schoolData.vision || 'To be a center of excellence in holistic education'}
@@ -754,7 +754,7 @@ export default function ChatBot() {
 
   const getWelcomeMessage = () => {
     const schoolName = schoolData?.name || 'Mary Immaculate Girls';
-    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**Education is Light** ✨';
+    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**Prayer, Discipline and Hardwork** ✨';
     const studentCount = schoolData?.studentCount || '1000+';
     const staffCount = schoolData?.staffCount || '50+';
     
@@ -763,7 +763,7 @@ export default function ChatBot() {
       role: 'assistant',
       content: `🎓 WELCOME TO ${schoolName.toUpperCase()}!${motto}
 
-Hello! I'm Katwa, your assistant.
+Hello! I'm Marry Immmaculate virtual support, your assistant.
 
 About Our School:
 • Private County School (Girls Boarding)
