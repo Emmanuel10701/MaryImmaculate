@@ -549,20 +549,20 @@ export default function ModernFooter() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 pt-4">
-                <button 
-                  onClick={() => setShowPrivacy(false)} 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium text-sm sm:text-base hover:scale-[1.00] transition-all"
-                >
-                  I Understand & Accept
-                </button>
-                <button 
-                  onClick={() => setShowPrivacy(false)} 
-                  className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium text-sm sm:text-base hover:scale-[1.00] transition-all"
-                >
-                  Close Policy
-                </button>
-              </div>
+    <div className="flex flex-row gap-3 pt-4 items-center">
+  <button 
+    onClick={() => setShowPrivacy(false)} 
+    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-blue-500/20 whitespace-nowrap"
+  >
+    Accept Terms
+  </button>
+  <button 
+    onClick={() => setShowPrivacy(false)} 
+    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-wider transition-all active:scale-95 border border-slate-200 whitespace-nowrap"
+  >
+    Close
+  </button>
+</div>
             </div>
           </div>
         </div>
