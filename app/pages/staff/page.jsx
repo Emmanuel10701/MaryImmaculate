@@ -622,7 +622,7 @@ export default function StaffDirectory() {
             
             <Link href="/" className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-bold shadow-lg">
-                MIGSS
+                MI
               </div>
               <div className="hidden sm:block">
                 <span className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-blue-600 bg-clip-text text-transparent">
