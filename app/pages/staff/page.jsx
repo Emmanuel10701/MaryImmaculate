@@ -699,11 +699,10 @@ export default function StaffDirectory() {
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           
-          {/* ENHANCED SIDEBAR FILTERS - Fixed z-index */}
-          <aside className={`
-            fixed lg:static inset-y-0 left-0 w-80 bg-white z-50 transform transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto lg:overflow-visible border-r lg:border-r-0 border-gray-200/50
-            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          `}>
+<aside className={`
+  fixed lg:static inset-y-0 left-0 w-80 bg-white z-50 transform transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto lg:overflow-visible border-r lg:border-r-0 border-gray-200/50
+  ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+`}>
             <div className="p-4 sm:p-6 lg:p-0 lg:sticky lg:top-24 space-y-4 sm:space-y-6">
               
               <div className="flex items-center justify-between lg:hidden mb-4 sm:mb-6">
