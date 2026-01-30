@@ -227,15 +227,37 @@ const Checkbox = ({ label, count, checked, onChange, color, icon }) => (
   </label>
 );
 
-const StatsPill = ({ icon, value, label, color = 'blue' }) => (
-  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-gray-200/50 shadow-sm">
-    <div className="text-lg">{icon}</div>
-    <div className="text-center">
-      <div className="text-sm font-bold text-gray-900">{value}</div>
-      <div className="text-xs text-gray-500">{label}</div>
+const StatsPill = ({ icon, value, label, color = 'blue' }) => {
+  // Modern Color Mapping
+  const colorMap = {
+    blue: 'bg-blue-50 text-blue-600 ring-blue-100',
+    emerald: 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+    amber: 'bg-amber-50 text-amber-600 ring-amber-100',
+    purple: 'bg-purple-50 text-purple-600 ring-purple-100',
+  };
+
+  const activeColor = colorMap[color] || colorMap.blue;
+
+  return (
+    <div className="flex items-center gap-3 px-3 py-2 bg-white rounded-xl border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] group hover:border-slate-300 transition-all cursor-default">
+      {/* Modern Icon Housing */}
+      <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-base ring-1 transition-transform group-hover:scale-110 ${activeColor}`}>
+        {icon}
+      </div>
+      
+      {/* Value & Label: Left-Aligned for better scanability */}
+      <div className="flex flex-col leading-tight">
+        <span className="text-[13px] font-black text-slate-900 tracking-tight">
+          {value}
+        </span>
+        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-80 group-hover:text-slate-600 transition-colors">
+          {label}
+        </span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
 
 const HierarchySection = ({ title, icon, staff, viewMode, isFirst = false }) => {
   if (!staff?.length) return null;
@@ -869,16 +891,39 @@ export default function StaffDirectory() {
                 </p>
               </div>
               
-              {/* Enhanced Sort Dropdown */}
-              <div className="relative w-full lg:w-auto">
-                <select className="appearance-none bg-white border border-gray-200/50 pl-3 sm:pl-5 pr-8 sm:pr-12 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer shadow-sm w-full">
-                  <option>Sort by Hierarchy</option>
-                  <option>Sort by Name (A-Z)</option>
-                  <option>Sort by Department</option>
-                  <option>Most Expertise</option>
-                </select>
-                <FiChevronDown className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm sm:text-lg" />
-              </div>
+            {/* MODERN SORT UI - Adaptive & Zoom-Ready */}
+<div className="relative group w-full lg:w-72">
+  {/* Icon Prefix for Context */}
+  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors z-10">
+    <FiFilter size={16} />
+  </div>
+
+  <select className="
+    appearance-none w-full
+    bg-white/80 backdrop-blur-md 
+    border border-slate-200 hover:border-blue-400 
+    pl-11 pr-12 py-3.5 sm:py-4 
+    rounded-[1.25rem] 
+    text-xs sm:text-sm font-black uppercase tracking-widest text-slate-700
+    focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600
+    shadow-xl shadow-slate-200/40
+    cursor-pointer transition-all
+  ">
+    <option value="hierarchy" className="font-sans font-semibold">Hierarchy View</option>
+    <option value="alphabetical" className="font-sans font-semibold">Alphabetical (A-Z)</option>
+    <option value="department" className="font-sans font-semibold">By Department</option>
+    <option value="expertise" className="font-sans font-semibold">Top Expertise</option>
+  </select>
+
+  {/* Custom Arrow Animation */}
+  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 pointer-events-none opacity-40 group-hover:opacity-100 transition-opacity">
+    <FiChevronUp size={12} className="text-slate-900 -mb-1" />
+    <FiChevronDown size={12} className="text-slate-900" />
+  </div>
+
+  {/* Active State Indicator Dot */}
+  <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-600 border-2 border-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+</div>
             </div>
 
             {/* Enhanced Statistics Cards */}
