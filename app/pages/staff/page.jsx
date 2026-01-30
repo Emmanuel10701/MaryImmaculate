@@ -274,92 +274,103 @@ const StaffCard = ({ staff }) => {
   const hierarchy = getStaffHierarchy(staff.position);
   
   return (
-    <div className="bg-white rounded-2xl border border-gray-200/50 overflow-hidden flex flex-col h-full relative z-10"> {/* Added z-10 */}
-      {/* Card content */}
-      <div className="relative h-48 sm:h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+    <div className="group bg-white rounded-[2rem] border border-gray-100 overflow-hidden flex flex-col h-full relative z-10 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1">
+      
+      {/* Image Header with Modern Overlay */}
+      <div className="relative h-56 sm:h-64 overflow-hidden">
         <Image
           src={getImageSrc(staff)}
           alt={staff.name}
           fill
-            className="w-full h-full object-cover object-top cursor-pointer"
+          className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          onError={(e) => {
-            e.target.src = '/images/default-staff.jpg';
-          }}
+          onError={(e) => { e.target.src = '/images/default-staff.jpg'; }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-        <div className="absolute top-3 right-3">
-          <Badge color={deptConfig?.color} icon={deptConfig?.icon}>
+        
+        {/* Glassmorphic Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
+        
+        {/* Department Badge - Floating Style */}
+        <div className="absolute top-4 right-4 backdrop-blur-md bg-white/20 border border-white/30 rounded-full px-3 py-1 shadow-xl">
+           <Badge color={deptConfig?.color} icon={deptConfig?.icon} className="font-black uppercase tracking-wider text-[10px]">
             {staff.department}
           </Badge>
         </div>
+
+        {/* Leadership Crown/Star */}
         {hierarchy === 'leadership' && (
-          <div className="absolute top-3 left-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-white text-xs sm:text-sm">⭐</span>
+          <div className="absolute top-4 left-4">
+            <div className="w-10 h-10 bg-gradient-to-tr from-amber-400 to-yellow-200 rounded-2xl rotate-12 flex items-center justify-center shadow-lg border border-white/50">
+              <span className="text-xl -rotate-12">👑</span>
             </div>
           </div>
         )}
-        <div className="absolute bottom-3 left-3 right-3">
-          <h3 className="text-lg sm:text-xl font-bold text-white mb-1 drop-shadow-lg line-clamp-1">
+
+        {/* Name & Position - High Contrast */}
+        <div className="absolute bottom-4 left-5 right-5">
+          <h3 className="text-xl sm:text-2xl font-black text-white mb-0.5 tracking-tight drop-shadow-md">
             {staff.name}
           </h3>
-          <p className="text-blue-200 font-semibold text-xs sm:text-sm line-clamp-1">{staff.position}</p>
+          <div className="flex items-center gap-2">
+            <span className="h-1 w-4 bg-blue-400 rounded-full"></span>
+            <p className="text-blue-100 font-black text-xs sm:text-sm uppercase tracking-widest opacity-90">
+              {staff.position}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Rest of the card content */}
-      <div className="p-4 sm:p-6 flex flex-col flex-1">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
-          <div className="text-center p-2 bg-blue-50 rounded-lg sm:rounded-xl">
-            <div className="text-sm font-bold text-blue-600">{extractExpertiseCount(staff)}</div>
-            <div className="text-xs text-blue-500">Skills</div>
+      {/* Content Body */}
+      <div className="p-5 sm:p-6 flex flex-col flex-1 bg-gradient-to-b from-white to-gray-50/50">
+        
+        {/* Modern Stats Grid - "Floating Card" Style */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100 group-hover:border-blue-100 transition-colors">
+            <span className="text-sm font-black text-blue-600">{extractExpertiseCount(staff)}</span>
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Skills</span>
           </div>
-          <div className="text-center p-2 bg-green-50 rounded-lg sm:rounded-xl">
-            <div className="text-sm font-bold text-green-600">{extractResponsibilitiesCount(staff)}</div>
-            <div className="text-xs text-green-500">Roles</div>
+          <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100 group-hover:border-green-100 transition-colors">
+            <span className="text-sm font-black text-green-600">{extractResponsibilitiesCount(staff)}</span>
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Roles</span>
           </div>
-          <div className="text-center p-2 bg-purple-50 rounded-lg sm:rounded-xl">
-            <div className="text-sm font-bold text-purple-600">{extractAchievementsCount(staff)}</div>
-            <div className="text-xs text-purple-500">Awards</div>
+          <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-gray-100 group-hover:border-purple-100 transition-colors">
+            <span className="text-sm font-black text-purple-600">{extractAchievementsCount(staff)}</span>
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Awards</span>
           </div>
         </div>
 
-        {/* Enhanced Expertise Tags */}
+        {/* Expertise - Pill Tags */}
         {staff.expertise && staff.expertise.length > 0 && (
-          <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
+          <div className="flex flex-wrap gap-2 mb-6">
             {staff.expertise.slice(0, 3).map((tag, idx) => (
-              <span key={idx} className="px-2 py-1 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 text-xs font-semibold rounded-lg border border-gray-200">
-                {tag}
+              <span key={idx} className="px-3 py-1 bg-white text-gray-600 text-[11px] font-black rounded-full border border-gray-200 shadow-sm transition-all hover:border-blue-400 hover:text-blue-600 cursor-default">
+                #{tag.toUpperCase()}
               </span>
             ))}
           </div>
         )}
 
-        {/* Enhanced Action Footer */}
-        <div className="mt-auto pt-3 sm:pt-4 border-t border-gray-200/50 grid grid-cols-2 gap-2 sm:gap-3">
+        {/* Action Buttons - High Definition */}
+        <div className="mt-auto pt-5 border-t border-gray-100 grid grid-cols-2 gap-4">
           {staff.email && (
             <a 
               href={`mailto:${staff.email}`}
-              className="flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 text-xs sm:text-sm font-semibold border border-blue-200"
+              className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-slate-900 text-white text-xs sm:text-sm font-black transition-all hover:bg-blue-600 active:scale-95 shadow-lg shadow-slate-200"
             >
-              <FiMail size={14} /> <span className="hidden xs:inline">Email</span>
+              <FiMail size={16} /> <span>EMAIL</span>
             </a>
           )}
-          {/* Updated profile link to [id]/[slug] format */}
           <Link
             href={`/pages/staff/${staff.id}/${generateSlug(staff.name, staff.id)}`}
-            className="flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 rounded-lg sm:rounded-xl border border-gray-300 text-gray-700 text-xs sm:text-sm font-semibold"
+            className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-white border-2 border-gray-900 text-gray-900 text-xs sm:text-sm font-black transition-all hover:bg-gray-900 hover:text-white active:scale-95"
           >
-            <span className="hidden xs:inline">Profile</span> <FiArrowRight size={12}/>
+            <span>PROFILE</span> <FiArrowRight size={14}/>
           </Link>
         </div>
       </div>
     </div>
   );
 };
-
 const StaffListCard = ({ staff }) => {
   const deptConfig = DEPARTMENTS.find(d => d.id === staff.departmentId);
   const hierarchy = getStaffHierarchy(staff.position);
@@ -700,115 +711,142 @@ export default function StaffDirectory() {
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           
 <aside className={`
-  fixed lg:static inset-y-0 left-0 w-80 bg-white  transform transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto lg:overflow-visible border-r lg:border-r-0 border-gray-200/50
+  fixed lg:static inset-y-0 left-0 z-50
+  w-[280px] sm:w-80 lg:w-full max-w-full
+  bg-white lg:bg-transparent
+  transform transition-transform duration-300 ease-in-out 
+  shadow-2xl lg:shadow-none 
+  overflow-y-auto lg:overflow-visible 
+  border-r lg:border-r-0 border-gray-200/50
   ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
 `}>
-            <div className="p-4 sm:p-6 lg:p-0 lg:sticky lg:top-24 space-y-4 sm:space-y-6">
-              
-              <div className="flex items-center justify-between lg:hidden mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">Filters</h2>
-                <button onClick={() => setIsSidebarOpen(false)} className="p-2">
-                  <FiX size={20} />
-                </button>
-              </div>
+  <div className="p-4 sm:p-6 lg:p-0 lg:sticky lg:top-24 space-y-6">
+    
+    {/* Mobile Header: High Contrast */}
+    <div className="flex items-center justify-between lg:hidden pb-4 border-b border-gray-100">
+      <h2 className="text-xl font-black text-gray-900 tracking-tight">FILTERS</h2>
+      <button 
+        onClick={() => setIsSidebarOpen(false)} 
+        className="p-2 bg-gray-100 rounded-full hover:bg-red-50 hover:text-red-600 transition-colors"
+      >
+        <FiX size={24} />
+      </button>
+    </div>
 
-              {/* Mobile Search */}
-              <div className="lg:hidden mb-4 sm:mb-6">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search staff members..."
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm sm:text-base"
-                />
-              </div>
+    {/* Mobile Search: Bold & Accessible */}
+    <div className="lg:hidden">
+      <div className="relative">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search staff members..."
+          className="w-full px-4 py-4 border-2 border-gray-100 rounded-2xl bg-gray-50 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-base font-medium"
+        />
+      </div>
+    </div>
 
-              {/* Hierarchy Filter */}
-              <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200/50 shadow-sm overflow-hidden">
-                <div className="p-3 sm:p-5 bg-gradient-to-r from-gray-50 to-gray-100/50 border-b border-gray-200/50">
-                  <h3 className="font-bold text-gray-900 flex items-center gap-2 sm:gap-3 text-base sm:text-lg">
-                    <FiUsers className="text-blue-600" /> 
-                    Staff Hierarchy
-                  </h3>
-                </div>
-                <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-                  <label className="flex items-center gap-3 cursor-pointer p-2 sm:p-3 rounded-lg sm:rounded-xl">
-                    <input 
-                      type="radio" 
-                      name="hierarchy" 
-                      className="text-blue-600 focus:ring-blue-500"
-                      checked={selectedHierarchy === 'all'}
-                      onChange={() => setSelectedHierarchy('all')}
-                    />
-                    <span className="text-sm font-medium text-gray-700">All Staff</span>
-                    <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                      {staffData.length}
-                    </span>
-                  </label>
-                  {STAFF_HIERARCHY.map((level) => (
-                    <label key={level.level} className="flex items-center gap-3 cursor-pointer p-2 sm:p-3 rounded-lg sm:rounded-xl">
-                      <input 
-                        type="radio" 
-                        name="hierarchy"
-                        className="text-blue-600 focus:ring-blue-500"
-                        checked={selectedHierarchy === level.level}
-                        onChange={() => setSelectedHierarchy(level.level)}
-                      />
-                      <span className="text-lg mr-2">{level.icon}</span>
-                      <span className="text-sm font-medium text-gray-700">{level.label}</span>
-                      <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {staffByHierarchy[level.level]?.length || 0}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+    {/* Hierarchy Filter: "Button Style" Selection */}
+    <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden">
+      <div className="p-5 bg-slate-900 border-b border-slate-800">
+        <h3 className="font-black text-white flex items-center gap-3 text-sm uppercase tracking-widest">
+          <FiUsers className="text-blue-400" /> 
+          Staff Hierarchy
+        </h3>
+      </div>
+      <div className="p-3 space-y-1">
+        {/* All Staff Option */}
+        <button
+          onClick={() => setSelectedHierarchy('all')}
+          className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${
+            selectedHierarchy === 'all' 
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+            : 'hover:bg-gray-50 text-gray-700'
+          }`}
+        >
+          <span className="text-sm font-black uppercase tracking-tight">All Staff</span>
+          <span className={`text-[10px] font-black px-2 py-1 rounded-md ${selectedHierarchy === 'all' ? 'bg-white/20' : 'bg-gray-100'}`}>
+            {staffData.length}
+          </span>
+        </button>
 
-              {/* Enhanced Departments Section */}
-              <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200/50 shadow-sm overflow-hidden">
-                <div className="p-3 sm:p-5 bg-gradient-to-r from-gray-50 to-gray-100/50 border-b border-gray-200/50 flex justify-between items-center">
-                  <h3 className="font-bold text-gray-900 flex items-center gap-2 sm:gap-3 text-base sm:text-lg">
-                    <FiBriefcase className="text-blue-600" /> 
-                    Departments
-                    <span className="text-xs sm:text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                      {DEPARTMENTS.length}
-                    </span>
-                  </h3>
-                  {selectedDepts.length > 0 && (
-                    <button 
-                      onClick={() => setSelectedDepts([])}
-                      className="text-xs sm:text-sm text-blue-600 font-semibold"
-                    >
-                      Reset
-                    </button>
-                  )}
-                </div>
-                <div className="p-3 sm:p-4 space-y-2 max-h-[300px] sm:max-h-[400px] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                  {DEPARTMENTS.map((dept) => (
-                    <Checkbox
-                      key={dept.id}
-                      label={dept.label}
-                      count={getDeptCount(dept.id)}
-                      checked={selectedDepts.includes(dept.id)}
-                      onChange={() => toggleDept(dept.id)}
-                      icon={dept.icon}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Enhanced Active Filters Summary */}
-              {(selectedDepts.length > 0 || searchQuery || selectedHierarchy !== 'all') && (
-                 <button
-                  onClick={clearAllFilters}
-                  className="w-full py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-dashed border-red-200 text-red-600 text-sm sm:text-base font-semibold flex items-center justify-center gap-2 sm:gap-3 shadow-sm"
-                 >
-                   <FiX size={16} /> Clear All Filters
-                 </button>
-              )}
-
+        {STAFF_HIERARCHY.map((level) => (
+          <button
+            key={level.level}
+            onClick={() => setSelectedHierarchy(level.level)}
+            className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${
+              selectedHierarchy === level.level 
+              ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+              : 'hover:bg-gray-50 text-gray-700'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">{level.icon}</span>
+              <span className="text-sm font-black uppercase tracking-tight">{level.label}</span>
             </div>
-          </aside>
+            <span className={`text-[10px] font-black px-2 py-1 rounded-md ${selectedHierarchy === level.level ? 'bg-white/20' : 'bg-gray-100'}`}>
+               {staffByHierarchy[level.level]?.length || 0}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Enhanced Departments Section */}
+    <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden">
+      <div className="p-5 bg-white border-b border-gray-100 flex justify-between items-center">
+        <h3 className="font-black text-gray-900 flex items-center gap-3 text-sm uppercase tracking-widest">
+          <FiBriefcase className="text-blue-600" /> 
+          Departments
+        </h3>
+        {selectedDepts.length > 0 && (
+          <button 
+            onClick={() => setSelectedDepts([])}
+            className="text-[10px] font-black text-red-500 hover:text-red-700 uppercase tracking-tighter bg-red-50 px-2 py-1 rounded-md"
+          >
+            Reset
+          </button>
+        )}
+      </div>
+      
+      {/* Scrollable container with hidden scrollbar */}
+      <div className="p-3 space-y-1 max-h-[350px] overflow-y-auto scrollbar-hide">
+        {DEPARTMENTS.map((dept) => (
+          <div 
+            key={dept.id}
+            onClick={() => toggleDept(dept.id)}
+            className={`cursor-pointer flex items-center justify-between p-3 rounded-xl border transition-all ${
+              selectedDepts.includes(dept.id)
+              ? 'border-blue-500 bg-blue-50/50'
+              : 'border-transparent hover:bg-gray-50'
+            }`}
+          >
+             <div className="flex items-center gap-3 min-w-0">
+                <span className={`p-2 rounded-lg ${selectedDepts.includes(dept.id) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                  {dept.icon}
+                </span>
+                <span className="text-sm font-bold text-gray-700 truncate">{dept.label}</span>
+             </div>
+             <span className="text-[10px] font-black text-gray-400 ml-2">
+                {getDeptCount(dept.id)}
+             </span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Clear All - Modern Floating Style */}
+    {(selectedDepts.length > 0 || searchQuery || selectedHierarchy !== 'all') && (
+       <button
+        onClick={clearAllFilters}
+        className="w-full py-4 rounded-2xl bg-white border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3"
+       >
+         <FiX size={16} /> Reset All
+       </button>
+    )}
+
+  </div>
+</aside>
 
           {/* ENHANCED MAIN CONTENT AREA */}
           <main className="flex-1 min-w-0 relative z-10"> {/* Added z-10 */}
