@@ -534,8 +534,8 @@ function getModernEmailTemplate({
         }
         
         .social-btn {
-            width: 44px;
-            height: 44px;
+            width: 88px;
+            height: 88px;
             border-radius: 12px;
             border: 2px solid #334155;
             display: flex;
@@ -546,7 +546,7 @@ function getModernEmailTemplate({
             font-size: 12px;
             text-transform: uppercase;
             transition: all 0.3s ease;
-            color: white;
+            color: black;
         }
         
         .social-btn:hover {
@@ -554,26 +554,8 @@ function getModernEmailTemplate({
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         
-        .social-btn.facebook {
-            background: #1877F2;
-            border-color: #1877F2;
-        }
-        
-        .social-btn.youtube {
-            background: #FF0000;
-            border-color: #FF0000;
-        }
-        
-        .social-btn.linkedin {
-            background: #0A66C2;
-            border-color: #0A66C2;
-        }
-        
-        .social-btn.twitter {
-            background: #000000;
-            border-color: #000000;
-        }
-        
+    
+  
         /* Sender Info */
         .sender-info {
             padding-top: 16px;
