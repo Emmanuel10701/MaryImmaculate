@@ -1190,282 +1190,111 @@ const handleSaveAdmin = async (e) => {
           </div>
         </div>
       )}
-
-{/* MODERN VIEW ADMIN MODAL */}
+{/* MODERN VIEW ADMIN MODAL - Compact & Refined */}
 {showViewModal && viewingAdmin && (
   <div 
-    className="fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center p-2 sm:p-4 z-[100]"
+    className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-3 z-[100]"
     onClick={() => setShowViewModal(false)}
   >
     <div 
-      className="bg-white rounded-3xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 animate-slide-up mx-2 sm:mx-0"
+      className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-slate-200 animate-slide-up"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Header with Gradient */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-4 sm:p-8 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/10 bg-grid-16"></div>
+      {/* Header - Reduced Padding & Font */}
+      <div className="bg-slate-900 p-5 sm:p-6 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/5 bg-grid-16 opacity-50"></div>
         <div className="relative z-10">
-          <div className="flex items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="p-2 sm:p-3 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/20">
-                <User className="text-xl sm:text-2xl" />
+          <div className="flex items-center justify-between mb-4 gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <User size={18} className="text-blue-400" />
               </div>
               <div>
-                <h2 className="text-lg sm:text-2xl font-black">Admin Profile</h2>
-                <p className="text-slate-200 opacity-90 mt-1 text-xs sm:text-sm">Complete account information and permissions</p>
+                <h2 className="text-base sm:text-lg font-black uppercase tracking-tight">Admin Profile</h2>
+                <p className="text-slate-400 text-[10px] uppercase tracking-widest font-bold">Account Intelligence</p>
               </div>
             </div>
             <button
               onClick={() => setShowViewModal(false)}
-              className="p-2 sm:p-3 hover:bg-white/10 rounded-xl sm:rounded-2xl transition-all duration-200 hover:scale-105 flex-shrink-0"
+              className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white"
             >
-              <FaX className="text-lg sm:text-xl" />
+              <FaX size={14} />
             </button>
           </div>
           
-          {/* Quick Stats Bar - Responsive */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            <div className="px-3 py-1 sm:px-4 sm:py-2 bg-white/10 rounded-full border border-white/20 text-xs sm:text-sm">
-              <span className="font-bold">ID: </span>
-              <span className="text-slate-200">{viewingAdmin.id.substring(0, 8)}...</span>
+          {/* Quick Stats Bar - Compact Labels */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="px-3 py-1 bg-white/5 rounded-lg border border-white/10 text-[10px] font-bold">
+              <span className="text-slate-500 mr-1">ID:</span>
+              <span className="text-slate-200">{viewingAdmin.id.substring(0, 8)}</span>
             </div>
-            <div className={`px-3 py-1 sm:px-4 sm:py-2 rounded-full border text-xs sm:text-sm ${
+            <div className={`px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-tighter ${
               viewingAdmin.status === 'active' 
-                ? 'bg-green-500/20 text-green-300 border-green-400/30' 
-                : 'bg-red-500/20 text-red-300 border-red-400/30'
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                : 'bg-red-500/10 text-red-400 border-red-500/20'
             }`}>
-              <span className="font-bold">Status: </span>
-              <span>{viewingAdmin.status}</span>
+              {viewingAdmin.status}
             </div>
-            <div className="px-3 py-1 sm:px-4 sm:py-2 bg-white/10 rounded-full border border-white/20 text-xs sm:text-sm">
-              <span className="font-bold">Role: </span>
-              <span>{viewingAdmin.role}</span>
+            <div className="px-3 py-1 bg-blue-500/10 rounded-lg border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-tighter">
+              {viewingAdmin.role}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Content with Scroll - Responsive Height */}
-      <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-h-[calc(95vh-250px)] sm:max-h-[calc(90vh-250px)] lg:max-h-[60vh] overflow-y-auto">
-        {/* Personal Information Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 shadow-sm">
-          <h3 className="text-base sm:text-lg font-black text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
-            <div className="p-2 bg-blue-100 rounded-xl">
-              <User className="text-blue-600" size={16} />
+      {/* Content - Scaled Down Padding & Typography */}
+      <div className="p-5 sm:p-7 space-y-5 overflow-y-auto max-h-[calc(90vh-160px)]">
+        
+        {/* Personal Info Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[
+            { label: 'Full Name', val: viewingAdmin.name, icon: <User size={12}/> },
+            { label: 'Email Address', val: viewingAdmin.email, icon: <Mail size={12}/> },
+            { label: 'Phone Number', val: viewingAdmin.phone || 'N/A', icon: <Phone size={12}/> },
+            { label: 'Member Since', val: new Date(viewingAdmin.createdAt).toLocaleDateString(), icon: <Calendar size={12}/> }
+          ].map((field, i) => (
+            <div key={i} className="space-y-1.5">
+              <div className="flex items-center gap-2 px-1">
+                <span className="text-blue-500">{field.icon}</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{field.label}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
+                <p className="text-xs font-bold text-slate-900 truncate">{field.val}</p>
+              </div>
             </div>
-            Personal Information
+          ))}
+        </div>
+
+        {/* Permissions - Compact Grid */}
+        <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+            <Shield size={14} className="text-purple-500" /> System Permissions
           </h3>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {/* Name Field */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <User className="text-gray-400" size={14} />
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Full Name</span>
+          <div className="grid grid-cols-2 gap-2">
+            {viewingAdmin.permissions && Object.entries(viewingAdmin.permissions).map(([key, value]) => (
+              <div key={key} className={`flex items-center justify-between p-2.5 rounded-lg border text-[10px] font-bold ${
+                value ? 'bg-white border-emerald-100 text-slate-700' : 'bg-slate-50/50 border-slate-100 text-slate-400 grayscale'
+              }`}>
+                <span className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                <div className={`w-1.5 h-1.5 rounded-full ${value ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300'}`} />
               </div>
-              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
-                <p className="text-base sm:text-lg font-black text-gray-900 truncate">{viewingAdmin.name}</p>
-              </div>
-            </div>
-            
-            {/* Email Field */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Mail className="text-gray-400" size={14} />
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Email Address</span>
-              </div>
-              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
-                <p className="text-base sm:text-lg font-black text-gray-900 truncate">{viewingAdmin.email}</p>
-                <p className="text-xs text-gray-500 mt-1 hidden sm:block">Primary contact email</p>
-              </div>
-            </div>
-            
-            {/* Phone Field */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Phone className="text-gray-400" size={14} />
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Phone Number</span>
-              </div>
-              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
-                <p className="text-base sm:text-lg font-black text-gray-900 truncate">{viewingAdmin.phone || 'Not provided'}</p>
-              </div>
-            </div>
-            
-            {/* Account Created */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Calendar className="text-gray-400" size={14} />
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Member Since</span>
-              </div>
-              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
-                <p className="text-base sm:text-lg font-black text-gray-900">
-                  {new Date(viewingAdmin.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {Math.floor((new Date() - new Date(viewingAdmin.createdAt)) / (1000 * 60 * 60 * 24))} days ago
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Permissions & Role Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 shadow-sm">
-          <h3 className="text-base sm:text-lg font-black text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
-            <div className="p-2 bg-purple-100 rounded-xl">
-              <Shield className="text-purple-600" size={16} />
-            </div>
-            Role & Permissions
-          </h3>
-          
-          <div className="flex flex-col sm:grid sm:grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Role & Status Section */}
-            <div className="space-y-4">
-              <div>
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Current Role</span>
-                <div className={`px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black text-center text-sm sm:text-base ${
-                  viewingAdmin.role === 'SUPER_ADMIN'
-                    ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
-                    : viewingAdmin.role === 'ADMIN'
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                    : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
-                }`}>
-                  {viewingAdmin.role.replace('_', ' ')}
-                </div>
-              </div>
-              
-              <div>
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Account Status</span>
-                <div className={`px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black text-center text-sm sm:text-base ${
-                  viewingAdmin.status === 'active'
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
-                    : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
-                }`}>
-                  {viewingAdmin.status.toUpperCase()}
-                </div>
-              </div>
-            </div>
-            
-            {/* Permissions Grid */}
-            <div>
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 block">System Permissions</span>
-              <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3">
-                {viewingAdmin.permissions && Object.entries(viewingAdmin.permissions).map(([key, value]) => (
-                  <div 
-                    key={key}
-                    className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-200 ${
-                      value 
-                        ? 'bg-green-50 border-green-200' 
-                        : 'bg-gray-50 border-gray-200 opacity-60'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1 sm:mb-2">
-                      <span className="text-xs sm:text-sm font-black text-gray-900 truncate">
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
-                      </span>
-                      <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${value ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                    </div>
-                    <p className="text-xs text-gray-600 truncate">
-                      {value ? 'Allowed' : 'Restricted'}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
+        {/* Activity Footer */}
+        <div className="flex items-center justify-between px-2 pt-2 border-t border-slate-100">
+          <div className="flex items-center gap-2">
+             <Clock size={12} className="text-slate-400" />
+             <span className="text-[9px] font-bold text-slate-400 uppercase">Last Sync: {viewingAdmin.updatedAt ? 'Just now' : 'Original'}</span>
           </div>
-        </div>
-
-        {/* Activity & Security Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 shadow-sm">
-          <h3 className="text-base sm:text-lg font-black text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
-            <div className="p-2 bg-orange-100 rounded-xl">
-              <Clock className="text-orange-600" size={16} />
-            </div>
-            Activity & Security
-          </h3>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            {/* Last Updated */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Last Updated</span>
-              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
-                <p className="font-black text-gray-900 text-sm sm:text-base">
-                  {viewingAdmin.updatedAt 
-                    ? new Date(viewingAdmin.updatedAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })
-                    : 'Never'
-                  }
-                </p>
-              </div>
-            </div>
-            
-            {/* Account Age */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Account Age</span>
-              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
-                <p className="font-black text-gray-900 text-sm sm:text-base">
-                  {Math.floor((new Date() - new Date(viewingAdmin.createdAt)) / (1000 * 60 * 60 * 24))} days
-                </p>
-              </div>
-            </div>
-            
-            {/* Permission Level */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Permission Level</span>
-              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
-                <p className="font-black text-gray-900 text-sm sm:text-base">
-                  {Object.values(viewingAdmin.permissions || {}).filter(Boolean).length} / 4
-                </p>
-                <p className="text-xs text-gray-500">Active permissions</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer Actions - Responsive */}
-      <div className="p-4 sm:p-6 lg:p-8 border-t border-gray-200 bg-gray-50">
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <button
-            onClick={() => setShowViewModal(false)}
-            className="flex-1 bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black transition-all duration-200 hover:scale-[1.02] active:scale-95 text-xs sm:text-sm uppercase tracking-wider"
-          >
-            Close Details
-          </button>
-          <button
-            onClick={() => {
-              setShowViewModal(false);
-              handleEditAdmin(viewingAdmin);
-            }}
-            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black transition-all duration-200 shadow-lg shadow-blue-500/25 hover:scale-[1.02] active:scale-95 text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 sm:gap-3"
-          >
-            <Edit size={14} />
-            Edit Admin
-          </button>
-          {session?.user && viewingAdmin.id !== session.user.id && (
-            <button
-              onClick={() => {
-                setShowViewModal(false);
-                handleDelete(viewingAdmin);
-              }}
-              className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black transition-all duration-200 shadow-lg shadow-red-500/25 hover:scale-[1.02] active:scale-95 text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 sm:gap-3"
-            >
-              <Trash2 size={14} />
-              Delete Admin
-            </button>
-          )}
+          <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded">VERIFIED ADMIN</span>
         </div>
       </div>
     </div>
   </div>
 )}
+
 
       {/* Modern Delete Confirmation Modal */}
       {showDeleteConfirm && (
