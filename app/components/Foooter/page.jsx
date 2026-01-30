@@ -36,7 +36,6 @@ import {
 } from 'react-icons/si';
 
 export default function ModernFooter() {
-  const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showSitemap, setShowSitemap] = useState(false);
   const currentYear = new Date().getFullYear();
@@ -202,138 +201,149 @@ export default function ModernFooter() {
           {/* Grid Layout - Responsive */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 w-full">
             
-            {/* Column 1: School Information */}
-            <div className="space-y-4 min-w-0">
-              <div className="flex items-start gap-3 flex-wrap md:flex-nowrap">
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-white flex-shrink-0">
-                  <img 
-                    src="/ll.png" 
-                    alt="Mary Immaculate Girls Secondary School Logo" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-base sm:text-lg lg:text-xl font-black text-white leading-snug break-words">
-                    Mary Immaculate Girls Secondary
-                  </h3>
-                  <p className="text-white text-sm font-semibold flex items-center gap-1 mt-1 flex-wrap">
-                    <FiTarget className="text-white flex-shrink-0 w-4 h-4" />
-                    <span className="break-words">Prayer, Discipline & Hardwork</span>
-                  </p>
-                </div>
-              </div>
+{/* Column 1: School Information */}
+<div className="space-y-6 min-w-0 w-full">
+  {/* Header Section: Wrapped for high zoom/small screens */}
+  <div className="flex flex-col xs:flex-row items-start gap-4">
+    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-white flex-shrink-0 shadow-sm">
+      <img 
+        src="/ll.png" 
+        alt="School Logo" 
+        className="w-full h-full object-cover"
+      />
+    </div>
+    
+    <div className="min-w-0 flex-1">
+      <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-white leading-tight break-words">
+        Mary Immaculate Girls Secondary
+      </h3>
+      <div className="text-white text-sm font-semibold flex items-center gap-2 mt-2 flex-wrap">
+        <FiTarget className="flex-shrink-0 w-4 h-4" />
+        <span className="opacity-90">Prayer, Discipline & Hardwork</span>
+      </div>
+    </div>
+  </div>
 
-              <p className="text-white text-sm sm:text-base font-medium leading-relaxed break-words">
-                A premier learning institution in Mweiga, Nyeri, dedicated to academic excellence, 
-                holistic development, and nurturing future women leaders through quality education since 1995.
-              </p>
+  {/* Description: High readability with max-width for zoom comfort */}
+  <p className="text-white text-sm sm:text-base font-medium leading-relaxed break-words max-w-prose">
+    A premier learning institution in Mweiga, Nyeri, dedicated to academic excellence, 
+    holistic development, and nurturing future women leaders through quality education since 1995.
+  </p>
 
-              <div className="space-y-3">
-                {contactInfo.slice(0, 3).map((item, index) => {
-                  const ItemIcon = item.icon;
-                  return (
-                    <a
-                      key={index}
-                      href={item.href}
-                      className="flex items-start gap-3 text-white hover:text-gray-300 transition-colors text-sm sm:text-base font-semibold group break-words"
-                    >
-                      <ItemIcon className="mt-1 flex-shrink-0 text-lg group-hover:scale-110 transition-transform" /> 
-                      <div className="min-w-0">
-                        <span className="block break-words">{item.text}</span>
-                        {item.detail && (
-                          <p className="text-sm text-gray-300 font-normal break-words">{item.detail}</p> 
-                        )}
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
+  {/* Contact List: Improved spacing for touch targets and zoom */}
+  <div className="space-y-4">
+    {contactInfo.slice(0, 3).map((item, index) => {
+      const ItemIcon = item.icon;
+      return (
+        <a
+          key={index}
+          href={item.href}
+          className="flex items-start gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group"
+        >
+          <div className="mt-1 p-1 bg-white/10 rounded-md group-hover:bg-white/20 transition-colors">
+            <ItemIcon className="flex-shrink-0 text-lg group-hover:scale-110 transition-transform" /> 
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="block break-all sm:break-words leading-tight">{item.text}</span>
+            {item.detail && (
+              <p className="text-xs sm:text-sm text-gray-300 font-normal mt-0.5 break-words">
+                {item.detail}
+              </p> 
+            )}
+          </div>
+        </a>
+      );
+    })}
+  </div>
+</div>
+{/* Column 2: Quick Links */}
+<div className="space-y-4 min-w-0 w-full">
+  <div className="flex items-center gap-2 flex-wrap">
+    <FiGlobe className="text-white text-lg sm:text-xl flex-shrink-0" />
+    <h4 className="text-base sm:text-lg lg:text-xl font-black text-white break-words">Quick Links</h4>
+  </div>
+  <div className="space-y-3">
+    {quickLinks.map((link, index) => {
+      const Icon = link.icon;
+      return (
+        <a 
+          key={index} 
+          href={link.href} 
+          className="flex items-start gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group break-words"
+        >
+          {/* Fixed width for icon ensures text always aligns even if it wraps */}
+          <Icon className="flex-shrink-0 text-lg group-hover:scale-125 transition-transform mt-0.5" />
+          <span className="min-w-0 flex-1 break-words leading-tight">{link.name}</span>
+        </a>
+      );
+    })}
+  </div>
 
-            {/* Column 2: Quick Links */}
-            <div className="space-y-4 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <FiGlobe className="text-white text-lg sm:text-xl flex-shrink-0" />
-                <h4 className="text-base sm:text-lg lg:text-xl font-black text-white break-words">Quick Links</h4>
-              </div>
-              <div className="space-y-2">
-                {quickLinks.map((link, index) => {
-                  const Icon = link.icon;
-                  return (
-                    <a 
-                      key={index} 
-                      href={link.href} 
-                      className="flex items-center gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group hover:translate-x-1 break-words"
-                    >
-                      <Icon className="flex-shrink-0 text-lg group-hover:scale-125 transition-transform" />
-                      <span className="break-words">{link.name}</span>
-                    </a>
-                  );
-                })}
-              </div>
+  {/* Achievements */}
+  <div className="mt-6 pt-6 border-t border-white/20 space-y-3">
+    <div className="flex items-center gap-2 flex-wrap">
+      <FiAward className="text-white text-lg flex-shrink-0" />
+      <h4 className="text-sm sm:text-base lg:text-lg font-black text-white break-words">Achievements</h4>
+    </div>
+    <div className="space-y-2">
+      {achievements.map((achievement, index) => (
+        <div key={index} className="flex items-start gap-3 text-white text-sm font-semibold group">
+          <FiCheckCircle className="flex-shrink-0 text-lg mt-0.5 text-green-400" />
+          <span className="min-w-0 flex-1 break-words leading-relaxed">{achievement}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
 
-              {/* Achievements */}
-              <div className="mt-6 pt-6 border-t border-gray-700 space-y-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <FiAward className="text-white text-lg flex-shrink-0" />
-                  <h4 className="text-sm sm:text-base lg:text-lg font-black text-white break-words">Achievements</h4>
-                </div>
-                {achievements.map((achievement, index) => (
-                  <div key={index} className="flex items-start gap-2 text-white text-sm font-semibold break-words">
-                    <FiCheckCircle className="flex-shrink-0 text-lg mt-0.5" />
-                    <span className="break-words">{achievement}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+{/* Column 3: Resources */}
+<div className="space-y-4 min-w-0 w-full">
+  <div className="flex items-center gap-2 flex-wrap">
+    <FiActivity className="text-white text-lg sm:text-xl flex-shrink-0" />
+    <h4 className="text-base sm:text-lg lg:text-xl font-black text-white break-words">Resources</h4>
+  </div>
+  <div className="space-y-3">
+    {resources.map((resource, index) => {
+      const Icon = resource.icon;
+      return (
+        <a
+          key={index}
+          href={resource.href}
+          className="flex items-start gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group break-words"
+        >
+          <Icon className="flex-shrink-0 text-lg group-hover:scale-125 transition-transform mt-0.5" />
+          <span className="min-w-0 flex-1 break-words leading-tight">{resource.name}</span>
+        </a>
+      );
+    })}
+  </div>
 
-            {/* Column 3: Resources */}
-            <div className="space-y-4 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <FiActivity className="text-white text-lg sm:text-xl flex-shrink-0" />
-                <h4 className="text-base sm:text-lg lg:text-xl font-black text-white break-words">Resources</h4>
-              </div>
-              <div className="space-y-2">
-                {resources.map((resource, index) => {
-                  const Icon = resource.icon;
-                  return (
-                    <a
-                      key={index}
-                      href={resource.href}
-                      className="flex items-center gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group hover:translate-x-1 break-words"
-                    >
-                      <Icon className="flex-shrink-0 text-lg group-hover:scale-125 transition-transform" />
-                      <span className="break-words">{resource.name}</span>
-                    </a>
-                  );
-                })}
-              </div>
-
-              {/* Social Media */}
-              <div className="mt-6 pt-6 border-t border-gray-700 space-y-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <FiUsers className="text-white text-lg flex-shrink-0" />
-                  <h5 className="text-sm sm:text-base lg:text-lg font-black text-white break-words">Connect With Us</h5>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {socialLinks.map((social, index) => {
-                    const SocialIcon = social.icon;
-                    return (
-                      <a
-                        key={index}
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-12 h-12 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all transform hover:scale-125 border border-white/30 flex-shrink-0"
-                        aria-label={social.label}
-                      >
-                        <SocialIcon className="text-xl text-white" />
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+  {/* Social Media */}
+  <div className="mt-6 pt-6 border-t border-white/20 space-y-3">
+    <div className="flex items-center gap-2 flex-wrap">
+      <FiUsers className="text-white text-lg flex-shrink-0" />
+      <h5 className="text-sm sm:text-base lg:text-lg font-black text-white break-words">Connect With Us</h5>
+    </div>
+    {/* Grid approach for social icons handles wrapping much better than a standard flex gap */}
+    <div className="flex flex-wrap gap-3 pt-1">
+      {socialLinks.map((social, index) => {
+        const SocialIcon = social.icon;
+        return (
+          <a
+            key={index}
+            href={social.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all border border-white/20 flex-shrink-0"
+            aria-label={social.label}
+          >
+            <SocialIcon className="text-lg sm:text-xl text-white" />
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</div>
 
             {/* Column 4: Newsletter */}
             <div className="space-y-4 min-w-0">
@@ -472,7 +482,7 @@ export default function ModernFooter() {
                 <p className="text-white text-sm sm:text-base font-semibold break-words leading-relaxed">
                   At Mary Immaculate Girls Secondary, we are committed to protecting the privacy and security 
                   of all personal information collected from students, parents, staff, and visitors in compliance 
-                  with the Data Protection Act, 2019.
+                  with the Data Protection Act.
                 </p>
               </section>
 
