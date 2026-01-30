@@ -617,23 +617,23 @@ export default function ModernFooter() {
               ))}
             </div>
 
-            <div className="mt-6 pt-6 border-t border-gray-700">
-              <div className="flex flex-col gap-3">
-                <button 
-                  onClick={() => setShowSitemap(false)} 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium text-sm sm:text-base hover:scale-[1.00] transition-all"
-                >
-                  Close Sitemap
-                </button>
-                <a
-                  href="/pages/contact"
-                  onClick={() => setShowSitemap(false)}
-                  className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium text-sm sm:text-base hover:scale-[1.00] transition-all text-center"
-                >
-                  Contact Support
-                </a>
-              </div>
-            </div>
+<div className="mt-6 pt-6 border-t border-slate-700/50">
+  <div className="flex flex-row gap-3 items-center">
+    <button 
+      onClick={() => setShowSitemap(false)} 
+      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all active:scale-95 whitespace-nowrap"
+    >
+      Close Menu
+    </button>
+    <a
+      href="/pages/contact"
+      onClick={() => setShowSitemap(false)}
+      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all active:scale-95 text-center shadow-lg shadow-blue-500/20 whitespace-nowrap"
+    >
+      Contact
+    </a>
+  </div>
+</div>
           </div>
         </div>
       )}
