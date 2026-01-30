@@ -24,6 +24,7 @@ import {
   FiBook,
   FiTarget,
   FiUsers,
+  FiChevronUp,
   FiBookOpen,
   FiRefreshCw  // Added for refresh button
 } from 'react-icons/fi';
