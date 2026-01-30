@@ -862,10 +862,11 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
     additionalWork: assignment?.additionalWork || '',
     teacherRemarks: assignment?.teacherRemarks || '',
 
-    // Add these state variables with the existing state declarations in AssignmentsManager
+
+  });
+      // Add these state variables with the existing state declarations in AssignmentsManager
 const [totalSizeMB, setTotalSizeMB] = useState(0);
 const [fileSizeError, setFileSizeError] = useState('');
-  });
 
   // Separate state for files and learning objectives
   const [assignmentFiles, setAssignmentFiles] = useState(() => {
@@ -934,18 +935,94 @@ const [fileSizeError, setFileSizeError] = useState('');
     setLearningObjectives(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleAssignmentFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const newFiles = files.map(file => ({
-      name: file.name,
-      size: `${(file.size / 1024).toFixed(1)}KB`,
-      type: file.type,
-      file: file,
-      isExisting: false
-    }));
-    setAssignmentFiles(prev => [...prev, ...newFiles]);
-    e.target.value = ''; // Reset file input
-  };
+const handleAssignmentFileChange = (e) => {
+  const selectedFiles = Array.from(e.target.files);
+  
+  if (selectedFiles.length === 0) return;
+  
+  // Calculate current total size
+  let currentTotalBytes = 0;
+  
+  // Add assignment files size
+  assignmentFiles.forEach(file => {
+    if (file.file && file.file.size) {
+      currentTotalBytes += file.file.size;
+    } else if (file.size && typeof file.size === 'number') {
+      currentTotalBytes += file.size;
+    }
+  });
+  
+  // Add attachments size
+  attachments.forEach(file => {
+    if (file.file && file.file.size) {
+      currentTotalBytes += file.file.size;
+    } else if (file.size && typeof file.size === 'number') {
+      currentTotalBytes += file.size;
+    }
+  });
+  
+  // Filter and validate new files
+  const validFiles = selectedFiles.filter(file => {
+    if (!file || !file.type) {
+      return false;
+    }
+    
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'image/jpeg',
+      'image/png',
+      'image/gif'
+    ];
+    
+    const isValidType = allowedTypes.some(type => file.type.includes(type.split('/').pop() || ''));
+    const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB per file
+    
+    return isValidType && isValidSize;
+  });
+
+  if (validFiles.length === 0) {
+    alert('Please select valid files (max 10MB each, supported formats: PDF, DOC, PPT, Images)');
+    return;
+  }
+
+  // Calculate new total size if we add these files
+  let newFilesTotalBytes = 0;
+  validFiles.forEach(file => {
+    newFilesTotalBytes += file.size;
+  });
+
+  const newTotalBytes = currentTotalBytes + newFilesTotalBytes;
+  const newTotalMB = newTotalBytes / (1024 * 1024);
+  const VERCEL_LIMIT_MB = 4.5;
+
+  // Check Vercel total size limit
+  if (newTotalMB > VERCEL_LIMIT_MB) {
+    const availableSpace = VERCEL_LIMIT_MB - (currentTotalBytes / (1024 * 1024));
+    alert(
+      `Cannot add these files. Available space: ${availableSpace.toFixed(1)}MB\n` +
+      `Total would be: ${newTotalMB.toFixed(1)}MB (Limit: ${VERCEL_LIMIT_MB}MB)`
+    );
+    e.target.value = '';
+    return;
+  }
+
+  // Create file objects
+  const newFiles = validFiles.map(file => ({
+    name: file.name,
+    size: `${(file.size / 1024).toFixed(1)}KB`,
+    type: file.type,
+    file: file,
+    isExisting: false
+  }));
+  
+  setAssignmentFiles(prev => [...prev, ...newFiles]);
+  e.target.value = ''; // Reset file input
+};
+
 
   const handleAttachmentFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -961,12 +1038,12 @@ const [fileSizeError, setFileSizeError] = useState('');
   };
 
   const removeAssignmentFile = (index) => {
-    const file = assignmentFiles[index];
-    if (file.isExisting) {
-      setAssignmentFilesToRemove(prev => [...prev, file.url]);
-    }
-    setAssignmentFiles(prev => prev.filter((_, i) => i !== index));
-  };
+  const file = assignmentFiles[index];
+  if (file.isExisting) {
+    setAssignmentFilesToRemove(prev => [...prev, file.url]);
+  }
+  setAssignmentFiles(prev => prev.filter((_, i) => i !== index));
+};
 
   const removeAttachment = (index) => {
     const file = attachments[index];
@@ -1298,17 +1375,78 @@ const [fileSizeError, setFileSizeError] = useState('');
               />
             </div>
 <div className="w-full lg:w-[75%] mx-auto flex flex-col space-y-8">
-  {/* Modernized File Upload Section */}
+  {/* Modernized File Upload Section with Size Control */}
   <section className="bg-white rounded-[32px] p-1 sm:p-2">
-    <div className="flex items-center gap-3 mb-6 px-2">
-      <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
-      <label className="text-xl font-black text-slate-800 tracking-tight">
-        Assignment Resources
-      </label>
+    <div className="flex items-center justify-between gap-3 mb-6 px-2">
+      <div className="flex items-center gap-3">
+        <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
+        <label className="text-xl font-black text-slate-800 tracking-tight">
+          Assignment Resources
+        </label>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className={`text-xs font-bold px-3 py-1.5 rounded-full ${
+          totalSizeMB > 4.5 
+            ? 'bg-gradient-to-r from-red-100 to-pink-100 text-red-700 animate-pulse' 
+            : totalSizeMB > 3.5
+            ? 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700'
+            : 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700'
+        }`}>
+          {totalSizeMB.toFixed(1)} / 4.5 MB
+        </div>
+      </div>
+    </div>
+
+    {/* Vercel Size Warning */}
+    {totalSizeMB > 4.5 && (
+      <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-100 border border-red-200 rounded-2xl">
+        <div className="flex items-start gap-3">
+          <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-red-700 text-sm font-bold">
+              Vercel Size Limit Exceeded!
+            </p>
+            <p className="text-red-600 text-xs mt-1">
+              Total file size ({totalSizeMB.toFixed(1)}MB) exceeds the 4.5MB limit. 
+              Remove files to continue.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              // Remove all files
+              setAssignmentFiles([]);
+              setAssignmentFilesToRemove([]);
+            }}
+            className="text-xs font-bold px-3 py-1.5 rounded-full bg-gradient-to-r from-red-200 to-pink-200 text-red-700 hover:from-red-300 hover:to-pink-300 transition-all"
+          >
+            Clear All
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Size Progress Bar */}
+    <div className="mb-6">
+      <div className="flex justify-between text-xs text-gray-600 mb-1">
+        <span>Storage Used</span>
+        <span className="font-bold">{totalSizeMB.toFixed(1)}MB / 4.5MB</span>
+      </div>
+      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div 
+          className={`h-full transition-all duration-300 ${
+            totalSizeMB > 4.5 
+              ? 'bg-gradient-to-r from-red-500 to-pink-500' 
+              : totalSizeMB > 3.5
+              ? 'bg-gradient-to-r from-amber-500 to-orange-500'
+              : 'bg-gradient-to-r from-green-500 to-emerald-500'
+          }`}
+          style={{ width: `${Math.min((totalSizeMB / 4.5) * 100, 100)}%` }}
+        />
+      </div>
     </div>
 
     <div className="space-y-6">
-      {/* 1. Dropzone-style Upload Button */}
+      {/* Dropzone-style Upload Button */}
       <div className="relative group">
         <input
           type="file"
@@ -1316,65 +1454,103 @@ const [fileSizeError, setFileSizeError] = useState('');
           onChange={handleAssignmentFileChange}
           className="hidden"
           id="assignment-files-input"
+          disabled={totalSizeMB > 4.5}
         />
         <div 
-          onClick={() => document.getElementById('assignment-files-input').click()}
-          className="w-full py-8 border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50/50 hover:bg-blue-50/50 hover:border-blue-400 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 group-active:scale-[0.98]"
+          onClick={() => !(totalSizeMB > 4.5) && document.getElementById('assignment-files-input').click()}
+          className={`w-full py-8 border-2 border-dashed rounded-[24px] flex flex-col items-center justify-center gap-3 transition-all cursor-pointer ${
+            totalSizeMB > 4.5
+              ? 'border-red-300 bg-red-50/30 opacity-60'
+              : 'border-slate-200 bg-slate-50/50 hover:bg-blue-50/50 hover:border-blue-400 group-active:scale-[0.98]'
+          }`}
         >
-          <div className="p-3 bg-white shadow-sm rounded-2xl group-hover:scale-110 transition-transform">
-            <FiUpload className="text-blue-600 text-2xl" />
+          <div className={`p-3 rounded-2xl transition-transform ${
+            totalSizeMB > 4.5
+              ? 'bg-red-100'
+              : 'bg-white shadow-sm group-hover:scale-110'
+          }`}>
+            <FiUpload className={`text-2xl ${
+              totalSizeMB > 4.5 ? 'text-red-600' : 'text-blue-600'
+            }`} />
           </div>
           <div className="text-center">
-            <p className="text-slate-800 font-bold text-sm sm:text-base">
-              Click to upload assignment files
+            <p className={`font-bold text-sm sm:text-base ${
+              totalSizeMB > 4.5 ? 'text-red-800' : 'text-slate-800'
+            }`}>
+              {totalSizeMB > 4.5 ? 'Storage Full' : 'Click to upload assignment files'}
             </p>
             <p className="text-slate-400 text-xs font-medium mt-1">
-              PDF, DOCX, or Images up to 10MB
+              {totalSizeMB > 4.5 
+                ? 'Remove files to free up space' 
+                : 'PDF, DOCX, or Images up to 10MB'
+              }
             </p>
           </div>
         </div>
       </div>
 
-      {/* 2. Modernized File List - Visible & Clean */}
+      {/* Modernized File List */}
       {assignmentFiles.length > 0 && (
         <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-          {assignmentFiles.map((file, index) => (
-            <div 
-              key={index} 
-              className="group flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-md hover:border-blue-100 transition-all animate-in fade-in slide-in-from-bottom-2"
-            >
-              <div className="flex items-center gap-4 min-w-0">
-                {/* File Icon with background */}
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                  <FiFileText className="text-blue-600 text-lg" />
-                </div>
-                
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-slate-700 truncate">
-                    {file.name}
-                  </p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
-                      file.isExisting ? 'bg-slate-100 text-slate-500' : 'bg-emerald-100 text-emerald-600'
-                    }`}>
-                      {file.isExisting ? 'Cloud' : 'Local'}
-                    </span>
-                    <span className="text-slate-400 text-xs font-medium">
-                      {file.isExisting ? 'Stored online' : file.size}
-                    </span>
+          {assignmentFiles.map((file, index) => {
+            const fileSizeMB = file.file?.size ? (file.file.size / (1024 * 1024)).toFixed(1) : 0;
+            
+            return (
+              <div 
+                key={index} 
+                className={`group flex items-center justify-between p-4 border rounded-2xl transition-all ${
+                  totalSizeMB > 4.5
+                    ? 'bg-red-50/50 border-red-200'
+                    : 'bg-white border-slate-100 hover:shadow-md hover:border-blue-100'
+                }`}
+              >
+                <div className="flex items-center gap-4 min-w-0">
+                  {/* File Icon */}
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    parseFloat(fileSizeMB) > 3
+                      ? 'bg-red-100 text-red-600'
+                      : parseFloat(fileSizeMB) > 1
+                      ? 'bg-amber-100 text-amber-600'
+                      : 'bg-blue-100 text-blue-600'
+                  }`}>
+                    <FiFileText className="text-lg" />
+                  </div>
+                  
+                  {/* File Info */}
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-700 truncate">
+                      {file.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                        file.isExisting 
+                          ? 'bg-slate-100 text-slate-500' 
+                          : totalSizeMB > 4.5
+                          ? 'bg-red-100 text-red-600'
+                          : 'bg-emerald-100 text-emerald-600'
+                      }`}>
+                        {file.isExisting ? 'Cloud' : 'Local'}
+                      </span>
+                      <span className={`text-xs font-medium ${
+                        totalSizeMB > 4.5 ? 'text-red-600' : 'text-slate-400'
+                      }`}>
+                        {file.isExisting ? 'Stored online' : `${fileSizeMB}MB`}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <button
-                type="button"
-                onClick={() => removeAssignmentFile(index)}
-                className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shrink-0"
-              >
-                <FiX className="text-lg" />
-              </button>
-            </div>
-          ))}
+                {/* Remove Button */}
+                <button
+                  type="button"
+                  onClick={() => removeAssignmentFile(index)}
+                  className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shrink-0"
+                >
+                  <FiX className="text-lg" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -1392,23 +1568,23 @@ const [fileSizeError, setFileSizeError] = useState('');
                 Cancel
               </button>
               
-              <button 
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3 text-white rounded-xl font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-sm"
-              >
-                {loading ? (
-                  <>
-                    <CircularProgress size={16} className="text-white" />
-                    {assignment ? 'Updating...' : 'Creating...'}
-                  </>
-                ) : (
-                  <>
-                    <FiCheck className="text-sm" />
-                    {assignment ? 'Update' : 'Create'} Assignment
-                  </>
-                )}
-              </button>
+<button 
+  type="submit"
+  disabled={loading || totalSizeMB > 4.5 || fileSizeError}
+  className="px-6 py-3 text-white rounded-xl font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-sm hover:from-indigo-700 hover:to-purple-700 transition-all"
+>
+  {loading ? (
+    <>
+      <CircularProgress size={16} className="text-white" />
+      {assignment ? 'Updating...' : 'Creating...'}
+    </>
+  ) : (
+    <>
+      <FiCheck className="text-sm" />
+      {assignment ? 'Update' : 'Create'} Assignment
+    </>
+  )}
+</button>
             </div>
           </form>
         </div>
@@ -1656,6 +1832,40 @@ export default function AssignmentsManager() {
     fetchAssignments();
   }, []);
 
+  // Calculate total size whenever files change
+useEffect(() => {
+  let totalBytes = 0;
+  
+  // Add assignment files size
+  assignmentFiles.forEach(file => {
+    if (file.file && file.file.size) {
+      totalBytes += file.file.size;
+    } else if (file.size && typeof file.size === 'number') {
+      totalBytes += file.size;
+    }
+  });
+  
+  // Add attachments size
+  attachments.forEach(file => {
+    if (file.file && file.file.size) {
+      totalBytes += file.file.size;
+    } else if (file.size && typeof file.size === 'number') {
+      totalBytes += file.size;
+    }
+  });
+  
+  const totalMB = totalBytes / (1024 * 1024);
+  setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
+  
+  // Check if exceeds Vercel's 4.5MB limit
+  if (totalMB > 4.5) {
+    setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's 4.5MB limit`);
+  } else {
+    setFileSizeError('');
+  }
+}, [assignmentFiles, attachments]);
+
+
   // Filter assignments
   useEffect(() => {
     let filtered = assignments;
@@ -1799,9 +2009,36 @@ const handleSubmit = async (formData, id, assignmentFiles = [], attachments = []
   setSaving(true);
   try {
     console.log('📤 Starting submission...');
+    
+    // Calculate total file size before submission
+    let totalBytes = 0;
+    
+    // Add new assignment files size
+    assignmentFiles.forEach(file => {
+      if (file.file && file.file.size) {
+        totalBytes += file.file.size;
+      }
+    });
+    
+    // Add new attachments size
+    attachments.forEach(file => {
+      if (file.file && file.file.size) {
+        totalBytes += file.file.size;
+      }
+    });
+    
+    const totalMB = totalBytes / (1024 * 1024);
+    const VERCEL_LIMIT_MB = 4.5;
+    
+    // Check Vercel total size limit before sending
+    if (totalMB > VERCEL_LIMIT_MB) {
+      throw new Error(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's ${VERCEL_LIMIT_MB}MB limit`);
+    }
+    
     console.log('Files info:', {
       assignmentFilesCount: assignmentFiles?.length || 0,
       attachmentsCount: attachments?.length || 0,
+      totalSizeMB: totalMB.toFixed(1),
       filesToRemoveCount: assignmentFilesToRemove?.length || 0,
       attachmentsToRemoveCount: attachmentsToRemove?.length || 0
     });
@@ -1824,10 +2061,9 @@ const handleSubmit = async (formData, id, assignmentFiles = [], attachments = []
     formDataToSend.append('additionalWork', formData.additionalWork);
     formDataToSend.append('teacherRemarks', formData.teacherRemarks);
     
-    // Handle learning objectives - MUST be JSON string
+    // Handle learning objectives
     const learningObjectivesString = JSON.stringify(learningObjectives || []);
     formDataToSend.append('learningObjectives', learningObjectivesString);
-    console.log('Learning objectives:', learningObjectivesString.substring(0, 100));
 
     // Handle assignment files for UPDATE
     if (id && assignmentFiles) {
@@ -1838,28 +2074,24 @@ const handleSubmit = async (formData, id, assignmentFiles = [], attachments = []
       
       if (existingAssignmentFiles.length > 0) {
         formDataToSend.append('existingAssignmentFiles', JSON.stringify(existingAssignmentFiles));
-        console.log('Existing assignment files:', existingAssignmentFiles.length);
       }
       
       // Add new assignment files (actual file objects)
       assignmentFiles.forEach((file) => {
         if (file.file && !file.isExisting) {
           formDataToSend.append('assignmentFiles', file.file);
-          console.log('Adding new assignment file:', file.name);
         }
       });
       
       // Add assignment files to remove
       if (assignmentFilesToRemove.length > 0) {
         formDataToSend.append('assignmentFilesToRemove', JSON.stringify(assignmentFilesToRemove));
-        console.log('Assignment files to remove:', assignmentFilesToRemove.length);
       }
     } else if (!id && assignmentFiles) {
       // For CREATE - add all assignment files
       assignmentFiles.forEach((file) => {
         if (file.file) {
           formDataToSend.append('assignmentFiles', file.file);
-          console.log('Adding new assignment file (create):', file.name);
         }
       });
     }
@@ -1873,39 +2105,26 @@ const handleSubmit = async (formData, id, assignmentFiles = [], attachments = []
       
       if (existingAttachments.length > 0) {
         formDataToSend.append('existingAttachments', JSON.stringify(existingAttachments));
-        console.log('Existing attachments:', existingAttachments.length);
       }
       
       // Add new attachments (actual file objects)
       attachments.forEach((file) => {
         if (file.file && !file.isExisting) {
           formDataToSend.append('attachments', file.file);
-          console.log('Adding new attachment:', file.name);
         }
       });
       
       // Add attachments to remove
       if (attachmentsToRemove.length > 0) {
         formDataToSend.append('attachmentsToRemove', JSON.stringify(attachmentsToRemove));
-        console.log('Attachments to remove:', attachmentsToRemove.length);
       }
     } else if (!id && attachments) {
       // For CREATE - add all attachments
       attachments.forEach((file) => {
         if (file.file) {
           formDataToSend.append('attachments', file.file);
-          console.log('Adding new attachment (create):', file.name);
         }
       });
-    }
-
-    // Log FormData contents for debugging
-    console.log('FormData entries:');
-    for (let pair of formDataToSend.entries()) {
-      console.log(pair[0] + ':', 
-        pair[1] instanceof File ? `File: ${pair[1].name} (${pair[1].size} bytes)` :
-        typeof pair[1] === 'string' ? pair[1].substring(0, 100) + '...' : pair[1]
-      );
     }
 
     let response;
@@ -1918,7 +2137,6 @@ const handleSubmit = async (formData, id, assignmentFiles = [], attachments = []
       response = await fetch(url, {
         method: 'PUT',
         body: formDataToSend,
-        // No Content-Type header for FormData
       });
     } else {
       // Create new assignment
@@ -1927,12 +2145,10 @@ const handleSubmit = async (formData, id, assignmentFiles = [], attachments = []
       response = await fetch(url, {
         method: 'POST',
         body: formDataToSend,
-        // No Content-Type header for FormData
       });
     }
 
     const result = await response.json();
-    console.log('API Response:', result);
 
     if (result.success) {
       // Refresh the list
