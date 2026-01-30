@@ -754,7 +754,7 @@ export default function ChatBot() {
 
   const getWelcomeMessage = () => {
     const schoolName = schoolData?.name || 'Mary Immaculate Girls';
-    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**Prayer, Discipline and Hardwork** ✨';
+    const motto = schoolData?.motto ? `\n\n**${schoolData.motto}** ✨` : '\n\n**Prayer Discipline and Hardwork** ✨';
     const studentCount = schoolData?.studentCount || '1000+';
     const staffCount = schoolData?.staffCount || '50+';
     
