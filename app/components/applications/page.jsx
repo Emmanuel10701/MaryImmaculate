@@ -2005,13 +2005,7 @@ const EmptyState = () => (
                 />
               </div>
             </label>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-
-  {/* Footer Actions - Synced with Bulk UI */}
+              {/* Footer Actions - Synced with Bulk UI */}
   <div className="p-6 bg-white border-t border-slate-100 flex gap-4">
     <button
       onClick={() => setShowDecisionModal(false)}
@@ -2034,6 +2028,13 @@ const EmptyState = () => (
       )}
     </button>
   </div>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+
+
 </ModernModal>
 
 {/* Bulk Decision Modal - Modern & Spacious Design */}
