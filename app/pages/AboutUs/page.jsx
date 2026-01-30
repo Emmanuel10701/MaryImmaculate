@@ -108,45 +108,45 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
         </div>
       </section>
 
-      {/* Modernized Static Stats Section */}
-      <section className="relative z-30 max-w-6xl mx-auto px-6 -mt-12 md:-mt-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {stats.map((stat, idx) => (
-            <div 
-              key={idx} 
-              className="relative bg-white rounded-[2.5rem] p-7 shadow-xl shadow-slate-900/5 border border-slate-100 flex flex-col items-start overflow-hidden"
-            >
-              {/* Subtle Background Accent (Static) */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50/50 rounded-bl-[4rem] -z-0" />
+{/* Modernized Static Stats Section */}
+<section className="relative z-30 max-w-6xl mx-auto px-4 sm:px-6 -mt-8 md:-mt-16">
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+    {stats.map((stat, idx) => (
+      <div 
+        key={idx} 
+        className="relative bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-4 sm:p-7 shadow-xl shadow-slate-900/5 border border-slate-100 flex flex-col items-start overflow-hidden transition-transform hover:-translate-y-1 duration-300"
+      >
+        {/* Subtle Background Accent - Scaled for mobile */}
+        <div className="absolute top-0 right-0 w-16 h-16 sm:w-24 sm:h-24 bg-orange-50/50 rounded-bl-[2.5rem] sm:rounded-bl-[4rem] -z-0" />
 
-              <div className="relative z-10 w-full">
-                {/* Static Icon Container */}
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl text-white flex items-center justify-center mb-6 shadow-lg shadow-orange-900/20">
-                  {React.cloneElement(stat.icon, { size: 20 })}
-                </div>
-                
-                {/* Value with tightened tracking */}
-                <div className="text-4xl font-black text-slate-900 mb-1 tracking-tighter">
-                  {stat.value}
-                </div>
-                
-                {/* Label with modern styling */}
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-[2px] bg-orange-500 rounded-full" />
-                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                    {stat.label}
-                  </div>
-                </div>
-              </div>
-
-              {/* Informative Sub-description */}
-              <p className="mt-4 text-[11px] text-slate-500 leading-relaxed relative z-10">
-                Consistently maintaining high standards of excellence across all departments.
-              </p>
+        <div className="relative z-10 w-full">
+          {/* Icon Container - Scaled for mobile */}
+          <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl sm:rounded-2xl text-white flex items-center justify-center mb-3 sm:mb-6 shadow-lg shadow-orange-900/20">
+            {React.cloneElement(stat.icon, { size: 16, className: "sm:w-[20px] sm:h-[20px]" })}
+          </div>
+          
+          {/* Value - Scaled Fluidly */}
+          <div className="text-2xl sm:text-4xl font-black text-slate-900 mb-0.5 sm:mb-1 tracking-tighter">
+            {stat.value}
+          </div>
+          
+          {/* Label - Tightened for small screens */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-3 h-[2px] sm:w-4 bg-orange-500 rounded-full" />
+            <div className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest sm:tracking-[0.2em] truncate">
+              {stat.label}
             </div>
-          ))}
+          </div>
         </div>
-      </section>
+
+        {/* Informative Sub-description - Hidden on tiny screens to maintain card height balance */}
+        <p className="hidden xs:block mt-3 sm:mt-4 text-[9px] sm:text-[11px] text-slate-500 leading-tight sm:leading-relaxed relative z-10">
+          Maintaining standards of excellence.
+        </p>
+      </div>
+    ))}
+  </div>
+</section>
 
     {/* Vision Section */}
 <section className="py-12 sm:py-24 px-4 sm:px-6 max-w-7xl mx-auto overflow-hidden">
