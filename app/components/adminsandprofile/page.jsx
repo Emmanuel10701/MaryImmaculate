@@ -1191,118 +1191,117 @@ const handleSaveAdmin = async (e) => {
         </div>
       )}
 
-
 {/* MODERN VIEW ADMIN MODAL */}
 {showViewModal && viewingAdmin && (
   <div 
-    className="fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center p-4 z-[100]"
+    className="fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center p-2 sm:p-4 z-[100]"
     onClick={() => setShowViewModal(false)}
   >
     <div 
-      className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 animate-slide-up"
+      className="bg-white rounded-3xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 animate-slide-up mx-2 sm:mx-0"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header with Gradient */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-8 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-4 sm:p-8 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/10 bg-grid-16"></div>
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                <User className="text-2xl" />
+          <div className="flex items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/20">
+                <User className="text-xl sm:text-2xl" />
               </div>
               <div>
-                <h2 className="text-2xl font-black">Admin Profile</h2>
-                <p className="text-slate-200 opacity-90 mt-1 text-sm">Complete account information and permissions</p>
+                <h2 className="text-lg sm:text-2xl font-black">Admin Profile</h2>
+                <p className="text-slate-200 opacity-90 mt-1 text-xs sm:text-sm">Complete account information and permissions</p>
               </div>
             </div>
             <button
               onClick={() => setShowViewModal(false)}
-              className="p-3 hover:bg-white/10 rounded-2xl transition-all duration-200 hover:scale-105"
+              className="p-2 sm:p-3 hover:bg-white/10 rounded-xl sm:rounded-2xl transition-all duration-200 hover:scale-105 flex-shrink-0"
             >
-              <FaX className="text-xl" />
+              <FaX className="text-lg sm:text-xl" />
             </button>
           </div>
           
-          {/* Quick Stats Bar */}
-          <div className="flex items-center gap-4">
-            <div className="px-4 py-2 bg-white/10 rounded-full border border-white/20">
-              <span className="text-sm font-bold">ID: </span>
-              <span className="text-slate-200 text-sm">{viewingAdmin.id.substring(0, 8)}...</span>
+          {/* Quick Stats Bar - Responsive */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+            <div className="px-3 py-1 sm:px-4 sm:py-2 bg-white/10 rounded-full border border-white/20 text-xs sm:text-sm">
+              <span className="font-bold">ID: </span>
+              <span className="text-slate-200">{viewingAdmin.id.substring(0, 8)}...</span>
             </div>
-            <div className={`px-4 py-2 rounded-full border ${
+            <div className={`px-3 py-1 sm:px-4 sm:py-2 rounded-full border text-xs sm:text-sm ${
               viewingAdmin.status === 'active' 
                 ? 'bg-green-500/20 text-green-300 border-green-400/30' 
                 : 'bg-red-500/20 text-red-300 border-red-400/30'
             }`}>
-              <span className="text-sm font-bold">Status: </span>
-              <span className="text-sm">{viewingAdmin.status}</span>
+              <span className="font-bold">Status: </span>
+              <span>{viewingAdmin.status}</span>
             </div>
-            <div className="px-4 py-2 bg-white/10 rounded-full border border-white/20">
-              <span className="text-sm font-bold">Role: </span>
-              <span className="text-sm">{viewingAdmin.role}</span>
+            <div className="px-3 py-1 sm:px-4 sm:py-2 bg-white/10 rounded-full border border-white/20 text-xs sm:text-sm">
+              <span className="font-bold">Role: </span>
+              <span>{viewingAdmin.role}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Content with Scroll */}
-      <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto">
+      {/* Content with Scroll - Responsive Height */}
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-h-[calc(95vh-250px)] sm:max-h-[calc(90vh-250px)] lg:max-h-[60vh] overflow-y-auto">
         {/* Personal Information Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-6 border border-gray-200 shadow-sm">
-          <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
+        <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 shadow-sm">
+          <h3 className="text-base sm:text-lg font-black text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
             <div className="p-2 bg-blue-100 rounded-xl">
-              <User className="text-blue-600" size={18} />
+              <User className="text-blue-600" size={16} />
             </div>
             Personal Information
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Name Field */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <User className="text-gray-400" size={16} />
+                <User className="text-gray-400" size={14} />
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Full Name</span>
               </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200">
-                <p className="text-lg font-black text-gray-900">{viewingAdmin.name}</p>
+              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
+                <p className="text-base sm:text-lg font-black text-gray-900 truncate">{viewingAdmin.name}</p>
               </div>
             </div>
             
             {/* Email Field */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Mail className="text-gray-400" size={16} />
+                <Mail className="text-gray-400" size={14} />
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Email Address</span>
               </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200">
-                <p className="text-lg font-black text-gray-900">{viewingAdmin.email}</p>
-                <p className="text-xs text-gray-500 mt-1">Primary contact email</p>
+              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
+                <p className="text-base sm:text-lg font-black text-gray-900 truncate">{viewingAdmin.email}</p>
+                <p className="text-xs text-gray-500 mt-1 hidden sm:block">Primary contact email</p>
               </div>
             </div>
             
             {/* Phone Field */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Phone className="text-gray-400" size={16} />
+                <Phone className="text-gray-400" size={14} />
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Phone Number</span>
               </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200">
-                <p className="text-lg font-black text-gray-900">{viewingAdmin.phone || 'Not provided'}</p>
+              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
+                <p className="text-base sm:text-lg font-black text-gray-900 truncate">{viewingAdmin.phone || 'Not provided'}</p>
               </div>
             </div>
             
             {/* Account Created */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Calendar className="text-gray-400" size={16} />
+                <Calendar className="text-gray-400" size={14} />
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Member Since</span>
               </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200">
-                <p className="text-lg font-black text-gray-900">
+              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
+                <p className="text-base sm:text-lg font-black text-gray-900">
                   {new Date(viewingAdmin.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
-                    month: 'long',
+                    month: 'short',
                     day: 'numeric'
                   })}
                 </p>
@@ -1315,20 +1314,20 @@ const handleSaveAdmin = async (e) => {
         </div>
 
         {/* Permissions & Role Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-6 border border-gray-200 shadow-sm">
-          <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
+        <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 shadow-sm">
+          <h3 className="text-base sm:text-lg font-black text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
             <div className="p-2 bg-purple-100 rounded-xl">
-              <Shield className="text-purple-600" size={18} />
+              <Shield className="text-purple-600" size={16} />
             </div>
             Role & Permissions
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Role Badge */}
+          <div className="flex flex-col sm:grid sm:grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Role & Status Section */}
             <div className="space-y-4">
               <div>
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Current Role</span>
-                <div className={`px-6 py-4 rounded-2xl font-black text-center ${
+                <div className={`px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black text-center text-sm sm:text-base ${
                   viewingAdmin.role === 'SUPER_ADMIN'
                     ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
                     : viewingAdmin.role === 'ADMIN'
@@ -1339,10 +1338,9 @@ const handleSaveAdmin = async (e) => {
                 </div>
               </div>
               
-              {/* Status Badge */}
               <div>
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Account Status</span>
-                <div className={`px-6 py-4 rounded-2xl font-black text-center ${
+                <div className={`px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black text-center text-sm sm:text-base ${
                   viewingAdmin.status === 'active'
                     ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
                     : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
@@ -1355,23 +1353,23 @@ const handleSaveAdmin = async (e) => {
             {/* Permissions Grid */}
             <div>
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 block">System Permissions</span>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3">
                 {viewingAdmin.permissions && Object.entries(viewingAdmin.permissions).map(([key, value]) => (
                   <div 
                     key={key}
-                    className={`p-4 rounded-2xl border transition-all duration-200 ${
+                    className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-200 ${
                       value 
                         ? 'bg-green-50 border-green-200' 
                         : 'bg-gray-50 border-gray-200 opacity-60'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-black text-gray-900 capitalize">
+                    <div className="flex items-center justify-between mb-1 sm:mb-2">
+                      <span className="text-xs sm:text-sm font-black text-gray-900 truncate">
                         {key.replace(/([A-Z])/g, ' $1').trim()}
                       </span>
-                      <div className={`w-3 h-3 rounded-full ${value ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                      <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${value ? 'bg-green-500' : 'bg-gray-400'}`}></div>
                     </div>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-gray-600 truncate">
                       {value ? 'Allowed' : 'Restricted'}
                     </p>
                   </div>
@@ -1382,20 +1380,20 @@ const handleSaveAdmin = async (e) => {
         </div>
 
         {/* Activity & Security Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-6 border border-gray-200 shadow-sm">
-          <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
+        <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 shadow-sm">
+          <h3 className="text-base sm:text-lg font-black text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
             <div className="p-2 bg-orange-100 rounded-xl">
-              <Clock className="text-orange-600" size={18} />
+              <Clock className="text-orange-600" size={16} />
             </div>
             Activity & Security
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             {/* Last Updated */}
             <div className="space-y-2">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Last Updated</span>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200">
-                <p className="font-black text-gray-900">
+              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
+                <p className="font-black text-gray-900 text-sm sm:text-base">
                   {viewingAdmin.updatedAt 
                     ? new Date(viewingAdmin.updatedAt).toLocaleDateString('en-US', {
                         month: 'short',
@@ -1411,8 +1409,8 @@ const handleSaveAdmin = async (e) => {
             {/* Account Age */}
             <div className="space-y-2">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Account Age</span>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200">
-                <p className="font-black text-gray-900">
+              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
+                <p className="font-black text-gray-900 text-sm sm:text-base">
                   {Math.floor((new Date() - new Date(viewingAdmin.createdAt)) / (1000 * 60 * 60 * 24))} days
                 </p>
               </div>
@@ -1421,8 +1419,8 @@ const handleSaveAdmin = async (e) => {
             {/* Permission Level */}
             <div className="space-y-2">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Permission Level</span>
-              <div className="bg-white p-4 rounded-2xl border border-gray-200">
-                <p className="font-black text-gray-900">
+              <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
+                <p className="font-black text-gray-900 text-sm sm:text-base">
                   {Object.values(viewingAdmin.permissions || {}).filter(Boolean).length} / 4
                 </p>
                 <p className="text-xs text-gray-500">Active permissions</p>
@@ -1432,12 +1430,12 @@ const handleSaveAdmin = async (e) => {
         </div>
       </div>
 
-      {/* Footer Actions */}
-      <div className="p-8 border-t border-gray-200 bg-gray-50">
-        <div className="flex flex-col sm:flex-row gap-4">
+      {/* Footer Actions - Responsive */}
+      <div className="p-4 sm:p-6 lg:p-8 border-t border-gray-200 bg-gray-50">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             onClick={() => setShowViewModal(false)}
-            className="flex-1 bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 px-6 py-4 rounded-2xl font-black transition-all duration-200 hover:scale-[1.02] active:scale-95 text-sm uppercase tracking-wider"
+            className="flex-1 bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black transition-all duration-200 hover:scale-[1.02] active:scale-95 text-xs sm:text-sm uppercase tracking-wider"
           >
             Close Details
           </button>
@@ -1446,9 +1444,9 @@ const handleSaveAdmin = async (e) => {
               setShowViewModal(false);
               handleEditAdmin(viewingAdmin);
             }}
-            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-4 rounded-2xl font-black transition-all duration-200 shadow-lg shadow-blue-500/25 hover:scale-[1.02] active:scale-95 text-sm uppercase tracking-wider flex items-center justify-center gap-3"
+            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black transition-all duration-200 shadow-lg shadow-blue-500/25 hover:scale-[1.02] active:scale-95 text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 sm:gap-3"
           >
-            <Edit size={16} />
+            <Edit size={14} />
             Edit Admin
           </button>
           {session?.user && viewingAdmin.id !== session.user.id && (
@@ -1457,9 +1455,9 @@ const handleSaveAdmin = async (e) => {
                 setShowViewModal(false);
                 handleDelete(viewingAdmin);
               }}
-              className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-4 rounded-2xl font-black transition-all duration-200 shadow-lg shadow-red-500/25 hover:scale-[1.02] active:scale-95 text-sm uppercase tracking-wider flex items-center justify-center gap-3"
+              className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl font-black transition-all duration-200 shadow-lg shadow-red-500/25 hover:scale-[1.02] active:scale-95 text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 sm:gap-3"
             >
-              <Trash2 size={16} />
+              <Trash2 size={14} />
               Delete Admin
             </button>
           )}
