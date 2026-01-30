@@ -808,23 +808,24 @@ function ModernResourceCard({ resource, onEdit, onDelete, onView, selected, onSe
 
 // Modern Resource Modal Component (Create/Edit) - WITH MULTIPLE FILE SUPPORT
 function ModernResourceModal({ onClose, onSave, resource, loading }) {
- // At the top of ModernResourceModal component, make sure you have:
-const [formData, setFormData] = useState({
-  title: resource?.title || '',
-  description: resource?.description || '',
-  subject: resource?.subject || '',
-  className: resource?.className || '',
-  teacher: resource?.teacher || '',
-  category: resource?.category || 'General',
-  accessLevel: resource?.accessLevel || 'student',
-  uploadedBy: resource?.uploadedBy || 'Admin',
-  isActive: resource?.isActive ?? true
-});
+  const [formData, setFormData] = useState({
+    title: resource?.title || '',
+    description: resource?.description || '',
+    subject: resource?.subject || '',
+    className: resource?.className || '',
+    teacher: resource?.teacher || '',
+    category: resource?.category || 'General',
+    accessLevel: resource?.accessLevel || 'student',
+    uploadedBy: resource?.uploadedBy || 'Admin',
+    isActive: resource?.isActive ?? true
+  });
 
-const [files, setFiles] = useState([]); // New files to upload
-const [existingFiles, setExistingFiles] = useState([]); // Existing files from resource
-const [filesToRemove, setFilesToRemove] = useState([]); // Files to delete
-
+  // File states
+  const [files, setFiles] = useState([]); // New files to upload
+  const [existingFiles, setExistingFiles] = useState([]); // Existing files from resource
+  const [filesToRemove, setFilesToRemove] = useState([]); // Files to delete
+  const [totalSizeMB, setTotalSizeMB] = useState(0); // Total file size in MB
+  const [fileSizeError, setFileSizeError] = useState(''); // Size error message
 
 // Add this before the return statement in ModernResourceModal
 const isSubmitDisabled = 
@@ -996,7 +997,7 @@ const handleFileChange = (e) => {
   e.target.value = '';
 };
 
-const removeFile = (index, isExisting = false, fileId = null) => {
+const removeFile = (index, isExisting = false) => {
   if (isExisting) {
     const file = existingFiles[index];
     if (file?.url) {
@@ -1011,7 +1012,6 @@ const removeFile = (index, isExisting = false, fileId = null) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
   }
 };
-
 const handleSubmit = async (e) => {
   e.preventDefault();
   
@@ -1043,23 +1043,13 @@ const handleSubmit = async (e) => {
 
   // Handle files for CREATE vs UPDATE
   if (resource) {
-// When preparing existing files for the update:
-const filesToKeep = existingFiles
-  .filter(file => !filesToRemove.some(url => url === file.url))
-  .map(file => {
-    // Ensure file has required properties
-    return {
-      url: file.url || '',
-      name: file.name || 'Unknown File',
-      size: file.size || 0,
-      extension: file.extension || file.name?.split('.').pop()?.toLowerCase() || 'unknown',
-      uploadedAt: file.uploadedAt || new Date().toISOString()
-    };
-  });
-
-if (filesToKeep.length > 0) {
-  formDataToSend.append('existingFiles', JSON.stringify(filesToKeep));
-}
+    // Filter out files marked for removal
+    const filesToKeep = existingFiles.filter(file => !filesToRemove.includes(file.url));
+    
+    if (filesToKeep.length > 0) {
+      formDataToSend.append('existingFiles', JSON.stringify(filesToKeep));
+    }
+    
     // Add files to remove
     if (filesToRemove.length > 0) {
       formDataToSend.append('filesToRemove', JSON.stringify(filesToRemove));
@@ -1462,51 +1452,50 @@ if (filesToKeep.length > 0) {
             );
           })}
 
-          {/* Existing Files Segment */}
-          {existingFiles.map((file, index) => {
-            if (filesToRemove.includes(index)) return null;
-            
-            const fileSizeMB = file.size ? (file.size / (1024 * 1024)).toFixed(1) : 0;
-            
-            return (
-              <div key={`exist-${index}`} className={`group flex items-center justify-between p-4 rounded-2xl border transition-all ${
-                totalSizeMB > 4.5
-                  ? 'bg-red-50/30 border-red-200'
-                  : 'bg-blue-50/30 border-blue-100 hover:shadow-sm'
-              }`}>
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                    parseFloat(fileSizeMB) > 3
-                      ? 'bg-red-600 text-white'
-                      : parseFloat(fileSizeMB) > 1
-                      ? 'bg-amber-600 text-white'
-                      : 'bg-blue-600 text-white'
-                  }`}>
-                    <FiFileText className="text-lg" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-slate-700 truncate">
-                      {file.name || 'Cloud Resource'}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider ${
-                        totalSizeMB > 4.5 ? 'text-red-600' : 'text-blue-600'
-                      }`}>
-                        Stored in Cloud • {fileSizeMB}MB
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeFile(index, true)}
-                  className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                >
-                  <FiX className="text-lg" />
-                </button>
-              </div>
-            );
-          })}
+{existingFiles.map((file, index) => {
+  if (filesToRemove.includes(file.url)) return null;
+  
+  const fileSizeMB = file.size ? (file.size / (1024 * 1024)).toFixed(1) : 0;
+  
+  return (
+    <div key={`exist-${index}`} className={`group flex items-center justify-between p-4 rounded-2xl border transition-all ${
+      totalSizeMB > 4.5
+        ? 'bg-red-50/30 border-red-200'
+        : 'bg-blue-50/30 border-blue-100 hover:shadow-sm'
+    }`}>
+      <div className="flex items-center gap-4 min-w-0">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+          parseFloat(fileSizeMB) > 3
+            ? 'bg-red-600 text-white'
+            : parseFloat(fileSizeMB) > 1
+            ? 'bg-amber-600 text-white'
+            : 'bg-blue-600 text-white'
+        }`}>
+          <FiFileText className="text-lg" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-slate-700 truncate">
+            {file.name || 'Cloud Resource'}
+          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className={`text-[11px] font-bold uppercase tracking-wider ${
+              totalSizeMB > 4.5 ? 'text-red-600' : 'text-blue-600'
+            }`}>
+              Stored in Cloud • {fileSizeMB}MB
+            </span>
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => removeFile(index, true)}
+        className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+      >
+        <FiX className="text-lg" />
+      </button>
+    </div>
+  );
+})}
         </div>
       </div>
     )}
@@ -1808,6 +1797,7 @@ const [fileSizeError, setFileSizeError] = useState('');
 
   // Calculate total size whenever files or existingFiles change
 useEffect(() => {
+  // Calculate total file size
   let totalBytes = 0;
   
   // Add new files size
@@ -1819,7 +1809,7 @@ useEffect(() => {
   
   // Add existing files size (excluding those marked for removal)
   existingFiles.forEach((file, index) => {
-    if (!filesToRemove.includes(index)) {
+    if (!filesToRemove.includes(file.url)) {
       totalBytes += file.size || 0;
     }
   });
@@ -1834,7 +1824,6 @@ useEffect(() => {
     setFileSizeError('');
   }
 }, [files, existingFiles, filesToRemove]);
-
   // Filter resources
   useEffect(() => {
     let filtered = resources;
@@ -1884,6 +1873,30 @@ useEffect(() => {
     setFilteredResources(filtered);
     setCurrentPage(1);
   }, [searchTerm, selectedType, selectedSubject, selectedCategory, selectedClass, selectedAccessLevel, selectedStatus, resources]);
+
+
+useEffect(() => {
+  if (resource?.files) {
+    try {
+      const filesArray = Array.isArray(resource.files) ? resource.files : [];
+      const formattedFiles = filesArray.map(file => {
+        return {
+          url: file.url || (typeof file === 'string' ? file : ''),
+          name: file.name || (typeof file === 'string' ? file : 'Unknown'),
+          size: file.size || 0,
+          extension: file.extension || (file.name ? file.name.split('.').pop()?.toLowerCase() : 'unknown'),
+          uploadedAt: file.uploadedAt || new Date().toISOString()
+        };
+      });
+      
+      setExistingFiles(formattedFiles);
+    } catch (error) {
+      console.error('Error parsing resource files:', error);
+      setExistingFiles([]);
+    }
+  }
+}, [resource]);
+
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
