@@ -529,8 +529,13 @@ if (loading) {
       </h3>
       <div className="space-y-3">
         {[
-          { label: 'Email', val: staff.email, icon: <FiMail />, color: 'blue', href: `mailto:${staff.email}` },
-          { label: 'Phone', val: staff.phone, icon: <FiPhone />, color: 'emerald', href: `tel:${staff.phone}` }
+{ 
+  label: 'Email', 
+  val: staff.email, 
+  icon: <FiMail />, 
+  color: 'red', 
+  href: `https://mail.google.com/mail/?view=cm&fs=1&to=${staff.email}&su=${encodeURIComponent("Inquiry regarding " + staff.name)}` 
+},          { label: 'Phone', val: staff.phone, icon: <FiPhone />, color: 'emerald', href: `tel:${staff.phone}` }
         ].map((item, i) => (
           item.val && (
             <a key={i} href={item.href} className={`flex items-center gap-4 p-3 rounded-2xl bg-${item.color}-50/50 border border-${item.color}-100 hover:bg-${item.color}-100 transition-all group`}>
