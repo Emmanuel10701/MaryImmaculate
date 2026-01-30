@@ -1068,12 +1068,32 @@ export default function ModernResultsView({
                             key={index} 
                             className={`grid grid-cols-12 gap-1 sm:gap-2 px-2 sm:px-3 md:px-6 py-2 sm:py-3 hover:bg-gray-50 transition-colors ${isStudentResult ? 'bg-blue-50' : ''}`}
                           >
-                            <div className="col-span-3">
-                              <div className="font-bold text-gray-900 text-xs sm:text-sm truncate">{result.admissionNumber}</div>
-                              {isStudentResult && (
-                                <div className="text-blue-600 text-[10px] xs:text-xs font-semibold truncate">You</div>
-                              )}
-                            </div>
+<div className="col-span-3 flex flex-col items-start gap-0.5">
+  {/* Header Row: ID + Badge */}
+  <div className="flex items-center gap-2 max-w-full">
+    <div className="font-black text-slate-900 text-xs sm:text-sm tracking-tight truncate">
+      {result.admissionNumber}
+    </div>
+    
+    {isStudentResult && (
+      <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-[10px] xs:text-[11px] font-black uppercase tracking-wider rounded-md border border-blue-100 leading-none">
+        You
+      </span>
+    )}
+  </div>
+
+  {/* Action Button: Styled as a modern text link */}
+  <button
+    onClick={() => handleViewSubjects(result)}
+    className="group flex items-center gap-1 mt-0.5 text-[11px] sm:text-xs text-blue-600 hover:text-blue-700 font-bold transition-all"
+  >
+    <span className="border-b border-blue-600/30 group-hover:border-blue-700 transition-colors">
+      View Results
+    </span>
+    <ArrowRight size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+  </button>
+</div>
+
                             <div className="col-span-3">
                               <div className="font-bold text-gray-900 text-xs sm:text-sm truncate">{result.term}</div>
                               <div className="text-gray-600 text-[10px] xs:text-xs truncate">{result.academicYear}</div>
