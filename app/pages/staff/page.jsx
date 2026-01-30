@@ -272,7 +272,7 @@ const HierarchySection = ({ title, icon, staff, viewMode, isFirst = false }) => 
         </div>
         
         <div className="min-w-0">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none mb-1 uppercase">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none mb-1 ">
             {title}
           </h2>
           <p className="text-xs sm:text-sm font-bold text-blue-600 tracking-widest uppercase opacity-80">
