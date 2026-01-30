@@ -916,64 +916,58 @@ className="bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-950 hover:from
           }}
         >
           {/* Header with logo */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 flex-shrink-0">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-3">
-                <div
-                  className="
-                    w-8 h-8
-                    xs:w-9 xs:h-9
-                    sm:w-10 sm:h-10
-                    md:w-12 md:h-12
-                    rounded-lg sm:rounded-xl
-                    flex items-center justify-center
-                    shadow-md sm:shadow-lg
-                    overflow-hidden
-                    bg-white
-                    flex-shrink-0
-                  "
-                >
-                  <img
-                    src="/ll.png"
-                    alt="Mary Immaculate Girls Logo"
-                    className="w-full h-full object-cover"
-                    style={{ imageRendering: 'auto' }}
-                  />
-                </div>
+<div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 sm:p-4 flex-shrink-0">
+  <div className="flex justify-between items-center gap-2">
+    
+    {/* LEFT: Branding Section */}
+    <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shadow-lg bg-white shrink-0 overflow-hidden border border-white/20">
+        <img
+          src="/ll.png"
+          alt="Logo"
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-                <div className="min-w-0">
-                  <h3 className="text-lg sm:text-md font-bold text-white truncate">
-                    {schoolData?.name || 'Mary Immaculate Girls High'}
-                  </h3>
-                  <p className="text-blue-200 text-xs sm:text-sm truncate">
-                    {schoolData?.motto || 'Prayer, Discipline and Hardwork'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex space-x-2 flex-shrink-0">
-                {isFetchingData && (
-                  <div className="flex items-center mr-2">
-                    <div className="w-2 h-2 bg-blue-300 rounded-full animate-pulse"></div>
-                  </div>
-                )}
-                <button
-                  onClick={clearChat}
-                  className="text-white/80 hover:text-white transition p-1.5 hover:bg-white/10 rounded"
-                  title="Clear chat"
-                  aria-label="Clear chat"
-                >
-                  <SafeIcon name="trash" className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="text-white/80 hover:text-white transition p-1.5 hover:bg-white/10 rounded"
-                  aria-label="Close chat"
-                >
-                  <SafeIcon name="close" className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
+      <div className="min-w-0 flex flex-col">
+        <h3 className="text-sm sm:text-base font-black text-white truncate leading-tight">
+          {schoolData?.name || 'Mary Immaculate Girls'}
+        </h3>
+        <p className="text-blue-200 text-[10px] sm:text-xs truncate opacity-80 font-medium">
+          {schoolData?.motto || 'Prayer, Discipline & Hardwork'}
+        </p>
+      </div>
+    </div>
+
+    {/* RIGHT: Action Buttons - Forced visibility */}
+    <div className="flex items-center space-x-1 sm:space-x-2 shrink-0">
+      {isFetchingData && (
+        <div className="flex items-center pr-1 sm:pr-2">
+          <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+        </div>
+      )}
+      
+      {/* Clear Button */}
+      <button
+        onClick={clearChat}
+        className="p-2 sm:p-2.5 hover:bg-white/10 active:bg-white/20 rounded-xl transition-all"
+        title="Clear chat"
+      >
+        <SafeIcon name="trash" className="w-4 h-4 sm:w-5 sm:h-5 opacity-80 hover:opacity-100" />
+      </button>
+
+      {/* CLOSE BUTTON: Enlarged hit area for mobile thumb access */}
+      <button
+        onClick={() => setIsOpen(false)}
+        className="p-2 sm:p-2.5 bg-white/10 hover:bg-white/20 active:scale-90 rounded-xl transition-all border border-white/10"
+        aria-label="Close chat"
+      >
+        <SafeIcon name="close" className="w-4 h-4 sm:w-5 sm:h-5" />
+      </button>
+    </div>
+
+  </div>
+</div>
 
           {/* Messages Container */}
           <div 
