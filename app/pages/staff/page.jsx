@@ -274,7 +274,7 @@ const StaffCard = ({ staff }) => {
   const hierarchy = getStaffHierarchy(staff.position);
   
   return (
-    <div className="group bg-white rounded-[2rem] border border-gray-100 overflow-hidden flex flex-col h-full relative z-10 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1">
+    <div className="group bg-white rounded-[2rem] border border-gray-100 overflow-hidden flex flex-col h-full relative z-10 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 ">
       
       {/* Image Header with Modern Overlay */}
       <div className="relative h-56 sm:h-64 overflow-hidden">
@@ -282,7 +282,7 @@ const StaffCard = ({ staff }) => {
           src={getImageSrc(staff)}
           alt={staff.name}
           fill
-          className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover object-top"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           onError={(e) => { e.target.src = '/images/default-staff.jpg'; }}
         />
