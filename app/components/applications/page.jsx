@@ -2191,13 +2191,7 @@ const EmptyState = () => (
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-
-  {/* Footer Actions */}
+              {/* Footer Actions */}
   <div className="p-6 bg-white border-t border-slate-100 flex gap-4">
     <button
       onClick={() => setShowBulkModal(false)}
@@ -2220,6 +2214,13 @@ const EmptyState = () => (
       )}
     </button>
   </div>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+
+
 </ModernModal>
     </div>
   )
