@@ -473,100 +473,98 @@ export default function ModernFooter() {
         </div>
       </div>
 
-      {/* Privacy Policy Modal */}
-      {showPrivacy && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div 
-            className="absolute inset-0 bg-black/80" 
-            onClick={() => setShowPrivacy(false)} 
-          />
-          <div className="relative bg-slate-900 text-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700 p-4 sm:p-6 md:p-8 my-auto">
-            <div className="flex justify-between items-start gap-3 mb-6 flex-wrap">
-              <div className="flex items-center gap-3 min-w-0">
-                <FiShield className="text-2xl text-white flex-shrink-0" />
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-white break-words">Privacy Policy & Terms</h2>
-              </div>
-              <button 
-                onClick={() => setShowPrivacy(false)} 
-                className="text-2xl text-white hover:text-gray-300 transition-colors font-bold flex-shrink-0"
-              >
-                ✕
-              </button>
-            </div>
+{/* Privacy Policy Modal */}
+{showPrivacy && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto overflow-x-hidden">
+    <div 
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
+      onClick={() => setShowPrivacy(false)} 
+    />
+    
+    <div className="relative bg-slate-900 text-white rounded-[2rem] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-white/10 p-5 sm:p-8 my-auto animate-slide-up">
+      
+      {/* Header - Compact */}
+      <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+        <div className="flex items-center gap-2 min-w-0">
+          <FiShield className="text-xl text-blue-400 shrink-0" />
+          <h2 className="text-base sm:text-xl font-black uppercase tracking-tight truncate">Privacy & Terms</h2>
+        </div>
+        <button 
+          onClick={() => setShowPrivacy(false)} 
+          className="p-2 hover:bg-white/10 rounded-full transition-all active:scale-90"
+        >
+          <FiX size={20} className="text-white" />
+        </button>
+      </div>
 
-            <div className="space-y-6">
-              <section className="bg-slate-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 flex items-center gap-2 break-words">
-                  <FiShield className="flex-shrink-0" />
-                  Privacy Commitment
-                </h3>
-                <p className="text-gray-300 text-sm sm:text-base font-normal break-words leading-relaxed">
-                  At Mary Immaculate Girls Secondary, we are committed to protecting the privacy and security 
-                  of all personal information collected from students, parents, staff, and visitors in compliance 
-                  with the Data Protection Act.
-                </p>
-              </section>
+      <div className="space-y-4 sm:space-y-6">
+        {/* Commitment Section */}
+        <section className="bg-white/5 rounded-2xl p-4 sm:p-6 border border-white/5 hover:bg-white/10 transition-colors">
+          <h3 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+            <FiShield size={14}/> Commitment
+          </h3>
+          <p className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed italic">
+            "We are committed to protecting the privacy and security of all personal information in compliance with the Data Protection Act."
+          </p>
+        </section>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-slate-800 rounded-lg p-6 border border-gray-700">
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-3 flex items-center gap-2 break-words">
-                    <FiEye className="flex-shrink-0" />
-                    Information Collection
-                  </h3>
-                  <ul className="space-y-2 text-gray-300 text-sm font-normal">
-                    <li className="flex items-start gap-2 break-words">
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-1.5"></div>
-                      <span>Student academic and personal records</span>
-                    </li>
-                    <li className="flex items-start gap-2 break-words">
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-1.5"></div>
-                      <span>Parent/guardian contact information</span>
-                    </li>
-                    <li className="flex items-start gap-2 break-words">
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-1.5"></div>
-                      <span>Staff employment and qualification data</span>
-                    </li>
-                    <li className="flex items-start gap-2 break-words">
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-1.5"></div>
-                      <span>Medical information for emergency purposes</span>
-                    </li>
-                  </ul>
+        {/* Info Grid - Stacked on Mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-white/5 rounded-2xl p-4 sm:p-6 border border-white/5">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+              <FiEye size={14} /> Collection
+            </h3>
+            <ul className="space-y-3">
+              {['Academic Records', 'Parent Contacts', 'Medical Info'].map((text, i) => (
+                <li key={i} className="flex items-center gap-3 text-xs text-slate-300 font-bold">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                  {text}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-white/5 rounded-2xl p-4 sm:p-6 border border-white/5">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+              <FiDownload size={14} /> Protection
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { e: '🔐', t: 'Encrypted' },
+                { e: '🛡️', t: 'Secure' },
+                { e: '📊', t: 'Audits' },
+                { e: '👩‍🏫', t: 'Training' }
+              ].map((item, i) => (
+                <div key={i} className="bg-slate-950/50 rounded-xl p-2 text-center border border-white/5">
+                  <div className="text-sm mb-0.5">{item.e}</div>
+                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{item.t}</div>
                 </div>
-
-                <div className="bg-slate-800 rounded-lg p-6 border border-gray-700">
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-3 flex items-center gap-2 break-words">
-                    <FiDownload className="flex-shrink-0" />
-                    Data Protection
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {['🔐 Encrypted', '🛡️ Secure', '📊 Audits', '👩‍🏫 Training'].map((item, index) => (
-                      <div key={index} className="bg-slate-900 rounded-lg p-3 text-center border border-gray-700 break-words hover:bg-slate-800 transition-colors">
-                        <div className="text-lg mb-1">{item.split(' ')[0]}</div>
-                        <div className="text-sm font-medium text-gray-300 break-words">{item.split(' ')[1]}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-    <div className="flex flex-row gap-3 pt-4 items-center">
-  <button 
-    onClick={() => setShowPrivacy(false)} 
-    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-blue-500/20 whitespace-nowrap"
-  >
-    Accept Terms
-  </button>
-  <button 
-    onClick={() => setShowPrivacy(false)} 
-    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-wider transition-all active:scale-95 border border-slate-200 whitespace-nowrap"
-  >
-    Close
-  </button>
-</div>
+              ))}
             </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Footer Actions */}
+      <div className="mt-8 pt-6 border-t border-white/5">
+        <div className="flex flex-row gap-3 items-center">
+          <button 
+            onClick={() => setShowPrivacy(false)} 
+            className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10"
+          >
+            Close
+          </button>
+          <button 
+            onClick={() => setShowPrivacy(false)} 
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 text-center shadow-lg shadow-blue-500/25"
+          >
+            Accept
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
 {/* Sitemap Modal */}
 {showSitemap && (
