@@ -575,22 +575,9 @@ function getModernEmailTemplate({
             transform: translateY(-3px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
+    
+    
         
-        .social-btn.facebook {
-            background: #1877F2;
-        }
-        
-        .social-btn.youtube {
-            background: #FF0000;
-        }
-        
-        .social-btn.linkedin {
-            background: #0A66C2;
-        }
-        
-        .social-btn.twitter {
-            background: #000000;
-        }
         
         /* SENDER INFO */
         .sender-info {

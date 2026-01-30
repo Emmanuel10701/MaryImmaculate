@@ -671,25 +671,10 @@ function getModernEmailTemplate({
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         
-        .social-btn.facebook {
-            background: #1877F2;
-            border-color: #1877F2;
-        }
+       
+     
         
-        .social-btn.youtube {
-            background: #FF0000;
-            border-color: #FF0000;
-        }
-        
-        .social-btn.linkedin {
-            background: #0A66C2;
-            border-color: #0A66C2;
-        }
-        
-        .social-btn.twitter {
-            background: #000000;
-            border-color: #000000;
-        }
+     
         
         /* Sender Information */
         .sender-info {
