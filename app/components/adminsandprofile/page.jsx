@@ -142,6 +142,9 @@ export default function AdminManager() {
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [selectedAdmins, setSelectedAdmins] = useState(new Set());
   const [refreshing, setRefreshing] = useState(false);
+  // Add these states
+const [showViewModal, setShowViewModal] = useState(false);
+const [viewingAdmin, setViewingAdmin] = useState(null);
   const itemsPerPage = 8;
 
   const [adminData, setAdminData] = useState({
@@ -159,6 +162,14 @@ export default function AdminManager() {
     status: 'active'
   });
 
+
+
+
+// Handle view admin details
+const handleViewAdmin = (admin) => {
+  setViewingAdmin(admin);
+  setShowViewModal(true);
+};  
   // Check authentication on component mount - CORRECTED
   useEffect(() => {
     const checkAuth = () => {
@@ -695,37 +706,37 @@ const handleSaveAdmin = async (e) => {
         </div>
       </div>
 
-      {/* Quick Actions Bar */}
-      <div className="flex flex-col lg:flex-row gap-4">
-        <button
-          onClick={() => fetchAdmins(true)}
-          disabled={refreshing}
-          className="flex-1 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all duration-200 shadow-sm hover:shadow-md p-4 text-sm"
-        >
-          {refreshing ? (
-            <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <RefreshCw className="text-lg" />
-          )}
-          {refreshing ? 'Refreshing...' : 'Refresh Data'}
-        </button>
-        
-        <button
-          onClick={exportToCSV}
-          className="flex-1 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all duration-200 shadow-sm hover:shadow-md p-4 text-sm"
-        >
-          <Download className="text-lg" />
-          Export CSV
-        </button>
-        
-        <button
-          onClick={handleCreateAdmin}
-          className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-2xl font-bold flex items-center justify-center gap-3 transition-all duration-200 shadow-lg shadow-purple-500/25 hover:shadow-xl p-4 text-sm"
-        >
-          <Plus className="text-lg" />
-          Add New Admin
-        </button>
-      </div>
+{/* MODERN QUICK ACTIONS - Left Aligned & Compact */}
+<div className="flex flex-col sm:flex-row gap-3 w-fit ml-0">
+  
+  {/* Refresh Action */}
+  <button
+    onClick={() => fetchAdmins(true)}
+    disabled={refreshing}
+    className="group flex items-center gap-3 px-6 py-3 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300 shadow-sm active:scale-95 disabled:opacity-50"
+  >
+    <div className={`${refreshing ? 'animate-spin' : 'group-hover:rotate-180'} transition-transform duration-500`}>
+      <RefreshCw size={18} className={refreshing ? 'text-blue-500' : 'text-slate-400 group-hover:text-blue-500'} />
+    </div>
+    <span className="text-xs font-black uppercase tracking-widest whitespace-nowrap">
+      {refreshing ? 'Syncing...' : 'Refresh'}
+    </span>
+  </button>
+  
+  {/* Create Action */}
+  <button
+    onClick={handleCreateAdmin}
+    className="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 shadow-xl shadow-slate-200 hover:shadow-blue-200/50 transition-all duration-300 active:scale-95"
+  >
+    <div className="bg-white/20 p-1 rounded-lg">
+      <Plus size={18} strokeWidth={3} />
+    </div>
+    <span className="text-xs font-black uppercase tracking-widest whitespace-nowrap">
+      Add Admin
+    </span>
+  </button>
+
+</div>
 
       {/* Stats Cards - Modern Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -791,7 +802,7 @@ const handleSaveAdmin = async (e) => {
               placeholder="Search admins by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+              className="w-full pl-12 pr-4 py-4 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
             />
           </div>
           
@@ -846,12 +857,16 @@ const handleSaveAdmin = async (e) => {
                           <User className="text-blue-600" />
                         </div>
                         <div>
-                          <p className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors text-sm">
-                            {admin.name}
-                            {session?.user && admin.id === session.user.id && (
-                              <span className="ml-2 text-xs bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 py-1 rounded-full font-bold">You</span>
-                            )}
-                          </p>
+                       {/* In the table row, update the admin name to be clickable */}
+<p 
+  onClick={() => handleViewAdmin(admin)}
+  className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors text-sm cursor-pointer hover:underline"
+>
+  {admin.name}
+  {session?.user && admin.id === session.user.id && (
+    <span className="ml-2 text-xs bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 py-1 rounded-full font-bold">You</span>
+  )}
+</p>
                           <p className="text-xs text-gray-500 mt-1">{admin.email}</p>
                           <p className="text-xs text-gray-400">{admin.phone}</p>
                         </div>
@@ -1009,7 +1024,7 @@ const handleSaveAdmin = async (e) => {
                     required
                     value={adminData.name}
                     onChange={(e) => setAdminData({ ...adminData, name: e.target.value })}
-                    className="w-full px-4 py-4 bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-4 py-4 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                     placeholder="Enter full name"
                   />
                 </div>
@@ -1021,7 +1036,7 @@ const handleSaveAdmin = async (e) => {
                     required
                     value={adminData.email}
                     onChange={(e) => setAdminData({ ...adminData, email: e.target.value })}
-                    className="w-full px-4 py-4 bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-4 py-4 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                     placeholder="Enter email address"
                   />
                 </div>
@@ -1035,7 +1050,7 @@ const handleSaveAdmin = async (e) => {
                     required={!editingAdmin}
                     value={adminData.password}
                     onChange={(e) => setAdminData({ ...adminData, password: e.target.value })}
-                    className="w-full px-4 py-4 bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-4 py-4 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                     placeholder="Enter password"
                   />
                 </div>
@@ -1047,7 +1062,7 @@ const handleSaveAdmin = async (e) => {
                     required
                     value={adminData.phone}
                     onChange={(e) => setAdminData({ ...adminData, phone: e.target.value })}
-                    className="w-full px-4 py-4 bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-4 py-4 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                     placeholder="+254700000000"
                   />
                 </div>
@@ -1058,7 +1073,7 @@ const handleSaveAdmin = async (e) => {
                     required
                     value={adminData.role}
                     onChange={(e) => setAdminData({ ...adminData, role: e.target.value })}
-                    className="w-full px-4 py-4 bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-4 py-4  font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                   >
                     <option value="ADMIN">Admin</option>
                     <option value="SUPER_ADMIN">Super Admin</option>
@@ -1072,7 +1087,7 @@ const handleSaveAdmin = async (e) => {
                     required
                     value={adminData.status}
                     onChange={(e) => setAdminData({ ...adminData, status: e.target.value })}
-                    className="w-full px-4 py-4 bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-4 py-4 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -1089,7 +1104,7 @@ const handleSaveAdmin = async (e) => {
                       type="checkbox"
                       checked={adminData.permissions.manageUsers}
                       onChange={(e) => updatePermission('manageUsers', e.target.checked)}
-                      className="w-4 h-4 rounded cursor-pointer border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="w-4 h-4 rounded  font-bold cursor-pointer border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <div>
                       <p className="font-bold text-gray-900 text-sm">Manage Users</p>
@@ -1102,7 +1117,7 @@ const handleSaveAdmin = async (e) => {
                       type="checkbox"
                       checked={adminData.permissions.manageContent}
                       onChange={(e) => updatePermission('manageContent', e.target.checked)}
-                      className="w-4 h-4 rounded cursor-pointer border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="w-4 h-4 rounded  cursor-pointer border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <div>
                       <p className="font-bold text-gray-900 text-sm">Manage Content</p>
@@ -1170,6 +1185,284 @@ const handleSaveAdmin = async (e) => {
           </div>
         </div>
       )}
+
+
+{/* MODERN VIEW ADMIN MODAL */}
+{showViewModal && viewingAdmin && (
+  <div 
+    className="fixed inset-0 bg-black/70 backdrop-blur-lg flex items-center justify-center p-4 z-[100]"
+    onClick={() => setShowViewModal(false)}
+  >
+    <div 
+      className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 animate-slide-up"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Header with Gradient */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-8 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/10 bg-grid-16"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+                <User className="text-2xl" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black">Admin Profile</h2>
+                <p className="text-slate-200 opacity-90 mt-1 text-sm">Complete account information and permissions</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowViewModal(false)}
+              className="p-3 hover:bg-white/10 rounded-2xl transition-all duration-200 hover:scale-105"
+            >
+              <FaX className="text-xl" />
+            </button>
+          </div>
+          
+          {/* Quick Stats Bar */}
+          <div className="flex items-center gap-4">
+            <div className="px-4 py-2 bg-white/10 rounded-full border border-white/20">
+              <span className="text-sm font-bold">ID: </span>
+              <span className="text-slate-200 text-sm">{viewingAdmin.id.substring(0, 8)}...</span>
+            </div>
+            <div className={`px-4 py-2 rounded-full border ${
+              viewingAdmin.status === 'active' 
+                ? 'bg-green-500/20 text-green-300 border-green-400/30' 
+                : 'bg-red-500/20 text-red-300 border-red-400/30'
+            }`}>
+              <span className="text-sm font-bold">Status: </span>
+              <span className="text-sm">{viewingAdmin.status}</span>
+            </div>
+            <div className="px-4 py-2 bg-white/10 rounded-full border border-white/20">
+              <span className="text-sm font-bold">Role: </span>
+              <span className="text-sm">{viewingAdmin.role}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content with Scroll */}
+      <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto">
+        {/* Personal Information Card */}
+        <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-6 border border-gray-200 shadow-sm">
+          <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
+            <div className="p-2 bg-blue-100 rounded-xl">
+              <User className="text-blue-600" size={18} />
+            </div>
+            Personal Information
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name Field */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <User className="text-gray-400" size={16} />
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Full Name</span>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-gray-200">
+                <p className="text-lg font-black text-gray-900">{viewingAdmin.name}</p>
+              </div>
+            </div>
+            
+            {/* Email Field */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Mail className="text-gray-400" size={16} />
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Email Address</span>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-gray-200">
+                <p className="text-lg font-black text-gray-900">{viewingAdmin.email}</p>
+                <p className="text-xs text-gray-500 mt-1">Primary contact email</p>
+              </div>
+            </div>
+            
+            {/* Phone Field */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Phone className="text-gray-400" size={16} />
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Phone Number</span>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-gray-200">
+                <p className="text-lg font-black text-gray-900">{viewingAdmin.phone || 'Not provided'}</p>
+              </div>
+            </div>
+            
+            {/* Account Created */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Calendar className="text-gray-400" size={16} />
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Member Since</span>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-gray-200">
+                <p className="text-lg font-black text-gray-900">
+                  {new Date(viewingAdmin.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {Math.floor((new Date() - new Date(viewingAdmin.createdAt)) / (1000 * 60 * 60 * 24))} days ago
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Permissions & Role Card */}
+        <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-6 border border-gray-200 shadow-sm">
+          <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
+            <div className="p-2 bg-purple-100 rounded-xl">
+              <Shield className="text-purple-600" size={18} />
+            </div>
+            Role & Permissions
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Role Badge */}
+            <div className="space-y-4">
+              <div>
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Current Role</span>
+                <div className={`px-6 py-4 rounded-2xl font-black text-center ${
+                  viewingAdmin.role === 'SUPER_ADMIN'
+                    ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                    : viewingAdmin.role === 'ADMIN'
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                    : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
+                }`}>
+                  {viewingAdmin.role.replace('_', ' ')}
+                </div>
+              </div>
+              
+              {/* Status Badge */}
+              <div>
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Account Status</span>
+                <div className={`px-6 py-4 rounded-2xl font-black text-center ${
+                  viewingAdmin.status === 'active'
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                    : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                }`}>
+                  {viewingAdmin.status.toUpperCase()}
+                </div>
+              </div>
+            </div>
+            
+            {/* Permissions Grid */}
+            <div>
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 block">System Permissions</span>
+              <div className="grid grid-cols-2 gap-3">
+                {viewingAdmin.permissions && Object.entries(viewingAdmin.permissions).map(([key, value]) => (
+                  <div 
+                    key={key}
+                    className={`p-4 rounded-2xl border transition-all duration-200 ${
+                      value 
+                        ? 'bg-green-50 border-green-200' 
+                        : 'bg-gray-50 border-gray-200 opacity-60'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-black text-gray-900 capitalize">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                      </span>
+                      <div className={`w-3 h-3 rounded-full ${value ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      {value ? 'Allowed' : 'Restricted'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Activity & Security Card */}
+        <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-6 border border-gray-200 shadow-sm">
+          <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
+            <div className="p-2 bg-orange-100 rounded-xl">
+              <Clock className="text-orange-600" size={18} />
+            </div>
+            Activity & Security
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Last Updated */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Last Updated</span>
+              <div className="bg-white p-4 rounded-2xl border border-gray-200">
+                <p className="font-black text-gray-900">
+                  {viewingAdmin.updatedAt 
+                    ? new Date(viewingAdmin.updatedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })
+                    : 'Never'
+                  }
+                </p>
+              </div>
+            </div>
+            
+            {/* Account Age */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Account Age</span>
+              <div className="bg-white p-4 rounded-2xl border border-gray-200">
+                <p className="font-black text-gray-900">
+                  {Math.floor((new Date() - new Date(viewingAdmin.createdAt)) / (1000 * 60 * 60 * 24))} days
+                </p>
+              </div>
+            </div>
+            
+            {/* Permission Level */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Permission Level</span>
+              <div className="bg-white p-4 rounded-2xl border border-gray-200">
+                <p className="font-black text-gray-900">
+                  {Object.values(viewingAdmin.permissions || {}).filter(Boolean).length} / 4
+                </p>
+                <p className="text-xs text-gray-500">Active permissions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="p-8 border-t border-gray-200 bg-gray-50">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => setShowViewModal(false)}
+            className="flex-1 bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 px-6 py-4 rounded-2xl font-black transition-all duration-200 hover:scale-[1.02] active:scale-95 text-sm uppercase tracking-wider"
+          >
+            Close Details
+          </button>
+          <button
+            onClick={() => {
+              setShowViewModal(false);
+              handleEditAdmin(viewingAdmin);
+            }}
+            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-4 rounded-2xl font-black transition-all duration-200 shadow-lg shadow-blue-500/25 hover:scale-[1.02] active:scale-95 text-sm uppercase tracking-wider flex items-center justify-center gap-3"
+          >
+            <Edit size={16} />
+            Edit Admin
+          </button>
+          {session?.user && viewingAdmin.id !== session.user.id && (
+            <button
+              onClick={() => {
+                setShowViewModal(false);
+                handleDelete(viewingAdmin);
+              }}
+              className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-4 rounded-2xl font-black transition-all duration-200 shadow-lg shadow-red-500/25 hover:scale-[1.02] active:scale-95 text-sm uppercase tracking-wider flex items-center justify-center gap-3"
+            >
+              <Trash2 size={16} />
+              Delete Admin
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Modern Delete Confirmation Modal */}
       {showDeleteConfirm && (
