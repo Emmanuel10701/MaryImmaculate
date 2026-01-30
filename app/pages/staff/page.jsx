@@ -28,6 +28,7 @@ import {
   FiBookOpen,
   FiRefreshCw  // Added for refresh button
 } from 'react-icons/fi';
+import { SiGmail } from 'react-icons/si';
 
 // ==========================================
 // 1. ENHANCED CONFIGURATION WITH HIERARCHY

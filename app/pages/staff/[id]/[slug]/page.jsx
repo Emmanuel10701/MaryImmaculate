@@ -22,8 +22,10 @@ import {
   FiActivity,
   FiGlobe,
   FiHome,
-  FiX
+  FiX,
+   
 } from 'react-icons/fi';
+import { SiGmail } from 'react-icons/si';
 import { FaGraduationCap, FaChalkboardTeacher, FaUserTie, FaWhatsapp, FaFacebook, FaInstagram } from 'react-icons/fa';
 
 export default function StaffProfilePage() {
