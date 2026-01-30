@@ -24,6 +24,33 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Image from "next/image"
 
 
+
+// In your Staff component, add this helper function at the top of the component:
+const getImageUrl = (imagePath) => {
+  if (!imagePath || typeof imagePath !== 'string') {
+    return null; // Return null to trigger the fallback
+  }
+  
+  // Handle Cloudinary URLs
+  if (imagePath.includes('cloudinary.com')) {
+    return imagePath;
+  }
+  
+  // Handle local paths
+  if (imagePath.startsWith('/') || imagePath.startsWith('http')) {
+    return imagePath;
+  }
+  
+  // Handle base64 images
+  if (imagePath.startsWith('data:image')) {
+    return imagePath;
+  }
+  
+  // If it's a path from API (without leading slash), don't prepend '/'
+  return imagePath; // Return as is
+};
+
+
 const ModernStaffLeadership = () => {
   const [staff, setStaff] = useState([]);
   const [principal, setPrincipal] = useState(null);
@@ -331,21 +358,25 @@ Mary Immaculate Girls
             <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80 2xl:h-96 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent z-10"></div>
               
-              {featuredStaff.image ? (
-                <img
-                  src={featuredStaff.image.startsWith('/') ? featuredStaff.image : `/${featuredStaff.image}`}
-                  alt={featuredStaff.name}
-                  className="w-full h-full object-cover object-top"
-                />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center">
-                  <div className="text-white text-center p-4 sm:p-6 md:p-8">
-                    <GiGraduateCap className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl mx-auto opacity-40" />
-                    <p className="mt-3 sm:mt-4 text-lg sm:text-xl md:text-2xl font-black tracking-tight">{featuredStaff.name}</p>
-                    <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm md:text-base font-medium opacity-80 uppercase tracking-widest">{getRoleTitle(featuredStaff)}</p>
-                  </div>
-                </div>
-              )}
+           {featuredStaff.image ? (
+  <img
+    src={getImageUrl(featuredStaff.image)}
+    alt={featuredStaff.name}
+    className="w-full h-full object-cover object-top"
+    onError={(e) => {
+      e.target.onerror = null;
+      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(featuredStaff.name)}&background=4f46e5&color=fff&bold=true&size=256`;
+    }}
+  />
+) : (
+  <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center">
+    <div className="text-white text-center p-4 sm:p-6 md:p-8">
+      <GiGraduateCap className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl mx-auto opacity-40" />
+      <p className="mt-3 sm:mt-4 text-lg sm:text-xl md:text-2xl font-black tracking-tight">{featuredStaff.name}</p>
+      <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm md:text-base font-medium opacity-80 uppercase tracking-widest">{getRoleTitle(featuredStaff)}</p>
+    </div>
+  </div>
+)}
               
               {/* Overlay */}
               <div className="absolute inset-0 z-20 flex flex-col justify-end p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
@@ -525,17 +556,21 @@ Mary Immaculate Girls
               >
                 <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
                   <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex-shrink-0 rounded-lg sm:rounded-xl overflow-hidden">
-                    {principal.image ? (
-                      <img
-                        src={principal.image.startsWith('/') ? principal.image : `/${principal.image}`}
-                        alt={principal.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-indigo-900 to-purple-900 bg-fixed text-white flex items-center justify-center">
-                        <FiUser className="text-white text-sm sm:text-lg md:text-2xl" />
-                      </div>
-                    )}
+                  {principal.image ? (
+  <img
+    src={getImageUrl(principal.image)}
+    alt={principal.name}
+    className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
+    onError={(e) => {
+      e.target.onerror = null;
+      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(principal.name)}&background=1e293b&color=fff&bold=true&size=128`;
+    }}
+  />
+) : (
+  <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-indigo-900 to-purple-900 bg-fixed text-white flex items-center justify-center">
+    <FiUser className="text-white text-sm sm:text-lg md:text-2xl" />
+  </div>
+)}
                   </div>
                   <div className="flex-grow min-w-0">
                     <div className="flex items-center justify-between mb-1 sm:mb-2">
@@ -573,17 +608,21 @@ Mary Immaculate Girls
               >
                 <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
                   <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex-shrink-0 rounded-lg sm:rounded-xl overflow-hidden">
-                    {deputyPrincipal.image ? (
-                      <img
-                        src={deputyPrincipal.image.startsWith('/') ? deputyPrincipal.image : `/${deputyPrincipal.image}`}
-                        alt={deputyPrincipal.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                        <FiUser className="text-white text-sm sm:text-lg md:text-2xl" />
-                      </div>
-                    )}
+{deputyPrincipal.image ? (
+  <img
+    src={getImageUrl(deputyPrincipal.image)}
+    alt={deputyPrincipal.name}
+    className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
+    onError={(e) => {
+      e.target.onerror = null;
+      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(deputyPrincipal.name)}&background=8b5cf6&color=fff&bold=true&size=128`;
+    }}
+  />
+) : (
+  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+    <FiUser className="text-white text-sm sm:text-lg md:text-2xl" />
+  </div>
+)}
                   </div>
                   <div className="flex-grow min-w-0">
                     <div className="flex items-center justify-between mb-1 sm:mb-2">
@@ -620,17 +659,21 @@ Mary Immaculate Girls
               >
                 <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
                   <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex-shrink-0 rounded-lg sm:rounded-xl overflow-hidden">
-                    {randomStaff.image ? (
-                      <img
-                        src={randomStaff.image.startsWith('/') ? randomStaff.image : `/${randomStaff.image}`}
-                        alt={randomStaff.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                        <FiBookOpen className="text-white text-sm sm:text-lg md:text-2xl" />
-                      </div>
-                    )}
+{randomStaff.image ? (
+  <img
+    src={getImageUrl(randomStaff.image)}
+    alt={randomStaff.name}
+    className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
+    onError={(e) => {
+      e.target.onerror = null;
+      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(randomStaff.name)}&background=10b981&color=fff&bold=true&size=128`;
+    }}
+  />
+) : (
+  <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+    <FiBookOpen className="text-white text-sm sm:text-lg md:text-2xl" />
+  </div>
+)}
                   </div>
                   <div className="flex-grow min-w-0">
                     <div className="flex items-center justify-between mb-1 sm:mb-2">
@@ -667,17 +710,21 @@ Mary Immaculate Girls
               >
                 <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
                   <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex-shrink-0 rounded-lg sm:rounded-xl overflow-hidden">
-                    {randomBOM.image ? (
-                      <img
-                        src={randomBOM.image.startsWith('/') ? randomBOM.image : `/${randomBOM.image}`}
-                        alt={randomBOM.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                        <FiShield className="text-white text-sm sm:text-lg md:text-2xl" />
-                      </div>
-                    )}
+{randomBOM.image ? (
+  <img
+    src={getImageUrl(randomBOM.image)}
+    alt={randomBOM.name}
+    className="w-full h-full object-cover object-top group-hover:scale-100 transition-transform duration-500"
+    onError={(e) => {
+      e.target.onerror = null;
+      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(randomBOM.name)}&background=f59e0b&color=fff&bold=true&size=128`;
+    }}
+  />
+) : (
+  <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+    <FiShield className="text-white text-sm sm:text-lg md:text-2xl" />
+  </div>
+)}
                   </div>
                   <div className="flex-grow min-w-0">
                     <div className="flex items-center justify-between mb-1 sm:mb-2">
