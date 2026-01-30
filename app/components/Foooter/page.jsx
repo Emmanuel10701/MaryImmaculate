@@ -25,7 +25,7 @@ import {
   FiBell,
   FiCheckCircle,
   FiDownload,
-  FiEye
+  FiEye, FiX 
 } from 'react-icons/fi';
 import { 
   SiFacebook, 
@@ -493,7 +493,7 @@ export default function ModernFooter() {
           onClick={() => setShowPrivacy(false)} 
           className="p-2 hover:bg-white/10 rounded-full transition-all active:scale-90"
         >
-          
+
           <FiX size={20} className="text-white" />
         </button>
       </div>
