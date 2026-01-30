@@ -74,7 +74,7 @@ const emailTemplates = {
           <div class="footer">
             <p style="color:#1e293b; font-size: 18px; font-weight: 600; margin: 0 0 8px;">${SCHOOL_NAME}</p>
             <p style="color:#64748b; font-size: 14px; margin: 0 0 8px;">${SCHOOL_MOTTO}</p>
-            <p style="color:#94a3b8; font-size: 12px; margin: 8px 0 0;">© 2024 ${SCHOOL_NAME}. All rights reserved.</p>
+            <p style="color:#94a3b8; font-size: 12px; margin: 8px 0 0;">©  ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -135,7 +135,7 @@ const emailTemplates = {
           <div class="footer">
             <p style="color:#1e293b; font-size: 18px; font-weight: 600; margin: 0 0 8px;">${SCHOOL_NAME}</p>
             <p style="color:#64748b; font-size: 14px; margin: 0 0 8px;">${SCHOOL_LOCATION}</p>
-            <p style="color:#94a3b8; font-size: 12px; margin: 8px 0 0;">© 2024 ${SCHOOL_NAME}. All rights reserved.</p>
+            <p style="color:#94a3b8; font-size: 12px; margin: 8px 0 0;">© ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -190,7 +190,7 @@ const emailTemplates = {
           <div class="footer">
             <p style="color:#1e293b; font-size: 18px; font-weight: 600; margin: 0 0 8px;">${SCHOOL_NAME}</p>
             <p style="color:#64748b; font-size: 14px; margin: 0 0 8px;">${SCHOOL_MOTTO}</p>
-            <p style="color:#94a3b8; font-size: 12px; margin: 8px 0 0;">© 2024 ${SCHOOL_NAME}. All rights reserved.</p>
+            <p style="color:#94a3b8; font-size: 12px; margin: 8px 0 0;">© ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -232,7 +232,7 @@ const emailTemplates = {
           <div class="footer">
             <p style="color:#1e293b; font-size: 18px; font-weight: 600; margin: 0 0 8px;">${SCHOOL_NAME}</p>
             <p style="color:#64748b; font-size: 14px; margin: 0 0 8px;">${SCHOOL_MOTTO}</p>
-            <p style="color:#94a3b8; font-size: 12px; margin: 8px 0 0;">© 2024 ${SCHOOL_NAME}. All rights reserved.</p>
+            <p style="color:#94a3b8; font-size: 12px; margin: 8px 0 0;">© ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.</p>
           </div>
         </div>
       </body>
