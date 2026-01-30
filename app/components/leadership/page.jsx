@@ -354,14 +354,14 @@ Mary Immaculate Girls
   )}
 
   {/* Image Section - 80% height */}
-  <div className="relative h-[70vh] overflow-hidden">
+  <div className="relative h-[60vh] overflow-hidden">
     <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent z-10"></div>
     
     {featuredStaff.image ? (
       <img
         src={getImageUrl(featuredStaff.image)}
         alt={featuredStaff.name}
-        className="w-full h-full object-cover object-top"
+        className="w-full h-[80%] object-cover object-top"
         onError={(e) => {
           e.target.onerror = null;
           e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(featuredStaff.name)}&background=4f46e5&color=fff&bold=true&size=256`;
