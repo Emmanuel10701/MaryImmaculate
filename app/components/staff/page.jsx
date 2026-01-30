@@ -1104,20 +1104,47 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                         ))}
                       </div>
                     </div>
+<div>
+  <label className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-xl border border-green-200">
+    <FaBriefcase className="text-green-600 text-lg" /> 
+    Position
+  </label>
+  
+  <select
+    value={formData.position}
+    onChange={(e) => handleChange('position', e.target.value)}
+    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 appearance-none cursor-pointer"
+  >
+    <option value="">Select a position...</option>
+    
+    <optgroup label="Administration" className="font-bold text-green-700 bg-green-50">
+      <option value="Chief Principal">Chief Principal</option>
+      <option value="Deputy Principal">Deputy Principal</option>
+      <option value="Senior Teacher">Senior Teacher</option>
+      <option value="Head of Department">Head of Department</option>
+    </optgroup>
 
-                    <div>
-                      <label className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-xl border border-green-200">
-                        <FaBriefcase className="text-green-600 text-lg" /> 
-                        Position
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.position}
-                        onChange={(e) => handleChange('position', e.target.value)}
-                        placeholder="e.g., Head of Department, Class Teacher..."
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50"
-                      />
-                    </div>
+    <optgroup label="Teaching Staff" className="font-bold text-blue-700 bg-blue-50">
+      <option value="Teacher">Teacher</option>
+      <option value="Subject Teacher">Subject Teacher</option>
+      <option value="Class Teacher">Class Teacher</option>
+      <option value="Assistant Teacher">Assistant Teacher</option>
+    </optgroup>
+
+    <optgroup label="Support & Finance" className="font-bold text-orange-700 bg-orange-50">
+      <option value="Librarian">Librarian</option>
+      <option value="Laboratory Technician">Laboratory Technician</option>
+      <option value="Accountant">Accountant</option>
+      <option value="Secretary">Secretary</option>
+      <option value="Support Staff">Support Staff</option>
+    </optgroup>
+  </select>
+  
+  {/* Optional: Simple instruction for the user */}
+  <p className="mt-2 text-xs text-gray-500 italic px-1">
+    Please select the primary role held at the institution.
+  </p>
+</div>
                   </div>
 
                   <div className="space-y-4">
