@@ -82,20 +82,22 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/pages/apply-for-admissions" passHref>
-              <button className="w-full sm:w-auto px-12 py-5 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black rounded-2xl shadow-2xl shadow-orange-900/40 flex items-center justify-center gap-3">
-                Apply for Admission <ArrowRight size={20} />
-              </button>
-            </Link>
+       {/* MODERN ACTION DOCK - Always Flex & Height-Efficient */}
+<div className="flex flex-row gap-2 sm:gap-4 justify-center items-center w-full px-2">
+  
+  <Link href="/pages/apply-for-admissions" passHref className="flex-1 sm:flex-none">
+    <button className="w-full sm:w-auto px-4 sm:px-10 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[11px] sm:text-sm font-black rounded-xl sm:rounded-2xl shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2 transition-transform active:scale-95 whitespace-nowrap">
+      Admission <ArrowRight size={16} className="shrink-0" />
+    </button>
+  </Link>
 
-            <Link href="/pages/admissions" passHref>
-              <button className="w-full sm:w-auto px-12 py-5 bg-slate-900 text-white font-black rounded-2xl border border-white/10 shadow-xl">
-                Explore Curriculum
-              </button>
-            </Link>
-          </div>
+  <Link href="/pages/admissions" passHref className="flex-1 sm:flex-none">
+    <button className="w-full sm:w-auto px-4 sm:px-10 py-3 bg-slate-900 text-white text-[11px] sm:text-sm font-black rounded-xl sm:rounded-2xl border border-white/10 shadow-xl flex items-center justify-center transition-transform active:scale-95 whitespace-nowrap">
+      Curriculum
+    </button>
+  </Link>
+  
+</div>
 
           {/* Trust Indicators */}
           <div className="mt-12 flex justify-center gap-8 opacity-40 grayscale">
