@@ -384,14 +384,24 @@ const StaffCard = ({ staff }) => {
 
         {/* Action Buttons - High Definition */}
         <div className="mt-auto pt-5 border-t border-gray-100 grid grid-cols-2 gap-4">
-          {staff.email && (
-            <a 
-              href={`mailto:${staff.email}`}
-              className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-slate-900 text-white text-xs sm:text-sm font-black transition-all hover:bg-blue-600 active:scale-95 shadow-lg shadow-slate-200"
-            >
-              <FiMail size={16} /> <span>EMAIL</span>
-            </a>
-          )}
+        {staff.email && (
+  <a 
+    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${staff.email}&su=${encodeURIComponent("Inquiry regarding " + staff.name)}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-slate-900 text-white text-xs font-black tracking-[0.15em] transition-all hover:bg-[#EA4335] hover:shadow-[0_8px_25px_rgba(234,67,53,0.3)] active:scale-95 shadow-lg shadow-slate-200 group"
+  >
+    {/* Animated Gmail-style Icon */}
+    <div className="relative">
+      <FiMail size={16} className="group-hover:opacity-0 transition-opacity" />
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <SiGmail size={14} /> 
+      </div>
+    </div>
+    
+    <span className="uppercase">EMAIL</span>
+  </a>
+)}
           <Link
             href={`/pages/staff/${staff.id}/${generateSlug(staff.name, staff.id)}`}
             className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-white border-2 border-gray-900 text-gray-900 text-xs sm:text-sm font-black transition-all hover:bg-gray-900 hover:text-white active:scale-95"
