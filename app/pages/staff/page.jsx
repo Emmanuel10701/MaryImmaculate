@@ -238,34 +238,44 @@ const StatsPill = ({ icon, value, label, color = 'blue' }) => (
 );
 
 const HierarchySection = ({ title, icon, staff, viewMode, isFirst = false }) => {
-  if (!staff || staff.length === 0) return null;
+  if (!staff?.length) return null;
 
   return (
-    <div className={`${isFirst ? '' : 'mt-12'}`}>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center text-white text-xl">
-          {icon}
+    <section className={isFirst ? "animate-in fade-in slide-in-from-bottom-4 duration-700" : "mt-16 sm:mt-24"}>
+      {/* Header: Modern Minimalist */}
+      <div className="flex items-center gap-4 mb-8 px-2">
+        <div className="relative shrink-0 w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-900/10 overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="relative z-10 text-2xl">{icon}</span>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-          <p className="text-gray-600">{staff.length} dedicated professional{staff.length !== 1 ? 's' : ''}</p>
+        
+        <div className="min-w-0">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none mb-1 uppercase">
+            {title}
+          </h2>
+          <p className="text-xs sm:text-sm font-bold text-blue-600 tracking-widest uppercase opacity-80">
+            {staff.length} {staff.length === 1 ? 'Expert' : 'Professionals'}
+          </p>
         </div>
+        <div className="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent ml-4 hidden sm:block" />
       </div>
       
-      {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-          {staff.map((member) => (
-            <StaffCard key={member.id} staff={member} />
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {staff.map((member) => (
-            <StaffListCard key={member.id} staff={member} />
-          ))}
-        </div>
-      )}
-    </div>
+      {/* View Switcher Logic: Responsive & Zoom-Aware */}
+      <div className={
+        viewMode === 'grid' 
+          ? "grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-5 sm:gap-8" 
+          : "flex flex-col gap-4"
+      }>
+        {staff.map((member) => (
+          <div key={member.id} className="transition-all duration-300 hover:translate-y-[-4px]">
+            {viewMode === 'grid' 
+              ? <StaffCard staff={member} /> 
+              : <StaffListCard staff={member} />
+            }
+          </div>
+        ))}
+      </div>
+    </section>
   );
 };
 
