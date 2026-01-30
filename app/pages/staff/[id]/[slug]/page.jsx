@@ -204,141 +204,155 @@ const transformStaffData = (apiData) => {
     );
   };
 
-  // Share Modal Component
-  const ShareModal = () => {
-    if (!showShareModal || !staff) return null;
-    
-    const profileUrl = typeof window !== 'undefined' ? window.location.href : '';
-    const shareText = `Check out ${staff.name}'s profile - ${staff.position} at Marry Immculate Girls High School`;
-    const encodedText = encodeURIComponent(shareText);
-    const encodedUrl = encodeURIComponent(profileUrl);
-    
-    const shareLinks = {
-      whatsapp: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`,
-      instagram: `https://www.instagram.com/`,
-    };
+const ShareModal = () => {
+  const [copied, setCopied] = useState(false);
+  if (!showShareModal || !staff) return null;
 
-    const handleCopyLink = async () => {
-      try {
-        await navigator.clipboard.writeText(profileUrl);
-        alert('Link copied to clipboard! You can paste it in Instagram.');
-      } catch (err) {
-        console.error('Failed to copy:', err);
-      }
-    };
-
-    const handleShare = (platform) => {
-      if (platform === 'instagram') {
-        handleCopyLink();
-      }
-      // Facebook and WhatsApp will open in new tab via link
-    };
-
-    return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-        <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-gray-900">Share Profile</h3>
-            <button 
-              onClick={() => setShowShareModal(false)}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
-            >
-              <FiX size={24} />
-            </button>
-          </div>
-          
-          <div className="space-y-4">
-            {/* WhatsApp */}
-            <a
-              href={shareLinks.whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => handleShare('whatsapp')}
-              className="flex items-center gap-4 p-4 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all group"
-            >
-              <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <FaWhatsapp className="text-white text-2xl" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900">WhatsApp</h4>
-                <p className="text-sm text-gray-600">Share with contacts</p>
-              </div>
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
-
-            {/* Facebook */}
-            <a
-              href={shareLinks.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => handleShare('facebook')}
-              className="flex items-center gap-4 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all group"
-            >
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <FaFacebook className="text-white text-2xl" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900">Facebook</h4>
-                <p className="text-sm text-gray-600">Share on your timeline</p>
-              </div>
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
-
-            {/* Instagram */}
-            <button
-              onClick={() => handleShare('instagram')}
-              className="flex items-center gap-4 p-4 bg-pink-50 hover:bg-pink-100 rounded-xl transition-all group w-full text-left"
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <FaInstagram className="text-white text-2xl" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900">Instagram</h4>
-                <p className="text-sm text-gray-600">Copy link to paste in IG</p>
-              </div>
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-            </button>
-
-            {/* Direct Link Copy */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={profileUrl}
-                  className="flex-1 p-3 bg-gray-100 rounded-lg text-sm border border-gray-300 truncate"
-                />
-                <button
-                  onClick={handleCopyLink}
-                  className="bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                >
-                  Copy
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  const profileUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareText = `Check out ${staff.name}'s profile - ${staff.position} at Marry Immaculate`;
+  
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(profileUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading Professional Profile...</p>
+  const channels = [
+    { 
+      name: 'WhatsApp', 
+      icon: <FaWhatsapp />, 
+      color: 'bg-[#25D366]', 
+      link: `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + profileUrl)}` 
+    },
+    { 
+      name: 'Facebook', 
+      icon: <FaFacebook />, 
+      color: 'bg-[#1877F2]', 
+      link: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}` 
+    },
+    { 
+      name: 'Instagram', 
+      icon: <FaInstagram />, 
+      color: 'bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]', 
+      action: handleCopy 
+    },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowShareModal(false)} />
+      
+      {/* Modal Card */}
+      <div className="relative bg-white w-full max-w-sm rounded-[2.5rem] shadow-3xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="p-8">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Share</h3>
+              <p className="text-xs font-bold text-slate-400 tracking-widest uppercase">Professional Profile</p>
+            </div>
+            <button onClick={() => setShowShareModal(false)} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+              <FiX size={20} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
+            {channels.map((ch) => (
+              <a 
+                key={ch.name}
+                href={ch.link || '#'}
+                target={ch.link ? "_blank" : "_self"}
+                onClick={ch.action}
+                className="group flex items-center gap-4 p-2 pr-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-all"
+              >
+                <div className={`w-12 h-12 ${ch.color} rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform`}>
+                  {ch.icon}
+                </div>
+                <div className="flex-1">
+                  <span className="block font-black text-slate-900 text-sm uppercase tracking-tight">{ch.name}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase leading-none">
+                    {ch.name === 'Instagram' ? 'Copy Link to Post' : `Share to ${ch.name}`}
+                  </span>
+                </div>
+                <FiShare2 className="text-slate-300 group-hover:text-blue-500 transition-colors" />
+              </a>
+            ))}
+          </div>
+
+          {/* Smart Link Bar */}
+          <div className="mt-8 relative">
+            <input 
+              readOnly 
+              value={profileUrl} 
+              className="w-full bg-slate-100 border-none rounded-2xl py-4 pl-5 pr-16 text-xs font-bold text-slate-500 focus:ring-2 ring-blue-500"
+            />
+            <button 
+              onClick={handleCopy}
+              className={`absolute right-2 top-2 bottom-2 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                copied ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white hover:bg-blue-600'
+              }`}
+            >
+              {copied ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+        </div>
+        
+        <div className="bg-slate-50 p-4 text-center">
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Marry Immaculate Girls High School</p>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+};
+
+if (loading) {
+  return (
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
+      {/* Dynamic Brand Logo Loader */}
+      <div className="relative mb-12">
+        {/* Animated Rings */}
+        <div className="absolute inset-0 rounded-[2rem] border-2 border-blue-600/20 animate-ping" />
+        <div className="absolute inset-0 rounded-[2rem] border-4 border-slate-900/5 animate-pulse" />
+        
+        {/* Central Icon */}
+        <div className="relative w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center shadow-2xl rotate-3">
+          <FaGraduationCap className="text-white text-4xl animate-bounce" />
+        </div>
+      </div>
+
+      {/* Loading Text with Modern Letter Spacing */}
+      <div className="space-y-3">
+        <h2 className="text-xs font-black tracking-[0.3em] text-slate-900 uppercase">
+          Authenticating
+        </h2>
+        <div className="flex items-center justify-center gap-1">
+          {[0, 1, 2].map((i) => (
+            <div 
+              key={i} 
+              className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" 
+              style={{ animationDelay: `${i * 0.1}s` }}
+            />
+          ))}
+        </div>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest max-w-[200px] leading-relaxed">
+          Marry Immaculate Professional Directory
+        </p>
+      </div>
+
+      {/* Subtle Progress Bar */}
+      <div className="mt-12 w-48 h-1 bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-full bg-slate-900 w-1/3 rounded-full animate-[loading_1.5s_infinite_ease-in-out]" />
+      </div>
+
+      <style jsx>{`
+        @keyframes loading {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(300%); }
+        }
+      `}</style>
+    </div>
+  );
+}
 
   if (error || !staff) {
     return (
@@ -388,7 +402,7 @@ const transformStaffData = (apiData) => {
                 Marry Immculate Girls HS
               </span>
               <span className="font-bold text-gray-800 hidden sm:block md:hidden">KHS</span>
-              <span className="font-bold text-gray-800 hidden md:block lg:hidden">Katwanyaa</span>
+              <span className="font-bold text-gray-800 hidden md:block lg:hidden">Mary Immculate</span>
               <span className="font-bold text-gray-800 hidden lg:block">Marry Immculate Girls High School</span>
             </div>
 
