@@ -62,32 +62,42 @@ export default function ModernFooter() {
     { name: 'School Policies', href: '/pages/TermsandPrivacy', icon: FiShield },
   ];
 
-  // Social Media Links
+  // Social Media Links with React-colored icons
   const socialLinks = [
     {
       icon: SiFacebook,
       href: 'https://facebook.com/maryimmaculategirls',
-      label: 'Facebook'
+      label: 'Facebook',
+      color: '#1877F2', // Facebook blue
+      hoverColor: '#0A5CD0'
     },
     {
       icon: SiX,
       href: 'https://twitter.com/maryimmaculategirls',
-      label: 'Twitter'
+      label: 'Twitter',
+      color: '#000000', // Twitter black
+      hoverColor: '#333333'
     },
     {
       icon: SiYoutube,
       href: 'https://youtube.com/maryimmaculategirls',
-      label: 'YouTube'
+      label: 'YouTube',
+      color: '#FF0000', // YouTube red
+      hoverColor: '#CC0000'
     },
     {
       icon: SiLinkedin,
       href: 'https://linkedin.com/school/maryimmaculategirls',
-      label: 'LinkedIn'
+      label: 'LinkedIn',
+      color: '#0A66C2', // LinkedIn blue
+      hoverColor: '#004182'
     },
     {
       icon: SiWhatsapp,
       href: 'https://wa.me/254720123456',
-      label: 'WhatsApp'
+      label: 'WhatsApp',
+      color: '#25D366', // WhatsApp green
+      hoverColor: '#1DA851'
     },
   ];
 
@@ -198,158 +208,169 @@ export default function ModernFooter() {
       {/* Main Footer Content */}
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         <div className="max-w-7xl mx-auto">
-          {/* Grid Layout - Responsive */}
+          {/* Grid Layout - Responsive with zoom support */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 w-full">
             
-{/* Column 1: School Information */}
-<div className="space-y-6 min-w-0 w-full">
-  {/* Header Section: Wrapped for high zoom/small screens */}
-  <div className="flex flex-col xs:flex-row items-start gap-4">
-    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-white flex-shrink-0 shadow-sm">
-      <img 
-        src="/ll.png" 
-        alt="School Logo" 
-        className="w-full h-full object-cover"
-      />
-    </div>
-    
-    <div className="min-w-0 flex-1">
-      <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-white leading-tight break-words">
-        Mary Immaculate Girls Secondary
-      </h3>
-      <div className="text-white text-sm font-semibold flex items-center gap-2 mt-2 flex-wrap">
-        <FiTarget className="flex-shrink-0 w-4 h-4" />
-        <span className="opacity-90">Prayer, Discipline & Hardwork</span>
-      </div>
-    </div>
-  </div>
+            {/* Column 1: School Information */}
+            <div className="space-y-6 min-w-0 w-full">
+              {/* Header Section */}
+              <div className="flex flex-col xs:flex-row items-start gap-4">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-white flex-shrink-0 shadow-sm">
+                  <img 
+                    src="/ll.png" 
+                    alt="School Logo" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight break-words">
+                    Mary Immaculate Girls Secondary
+                  </h3>
+                  <div className="text-white text-sm font-medium flex items-center gap-2 mt-2 flex-wrap">
+                    <FiTarget className="flex-shrink-0 w-4 h-4" />
+                    <span className="opacity-90">Prayer, Discipline & Hardwork</span>
+                  </div>
+                </div>
+              </div>
 
-  {/* Description: High readability with max-width for zoom comfort */}
-  <p className="text-white text-sm sm:text-base font-medium leading-relaxed break-words max-w-prose">
-    A premier learning institution in Mweiga, Nyeri, dedicated to academic excellence, 
-    holistic development, and nurturing future women leaders through quality education since 1995.
-  </p>
+              {/* Description */}
+              <p className="text-gray-300 text-sm sm:text-base font-normal leading-relaxed break-words max-w-prose">
+                A premier learning institution in Mweiga, Nyeri, dedicated to academic excellence, 
+                holistic development, and nurturing future women leaders through quality education since 1995.
+              </p>
 
-  {/* Contact List: Improved spacing for touch targets and zoom */}
-  <div className="space-y-4">
-    {contactInfo.slice(0, 3).map((item, index) => {
-      const ItemIcon = item.icon;
-      return (
-        <a
-          key={index}
-          href={item.href}
-          className="flex items-start gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group"
-        >
-          <div className="mt-1 p-1 bg-white/10 rounded-md group-hover:bg-white/20 transition-colors">
-            <ItemIcon className="flex-shrink-0 text-lg group-hover:scale-110 transition-transform" /> 
-          </div>
-          <div className="min-w-0 flex-1">
-            <span className="block break-all sm:break-words leading-tight">{item.text}</span>
-            {item.detail && (
-              <p className="text-xs sm:text-sm text-gray-300 font-normal mt-0.5 break-words">
-                {item.detail}
-              </p> 
-            )}
-          </div>
-        </a>
-      );
-    })}
-  </div>
-</div>
-{/* Column 2: Quick Links */}
-<div className="space-y-4 min-w-0 w-full">
-  <div className="flex items-center gap-2 flex-wrap">
-    <FiGlobe className="text-white text-lg sm:text-xl flex-shrink-0" />
-    <h4 className="text-base sm:text-lg lg:text-xl font-black text-white break-words">Quick Links</h4>
-  </div>
-  <div className="space-y-3">
-    {quickLinks.map((link, index) => {
-      const Icon = link.icon;
-      return (
-        <a 
-          key={index} 
-          href={link.href} 
-          className="flex items-start gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group break-words"
-        >
-          {/* Fixed width for icon ensures text always aligns even if it wraps */}
-          <Icon className="flex-shrink-0 text-lg group-hover:scale-125 transition-transform mt-0.5" />
-          <span className="min-w-0 flex-1 break-words leading-tight">{link.name}</span>
-        </a>
-      );
-    })}
-  </div>
+              {/* Contact List */}
+              <div className="space-y-4">
+                {contactInfo.slice(0, 3).map((item, index) => {
+                  const ItemIcon = item.icon;
+                  return (
+                    <a
+                      key={index}
+                      href={item.href}
+                      className="flex items-start gap-3 text-gray-300 hover:text-white transition-all text-sm sm:text-base font-normal group"
+                    >
+                      <div className="mt-1 p-1.5 bg-white/10 rounded-md group-hover:bg-white/20 transition-colors flex-shrink-0">
+                        <ItemIcon className="text-lg group-hover:scale-100 transition-transform" /> 
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="block break-all sm:break-words leading-tight">{item.text}</span>
+                        {item.detail && (
+                          <p className="text-xs sm:text-sm text-gray-400 font-normal mt-0.5 break-words">
+                            {item.detail}
+                          </p> 
+                        )}
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
 
-  {/* Achievements */}
-  <div className="mt-6 pt-6 border-t border-white/20 space-y-3">
-    <div className="flex items-center gap-2 flex-wrap">
-      <FiAward className="text-white text-lg flex-shrink-0" />
-      <h4 className="text-sm sm:text-base lg:text-lg font-black text-white break-words">Achievements</h4>
-    </div>
-    <div className="space-y-2">
-      {achievements.map((achievement, index) => (
-        <div key={index} className="flex items-start gap-3 text-white text-sm font-semibold group">
-          <FiCheckCircle className="flex-shrink-0 text-lg mt-0.5 text-green-400" />
-          <span className="min-w-0 flex-1 break-words leading-relaxed">{achievement}</span>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
+            {/* Column 2: Quick Links */}
+            <div className="space-y-4 min-w-0 w-full">
+              <div className="flex items-center gap-2 flex-wrap">
+                <FiGlobe className="text-white text-lg sm:text-xl flex-shrink-0" />
+                <h4 className="text-base sm:text-lg lg:text-xl font-semibold text-white break-words">Quick Links</h4>
+              </div>
+              <div className="space-y-3">
+                {quickLinks.map((link, index) => {
+                  const Icon = link.icon;
+                  return (
+                    <a 
+                      key={index} 
+                      href={link.href} 
+                      className="flex items-start gap-3 text-gray-300 hover:text-white text-sm sm:text-base font-normal group break-words hover:translate-x-1 transition-transform"
+                    >
+                      <Icon className="flex-shrink-0 text-lg group-hover:scale-100 transition-transform mt-0.5 text-white/70" />
+                      <span className="min-w-0 flex-1 break-words leading-tight">{link.name}</span>
+                    </a>
+                  );
+                })}
+              </div>
 
-{/* Column 3: Resources */}
-<div className="space-y-4 min-w-0 w-full">
-  <div className="flex items-center gap-2 flex-wrap">
-    <FiActivity className="text-white text-lg sm:text-xl flex-shrink-0" />
-    <h4 className="text-base sm:text-lg lg:text-xl font-black text-white break-words">Resources</h4>
-  </div>
-  <div className="space-y-3">
-    {resources.map((resource, index) => {
-      const Icon = resource.icon;
-      return (
-        <a
-          key={index}
-          href={resource.href}
-          className="flex items-start gap-3 text-white hover:text-gray-300 transition-all text-sm sm:text-base font-semibold group break-words"
-        >
-          <Icon className="flex-shrink-0 text-lg group-hover:scale-125 transition-transform mt-0.5" />
-          <span className="min-w-0 flex-1 break-words leading-tight">{resource.name}</span>
-        </a>
-      );
-    })}
-  </div>
+              {/* Achievements */}
+              <div className="mt-6 pt-6 border-t border-white/20 space-y-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <FiAward className="text-white text-lg flex-shrink-0" />
+                  <h4 className="text-sm sm:text-base lg:text-lg font-semibold text-white break-words">Achievements</h4>
+                </div>
+                <div className="space-y-2">
+                  {achievements.map((achievement, index) => (
+                    <div key={index} className="flex items-start gap-3 text-gray-300 text-sm font-normal group">
+                      <FiCheckCircle className="flex-shrink-0 text-lg mt-0.5 text-green-400" />
+                      <span className="min-w-0 flex-1 break-words leading-relaxed">{achievement}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-  {/* Social Media */}
-  <div className="mt-6 pt-6 border-t border-white/20 space-y-3">
-    <div className="flex items-center gap-2 flex-wrap">
-      <FiUsers className="text-white text-lg flex-shrink-0" />
-      <h5 className="text-sm sm:text-base lg:text-lg font-black text-white break-words">Connect With Us</h5>
-    </div>
-    {/* Grid approach for social icons handles wrapping much better than a standard flex gap */}
-    <div className="flex flex-wrap gap-3 pt-1">
-      {socialLinks.map((social, index) => {
-        const SocialIcon = social.icon;
-        return (
-          <a
-            key={index}
-            href={social.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all border border-white/20 flex-shrink-0"
-            aria-label={social.label}
-          >
-            <SocialIcon className="text-lg sm:text-xl text-white" />
-          </a>
-        );
-      })}
-    </div>
-  </div>
-</div>
+            {/* Column 3: Resources */}
+            <div className="space-y-4 min-w-0 w-full">
+              <div className="flex items-center gap-2 flex-wrap">
+                <FiActivity className="text-white text-lg sm:text-xl flex-shrink-0" />
+                <h4 className="text-base sm:text-lg lg:text-xl font-semibold text-white break-words">Resources</h4>
+              </div>
+              <div className="space-y-3">
+                {resources.map((resource, index) => {
+                  const Icon = resource.icon;
+                  return (
+                    <a
+                      key={index}
+                      href={resource.href}
+                      className="flex items-start gap-3 text-gray-300 hover:text-white  text-sm sm:text-base font-normal group break-words hover:translate-x-1 transition-transform"
+                    >
+                      <Icon className="flex-shrink-0 text-lg group-hover:scale-100 transition-transform mt-0.5 text-white/70" />
+                      <span className="min-w-0 flex-1 break-words leading-tight">{resource.name}</span>
+                    </a>
+                  );
+                })}
+              </div>
+
+              {/* Social Media with React-colored icons */}
+              <div className="mt-6 pt-6 border-t border-white/20 space-y-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <FiUsers className="text-white text-lg flex-shrink-0" />
+                  <h5 className="text-sm sm:text-base lg:text-lg font-semibold text-white break-words">Connect With Us</h5>
+                </div>
+                <div className="flex flex-wrap gap-3 pt-1">
+                  {socialLinks.map((social, index) => {
+                    const SocialIcon = social.icon;
+                    return (
+                      <a
+                        key={index}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center  border border-white/20 flex-shrink-0 hover:scale-100 hover:shadow-lg transform transition-transform"
+                        aria-label={social.label}
+                        style={{
+                          backgroundColor: social.color,
+                          borderColor: social.color,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = social.hoverColor;
+                          e.currentTarget.style.borderColor = social.hoverColor;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = social.color;
+                          e.currentTarget.style.borderColor = social.color;
+                        }}
+                      >
+                        <SocialIcon className="text-lg sm:text-xl text-white" />
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
 
             {/* Column 4: Newsletter */}
-            <div className="space-y-4 min-w-0">
+            <div className="space-y-4 min-w-0 w-full">
               <div className="flex items-center gap-2 flex-wrap">
                 <FiBell className="text-white text-lg sm:text-xl flex-shrink-0" />
-                <h4 className="text-base sm:text-lg lg:text-xl font-black text-white break-words">Stay Updated</h4>
+                <h4 className="text-base sm:text-lg lg:text-xl font-semibold text-white break-words">Stay Updated</h4>
               </div>
               
               {/* Newsletter Subscription */}
@@ -359,28 +380,28 @@ export default function ModernFooter() {
                     <FiBell className="text-white text-lg" />
                   </div>
                   <div className="min-w-0">
-                    <h4 className="text-base sm:text-lg font-black text-white break-words">Newsletter</h4>
-                    <p className="text-white text-sm font-semibold break-words">Get academic events & announcements</p>
+                    <h4 className="text-base sm:text-lg font-semibold text-white break-words">Newsletter</h4>
+                    <p className="text-gray-300 text-sm font-normal break-words">Get academic events & announcements</p>
                   </div>
                 </div>
 
                 <form onSubmit={handleSubscribe} className="space-y-4">
                   <div className="relative">
-                    <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-lg flex-shrink-0" />
+                    <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg flex-shrink-0" />
                     <input
                       type="email"
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full pl-12 pr-4 py-3 bg-gray-800 border-2 border-gray-700 hover:border-gray-600 focus:border-blue-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base font-semibold"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-800 border-2 border-gray-700 hover:border-gray-600 focus:border-blue-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-sm sm:text-base font-normal"
                     />
                   </div>
                   
                   <button
                     type="submit"
                     disabled={isSubmitting || !email}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-black text-sm sm:text-base transition-all disabled:cursor-not-allowed hover:scale-105 active:scale-95 transform"
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-medium text-sm sm:text-base transition-all disabled:cursor-not-allowed hover:scale-[1.00] active:scale-[0.99] transform"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center justify-center gap-2">
@@ -405,8 +426,8 @@ export default function ModernFooter() {
                     <div className="flex items-center gap-3 flex-wrap">
                       <FiCheckCircle className="text-emerald-300 text-lg flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-emerald-300 font-black text-sm sm:text-base break-words">Successfully subscribed!</p>
-                        <p className="text-emerald-200 text-sm font-semibold break-words">You'll receive updates soon.</p>
+                        <p className="text-emerald-300 font-medium text-sm sm:text-base break-words">Successfully subscribed!</p>
+                        <p className="text-emerald-200 text-sm font-normal break-words">You'll receive updates soon.</p>
                       </div>
                     </div>
                   </div>
@@ -415,24 +436,24 @@ export default function ModernFooter() {
             </div>
           </div>
 
-          {/* Footer Bottom */}
+          {/* Footer Bottom - Zoom responsive */}
           <div className="mt-12 lg:mt-16 pt-8 border-t border-gray-700">
             <div className="flex flex-col gap-6 w-full">
-              <div className="text-white text-sm font-semibold text-center break-words">
+              <div className="text-gray-300 text-sm font-normal text-center break-words px-4">
                 <p>© {currentYear} Mary Immaculate Girls Secondary School, Mweiga, Nyeri. All rights reserved.</p>
               </div>
 
-              <div className="flex items-center gap-6 text-sm font-semibold flex-wrap justify-center">
+              <div className="flex items-center justify-center gap-4 sm:gap-6 text-sm font-normal flex-wrap">
                 <button 
                   onClick={() => setShowSitemap(true)} 
-                  className="text-white hover:text-gray-300 transition-colors flex items-center gap-2 hover:scale-110 whitespace-nowrap flex-shrink-0"
+                  className="text-gray-300 hover:text-white transition-colors flex items-center gap-2 hover:scale-100 whitespace-nowrap flex-shrink-0 px-2 py-1"
                 >
                   <FiGlobe className="text-lg" />
                   <span className="break-words">Sitemap</span>
                 </button>
                 <button 
                   onClick={() => setShowPrivacy(true)} 
-                  className="text-white hover:text-gray-300 transition-colors flex items-center gap-2 hover:scale-110 whitespace-nowrap flex-shrink-0"
+                  className="text-gray-300 hover:text-white transition-colors flex items-center gap-2 hover:scale-100 whitespace-nowrap flex-shrink-0 px-2 py-1"
                 >
                   <FiShield className="text-lg" />
                   <span className="break-words">Terms & Privacy</span>
@@ -440,7 +461,7 @@ export default function ModernFooter() {
               </div>
             </div>
 
-            <div className="mt-6 text-center text-sm text-white font-semibold break-words">
+            <div className="mt-6 text-center text-sm text-gray-300 font-normal break-words px-4">
               <p>Accredited by the Ministry of Education • KNEC Centre Code: 12345678</p>
               <div className="flex items-center justify-center gap-2 mt-3 flex-wrap">
                 <span>Empowering Future Leaders with</span>
@@ -459,11 +480,11 @@ export default function ModernFooter() {
             className="absolute inset-0 bg-black/80" 
             onClick={() => setShowPrivacy(false)} 
           />
-          <div className="relative bg-slate-900 text-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700 p-6 sm:p-8 my-auto">
+          <div className="relative bg-slate-900 text-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700 p-4 sm:p-6 md:p-8 my-auto">
             <div className="flex justify-between items-start gap-3 mb-6 flex-wrap">
               <div className="flex items-center gap-3 min-w-0">
                 <FiShield className="text-2xl text-white flex-shrink-0" />
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-white break-words">Privacy Policy & Terms</h2>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-white break-words">Privacy Policy & Terms</h2>
               </div>
               <button 
                 onClick={() => setShowPrivacy(false)} 
@@ -475,11 +496,11 @@ export default function ModernFooter() {
 
             <div className="space-y-6">
               <section className="bg-slate-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg sm:text-xl font-black text-white mb-3 flex items-center gap-2 break-words">
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 flex items-center gap-2 break-words">
                   <FiShield className="flex-shrink-0" />
                   Privacy Commitment
                 </h3>
-                <p className="text-white text-sm sm:text-base font-semibold break-words leading-relaxed">
+                <p className="text-gray-300 text-sm sm:text-base font-normal break-words leading-relaxed">
                   At Mary Immaculate Girls Secondary, we are committed to protecting the privacy and security 
                   of all personal information collected from students, parents, staff, and visitors in compliance 
                   with the Data Protection Act.
@@ -488,40 +509,40 @@ export default function ModernFooter() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-slate-800 rounded-lg p-6 border border-gray-700">
-                  <h3 className="text-base sm:text-lg font-black text-white mb-3 flex items-center gap-2 break-words">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-3 flex items-center gap-2 break-words">
                     <FiEye className="flex-shrink-0" />
                     Information Collection
                   </h3>
-                  <ul className="space-y-2 text-white text-sm font-semibold">
+                  <ul className="space-y-2 text-gray-300 text-sm font-normal">
                     <li className="flex items-start gap-2 break-words">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 mt-1.5"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-1.5"></div>
                       <span>Student academic and personal records</span>
                     </li>
                     <li className="flex items-start gap-2 break-words">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 mt-1.5"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-1.5"></div>
                       <span>Parent/guardian contact information</span>
                     </li>
                     <li className="flex items-start gap-2 break-words">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 mt-1.5"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-1.5"></div>
                       <span>Staff employment and qualification data</span>
                     </li>
                     <li className="flex items-start gap-2 break-words">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 mt-1.5"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-1.5"></div>
                       <span>Medical information for emergency purposes</span>
                     </li>
                   </ul>
                 </div>
 
                 <div className="bg-slate-800 rounded-lg p-6 border border-gray-700">
-                  <h3 className="text-base sm:text-lg font-black text-white mb-3 flex items-center gap-2 break-words">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-3 flex items-center gap-2 break-words">
                     <FiDownload className="flex-shrink-0" />
                     Data Protection
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     {['🔐 Encrypted', '🛡️ Secure', '📊 Audits', '👩‍🏫 Training'].map((item, index) => (
-                      <div key={index} className="bg-slate-900 rounded-lg p-3 text-center border border-gray-700 break-words">
+                      <div key={index} className="bg-slate-900 rounded-lg p-3 text-center border border-gray-700 break-words hover:bg-slate-800 transition-colors">
                         <div className="text-lg mb-1">{item.split(' ')[0]}</div>
-                        <div className="text-sm font-bold text-white break-words">{item.split(' ')[1]}</div>
+                        <div className="text-sm font-medium text-gray-300 break-words">{item.split(' ')[1]}</div>
                       </div>
                     ))}
                   </div>
@@ -531,13 +552,13 @@ export default function ModernFooter() {
               <div className="flex flex-col gap-3 pt-4">
                 <button 
                   onClick={() => setShowPrivacy(false)} 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-black text-sm sm:text-base hover:scale-105 transition-all"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium text-sm sm:text-base hover:scale-[1.00] transition-all"
                 >
                   I Understand & Accept
                 </button>
                 <button 
                   onClick={() => setShowPrivacy(false)} 
-                  className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-black text-sm sm:text-base hover:scale-105 transition-all"
+                  className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium text-sm sm:text-base hover:scale-[1.00] transition-all"
                 >
                   Close Policy
                 </button>
@@ -554,11 +575,11 @@ export default function ModernFooter() {
             className="absolute inset-0 bg-black/80" 
             onClick={() => setShowSitemap(false)} 
           />
-          <div className="relative bg-slate-900 text-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700 p-6 sm:p-8 my-auto">
+          <div className="relative bg-slate-900 text-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700 p-4 sm:p-6 md:p-8 my-auto">
             <div className="flex justify-between items-start gap-3 mb-6 flex-wrap">
               <div className="flex items-center gap-3 min-w-0">
                 <FiGlobe className="text-2xl text-white flex-shrink-0" />
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-white break-words">Site Navigation</h2>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-white break-words">Site Navigation</h2>
               </div>
               <button 
                 onClick={() => setShowSitemap(false)} 
@@ -571,7 +592,7 @@ export default function ModernFooter() {
             <div className="grid md:grid-cols-3 gap-6">
               {['Main Sections', 'Resources', 'Quick Links'].map((section, idx) => (
                 <div key={idx}>
-                  <h3 className="font-black text-white mb-4 text-base sm:text-lg border-b border-gray-700 pb-3 break-words">
+                  <h3 className="font-semibold text-white mb-4 text-base sm:text-lg border-b border-gray-700 pb-3 break-words">
                     {section}
                   </h3>
                   <div className="space-y-3">
@@ -583,10 +604,10 @@ export default function ModernFooter() {
                         <a
                           key={index}
                           href={item.href}
-                          className="flex items-center gap-2.5 p-3 rounded-lg hover:bg-gray-800 text-white hover:text-gray-100 transition-all group font-semibold text-sm sm:text-base hover:translate-x-1 break-words"
+                          className="flex items-center gap-2.5 p-3 rounded-lg hover:bg-gray-800 text-gray-300 hover:text-white transition-all group font-normal text-sm sm:text-base hover:translate-x-1 break-words"
                           onClick={() => setShowSitemap(false)}
                         >
-                          <Icon className="group-hover:scale-125 transition-transform flex-shrink-0" />
+                          <Icon className="group-hover:scale-100 transition-transform flex-shrink-0 text-white/70" />
                           <span className="break-words">{item.name}</span>
                         </a>
                       );
@@ -600,14 +621,14 @@ export default function ModernFooter() {
               <div className="flex flex-col gap-3">
                 <button 
                   onClick={() => setShowSitemap(false)} 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-black text-sm sm:text-base hover:scale-105 transition-all"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium text-sm sm:text-base hover:scale-[1.00] transition-all"
                 >
                   Close Sitemap
                 </button>
                 <a
                   href="/pages/contact"
                   onClick={() => setShowSitemap(false)}
-                  className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-black text-sm sm:text-base hover:scale-105 transition-all text-center"
+                  className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium text-sm sm:text-base hover:scale-[1.00] transition-all text-center"
                 >
                   Contact Support
                 </a>
