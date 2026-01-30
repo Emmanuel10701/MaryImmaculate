@@ -125,6 +125,10 @@ export default function ModernGalleryManager() {
   const [removingFile, setRemovingFile] = useState(null);
   const [selectedPreviewItems, setSelectedPreviewItems] = useState(new Set());
 
+  // Add these state variables with the existing state declarations
+const [totalSizeMB, setTotalSizeMB] = useState(0);
+const [fileSizeError, setFileSizeError] = useState('');
+
   const fileInputRef = useRef(null);
   const dropdownRef = useRef(null);
   const itemsPerPage = 12;
@@ -241,75 +245,113 @@ export default function ModernGalleryManager() {
     setCurrentPage(1);
   }, [galleryItems, searchTerm, selectedCategory]);
 
-  const handleFilesSelect = (files) => {
-    const fileArray = Array.from(files);
-    const validFiles = fileArray.filter(file => {
-      if (!file || !file.type) {
-        toast.error('Invalid file selected');
-        return false;
-      }
-      
-      const isValidType = file.type.startsWith('image/');
-      const isValidSize = file.size <= 10 * 1024 * 1024;
-      
-      if (!isValidType) {
-        toast.error(`${file.name || 'Unknown file'}: Unsupported format - images only`);
-        return false;
-      }
-      if (!isValidSize) {
-        toast.error(`${file.name || 'Unknown file'}: Exceeds 10MB limit`);
-        return false;
-      }
-      return true;
-    });
-
-    if (validFiles.length === 0) {
-      toast.warning('Please select valid image files (max 10MB)');
-      return;
+const handleFilesSelect = (files) => {
+  const fileArray = Array.from(files);
+  
+  // Calculate current total size
+  let currentTotalBytes = 0;
+  formData.files.forEach(fileObj => {
+    if (fileObj.file && fileObj.file.size) {
+      currentTotalBytes += fileObj.file.size;
     }
-
-    // Create file objects with unique IDs and safe preview creation
-    const filesWithIds = validFiles.map(file => {
-      const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.name || 'file'}`;
-      let previewUrl = null;
-      
-      // Only create preview for images
-      if (file.type.startsWith('image/')) {
-        try {
-          previewUrl = URL.createObjectURL(file);
-        } catch (err) {
-          console.error('Failed to create preview URL:', err);
-          previewUrl = null;
-        }
-      }
-      
-      return {
-        id: fileId,
-        file: file,
-        preview: previewUrl,
-        type: file.type,
-        name: file.name || 'Unknown file',
-        size: file.size
-      };
-    });
-
-    // Update previews state
-    const newPreviews = {};
-    filesWithIds.forEach(fileObj => {
-      if (fileObj.preview) {
-        newPreviews[fileObj.id] = fileObj.preview;
-      }
-    });
-
-    setSelectedFilePreviews(prev => ({ ...prev, ...newPreviews }));
+  });
+  
+  // Filter and check each file
+  const validFiles = fileArray.filter(file => {
+    if (!file || !file.type) {
+      toast.error('Invalid file selected');
+      return false;
+    }
     
-    setFormData(prev => ({ 
-      ...prev, 
-      files: [...(Array.isArray(prev.files) ? prev.files : []), ...filesWithIds].slice(0, 20)
-    }));
+    const isValidType = file.type.startsWith('image/');
+    const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB per file
     
-    toast.success(`${validFiles.length} image(s) added`);
-  };
+    if (!isValidType) {
+      toast.error(`${file.name || 'Unknown file'}: Unsupported format - images only`);
+      return false;
+    }
+    if (!isValidSize) {
+      toast.error(`${file.name || 'Unknown file'}: Exceeds 10MB per file limit`);
+      return false;
+    }
+    return true;
+  });
+
+  if (validFiles.length === 0) {
+    toast.warning('Please select valid image files (max 10MB each)');
+    return;
+  }
+
+  // Calculate new total size
+  let newTotalBytes = currentTotalBytes;
+  validFiles.forEach(file => {
+    newTotalBytes += file.size;
+  });
+
+  const newTotalMB = newTotalBytes / (1024 * 1024);
+  const VERCEL_LIMIT_MB = 4.5;
+
+  // Check Vercel total size limit
+  if (newTotalMB > VERCEL_LIMIT_MB) {
+    const availableSpace = VERCEL_LIMIT_MB - (currentTotalBytes / (1024 * 1024));
+    toast.error(
+      `Cannot add these files. Available space: ${availableSpace.toFixed(1)}MB\n` +
+      `Total would be: ${newTotalMB.toFixed(1)}MB (Limit: ${VERCEL_LIMIT_MB}MB)`
+    );
+    return;
+  }
+
+  // Clear any previous size errors
+  setFileSizeError('');
+  
+  // Create file objects with unique IDs and safe preview creation
+  const filesWithIds = validFiles.map(file => {
+    const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.name || 'file'}`;
+    let previewUrl = null;
+    
+    // Only create preview for images
+    if (file.type.startsWith('image/')) {
+      try {
+        previewUrl = URL.createObjectURL(file);
+      } catch (err) {
+        console.error('Failed to create preview URL:', err);
+        previewUrl = null;
+      }
+    }
+    
+    return {
+      id: fileId,
+      file: file,
+      preview: previewUrl,
+      type: file.type,
+      name: file.name || 'Unknown file',
+      size: file.size
+    };
+  });
+
+  // Update previews state
+  const newPreviews = {};
+  filesWithIds.forEach(fileObj => {
+    if (fileObj.preview) {
+      newPreviews[fileObj.id] = fileObj.preview;
+    }
+  });
+
+  setSelectedFilePreviews(prev => ({ ...prev, ...newPreviews }));
+  
+  // Update form data
+  setFormData(prev => ({ 
+    ...prev, 
+    files: [...(Array.isArray(prev.files) ? prev.files : []), ...filesWithIds].slice(0, 20)
+  }));
+  
+  // Update total size display
+  const updatedTotalMB = (currentTotalBytes / (1024 * 1024)) + 
+    (validFiles.reduce((sum, file) => sum + file.size, 0) / (1024 * 1024));
+  setTotalSizeMB(parseFloat(updatedTotalMB.toFixed(2)));
+  
+  toast.success(`${validFiles.length} image(s) added (Total: ${updatedTotalMB.toFixed(1)}MB)`);
+};
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -327,44 +369,44 @@ export default function ModernGalleryManager() {
   };
 
   // Remove file function
-  const removeFile = useCallback((fileId) => {
-    setRemovingFile(fileId);
-    
-    const fileToRemove = formData.files.find(f => f.id === fileId);
-    
-    if (!fileToRemove) {
-      setRemovingFile(null);
-      return;
-    }
-
-    // Revoke the object URL if it exists
-    if (fileToRemove.preview) {
-      URL.revokeObjectURL(fileToRemove.preview);
-    }
-    
-    // Update selected file previews
-    setSelectedFilePreviews(prev => {
-      const newPreviews = { ...prev };
-      delete newPreviews[fileId];
-      return newPreviews;
-    });
-    
-    // Update form data
-    setFormData(prev => ({
-      ...prev,
-      files: (Array.isArray(prev.files) ? prev.files : []).filter(file => file.id !== fileId)
-    }));
-    
-    // Update upload progress
-    setUploadProgress(prev => {
-      const newProgress = { ...prev };
-      delete newProgress[fileId];
-      return newProgress;
-    });
-    
+const removeFile = useCallback((fileId) => {
+  setRemovingFile(fileId);
+  
+  const fileToRemove = formData.files.find(f => f.id === fileId);
+  
+  if (!fileToRemove) {
     setRemovingFile(null);
-    toast.info('File removed');
-  }, [formData.files]);
+    return;
+  }
+
+  // Revoke the object URL if it exists
+  if (fileToRemove.preview) {
+    URL.revokeObjectURL(fileToRemove.preview);
+  }
+  
+  // Update selected file previews
+  setSelectedFilePreviews(prev => {
+    const newPreviews = { ...prev };
+    delete newPreviews[fileId];
+    return newPreviews;
+  });
+  
+  // Update form data
+  setFormData(prev => ({
+    ...prev,
+    files: (Array.isArray(prev.files) ? prev.files : []).filter(file => file.id !== fileId)
+  }));
+  
+  // Update upload progress
+  setUploadProgress(prev => {
+    const newProgress = { ...prev };
+    delete newProgress[fileId];
+    return newProgress;
+  });
+  
+  setRemovingFile(null);
+  toast.info('File removed');
+}, [formData.files]);
 
   // Remove existing file from gallery during edit
   const removeExistingFile = useCallback((fileUrl, itemId) => {
@@ -385,6 +427,33 @@ export default function ModernGalleryManager() {
       });
     };
   }, [selectedFilePreviews]);
+
+
+  // Calculate total size whenever files change
+useEffect(() => {
+  if (formData.files && formData.files.length > 0) {
+    let totalBytes = 0;
+    formData.files.forEach(fileObj => {
+      if (fileObj.file && fileObj.file.size) {
+        totalBytes += fileObj.file.size;
+      }
+    });
+    
+    const totalMB = totalBytes / (1024 * 1024);
+    setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
+    
+    // Check if exceeds Vercel limit
+    if (totalMB > 4.5) {
+      setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's 4.5MB limit`);
+    } else {
+      setFileSizeError('');
+    }
+  } else {
+    setTotalSizeMB(0);
+    setFileSizeError('');
+  }
+}, [formData.files]);
+
 
   // CRUD Operations
   const handleCreate = async () => {
@@ -568,26 +637,26 @@ export default function ModernGalleryManager() {
       toast.error(`Error: ${error.message}`);
     }
   };
-
-  const resetForm = useCallback(() => {
-    setFormData({
-      title: '',
-      description: '',
-      category: 'GENERAL',
-      files: []
-    });
-    setUploadProgress({});
-    setFilesToRemove([]);
-    // Clean up preview URLs
-    Object.values(selectedFilePreviews).forEach(url => {
-      if (url && url.startsWith('blob:')) {
-        URL.revokeObjectURL(url);
-      }
-    });
-    setSelectedFilePreviews({});
-    setRemovingFile(null);
-  }, [selectedFilePreviews]);
-
+const resetForm = useCallback(() => {
+  setFormData({
+    title: '',
+    description: '',
+    category: 'GENERAL',
+    files: []
+  });
+  setUploadProgress({});
+  setFilesToRemove([]);
+  setTotalSizeMB(0);
+  setFileSizeError('');
+  // Clean up preview URLs
+  Object.values(selectedFilePreviews).forEach(url => {
+    if (url && url.startsWith('blob:')) {
+      URL.revokeObjectURL(url);
+    }
+  });
+  setSelectedFilePreviews({});
+  setRemovingFile(null);
+}, [selectedFilePreviews]);
   // Preview handling
   const handlePreview = (item) => {
     setPreviewItem(item);
@@ -1042,72 +1111,77 @@ export default function ModernGalleryManager() {
           </>
         )}
       </div>
+{/* Create Modal */}
+{showCreateModal && (
+  <ModernModal
+    mode="create"
+    formData={formData}
+    setFormData={setFormData}
+    uploadProgress={uploadProgress}
+    isUploading={isUploading}
+    dragActive={dragActive}
+    categories={CATEGORIES}
+    selectedFilePreviews={selectedFilePreviews}
+    removingFile={removingFile}
+    dropdownOpen={dropdownOpen}
+    setDropdownOpen={setDropdownOpen}
+    dropdownRef={dropdownRef}
+    onClose={() => {
+      setShowCreateModal(false);
+      resetForm();
+    }}
+    onSubmit={handleCreate}
+    onFileSelect={handleFilesSelect}
+    onDrag={handleDrag}
+    onDrop={handleDrop}
+    removeFile={removeFile}
+    fileInputRef={fileInputRef}
+    onRefresh={fetchGalleryItems}
+    // Add these new props:
+    totalSizeMB={totalSizeMB}
+    fileSizeError={fileSizeError}
+  />
+)}
 
-      {/* Create Modal */}
-      {showCreateModal && (
-        <ModernModal
-          mode="create"
-          formData={formData}
-          setFormData={setFormData}
-          uploadProgress={uploadProgress}
-          isUploading={isUploading}
-          dragActive={dragActive}
-          categories={CATEGORIES}
-          selectedFilePreviews={selectedFilePreviews}
-          removingFile={removingFile}
-          dropdownOpen={dropdownOpen}
-          setDropdownOpen={setDropdownOpen}
-          dropdownRef={dropdownRef}
-          onClose={() => {
-            setShowCreateModal(false);
-            resetForm();
-          }}
-          onSubmit={handleCreate}
-          onFileSelect={handleFilesSelect}
-          onDrag={handleDrag}
-          onDrop={handleDrop}
-          removeFile={removeFile}
-          fileInputRef={fileInputRef}
-          onRefresh={fetchGalleryItems}
-        />
-      )}
-
-      {/* Edit Modal */}
-      {showEditModal && editingItem && (
-        <ModernModal
-          mode="edit"
-          formData={formData}
-          setFormData={setFormData}
-          editingItem={editingItem}
-          uploadProgress={uploadProgress}
-          isUploading={isUploading}
-          dragActive={dragActive}
-          categories={CATEGORIES}
-          selectedFilePreviews={selectedFilePreviews}
-          filesToRemove={filesToRemove}
-          setFilesToRemove={setFilesToRemove}
-          removingFile={removingFile}
-          dropdownOpen={dropdownOpen}
-          setDropdownOpen={setDropdownOpen}
-          dropdownRef={dropdownRef}
-          onClose={() => {
-            setShowEditModal(false);
-            setEditingItem(null);
-            resetForm();
-          }}
-          onSubmit={handleUpdate}
-          onFileSelect={handleFilesSelect}
-          onDrag={handleDrag}
-          onDrop={handleDrop}
-          removeFile={removeFile}
-          removeExistingFile={removeExistingFile}
-          previewExistingFile={previewExistingFile}
-          fileInputRef={fileInputRef}
-          onRefresh={fetchGalleryItems}
-          showExistingFiles={showExistingFiles}
-          setShowExistingFiles={setShowExistingFiles}
-        />
-      )}
+{/* Edit Modal */}
+{showEditModal && editingItem && (
+  <ModernModal
+    mode="edit"
+    formData={formData}
+    setFormData={setFormData}
+    editingItem={editingItem}
+    uploadProgress={uploadProgress}
+    isUploading={isUploading}
+    dragActive={dragActive}
+    categories={CATEGORIES}
+    selectedFilePreviews={selectedFilePreviews}
+    filesToRemove={filesToRemove}
+    setFilesToRemove={setFilesToRemove}
+    removingFile={removingFile}
+    dropdownOpen={dropdownOpen}
+    setDropdownOpen={setDropdownOpen}
+    dropdownRef={dropdownRef}
+    onClose={() => {
+      setShowEditModal(false);
+      setEditingItem(null);
+      resetForm();
+    }}
+    onSubmit={handleUpdate}
+    onFileSelect={handleFilesSelect}
+    onDrag={handleDrag}
+    onDrop={handleDrop}
+    removeFile={removeFile}
+    removeExistingFile={removeExistingFile}
+    previewExistingFile={previewExistingFile}
+    fileInputRef={fileInputRef}
+    onRefresh={fetchGalleryItems}
+    showExistingFiles={showExistingFiles}
+    setShowExistingFiles={setShowExistingFiles}
+    // Add these new props:
+    totalSizeMB={totalSizeMB}
+    fileSizeError={fileSizeError}
+  />
+)}
 
       {/* Preview Modal */}
       {showPreviewModal && previewItem && (
@@ -1290,7 +1364,8 @@ const ModernModal = ({
   categories, selectedFilePreviews, filesToRemove, setFilesToRemove, removingFile, onClose, onSubmit, 
   onFileSelect, onDrag, onDrop, removeFile, removeExistingFile, previewExistingFile,
   fileInputRef, onRefresh, showExistingFiles, setShowExistingFiles,
-  dropdownOpen, setDropdownOpen, dropdownRef
+  dropdownOpen, setDropdownOpen, dropdownRef,   totalSizeMB,
+  fileSizeError
 }) => {
   const isFileMarkedForRemoval = (fileUrl) => {
     return filesToRemove.includes(fileUrl);
@@ -1474,159 +1549,251 @@ return (
             </div>
           )}
 
-          {/* File Upload Section - Enhanced */}
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-5 border-2 border-dashed border-blue-300">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className=" text-md font-bold text-gray-800 flex items-center gap-2">
-                  <FiUpload className="text-blue-500" />
-                  <span>
-                    {mode === 'edit' ? 'Add New Files (Optional)' : 'Upload Files *'}
-                  </span>
-                </h3>
-                <p className="text-xs text-gray-600 mt-0.5">
-                  Max 10MB per file • Supported: Images only
-                </p>
-              </div>
-              <div className="text-xs font-bold px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700">
-                {formData.files.length} SELECTED
-              </div>
-            </div>
-            
-            {/* Drag & Drop Zone */}
-            <div
-              className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all duration-200 ${
-                dragActive 
-                  ? 'border-blue-500 bg-blue-100/30 shadow-inner' 
-                  : 'border-blue-300'
-              } ${isUploading ? 'pointer-events-none opacity-60' : 'hover:border-blue-400 hover:bg-blue-50/50'}`}
-              onDragEnter={onDrag}
-              onDragLeave={onDrag}
-              onDragOver={onDrag}
-              onDrop={onDrop}
-              onClick={() => !isUploading && fileInputRef.current?.click()}
-            >
-              <div className="max-w-sm mx-auto">
-                <div className="p-4 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl inline-block mb-4 shadow-sm">
-                  <FiUploadCloud className="text-3xl sm:text-4xl text-blue-500" />
-                </div>
-                <p className="text-gray-700 mb-2 font-bold text-base sm:text-lg">
-                  {isUploading ? 'Uploading...' : 'Drag & drop files here'}
-                </p>
-                <p className="text-gray-500 mb-6 text-sm sm:text-base">
-                  or click to browse files from your computer
-                </p>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={(e) => onFileSelect(e.target.files)}
-                  className="hidden"
-                  ref={fileInputRef}
-                  disabled={isUploading}
-                />
-                {!isUploading && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full font-bold text-sm sm:text-base hover:shadow-lg hover:from-indigo-700 hover:to-violet-700 transition-all duration-200"
-                  >
-                    Browse Files
-                  </button>
-                )}
-              </div>
-            </div>
+{/* File Upload Section - Enhanced with Vercel Size Control */}
+<div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-5 border-2 border-dashed border-blue-300">
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+    <div>
+      <h3 className="text-md font-bold text-gray-800 flex items-center gap-2">
+        <FiUpload className="text-blue-500" />
+        <span>
+          {mode === 'edit' ? 'Add New Files (Optional)' : 'Upload Files *'}
+        </span>
+      </h3>
+      <p className="text-xs text-gray-600 mt-0.5">
+        Max 10MB per file • Total limit: 4.5MB • Images only
+      </p>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="text-xs font-bold px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700">
+        {formData.files.length} SELECTED
+      </div>
+      <div className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all duration-200 ${
+        totalSizeMB > 4.5 
+          ? 'bg-gradient-to-r from-red-100 to-pink-100 text-red-700 animate-pulse' 
+          : totalSizeMB > 3.5
+          ? 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700'
+          : 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700'
+      }`}>
+        {totalSizeMB.toFixed(1)} / 4.5 MB
+      </div>
+    </div>
+  </div>
+  
+  {/* Vercel Size Warning */}
+  {totalSizeMB > 4.5 && (
+    <div className="mb-4 p-3 bg-gradient-to-r from-red-50 to-pink-100 border border-red-200 rounded-xl">
+      <div className="flex items-start gap-2">
+        <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="text-red-700 text-sm font-bold">
+            Vercel Size Limit Exceeded!
+          </p>
+          <p className="text-red-600 text-xs mt-1">
+            Total file size ({totalSizeMB.toFixed(1)}MB) exceeds Vercel's 4.5MB limit. 
+            Remove {Math.abs((4.5 - totalSizeMB)).toFixed(1)}MB to continue.
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            // Remove all files
+            formData.files.forEach(file => {
+              const fileId = file.id || `temp-${Date.now()}`;
+              removeFile(fileId);
+            });
+          }}
+          className="ml-auto text-xs font-bold px-3 py-1 rounded-full bg-gradient-to-r from-red-200 to-pink-200 text-red-700 hover:from-red-300 hover:to-pink-300 transition-all"
+        >
+          Clear All
+        </button>
+      </div>
+    </div>
+  )}
+  
+  {/* Size Progress Bar */}
+  <div className="mb-4">
+    <div className="flex justify-between text-xs text-gray-600 mb-1">
+      <span>Storage Used</span>
+      <span className="font-bold">{totalSizeMB.toFixed(1)}MB / 4.5MB</span>
+    </div>
+    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div 
+        className={`h-full transition-all duration-300 ${
+          totalSizeMB > 4.5 
+            ? 'bg-gradient-to-r from-red-500 to-pink-500' 
+            : totalSizeMB > 3.5
+            ? 'bg-gradient-to-r from-amber-500 to-orange-500'
+            : 'bg-gradient-to-r from-green-500 to-emerald-500'
+        }`}
+        style={{ width: `${Math.min((totalSizeMB / 4.5) * 100, 100)}%` }}
+      />
+    </div>
+  </div>
+  
+  {/* Drag & Drop Zone */}
+  <div
+    className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all duration-200 ${
+      dragActive 
+        ? 'border-blue-500 bg-blue-100/30 shadow-inner' 
+        : 'border-blue-300'
+    } ${isUploading || totalSizeMB > 4.5 ? 'pointer-events-none opacity-60' : 'hover:border-blue-400 hover:bg-blue-50/50'}`}
+    onDragEnter={onDrag}
+    onDragLeave={onDrag}
+    onDragOver={onDrag}
+    onDrop={onDrop}
+    onClick={() => !isUploading && totalSizeMB <= 4.5 && fileInputRef.current?.click()}
+  >
+    <div className="max-w-sm mx-auto">
+      <div className="p-4 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl inline-block mb-4 shadow-sm">
+        <FiUploadCloud className="text-3xl sm:text-4xl text-blue-500" />
+      </div>
+      <p className="text-gray-700 mb-2 font-bold text-base sm:text-lg">
+        {isUploading ? 'Uploading...' : 
+         totalSizeMB > 4.5 ? 'Storage Full' : 
+         dragActive ? 'Drop Files Here' : 'Drag & Drop Files'}
+      </p>
+      <p className="text-gray-500 mb-6 text-sm sm:text-base">
+        {totalSizeMB > 4.5 ? 
+          'Remove files to free up space' : 
+          'or click to browse files from your computer'}
+      </p>
+      <input
+        type="file"
+        multiple
+        accept="image/*"
+        onChange={(e) => onFileSelect(e.target.files)}
+        className="hidden"
+        ref={fileInputRef}
+        disabled={isUploading || totalSizeMB > 4.5}
+      />
+      {!isUploading && totalSizeMB <= 4.5 && (
+        <button
+          onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+          className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full font-bold text-sm sm:text-base hover:shadow-lg hover:from-indigo-700 hover:to-violet-700 transition-all duration-200"
+        >
+          Browse Files
+        </button>
+      )}
+    </div>
+  </div>
 
-            {/* Selected Files Preview */}
-            {formData.files.length > 0 && (
-              <div className="mt-6">
-                <h4 className="text-md font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  <FiCheckCircle className="text-green-500" />
-                  <span>New Files to Add ({formData.files.length})</span>
-                </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {formData.files.map((file, index) => {
-                    // Proper file ID handling
-                    const fileObj = file.file ? file : { id: `temp-${index}`, file: file, type: file.type };
-                    const fileId = fileObj.id || `file-${index}`;
-                    
-                    // Safe URL creation
-                    let previewUrl = null;
-                    if (fileObj.file && fileObj.file.type && fileObj.file.type.startsWith('image/')) {
-                      try {
-                        previewUrl = URL.createObjectURL(fileObj.file);
-                      } catch (err) {
-                        console.error('Failed to create preview URL:', err);
-                        previewUrl = null;
-                      }
-                    }
-                    
-                    return (
-                      <div key={fileId} className="group relative bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
-                        <div className="aspect-square relative">
-                          {previewUrl ? (
-                            <img
-                              src={previewUrl}
-                              alt={fileObj.file?.name || `File ${index + 1}`}
-                              className="w-full h-full object-cover transition-transform "
-                              onLoad={() => {
-                                // Clean up URL after image loads
-                                setTimeout(() => {
-                                  if (previewUrl && previewUrl.startsWith('blob:')) {
-                                    URL.revokeObjectURL(previewUrl);
-                                  }
-                                }, 100);
-                              }}
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                              <FiFile className="text-3xl text-gray-400" />
-                            </div>
-                          )}
-                          
-                          {/* Upload Progress */}
-                          {uploadProgress[fileId] !== undefined && (
-                            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200/80">
-                              <div 
-                                className="h-full bg-gradient-to-r from-green-400 to-emerald-500"
-                                style={{ width: `${uploadProgress[fileId]}%` }}
-                              />
-                            </div>
-                          )}
-                          
-                          {/* Remove Button */}
-                          <button
-                            onClick={() => removeFile(fileId)}
-                            className="absolute top-2 right-2 p-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full opacity-0 group-hover:opacity-100 shadow-lg hover:shadow-xl transition-all"
-                            title="Remove file"
-                            disabled={removingFile === fileId}
-                          >
-                            {removingFile === fileId ? (
-                              <FiRotateCw className="text-xs animate-spin" />
-                            ) : (
-                              <FiX className="text-xs" />
-                            )}
-                          </button>
-                        </div>
-                        
-                        {/* File Info */}
-                        <div className="p-3">
-                          <p className="text-sm font-bold text-gray-800 truncate" title={fileObj.file?.name}>
-                            {fileObj.file?.name || `File ${index + 1}`}
-                          </p>
-                          <div className="flex items-center justify-between mt-1">
-                            <p className="text-xs font-bold text-gray-500">
-                              {fileObj.file?.size ? `${(fileObj.file.size / (1024 * 1024)).toFixed(1)} MB` : 'Unknown size'}
-                            </p>
-                            <div className="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+  {/* Selected Files Preview */}
+  {formData.files.length > 0 && (
+    <div className="mt-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <h4 className="text-md font-bold text-gray-800 flex items-center gap-2">
+          <FiCheckCircle className={`${totalSizeMB > 4.5 ? 'text-red-500' : 'text-green-500'}`} />
+          <span>New Files to Add ({formData.files.length})</span>
+        </h4>
+        {totalSizeMB > 4.5 && (
+          <button
+            onClick={() => {
+              // Remove all files to reset
+              formData.files.forEach(file => {
+                const fileId = file.id || `temp-${Date.now()}`;
+                removeFile(fileId);
+              });
+            }}
+            className="text-xs font-bold px-3 py-1.5 rounded-full bg-gradient-to-r from-red-100 to-pink-100 text-red-700 hover:from-red-200 hover:to-pink-200"
+          >
+            Clear All
+          </button>
+        )}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        {formData.files.map((file, index) => {
+          const fileObj = file.file ? file : { 
+            id: `temp-${index}`, 
+            file: file, 
+            type: file.type 
+          };
+          const fileId = fileObj.id || `file-${index}`;
+          const fileSizeMB = fileObj.file?.size ? (fileObj.file.size / (1024 * 1024)).toFixed(1) : 0;
+          
+          // Safe URL creation for preview
+          let previewUrl = selectedFilePreviews[fileId] || null;
+          if (!previewUrl && fileObj.file && fileObj.file.type && fileObj.file.type.startsWith('image/')) {
+            try {
+              previewUrl = URL.createObjectURL(fileObj.file);
+            } catch (err) {
+              console.error('Failed to create preview URL:', err);
+              previewUrl = null;
+            }
+          }
+          
+          return (
+            <div key={fileId} className={`group relative bg-white rounded-xl border overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 ${
+              totalSizeMB > 4.5 ? 'border-red-200 bg-red-50/30' : 'border-gray-200'
+            }`}>
+              <div className="aspect-square relative">
+                {previewUrl ? (
+                  <img
+                    src={previewUrl}
+                    alt={fileObj.file?.name || `File ${index + 1}`}
+                    className="w-full h-full object-cover transition-transform"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                    <FiFile className="text-3xl text-gray-400" />
+                  </div>
+                )}
+                
+                {/* Upload Progress */}
+                {uploadProgress[fileId] !== undefined && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200/80">
+                    <div 
+                      className="h-full bg-gradient-to-r from-green-400 to-emerald-500"
+                      style={{ width: `${uploadProgress[fileId]}%` }}
+                    />
+                  </div>
+                )}
+                
+                {/* Remove Button */}
+                <button
+                  onClick={() => removeFile(fileId)}
+                  className="absolute top-2 right-2 p-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full opacity-0 group-hover:opacity-100 shadow-lg hover:shadow-xl transition-all"
+                  title="Remove file"
+                  disabled={removingFile === fileId}
+                >
+                  {removingFile === fileId ? (
+                    <FiRotateCw className="text-xs animate-spin" />
+                  ) : (
+                    <FiX className="text-xs" />
+                  )}
+                </button>
+                
+                {/* File Size Badge */}
+                <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-bold ${
+                  parseFloat(fileSizeMB) > 3 
+                    ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' 
+                    : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
+                }`}>
+                  {fileSizeMB}MB
                 </div>
               </div>
-            )}
-          </div>
+              
+              {/* File Info */}
+              <div className="p-3">
+                <p className="text-sm font-bold text-gray-800 truncate" title={fileObj.file?.name}>
+                  {fileObj.file?.name || `File ${index + 1}`}
+                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-xs font-bold text-gray-500">
+                    {fileObj.file?.size ? `${fileSizeMB} MB` : 'Unknown size'}
+                  </p>
+                  <div className={`w-2 h-2 rounded-full ${
+                    totalSizeMB > 4.5 
+                      ? 'bg-gradient-to-r from-red-500 to-pink-500' 
+                      : 'bg-gradient-to-r from-indigo-500 to-purple-500'
+                  }`}></div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  )}
+</div>
 
           {/* Form Fields */}
           <div className="grid md:grid-cols-2 gap-5">
