@@ -861,6 +861,10 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
     instructions: assignment?.instructions || '',
     additionalWork: assignment?.additionalWork || '',
     teacherRemarks: assignment?.teacherRemarks || '',
+
+    // Add these state variables with the existing state declarations in AssignmentsManager
+const [totalSizeMB, setTotalSizeMB] = useState(0);
+const [fileSizeError, setFileSizeError] = useState('');
   });
 
   // Separate state for files and learning objectives
