@@ -499,20 +499,22 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
               </div>
             </div>
 
-            {/* Buttons - Always in a row */}
-            <div className="flex flex-row gap-4 justify-center items-center flex-nowrap">
-              <Link href="/pages/TermsandPrivacy" className="w-auto">
-                <button className="w-full sm:w-auto px-10 py-3.5 bg-white text-slate-950 font-black text-[10px] md:text-xs uppercase tracking-[0.15em] rounded-xl shadow-lg active:scale-95 flex items-center justify-center gap-2">
-                  School Policies <ArrowRight size={16} />
-                </button>
-              </Link>
+         {/* SECONDARY ACTION ROW - Fixed Flex & Modern Tracking */}
+<div className="flex flex-row gap-2 sm:gap-4 justify-center items-center w-full max-w-full px-2 overflow-hidden">
+  
+  <Link href="/pages/TermsandPrivacy" className="flex-1 sm:w-auto">
+    <button className="w-full px-3 sm:px-8 py-3 bg-white text-slate-950 font-black text-[9px] sm:text-[10px] md:text-xs uppercase tracking-[0.1em] sm:tracking-[0.15em] rounded-xl shadow-lg active:scale-95 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap">
+      Policies <ArrowRight size={14} className="shrink-0" />
+    </button>
+  </Link>
 
-              <Link href="/pages/Guidance-and-Coucelling" className="w-auto">
-                <button className="w-full sm:w-auto px-10 py-3.5 bg-slate-900/50 text-white font-black text-[10px] md:text-xs uppercase tracking-[0.15em] rounded-xl border border-white/10 backdrop-blur-md transition-all">
-                  Guidance Sessions
-                </button>
-              </Link>
-            </div>
+  <Link href="/pages/Guidance-and-Coucelling" className="flex-1 sm:w-auto">
+    <button className="w-full px-3 sm:px-8 py-3 bg-slate-900/40 text-white font-black text-[9px] sm:text-[10px] md:text-xs uppercase tracking-[0.1em] sm:tracking-[0.15em] rounded-xl border border-white/10 backdrop-blur-md active:scale-95 transition-all whitespace-nowrap">
+      Guidance
+    </button>
+  </Link>
+  
+</div>
 
             {/* Stats Grid - Reduced Sizes */}
             <div className="pt-8 border-t border-white/5 grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
