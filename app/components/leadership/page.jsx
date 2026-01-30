@@ -361,7 +361,7 @@ Mary Immaculate Girls
       <img
         src={getImageUrl(featuredStaff.image)}
         alt={featuredStaff.name}
-        className="w-full h-[90%] object-cover object-top"
+        className="w-full h-[80%] object-cover object-top"
         onError={(e) => {
           e.target.onerror = null;
           e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(featuredStaff.name)}&background=4f46e5&color=fff&bold=true&size=256`;
