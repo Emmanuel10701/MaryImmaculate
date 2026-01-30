@@ -25,8 +25,8 @@ const transporter = nodemailer.createTransport({
 
 // School Information
 const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Marry Immculate Girls High School';
-const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Mweiga, Nyeri  County';
-const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Prayer, Discipline and Hardwork ';
+const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Mweiga, Nyeri County';
+const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Prayer, Discipline and Hardwork';
 const CONTACT_PHONE = process.env.CONTACT_PHONE || '+254720123456';
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@katwanyaahighschool.sc.ke';
 const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://katwanyaa.vercel.app';
@@ -71,7 +71,7 @@ const uploadFileToCloudinary = async (file) => {
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          resource_type: "auto", // "auto" for any file type
+          resource_type: "auto",
           folder: "school/email-campaigns/attachments",
           public_id: uniqueFileName,
           use_filename: true,
@@ -89,7 +89,7 @@ const uploadFileToCloudinary = async (file) => {
     return {
       filename: result.public_id,
       originalName: originalName,
-      fileType: fileExtension.substring(1), // Remove dot from extension
+      fileType: fileExtension.substring(1),
       fileSize: file.size,
       uploadedAt: new Date().toISOString(),
       url: result.secure_url,
@@ -147,7 +147,6 @@ function getRecipientTypeLabel(type) {
 }
 
 function sanitizeContent(content) {
-  // Reduce font-size styles
   let safeContent = content
     .replace(/font-size\s*:\s*[^;]+;/gi, '')
     .replace(/<font[^>]*>/gi, '')
@@ -159,24 +158,112 @@ function sanitizeContent(content) {
     .replace(/javascript:/gi, '')
     .replace(/data:/gi, '');
   
-  // Convert newlines to <br> tags
   safeContent = safeContent.replace(/\n/g, '<br>');
-  
-  // Remove extra font styles
   safeContent = safeContent.replace(/style\s*=\s*["'][^"']*font[^"']*["']/gi, '');
 
   return safeContent;
 }
 
-// COMPLETE EMAIL TEMPLATE FUNCTION
+function getFileIcon(fileType) {
+  const icons = {
+    'pdf': '📄',
+    'doc': '📝',
+    'docx': '📝',
+    'xls': '📊',
+    'xlsx': '📊',
+    'ppt': '📽️',
+    'pptx': '📽️',
+    'jpg': '🖼️',
+    'jpeg': '🖼️',
+    'png': '🖼️',
+    'gif': '🖼️',
+    'txt': '📃',
+    'zip': '📦',
+    'rar': '📦',
+    'mp3': '🎵',
+    'mp4': '🎬',
+    'webp': '🖼️',
+    'svg': '🖼️'
+  };
+  
+  return icons[fileType?.toLowerCase()] || '📎';
+}
+
+function formatFileSize(bytes) {
+  if (!bytes || bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function getContentType(fileType) {
+  const mimeTypes = {
+    'pdf': 'application/pdf',
+    'doc': 'application/msword',
+    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'xls': 'application/vnd.ms-excel',
+    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'ppt': 'application/vnd.ms-powerpoint',
+    'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'txt': 'text/plain',
+    'zip': 'application/zip',
+    'rar': 'application/x-rar-compressed',
+    'mp3': 'audio/mpeg',
+    'mp4': 'video/mp4',
+    'webp': 'image/webp',
+    'svg': 'image/svg+xml'
+  };
+  
+  return mimeTypes[fileType?.toLowerCase()] || 'application/octet-stream';
+}
+
+// COMPLETE EMAIL TEMPLATE FUNCTION WITH ATTACHMENTS
 function getModernEmailTemplate({ 
   subject = '', 
   content = '',
   senderName = 'School Administration',
-  recipientType = 'all'
+  recipientType = 'all',
+  attachments = []  // Added attachments parameter
 }) {
   const recipientTypeLabel = getRecipientTypeLabel(recipientType);
   const sanitizedContent = sanitizeContent(content);
+  
+  // Generate attachments HTML if there are attachments
+  let attachmentsHTML = '';
+  if (attachments && attachments.length > 0) {
+    attachmentsHTML = `
+      <div class="attachments-section">
+        <div class="attachments-title">
+          📎 Attachments (${attachments.length})
+        </div>
+        <div class="attachments-list">
+          ${attachments.map(attachment => {
+            const fileSize = formatFileSize(attachment.fileSize);
+            return `
+            <div class="attachment-item">
+              <div class="attachment-icon">
+                ${getFileIcon(attachment.fileType)}
+              </div>
+              <div class="attachment-name">
+                <a href="${attachment.url}" target="_blank">
+                  ${attachment.originalName || attachment.filename}
+                </a>
+                <small>
+                  ${fileSize} • ${attachment.fileType ? attachment.fileType.toUpperCase() : 'File'}
+                </small>
+              </div>
+            </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
   
   return `
 <!DOCTYPE html>
@@ -184,6 +271,7 @@ function getModernEmailTemplate({
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-apple-disable-message-reformatting">
     <title>${subject} • ${SCHOOL_NAME}</title>
     <style>
         /* Reset and Base Styles */
@@ -191,6 +279,8 @@ function getModernEmailTemplate({
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
         }
         
         body {
@@ -200,6 +290,7 @@ function getModernEmailTemplate({
             background-color: #f8fafc;
             padding: 16px;
             margin: 0;
+            -webkit-font-smoothing: antialiased;
         }
         
         .email-container {
@@ -349,6 +440,9 @@ function getModernEmailTemplate({
             font-weight: 600;
             color: #1e3c72;
             margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .attachments-list {
@@ -372,6 +466,7 @@ function getModernEmailTemplate({
         
         .attachment-icon {
             font-size: 18px;
+            color: #4c7cf3;
         }
         
         .attachment-name {
@@ -385,6 +480,10 @@ function getModernEmailTemplate({
             font-weight: 500;
             font-size: 13px;
             word-break: break-word;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .attachment-name a:hover {
@@ -396,6 +495,22 @@ function getModernEmailTemplate({
             font-size: 12px;
             display: block;
             margin-top: 2px;
+        }
+        
+        /* Important Notice */
+        .important-notice {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .important-notice p {
+            font-size: 13px;
+            color: #92400e;
+            margin: 0;
         }
         
         /* Footer Styles */
@@ -575,7 +690,34 @@ function getModernEmailTemplate({
             background: #000000;
             border-color: #000000;
         }
-
+        
+        /* Sender Information */
+        .sender-info {
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        
+        .sender-info p {
+            margin-bottom: 4px;
+        }
+        
+        /* Privacy Notice */
+        .privacy-notice {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .privacy-text {
+            font-size: 12px;
+            color: #94a3b8;
+            margin: 0;
+            font-style: italic;
+            line-height: 1.5;
+        }
+        
         /* Mobile Responsive Design */
         @media (max-width: 480px) {
             body {
@@ -660,6 +802,9 @@ function getModernEmailTemplate({
             
             .attachment-name a {
                 font-size: 12px;
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
             }
             
             .footer {
@@ -757,6 +902,10 @@ function getModernEmailTemplate({
             }
             
             .important-notice p {
+                font-size: 11px;
+            }
+            
+            .privacy-text {
                 font-size: 11px;
             }
         }
@@ -865,6 +1014,9 @@ function getModernEmailTemplate({
                 ${sanitizedContent}
             </div>
             
+            <!-- Attachments Section -->
+            ${attachmentsHTML}
+            
             <!-- Important Notice -->
             <div class="important-notice">
                 <p>📧 Official communication from ${SCHOOL_NAME}. Do not reply to this email.</p>
@@ -925,20 +1077,68 @@ function getModernEmailTemplate({
                 <p>${SCHOOL_NAME}</p>
                 <p style="margin-top: 8px; color: #64748b;"><em>Confidential communication for authorized recipients only.</em></p>
             </div>
+            
+            <!-- Privacy Notice -->
+            <div class="privacy-notice">
+                <p class="privacy-text">
+                    Please note: This email and any attachments are confidential and intended solely for the use of the individual or entity to whom they are addressed. If you have received this email in error, please notify the sender immediately and delete it from your system.
+                </p>
+            </div>
         </div>
     </div>
 </body>
 </html>`;
 }
 
-function formatFileSize(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+// Helper to validate email addresses
+function validateEmailList(emailList) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const validEmails = [];
+  const invalidEmails = [];
+  
+  emailList.forEach(email => {
+    if (emailRegex.test(email.trim())) {
+      validEmails.push(email.trim());
+    } else {
+      invalidEmails.push(email);
+    }
+  });
+  
+  return { validEmails, invalidEmails };
 }
 
+// Helper to save uploaded file to Cloudinary
+async function saveUploadedFile(file) {
+  if (!file || file.size === 0) return null;
+  
+  // Validate file size (max 20MB for Cloudinary)
+  const maxSize = 20 * 1024 * 1024; // 20MB (Cloudinary supports up to 100MB)
+  if (file.size > maxSize) {
+    throw new Error(`File ${file.name} is too large. Maximum size is 20MB.`);
+  }
+  
+  // Upload to Cloudinary
+  const cloudinaryResult = await uploadFileToCloudinary(file);
+  
+  if (!cloudinaryResult) {
+    throw new Error(`Failed to upload file ${file.name} to Cloudinary`);
+  }
+  
+  return cloudinaryResult;
+}
+
+// Validate attachment size before saving
+function validateAttachmentSize(attachmentsArray) {
+  const MAX_ATTACHMENTS_SIZE = 50000; // 50KB max for metadata
+  
+  const jsonString = JSON.stringify(attachmentsArray);
+  if (jsonString.length > MAX_ATTACHMENTS_SIZE) {
+    throw new Error(`Attachments metadata is too large (${jsonString.length} bytes). Maximum allowed is ${MAX_ATTACHMENTS_SIZE} bytes.`);
+  }
+  return true;
+}
+
+// UPDATED sendModernEmails function
 async function sendModernEmails(campaign) {
   const startTime = Date.now();
   
@@ -960,7 +1160,7 @@ async function sendModernEmails(campaign) {
     console.error('Error parsing attachments:', error);
   }
   
-  // Prepare email attachments for nodemailer (Cloudinary URLs as links, not attachments)
+  // Prepare email attachments for nodemailer
   const emailAttachments = attachmentsArray.map(attachment => {
     return {
       filename: attachment.originalName || attachment.filename,
@@ -972,16 +1172,14 @@ async function sendModernEmails(campaign) {
   // Optimized sequential processing
   for (const recipient of recipients) {
     try {
-      // Generate email content with attachments section
+      // Generate email content WITH attachments
       let htmlContent = getModernEmailTemplate({
         subject: campaign.subject,
         content: campaign.content,
         senderName: 'School Administration',
-        recipientType: recipientType
+        recipientType: recipientType,
+        attachments: attachmentsArray  // Pass attachments here
       });
-
-      // Add attachments section if there are attachments
-
 
       const mailOptions = {
         from: `"${SCHOOL_NAME} Administration" <${process.env.EMAIL_USER}>`,
@@ -1053,79 +1251,6 @@ async function sendModernEmails(campaign) {
     failedRecipients,
     summary
   };
-}
-
-function getContentType(fileType) {
-  const mimeTypes = {
-    'pdf': 'application/pdf',
-    'doc': 'application/msword',
-    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'xls': 'application/vnd.ms-excel',
-    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'ppt': 'application/vnd.ms-powerpoint',
-    'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png',
-    'gif': 'image/gif',
-    'txt': 'text/plain',
-    'zip': 'application/zip',
-    'rar': 'application/x-rar-compressed',
-    'mp3': 'audio/mpeg',
-    'mp4': 'video/mp4',
-    'webp': 'image/webp',
-    'svg': 'image/svg+xml'
-  };
-  
-  return mimeTypes[fileType.toLowerCase()] || 'application/octet-stream';
-}
-
-// Helper to validate email addresses
-function validateEmailList(emailList) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const validEmails = [];
-  const invalidEmails = [];
-  
-  emailList.forEach(email => {
-    if (emailRegex.test(email.trim())) {
-      validEmails.push(email.trim());
-    } else {
-      invalidEmails.push(email);
-    }
-  });
-  
-  return { validEmails, invalidEmails };
-}
-
-// Helper to save uploaded file to Cloudinary
-async function saveUploadedFile(file) {
-  if (!file || file.size === 0) return null;
-  
-  // Validate file size (max 20MB for Cloudinary)
-  const maxSize = 20 * 1024 * 1024; // 20MB (Cloudinary supports up to 100MB)
-  if (file.size > maxSize) {
-    throw new Error(`File ${file.name} is too large. Maximum size is 20MB.`);
-  }
-  
-  // Upload to Cloudinary
-  const cloudinaryResult = await uploadFileToCloudinary(file);
-  
-  if (!cloudinaryResult) {
-    throw new Error(`Failed to upload file ${file.name} to Cloudinary`);
-  }
-  
-  return cloudinaryResult;
-}
-
-// Validate attachment size before saving
-function validateAttachmentSize(attachmentsArray) {
-  const MAX_ATTACHMENTS_SIZE = 50000; // 50KB max for metadata
-  
-  const jsonString = JSON.stringify(attachmentsArray);
-  if (jsonString.length > MAX_ATTACHMENTS_SIZE) {
-    throw new Error(`Attachments metadata is too large (${jsonString.length} bytes). Maximum allowed is ${MAX_ATTACHMENTS_SIZE} bytes.`);
-  }
-  return true;
 }
 
 // ====================================================================
