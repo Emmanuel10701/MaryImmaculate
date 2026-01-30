@@ -608,7 +608,7 @@ export default function StaffDirectory() {
       )}
 
       {/* ENHANCED HEADER SECTION */}
-<header className="bg-white border-b border-gray-200/50 sticky top-0 z-80"> {/* Increased from z-50 to z-60 */} 
+<header className="bg-white border-b border-gray-200/50 sticky top-0 -z-80"> {/* Increased from z-50 to z-60 */} 
        <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           
           <div className="flex items-center gap-4 sm:gap-6">
@@ -622,13 +622,13 @@ export default function StaffDirectory() {
             
             <Link href="/" className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-bold shadow-lg">
-                NSS
+                MIGSS
               </div>
               <div className="hidden sm:block">
                 <span className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-blue-600 bg-clip-text text-transparent">
-                  Mary ImmaculateStaff
+                  Mary Immaculate Staff
                 </span>
-                <p className="text-xs text-gray-500 mt-0.5">Soaring in Education</p>
+                <p className="text-xs text-gray-500 mt-0.5">Prayer, Discipline and Hardwork</p>
               </div>
             </Link>
           </div>
@@ -700,7 +700,7 @@ export default function StaffDirectory() {
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           
 <aside className={`
-  fixed lg:static inset-y-0 left-0 w-80 bg-white z-50 transform transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto lg:overflow-visible border-r lg:border-r-0 border-gray-200/50
+  fixed lg:static inset-y-0 left-0 w-80 bg-white -z-50 transform transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto lg:overflow-visible border-r lg:border-r-0 border-gray-200/50
   ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
 `}>
             <div className="p-4 sm:p-6 lg:p-0 lg:sticky lg:top-24 space-y-4 sm:space-y-6">
