@@ -844,7 +844,6 @@ function ModernAssignmentCard({ assignment, onEdit, onDelete, onView, selected, 
 }
 
 
-// Modern Assignment Modal Component (Create/Edit) - UPDATED
 function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
   // Form fields state
   const [formData, setFormData] = useState({
@@ -861,43 +860,22 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
     instructions: assignment?.instructions || '',
     additionalWork: assignment?.additionalWork || '',
     teacherRemarks: assignment?.teacherRemarks || '',
-
-
   });
-      // Add these state variables with the existing state declarations in AssignmentsManager
-const [totalSizeMB, setTotalSizeMB] = useState(0);
-const [fileSizeError, setFileSizeError] = useState('');
 
-  // Separate state for files and learning objectives
-  const [assignmentFiles, setAssignmentFiles] = useState(() => {
-    if (assignment?.assignmentFiles && assignment.assignmentFiles.length > 0) {
-      return assignment.assignmentFiles.map(url => ({
-        name: url.split('/').pop(),
-        url: url,
-        isExisting: true
-      }));
-    }
-    return [];
-  });
-  
-  const [attachments, setAttachments] = useState(() => {
-    if (assignment?.attachments && assignment.attachments.length > 0) {
-      return assignment.attachments.map(url => ({
-        name: url.split('/').pop(),
-        url: url,
-        isExisting: true
-      }));
-    }
-    return [];
-  });
-  
+  // File states with size tracking
+  const [assignmentFiles, setAssignmentFiles] = useState([]);
+  const [attachments, setAttachments] = useState([]);
   const [learningObjectives, setLearningObjectives] = useState(assignment?.learningObjectives || []);
   const [newObjective, setNewObjective] = useState('');
-
+  
   // Track files to remove
   const [assignmentFilesToRemove, setAssignmentFilesToRemove] = useState([]);
   const [attachmentsToRemove, setAttachmentsToRemove] = useState([]);
-
+  
+  // File size validation states
+  const [totalSizeMB, setTotalSizeMB] = useState(0);
+  const [fileSizeError, setFileSizeError] = useState('');
+  
   // Class options
   const classOptions = [
     'Form 1',
@@ -924,6 +902,65 @@ const [fileSizeError, setFileSizeError] = useState('');
     'Geography'
   ];
 
+  // Initialize with assignment data
+  useEffect(() => {
+    if (assignment) {
+      // Initialize assignment files
+      if (assignment.assignmentFiles && assignment.assignmentFiles.length > 0) {
+        const files = assignment.assignmentFiles.map((url, index) => ({
+          id: `existing-assignment-${index}`,
+          name: url.split('/').pop() || `Assignment File ${index + 1}`,
+          url: url,
+          isExisting: true,
+          size: 0 // We don't know the size of existing files
+        }));
+        setAssignmentFiles(files);
+      }
+      
+      // Initialize attachments
+      if (assignment.attachments && assignment.attachments.length > 0) {
+        const attach = assignment.attachments.map((url, index) => ({
+          id: `existing-attachment-${index}`,
+          name: url.split('/').pop() || `Attachment ${index + 1}`,
+          url: url,
+          isExisting: true,
+          size: 0 // We don't know the size of existing files
+        }));
+        setAttachments(attach);
+      }
+    }
+  }, [assignment]);
+
+  // Calculate total file size whenever files change
+  useEffect(() => {
+    let totalBytes = 0;
+    
+    // Add size of new assignment files
+    assignmentFiles.forEach(file => {
+      if (file.file && file.file.size && !file.isExisting) {
+        totalBytes += file.file.size;
+      }
+    });
+    
+    // Add size of new attachments
+    attachments.forEach(file => {
+      if (file.file && file.file.size && !file.isExisting) {
+        totalBytes += file.file.size;
+      }
+    });
+    
+    const totalMB = totalBytes / (1024 * 1024);
+    setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
+    
+    // Check Vercel's 4.5MB limit
+    const VERCEL_LIMIT_MB = 4.5;
+    if (totalMB > VERCEL_LIMIT_MB) {
+      setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's ${VERCEL_LIMIT_MB}MB limit`);
+    } else {
+      setFileSizeError('');
+    }
+  }, [assignmentFiles, attachments]);
+
   const handleAddObjective = () => {
     if (newObjective.trim()) {
       setLearningObjectives(prev => [...prev, newObjective.trim()]);
@@ -935,126 +972,199 @@ const [fileSizeError, setFileSizeError] = useState('');
     setLearningObjectives(prev => prev.filter((_, i) => i !== index));
   };
 
-const handleAssignmentFileChange = (e) => {
-  const selectedFiles = Array.from(e.target.files);
-  
-  if (selectedFiles.length === 0) return;
-  
-  // Calculate current total size
-  let currentTotalBytes = 0;
-  
-  // Add assignment files size
-  assignmentFiles.forEach(file => {
-    if (file.file && file.file.size) {
-      currentTotalBytes += file.file.size;
-    } else if (file.size && typeof file.size === 'number') {
-      currentTotalBytes += file.size;
-    }
-  });
-  
-  // Add attachments size
-  attachments.forEach(file => {
-    if (file.file && file.file.size) {
-      currentTotalBytes += file.file.size;
-    } else if (file.size && typeof file.size === 'number') {
-      currentTotalBytes += file.size;
-    }
-  });
-  
-  // Filter and validate new files
-  const validFiles = selectedFiles.filter(file => {
-    if (!file || !file.type) {
-      return false;
-    }
+  // Handle assignment file upload with size validation
+  const handleAssignmentFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
     
-    const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'image/jpeg',
-      'image/png',
-      'image/gif'
-    ];
+    if (selectedFiles.length === 0) return;
     
-    const isValidType = allowedTypes.some(type => file.type.includes(type.split('/').pop() || ''));
-    const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB per file
-    
-    return isValidType && isValidSize;
-  });
+    // Validate each file
+    const validFiles = selectedFiles.filter(file => {
+      if (!file || !file.type) {
+        return false;
+      }
+      
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'image/jpeg',
+        'image/png',
+        'image/gif'
+      ];
+      
+      const isValidType = allowedTypes.some(type => file.type.includes(type));
+      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB per file
+      
+      return isValidType && isValidSize;
+    });
 
-  if (validFiles.length === 0) {
-    alert('Please select valid files (max 10MB each, supported formats: PDF, DOC, PPT, Images)');
-    return;
-  }
+    if (validFiles.length === 0) {
+      toast.error('Please select valid files (max 10MB each, PDF, DOC, PPT, Images)');
+      e.target.value = '';
+      return;
+    }
 
-  // Calculate new total size if we add these files
-  let newFilesTotalBytes = 0;
-  validFiles.forEach(file => {
-    newFilesTotalBytes += file.size;
-  });
+    // Calculate total size if we add these files
+    let newFilesTotalBytes = 0;
+    validFiles.forEach(file => {
+      newFilesTotalBytes += file.size;
+    });
 
-  const newTotalBytes = currentTotalBytes + newFilesTotalBytes;
-  const newTotalMB = newTotalBytes / (1024 * 1024);
-  const VERCEL_LIMIT_MB = 4.5;
+    const currentTotalMB = totalSizeMB;
+    const newTotalMB = currentTotalMB + (newFilesTotalBytes / (1024 * 1024));
+    const VERCEL_LIMIT_MB = 4.5;
 
-  // Check Vercel total size limit
-  if (newTotalMB > VERCEL_LIMIT_MB) {
-    const availableSpace = VERCEL_LIMIT_MB - (currentTotalBytes / (1024 * 1024));
-    alert(
-      `Cannot add these files. Available space: ${availableSpace.toFixed(1)}MB\n` +
-      `Total would be: ${newTotalMB.toFixed(1)}MB (Limit: ${VERCEL_LIMIT_MB}MB)`
-    );
-    e.target.value = '';
-    return;
-  }
+    // Check Vercel total size limit
+    if (newTotalMB > VERCEL_LIMIT_MB) {
+      const availableSpace = VERCEL_LIMIT_MB - currentTotalMB;
+      toast.error(
+        `Cannot add these files. Available space: ${availableSpace.toFixed(1)}MB\n` +
+        `Total would be: ${newTotalMB.toFixed(1)}MB (Limit: ${VERCEL_LIMIT_MB}MB)`
+      );
+      e.target.value = '';
+      return;
+    }
 
-  // Create file objects
-  const newFiles = validFiles.map(file => ({
-    name: file.name,
-    size: `${(file.size / 1024).toFixed(1)}KB`,
-    type: file.type,
-    file: file,
-    isExisting: false
-  }));
-  
-  setAssignmentFiles(prev => [...prev, ...newFiles]);
-  e.target.value = ''; // Reset file input
-};
-
-
-  const handleAttachmentFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const newFiles = files.map(file => ({
+    // Create file objects
+    const newFiles = validFiles.map(file => ({
+      id: `new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       name: file.name,
-      size: `${(file.size / 1024).toFixed(1)}KB`,
+      size: file.size,
       type: file.type,
       file: file,
       isExisting: false
     }));
+    
+    setAssignmentFiles(prev => [...prev, ...newFiles]);
+    e.target.value = ''; // Reset file input
+    toast.success(`${validFiles.length} assignment file(s) added`);
+  };
+
+  // Handle attachment file upload with size validation
+  const handleAttachmentFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    
+    if (selectedFiles.length === 0) return;
+    
+    // Validate each file
+    const validFiles = selectedFiles.filter(file => {
+      if (!file || !file.type) {
+        return false;
+      }
+      
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'image/jpeg',
+        'image/png',
+        'image/gif'
+      ];
+      
+      const isValidType = allowedTypes.some(type => file.type.includes(type));
+      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB per file
+      
+      return isValidType && isValidSize;
+    });
+
+    if (validFiles.length === 0) {
+      toast.error('Please select valid files (max 10MB each, PDF, DOC, PPT, Images)');
+      e.target.value = '';
+      return;
+    }
+
+    // Calculate total size if we add these files
+    let newFilesTotalBytes = 0;
+    validFiles.forEach(file => {
+      newFilesTotalBytes += file.size;
+    });
+
+    const currentTotalMB = totalSizeMB;
+    const newTotalMB = currentTotalMB + (newFilesTotalBytes / (1024 * 1024));
+    const VERCEL_LIMIT_MB = 4.5;
+
+    // Check Vercel total size limit
+    if (newTotalMB > VERCEL_LIMIT_MB) {
+      const availableSpace = VERCEL_LIMIT_MB - currentTotalMB;
+      toast.error(
+        `Cannot add these files. Available space: ${availableSpace.toFixed(1)}MB\n` +
+        `Total would be: ${newTotalMB.toFixed(1)}MB (Limit: ${VERCEL_LIMIT_MB}MB)`
+      );
+      e.target.value = '';
+      return;
+    }
+
+    // Create file objects
+    const newFiles = validFiles.map(file => ({
+      id: `new-attach-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      file: file,
+      isExisting: false
+    }));
+    
     setAttachments(prev => [...prev, ...newFiles]);
     e.target.value = ''; // Reset file input
+    toast.success(`${validFiles.length} attachment(s) added`);
   };
 
-  const removeAssignmentFile = (index) => {
-  const file = assignmentFiles[index];
-  if (file.isExisting) {
-    setAssignmentFilesToRemove(prev => [...prev, file.url]);
-  }
-  setAssignmentFiles(prev => prev.filter((_, i) => i !== index));
-};
+  // Remove assignment file
+  const removeAssignmentFile = (fileId) => {
+    const file = assignmentFiles.find(f => f.id === fileId);
+    if (file && file.isExisting) {
+      setAssignmentFilesToRemove(prev => [...prev, file.url]);
+    }
+    setAssignmentFiles(prev => prev.filter(f => f.id !== fileId));
+    toast.info('File removed');
+  };
 
-  const removeAttachment = (index) => {
-    const file = attachments[index];
-    if (file.isExisting) {
+  // Remove attachment
+  const removeAttachment = (fileId) => {
+    const file = attachments.find(f => f.id === fileId);
+    if (file && file.isExisting) {
       setAttachmentsToRemove(prev => [...prev, file.url]);
     }
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+    setAttachments(prev => prev.filter(f => f.id !== fileId));
+    toast.info('Attachment removed');
   };
 
+  // Handle form submit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check file size limit before submitting
+    const VERCEL_LIMIT_MB = 4.5;
+    if (totalSizeMB > VERCEL_LIMIT_MB) {
+      toast.error(`Total file size (${totalSizeMB.toFixed(1)}MB) exceeds the ${VERCEL_LIMIT_MB}MB limit`);
+      return;
+    }
+    
+    // Validate required fields
+    if (!formData.title.trim()) {
+      toast.error('Please enter a title');
+      return;
+    }
+    
+    if (!formData.subject) {
+      toast.error('Please select a subject');
+      return;
+    }
+    
+    if (!formData.className) {
+      toast.error('Please select a class');
+      return;
+    }
+    
+    if (!formData.dueDate) {
+      toast.error('Please select a due date');
+      return;
+    }
     
     // Call parent's onSave with all data
     await onSave(
@@ -1068,8 +1178,16 @@ const handleAssignmentFileChange = (e) => {
     );
   };
 
+  // Handle form field changes
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Get size color based on current usage
+  const getSizeColor = () => {
+    if (totalSizeMB > 4.5) return 'text-red-600';
+    if (totalSizeMB > 3.5) return 'text-amber-600';
+    return 'text-green-600';
   };
 
   return (
@@ -1095,7 +1213,7 @@ const handleAssignmentFileChange = (e) => {
               <div>
                 <h2 className="text-2xl font-bold">{assignment ? 'Edit' : 'Create'} Assignment</h2>
                 <p className="text-white/90 opacity-90 mt-1 text-sm">
-                  Manage assignment information
+                  Manage assignment information and files
                 </p>
               </div>
             </div>
@@ -1109,10 +1227,27 @@ const handleAssignmentFileChange = (e) => {
 
         <div className="max-h-[calc(95vh-150px)] overflow-y-auto">
           <form onSubmit={handleFormSubmit} className="p-6 space-y-6">
+            {/* File Size Warning */}
+            {fileSizeError && (
+              <div className="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <FiAlertCircle className="text-red-500 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-red-700 font-bold">{fileSizeError}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      Remove files or reduce file sizes to continue
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Title - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3">
-                Assignment Title *
+              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <span className="text-red-500">*</span>
+                <FiTag className="text-indigo-500" />
+                Assignment Title
               </label>
               <input
                 type="text"
@@ -1121,20 +1256,24 @@ const handleAssignmentFileChange = (e) => {
                 onChange={(e) => handleChange('title', e.target.value)}
                 className="w-full font-bold px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
                 placeholder="Enter assignment title"
+                disabled={loading}
               />
             </div>
 
             {/* Subject and Class in Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3">
-                  Subject *
+                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="text-red-500">*</span>
+                  <FiBookOpen className="text-purple-500" />
+                  Subject
                 </label>
                 <select
                   required
                   value={formData.subject}
                   onChange={(e) => handleChange('subject', e.target.value)}
                   className="w-full  px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50"
+                  disabled={loading}
                 >
                   <option value="">Select Subject</option>
                   {subjectOptions.map(subject => (
@@ -1144,14 +1283,17 @@ const handleAssignmentFileChange = (e) => {
               </div>
 
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3">
-                  Class *
+                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="text-red-500">*</span>
+                  <FiUsers className="text-green-500" />
+                  Class
                 </label>
                 <select
                   required
                   value={formData.className}
                   onChange={(e) => handleChange('className', e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50"
+                  disabled={loading}
                 >
                   <option value="">Select Class</option>
                   {classOptions.map(className => (
@@ -1163,7 +1305,8 @@ const handleAssignmentFileChange = (e) => {
 
             {/* Teacher - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3">
+              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <FiUserCheck className="text-amber-500" />
                 Teacher
               </label>
               <input
@@ -1172,13 +1315,16 @@ const handleAssignmentFileChange = (e) => {
                 onChange={(e) => handleChange('teacher', e.target.value)}
                 className="w-full font-bold px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-50"
                 placeholder="Enter teacher's name"
+                disabled={loading}
               />
             </div>
 
             {/* Description - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3">
-                Description *
+              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <span className="text-red-500">*</span>
+                <FiEdit2 className="text-blue-500" />
+                Description
               </label>
               <textarea
                 required
@@ -1187,14 +1333,17 @@ const handleAssignmentFileChange = (e) => {
                 rows="4"
                 className="w-full font-bold px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
                 placeholder="Describe the assignment..."
+                disabled={loading}
               />
             </div>
 
             {/* Dates in Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3">
-                  Due Date *
+                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="text-red-500">*</span>
+                  <FiCalendar className="text-indigo-500" />
+                  Due Date
                 </label>
                 <input
                   type="date"
@@ -1202,11 +1351,13 @@ const handleAssignmentFileChange = (e) => {
                   value={formData.dueDate}
                   onChange={(e) => handleChange('dueDate', e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
+                  disabled={loading}
                 />
               </div>
               
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3">
+                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <FiCalendar className="text-indigo-500" />
                   Date Assigned
                 </label>
                 <input
@@ -1214,6 +1365,7 @@ const handleAssignmentFileChange = (e) => {
                   value={formData.dateAssigned}
                   onChange={(e) => handleChange('dateAssigned', e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -1221,13 +1373,15 @@ const handleAssignmentFileChange = (e) => {
             {/* Status and Priority in Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3">
+                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <FiCheckCircle className="text-green-500" />
                   Status
                 </label>
                 <select
                   value={formData.status}
                   onChange={(e) => handleChange('status', e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50"
+                  disabled={loading}
                 >
                   <option value="pending">Pending</option>
                   <option value="in progress">In Progress</option>
@@ -1238,13 +1392,15 @@ const handleAssignmentFileChange = (e) => {
               </div>
 
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3">
+                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <FiTarget className="text-orange-500" />
                   Priority
                 </label>
                 <select
                   value={formData.priority}
                   onChange={(e) => handleChange('priority', e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50"
+                  disabled={loading}
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -1255,7 +1411,8 @@ const handleAssignmentFileChange = (e) => {
 
             {/* Estimated Time - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3">
+              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <FiClock className="text-amber-500" />
                 Estimated Time
               </label>
               <input
@@ -1264,78 +1421,64 @@ const handleAssignmentFileChange = (e) => {
                 onChange={(e) => handleChange('estimatedTime', e.target.value)}
                 className="w-full font-bold  px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-50"
                 placeholder="e.g., 2 Weeks, 5 Months"
+                disabled={loading}
               />
             </div>
 
-<div>
-  {/* Label */}
-  <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
-    <div className="w-1.5 h-6 bg-purple-600 rounded-full" /> 
-    Learning Objectives
-  </label>
-
-  <div className="space-y-4">
-    {/* 1. Input Section - Modern Flex Row */}
-    <div className="flex flex-row items-center gap-2">
-      <div className="relative flex-1">
-        <input
-          type="text"
-          value={newObjective}
-          onChange={(e) => setNewObjective(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddObjective())}
-          className="w-full font-medium px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none text-sm sm:text-base"
-          placeholder="e.g., Master React Hooks..."
-        />
-      </div>
-      <button
-        type="button"
-        onClick={handleAddObjective}
-        className="shrink-0 px-5 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold transition-all active:scale-95 shadow-sm flex items-center justify-center text-sm"
-      >
-        Add
-      </button>
-    </div>
-
-    {/* 2. Mapping Section - Modern Visible Cards */}
-    <div className="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
-      {learningObjectives.length > 0 ? (
-        learningObjectives.map((objective, index) => (
-          <div 
-            key={index} 
-            className="group flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-purple-200 hover:shadow-sm transition-all animate-in fade-in slide-in-from-left-2"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              {/* Decorative Bullet */}
-              <div className="w-2 h-2 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <div className="w-1 h-1 rounded-full bg-purple-600" />
+            {/* Learning Objectives */}
+            <div>
+              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <FiTarget className="text-purple-500" />
+                Learning Objectives
+              </label>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newObjective}
+                    onChange={(e) => setNewObjective(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddObjective())}
+                    className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50"
+                    placeholder="Enter learning objective..."
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddObjective}
+                    disabled={loading || !newObjective.trim()}
+                    className="px-4 py-3 bg-purple-600 text-white rounded-xl font-bold disabled:opacity-50"
+                  >
+                    Add
+                  </button>
+                </div>
+                
+                {learningObjectives.length > 0 && (
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {learningObjectives.map((objective, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-200">
+                        <div className="flex items-center gap-2">
+                          <FiCheckCircle className="text-purple-500" />
+                          <span className="text-sm font-medium text-gray-800">{objective}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveObjective(index)}
+                          className="text-red-500 hover:text-red-700 p-1"
+                          disabled={loading}
+                        >
+                          <FiX />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <span className="text-sm font-semibold text-slate-700 truncate">
-                {objective}
-              </span>
             </div>
-            
-            <button
-              type="button"
-              onClick={() => handleRemoveObjective(index)}
-              className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <FiX className="text-base" />
-            </button>
-          </div>
-        ))
-      ) : (
-        /* Empty State */
-        <div className="py-8 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/50">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No objectives set yet</p>
-        </div>
-      )}
-    </div>
-  </div>
-</div>
 
             {/* Instructions - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3">
+              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <FiEdit2 className="text-green-500" />
                 Instructions
               </label>
               <textarea
@@ -1344,12 +1487,14 @@ const handleAssignmentFileChange = (e) => {
                 rows="3"
                 className="w-full px-4 py-3 border-2 font-bold  border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50"
                 placeholder="Provide detailed instructions..."
+                disabled={loading}
               />
             </div>
 
             {/* Additional Work - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3">
+              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <FiFileText className="text-blue-500" />
                 Additional Work
               </label>
               <textarea
@@ -1358,12 +1503,14 @@ const handleAssignmentFileChange = (e) => {
                 rows="3"
                 className="w-full px-4 py-3 font-bold border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
                 placeholder="Any additional work or extra credit..."
+                disabled={loading}
               />
             </div>
 
             {/* Teacher Remarks - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3">
+              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <FiEdit className="text-amber-500" />
                 Teacher Remarks
               </label>
               <textarea
@@ -1372,190 +1519,175 @@ const handleAssignmentFileChange = (e) => {
                 rows="2"
                 className="w-full px-4 py-3 border-2 font-bold border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-50"
                 placeholder="Teacher's remarks or notes..."
+                disabled={loading}
               />
             </div>
-<div className="w-full lg:w-[75%] mx-auto flex flex-col space-y-8">
-  {/* Modernized File Upload Section with Size Control */}
-  <section className="bg-white rounded-[32px] p-1 sm:p-2">
-    <div className="flex items-center justify-between gap-3 mb-6 px-2">
-      <div className="flex items-center gap-3">
-        <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
-        <label className="text-xl font-black text-slate-800 tracking-tight">
-          Assignment Resources
-        </label>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className={`text-xs font-bold px-3 py-1.5 rounded-full ${
-          totalSizeMB > 4.5 
-            ? 'bg-gradient-to-r from-red-100 to-pink-100 text-red-700 animate-pulse' 
-            : totalSizeMB > 3.5
-            ? 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700'
-            : 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700'
-        }`}>
-          {totalSizeMB.toFixed(1)} / 4.5 MB
-        </div>
-      </div>
-    </div>
 
-    {/* Vercel Size Warning */}
-    {totalSizeMB > 4.5 && (
-      <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-100 border border-red-200 rounded-2xl">
-        <div className="flex items-start gap-3">
-          <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-red-700 text-sm font-bold">
-              Vercel Size Limit Exceeded!
-            </p>
-            <p className="text-red-600 text-xs mt-1">
-              Total file size ({totalSizeMB.toFixed(1)}MB) exceeds the 4.5MB limit. 
-              Remove files to continue.
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              // Remove all files
-              setAssignmentFiles([]);
-              setAssignmentFilesToRemove([]);
-            }}
-            className="text-xs font-bold px-3 py-1.5 rounded-full bg-gradient-to-r from-red-200 to-pink-200 text-red-700 hover:from-red-300 hover:to-pink-300 transition-all"
-          >
-            Clear All
-          </button>
-        </div>
-      </div>
-    )}
-
-    {/* Size Progress Bar */}
-    <div className="mb-6">
-      <div className="flex justify-between text-xs text-gray-600 mb-1">
-        <span>Storage Used</span>
-        <span className="font-bold">{totalSizeMB.toFixed(1)}MB / 4.5MB</span>
-      </div>
-      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div 
-          className={`h-full transition-all duration-300 ${
-            totalSizeMB > 4.5 
-              ? 'bg-gradient-to-r from-red-500 to-pink-500' 
-              : totalSizeMB > 3.5
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500'
-              : 'bg-gradient-to-r from-green-500 to-emerald-500'
-          }`}
-          style={{ width: `${Math.min((totalSizeMB / 4.5) * 100, 100)}%` }}
-        />
-      </div>
-    </div>
-
-    <div className="space-y-6">
-      {/* Dropzone-style Upload Button */}
-      <div className="relative group">
-        <input
-          type="file"
-          multiple
-          onChange={handleAssignmentFileChange}
-          className="hidden"
-          id="assignment-files-input"
-          disabled={totalSizeMB > 4.5}
-        />
-        <div 
-          onClick={() => !(totalSizeMB > 4.5) && document.getElementById('assignment-files-input').click()}
-          className={`w-full py-8 border-2 border-dashed rounded-[24px] flex flex-col items-center justify-center gap-3 transition-all cursor-pointer ${
-            totalSizeMB > 4.5
-              ? 'border-red-300 bg-red-50/30 opacity-60'
-              : 'border-slate-200 bg-slate-50/50 hover:bg-blue-50/50 hover:border-blue-400 group-active:scale-[0.98]'
-          }`}
-        >
-          <div className={`p-3 rounded-2xl transition-transform ${
-            totalSizeMB > 4.5
-              ? 'bg-red-100'
-              : 'bg-white shadow-sm group-hover:scale-110'
-          }`}>
-            <FiUpload className={`text-2xl ${
-              totalSizeMB > 4.5 ? 'text-red-600' : 'text-blue-600'
-            }`} />
-          </div>
-          <div className="text-center">
-            <p className={`font-bold text-sm sm:text-base ${
-              totalSizeMB > 4.5 ? 'text-red-800' : 'text-slate-800'
-            }`}>
-              {totalSizeMB > 4.5 ? 'Storage Full' : 'Click to upload assignment files'}
-            </p>
-            <p className="text-slate-400 text-xs font-medium mt-1">
-              {totalSizeMB > 4.5 
-                ? 'Remove files to free up space' 
-                : 'PDF, DOCX, or Images up to 10MB'
-              }
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Modernized File List */}
-      {assignmentFiles.length > 0 && (
-        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-          {assignmentFiles.map((file, index) => {
-            const fileSizeMB = file.file?.size ? (file.file.size / (1024 * 1024)).toFixed(1) : 0;
-            
-            return (
-              <div 
-                key={index} 
-                className={`group flex items-center justify-between p-4 border rounded-2xl transition-all ${
-                  totalSizeMB > 4.5
-                    ? 'bg-red-50/50 border-red-200'
-                    : 'bg-white border-slate-100 hover:shadow-md hover:border-blue-100'
-                }`}
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  {/* File Icon */}
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                    parseFloat(fileSizeMB) > 3
-                      ? 'bg-red-100 text-red-600'
-                      : parseFloat(fileSizeMB) > 1
-                      ? 'bg-amber-100 text-amber-600'
-                      : 'bg-blue-100 text-blue-600'
-                  }`}>
-                    <FiFileText className="text-lg" />
+            {/* File Upload Section with Size Tracking */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border-2 border-blue-200">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <FiUpload className="text-blue-500" />
+                    File Upload
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Max 10MB per file • Total limit: 4.5MB • PDF, DOC, PPT, Images
+                  </p>
+                </div>
+                
+                {/* Size Indicator */}
+                <div className={`flex items-center gap-3 ${getSizeColor()}`}>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">{totalSizeMB.toFixed(1)} MB</p>
+                    <p className="text-xs">of 4.5 MB</p>
                   </div>
-                  
-                  {/* File Info */}
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-slate-700 truncate">
-                      {file.name}
-                    </p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
-                        file.isExisting 
-                          ? 'bg-slate-100 text-slate-500' 
-                          : totalSizeMB > 4.5
-                          ? 'bg-red-100 text-red-600'
-                          : 'bg-emerald-100 text-emerald-600'
-                      }`}>
-                        {file.isExisting ? 'Cloud' : 'Local'}
-                      </span>
-                      <span className={`text-xs font-medium ${
-                        totalSizeMB > 4.5 ? 'text-red-600' : 'text-slate-400'
-                      }`}>
-                        {file.isExisting ? 'Stored online' : `${fileSizeMB}MB`}
-                      </span>
-                    </div>
+                  <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${
+                        totalSizeMB > 4.5 
+                          ? 'bg-red-500' 
+                          : totalSizeMB > 3.5
+                          ? 'bg-amber-500'
+                          : 'bg-green-500'
+                      }`}
+                      style={{ width: `${Math.min((totalSizeMB / 4.5) * 100, 100)}%` }}
+                    />
                   </div>
                 </div>
-
-                {/* Remove Button */}
-                <button
-                  type="button"
-                  onClick={() => removeAssignmentFile(index)}
-                  className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shrink-0"
-                >
-                  <FiX className="text-lg" />
-                </button>
               </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  </section>
-</div>
+
+              {/* Assignment Files Upload */}
+              <div className="mb-6">
+                <label className="block text-base font-bold text-gray-800 mb-3">
+                  Assignment Resources
+                </label>
+                <div className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
+                  loading || totalSizeMB > 4.5
+                    ? 'border-gray-300 bg-gray-100 cursor-not-allowed'
+                    : 'border-blue-300 bg-blue-50/30 hover:border-blue-400 hover:bg-blue-50'
+                }`}
+                     onClick={() => !loading && totalSizeMB <= 4.5 && document.getElementById('assignment-files').click()}>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleAssignmentFileChange}
+                    className="hidden"
+                    id="assignment-files"
+                    disabled={loading || totalSizeMB > 4.5}
+                  />
+                  <FiUpload className="text-3xl text-blue-500 mx-auto mb-3" />
+                  <p className="text-gray-700 font-medium mb-2">
+                    {totalSizeMB > 4.5 ? 'Storage Full' : 'Click to upload assignment files'}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    PDF, DOCX, PPT, or Images (max 10MB each)
+                  </p>
+                </div>
+              </div>
+
+              {/* Attachments Upload */}
+              <div className="mb-6">
+                <label className="block text-base font-bold text-gray-800 mb-3">
+                  Additional Attachments
+                </label>
+                <div className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
+                  loading || totalSizeMB > 4.5
+                    ? 'border-gray-300 bg-gray-100 cursor-not-allowed'
+                    : 'border-purple-300 bg-purple-50/30 hover:border-purple-400 hover:bg-purple-50'
+                }`}
+                     onClick={() => !loading && totalSizeMB <= 4.5 && document.getElementById('attachments').click()}>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleAttachmentFileChange}
+                    className="hidden"
+                    id="attachments"
+                    disabled={loading || totalSizeMB > 4.5}
+                  />
+                  <FiPaperclip className="text-3xl text-purple-500 mx-auto mb-3" />
+                  <p className="text-gray-700 font-medium mb-2">
+                    {totalSizeMB > 4.5 ? 'Storage Full' : 'Click to upload attachments'}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Supporting documents (max 10MB each)
+                  </p>
+                </div>
+              </div>
+
+              {/* File Lists */}
+              {(assignmentFiles.length > 0 || attachments.length > 0) && (
+                <div className="space-y-4">
+                  {/* Assignment Files List */}
+                  {assignmentFiles.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-700 mb-2">
+                        Assignment Files ({assignmentFiles.length})
+                      </h4>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {assignmentFiles.map((file) => (
+                          <div key={file.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                            <div className="flex items-center gap-3">
+                              <FiFileText className="text-blue-500" />
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-800 truncate max-w-xs">
+                                  {file.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {file.isExisting ? 'Existing file' : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeAssignmentFile(file.id)}
+                              className="text-red-500 hover:text-red-700 p-1"
+                              disabled={loading}
+                            >
+                              <FiX />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Attachments List */}
+                  {attachments.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-700 mb-2">
+                        Attachments ({attachments.length})
+                      </h4>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {attachments.map((file) => (
+                          <div key={file.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                            <div className="flex items-center gap-3">
+                              <FiPaperclip className="text-purple-500" />
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-800 truncate max-w-xs">
+                                  {file.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {file.isExisting ? 'Existing attachment' : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeAttachment(file.id)}
+                              className="text-red-500 hover:text-red-700 p-1"
+                              disabled={loading}
+                            >
+                              <FiX />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Form Actions */}
             <div className="flex items-center justify-between pt-6 border-t border-gray-200">
@@ -1563,28 +1695,28 @@ const handleAssignmentFileChange = (e) => {
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg disabled:opacity-50 cursor-pointer text-sm"
+                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl font-bold shadow-lg disabled:opacity-50 cursor-pointer text-sm"
               >
                 Cancel
               </button>
               
-<button 
-  type="submit"
-  disabled={loading || totalSizeMB > 4.5 || fileSizeError}
-  className="px-6 py-3 text-white rounded-xl font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-sm hover:from-indigo-700 hover:to-purple-700 transition-all"
->
-  {loading ? (
-    <>
-      <CircularProgress size={16} className="text-white" />
-      {assignment ? 'Updating...' : 'Creating...'}
-    </>
-  ) : (
-    <>
-      <FiCheck className="text-sm" />
-      {assignment ? 'Update' : 'Create'} Assignment
-    </>
-  )}
-</button>
+              <button 
+                type="submit"
+                disabled={loading || totalSizeMB > 4.5 || !formData.title.trim() || !formData.subject || !formData.className || !formData.dueDate}
+                className="px-6 py-3 text-white rounded-xl font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-sm hover:from-indigo-700 hover:to-purple-700 transition-all"
+              >
+                {loading ? (
+                  <>
+                    <CircularProgress size={16} className="text-white" />
+                    {assignment ? 'Updating...' : 'Creating...'}
+                  </>
+                ) : (
+                  <>
+                    <FiCheck className="text-sm" />
+                    {assignment ? 'Update' : 'Create'} Assignment
+                  </>
+                )}
+              </button>
             </div>
           </form>
         </div>
