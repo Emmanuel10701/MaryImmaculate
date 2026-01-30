@@ -1862,177 +1862,179 @@ const EmptyState = () => (
         loading={loadingStates.delete}
       />
 
-      {/* Decision Modal - Modern Design */}
-      <ModernModal open={showDecisionModal} onClose={() => setShowDecisionModal(false)} maxWidth="860px">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-4 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm">
-                <Edit className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold">Make Decision</h2>
-                <p className="text-blue-100 opacity-90 text-sm">
-                  {selectedApplication ? `${selectedApplication.firstName} ${selectedApplication.lastName}` : 'Select application'}
-                </p>
+   {/* Decision Modal - Modern & Spacious Design (Synced with Bulk UI) */}
+<ModernModal open={showDecisionModal} onClose={() => setShowDecisionModal(false)} maxWidth="700px">
+  
+  {/* Modern Header - Slate-900 Theme */}
+  <div className="bg-slate-900 p-6 text-white relative overflow-hidden">
+    {/* Decorative background element */}
+    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl" />
+    
+    <div className="flex items-center justify-between relative z-10">
+      <div className="flex items-center gap-4">
+        <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md border border-white/10">
+          <Edit className="w-6 h-6 text-indigo-300" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Make Decision</h2>
+          <p className="text-slate-400 text-sm font-medium mt-0.5">
+            Application for: <span className="text-indigo-400 font-bold">
+              {selectedApplication ? `${selectedApplication.firstName} ${selectedApplication.lastName}` : 'Select application'}
+            </span>
+          </p>
+        </div>
+      </div>
+      <button 
+        onClick={() => setShowDecisionModal(false)} 
+        className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white"
+      >
+        <X className="w-6 h-6" />
+      </button>
+    </div>
+  </div>
+
+  {/* Content Area - Synced Spacing & Background */}
+  <div className="max-h-[75vh] overflow-y-auto custom-scrollbar bg-slate-50/30">
+    <div className="p-8 space-y-8">
+      
+      {/* Decision Type Selection - 2-Column Grid */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest ml-1">Select Action</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {decisionTypes.map((decision) => {
+            const Icon = decision.icon;
+            const isSelected = decisionType === decision.value;
+            
+            return (
+              <button
+                key={decision.value}
+                onClick={() => setDecisionType(decision.value)}
+                className={`group flex items-start gap-4 p-5 rounded-2xl border-2 transition-all duration-300 text-left ${
+                  isSelected 
+                    ? 'border-indigo-600 bg-white shadow-md ring-4 ring-indigo-50' 
+                    : 'border-slate-200 bg-white hover:border-slate-300'
+                }`}
+              >
+                <div className={`p-3 rounded-xl transition-all ${
+                  isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500'
+                }`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <p className={`font-bold text-base ${isSelected ? 'text-indigo-900' : 'text-slate-700'}`}>
+                    {decision.label}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    {decision.value === 'ACCEPTED' ? 'Approve for enrollment' : 'Decline application'}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Decision Details Section */}
+      {decisionType && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-6 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-50 pb-4">
+              <h3 className="text-lg font-bold text-slate-800">Finalize Details</h3>
+              <div className="px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-bold border border-amber-100">
+                Action Required
               </div>
             </div>
-            <button onClick={() => setShowDecisionModal(false)} className="p-1 rounded-lg cursor-pointer">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
 
-{/* Content */}
-<div className="max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar">
-  <div className="p-6 space-y-8">
-    
-    {/* Decision Type Selection */}
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2.5">
-        <Target className="text-indigo-600 w-5 h-5" />
-        Action Required
-      </h3>
-      
-      <div className="grid grid-cols-2 gap-4">
-        {decisionTypes.map((decision) => {
-          const Icon = decision.icon;
-          const isSelected = decisionType === decision.value;
-          
-          return (
-            <button
-              key={decision.value}
-              onClick={() => setDecisionType(decision.value)}
-              className={`group flex flex-col items-start p-4 rounded-2xl border-2 transition-all duration-200 text-left ${
-                isSelected 
-                  ? 'border-indigo-600 bg-indigo-50/50 ring-4 ring-indigo-50' 
-                  : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <div className={`p-2.5 rounded-xl mb-3 transition-colors ${
-                isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
-              }`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <span className={`text-base font-bold ${isSelected ? 'text-indigo-900' : 'text-slate-700'}`}>
-                {decision.label}
-              </span>
-              <span className="text-xs text-slate-500 mt-1">
-                {decision.value === 'ACCEPTED' ? 'Approve for enrollment' : 'Decline application'}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-
-    {/* Decision Details Container */}
-    {decisionType && (
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-400">
-        <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-200 space-y-6">
-          
-          {decisionType === 'ACCEPTED' && (
-            <div className="grid grid-cols-1 gap-6">
-              {/* Admission Class - Increased Font & Padding */}
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Admission Class</label>
-                <input
-                  type="text"
-                  value={decisionData.admissionClass}
-                  onChange={(e) => setDecisionData({...decisionData, admissionClass: e.target.value})}
-                  placeholder="e.g. Form 1A"
-                  className="w-full text-md font-semibold px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-base shadow-sm placeholder:text-slate-400"
-                />
-              </div>
-              
-              {/* Reporting Date */}
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Reporting Date</label>
-                <div className="relative">
+            {decisionType === 'ACCEPTED' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Admission Class</label>
+                  <input
+                    type="text"
+                    value={decisionData.admissionClass}
+                    onChange={(e) => setDecisionData({...decisionData, admissionClass: e.target.value})}
+                    placeholder="e.g. Form 1A"
+                    className="w-full text-md font-semibold px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Reporting Date</label>
                   <ModernCalendar
                     value={decisionData.reportingDate}
                     onChange={(value) => setDecisionData({...decisionData, reportingDate: value})}
-                    placeholder="Select start date"
                   />
                 </div>
               </div>
-            </div>
-          )}
-          
-          {decisionType === 'REJECTED' && (
+            )}
+
+            {/* Notes/Reason Input */}
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Rejection Reason</label>
+              <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">
+                {decisionType === 'REJECTED' ? 'Rejection Reason' : 'Internal Notes'}
+              </label>
               <textarea
-                value={decisionData.rejectionReason}
-                onChange={(e) => setDecisionData({...decisionData, rejectionReason: e.target.value})}
-                placeholder="Briefly explain the decision..."
-                className="w-full px-4 py-3.5 text-md font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base shadow-sm min-h-[120px]"
-                rows={12}
+                value={decisionType === 'REJECTED' ? decisionData.rejectionReason : decisionData.notes}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  decisionType === 'REJECTED' 
+                    ? setDecisionData({...decisionData, rejectionReason: val})
+                    : setDecisionData({...decisionData, notes: val})
+                }}
+                placeholder="Briefly explain the decision or add internal context..."
+                className="w-full px-5 py-4 text-md font-semibold bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all min-h-[120px]"
+                rows={decisionType === 'REJECTED' ? 12 : 6}
               />
             </div>
-          )}
-          
-          {/* Decision Notes - Increased rows and text size */}
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Internal Notes</label>
-            <textarea
-              value={decisionData.notes}
-              onChange={(e) => setDecisionData({...decisionData, notes: e.target.value})}
-              placeholder="Private notes for the administration team..."
-              className="w-full px-4 py-3.5 text-md font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base shadow-sm min-h-[100px]"
-              rows={12}
-            />
-          </div>
-          
-          {/* Email Notification - Modern Toggle Style */}
-          <label className="flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
-            <div className={`p-2 rounded-lg ${decisionData.sendEmail ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}>
-              <Mail className="w-5 h-5" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-slate-800">Send Notification</p>
-              <p className="text-xs text-slate-500">Applicant will receive an automated email</p>
-            </div>
-            <input
-              type="checkbox"
-              checked={decisionData.sendEmail}
-              onChange={(e) => setDecisionData({...decisionData, sendEmail: e.target.checked})}
-              className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-            />
-          </label>
-        </div>
-      </div>
-    )}
-  </div>
-</div>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-gray-100">
-          <div className="flex gap-2">
-            <button
-              onClick={updateApplicationStatus}
-              disabled={!decisionType || loadingStates.decision}
-              className="flex-1 bg-gradient-to-r from-emerald-500 to-green-500 text-white py-2.5 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loadingStates.decision ? (
-                <span className="flex items-center justify-center gap-1">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">Processing...</span>
-                </span>
-              ) : (
-                <span className="text-sm">Submit Decision</span>
-              )}
-            </button>
-            <button
-              onClick={() => setShowDecisionModal(false)}
-              className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg transition-all duration-200 font-medium"
-            >
-              <span className="text-sm">Cancel</span>
-            </button>
+            {/* Email Toggle - Synced with Bulk UI Style */}
+            <label className="flex items-center gap-4 p-5 bg-indigo-50/50 border border-indigo-100 rounded-2xl cursor-pointer hover:bg-indigo-50 transition-all group">
+              <div className={`p-3 rounded-xl transition-all ${decisionData.sendEmail ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-400 border border-slate-200'}`}>
+                <Mail className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <p className="text-base font-bold text-slate-800 group-hover:text-indigo-900">Send Notification</p>
+                <p className="text-sm text-slate-500">Notify the applicant via automated email</p>
+              </div>
+              <div className={`w-12 h-6 rounded-full transition-colors relative ${decisionData.sendEmail ? 'bg-indigo-600' : 'bg-slate-300'}`}>
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${decisionData.sendEmail ? 'left-7' : 'left-1'}`} />
+                <input
+                  type="checkbox"
+                  className="hidden"
+                  checked={decisionData.sendEmail}
+                  onChange={(e) => setDecisionData({...decisionData, sendEmail: e.target.checked})}
+                />
+              </div>
+            </label>
           </div>
         </div>
-      </ModernModal>
+      )}
+    </div>
+  </div>
+
+  {/* Footer Actions - Synced with Bulk UI */}
+  <div className="p-6 bg-white border-t border-slate-100 flex gap-4">
+    <button
+      onClick={() => setShowDecisionModal(false)}
+      className="flex-1 px-6 py-4 border-2 border-slate-100 text-slate-600 rounded-2xl transition-all hover:bg-slate-50 hover:border-slate-200 font-bold text-base"
+    >
+      Cancel
+    </button>
+    <button
+      onClick={updateApplicationStatus}
+      disabled={!decisionType || loadingStates.decision}
+      className="flex-[2] bg-indigo-600 text-white py-4 rounded-2xl transition-all font-bold text-base shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
+    >
+      {loadingStates.decision ? (
+        <span className="flex items-center justify-center gap-3">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          Processing...
+        </span>
+      ) : (
+        'Confirm Decision'
+      )}
+    </button>
+  </div>
+</ModernModal>
 
 {/* Bulk Decision Modal - Modern & Spacious Design */}
 <ModernModal open={showBulkModal} onClose={() => setShowBulkModal(false)} maxWidth="700px">
