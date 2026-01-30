@@ -423,32 +423,37 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
                 </button>
               </div>
             </div>
-
-            {/* 2. Map Container - Zoom Responsive */}
-            <div className="lg:col-span-8 group relative bg-white rounded-[2.5rem] p-4 border border-slate-200 shadow-xl shadow-slate-200/50 transition-all duration-500 hover:border-orange-200">
-              <div className="flex items-center justify-between mb-4 px-4 pt-2">
-                <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  Interactive Map
-                </h3>
-                <div className="flex gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-slate-100"></div>
-                  <div className="w-8 h-8 rounded-lg bg-slate-100"></div>
-                </div>
-              </div>
-              
-              {/* The "Zoom" effect is handled by overflow-hidden on the parent and scale on the child */}
-              <div className="relative h-[400px] lg:h-full min-h-[400px] rounded-[1.8rem] overflow-hidden">
-                <div className="absolute inset-0 transition-transform duration-1000 group-hover:scale-105">
-                  <MapComponent />
-                </div>
-                
-                {/* Modern Floating Map Overlay */}
-                <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-white/20 hidden md:block">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mweiga, Nyeri</p>
-                </div>
-              </div>
-            </div>
+{/* 2. Map Container - Smart Scale Responsive */}
+<div className="lg:col-span-8 group relative bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-3 sm:p-4 border border-slate-200 shadow-xl shadow-slate-200/50 transition-all duration-500 hover:border-orange-200">
+  
+  {/* Header Section - Scaled Padding/Font */}
+  <div className="flex items-center justify-between mb-3 sm:mb-4 px-2 sm:px-4 pt-1 sm:pt-2">
+    <h3 className="text-base sm:text-lg lg:text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
+      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+      Interactive Map
+    </h3>
+    
+    {/* Control Plugs - Hidden on very small screens to save space */}
+    <div className="hidden xs:flex gap-1.5 sm:gap-2">
+      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-50 border border-slate-100"></div>
+      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-50 border border-slate-100"></div>
+    </div>
+  </div>
+  
+  {/* Map Wrapper - Height Optimized */}
+  <div className="relative h-[300px] xs:h-[350px] sm:h-[400px] lg:h-full min-h-[300px] sm:min-h-[400px] rounded-[1.2rem] sm:rounded-[1.8rem] overflow-hidden border border-slate-100">
+    <div className="absolute inset-0 transition-transform duration-1000 group-hover:scale-105">
+      <MapComponent />
+    </div>
+    
+    {/* Modern Floating Map Overlay - Now visible & refined on mobile */}
+    <div className="absolute bottom-3 right-3 sm:bottom-6 sm:right-6 bg-slate-900/90 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-2xl border border-white/10">
+      <p className="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-[0.15em] sm:tracking-widest">
+        Mweiga, Nyeri
+      </p>
+    </div>
+  </div>
+</div>
           </div>
         </div>
       </section>
