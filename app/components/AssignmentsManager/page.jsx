@@ -2137,37 +2137,45 @@ useEffect(() => {
   };
 
 
+// In your AssignmentsManager component, update the handleSubmit function:
+
 const handleSubmit = async (formData, id, assignmentFiles = [], attachments = [], learningObjectives = [], assignmentFilesToRemove = [], attachmentsToRemove = []) => {
   setSaving(true);
   try {
-    console.log('📤 Starting submission...');
+    console.log('📤 Starting assignment submission...');
     
-    // Calculate total file size before submission
+    // IMPORTANT: Calculate total file size BEFORE sending to API
     let totalBytes = 0;
     
-    // Add new assignment files size
-    assignmentFiles.forEach(file => {
-      if (file.file && file.file.size) {
-        totalBytes += file.file.size;
-      }
-    });
+    // Calculate size for new assignment files
+    if (assignmentFiles && Array.isArray(assignmentFiles)) {
+      assignmentFiles.forEach(file => {
+        if (file && file.file && file.file.size && !file.isExisting) {
+          totalBytes += file.file.size;
+        }
+      });
+    }
     
-    // Add new attachments size
-    attachments.forEach(file => {
-      if (file.file && file.file.size) {
-        totalBytes += file.file.size;
-      }
-    });
+    // Calculate size for new attachments
+    if (attachments && Array.isArray(attachments)) {
+      attachments.forEach(file => {
+        if (file && file.file && file.file.size && !file.isExisting) {
+          totalBytes += file.file.size;
+        }
+      });
+    }
     
     const totalMB = totalBytes / (1024 * 1024);
     const VERCEL_LIMIT_MB = 4.5;
     
     // Check Vercel total size limit before sending
     if (totalMB > VERCEL_LIMIT_MB) {
-      throw new Error(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's ${VERCEL_LIMIT_MB}MB limit`);
+      showNotification('error', 'File Size Limit', `Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's ${VERCEL_LIMIT_MB}MB limit`);
+      setSaving(false);
+      return;
     }
     
-    console.log('Files info:', {
+    console.log('File upload details:', {
       assignmentFilesCount: assignmentFiles?.length || 0,
       attachmentsCount: attachments?.length || 0,
       totalSizeMB: totalMB.toFixed(1),
@@ -2198,10 +2206,10 @@ const handleSubmit = async (formData, id, assignmentFiles = [], attachments = []
     formDataToSend.append('learningObjectives', learningObjectivesString);
 
     // Handle assignment files for UPDATE
-    if (id && assignmentFiles) {
+    if (id && assignmentFiles && Array.isArray(assignmentFiles)) {
       // Get existing assignment files (those that weren't removed)
       const existingAssignmentFiles = assignmentFiles
-        .filter(file => file.isExisting && file.url)
+        .filter(file => file && file.isExisting && file.url)
         .map(file => file.url);
       
       if (existingAssignmentFiles.length > 0) {
@@ -2210,29 +2218,29 @@ const handleSubmit = async (formData, id, assignmentFiles = [], attachments = []
       
       // Add new assignment files (actual file objects)
       assignmentFiles.forEach((file) => {
-        if (file.file && !file.isExisting) {
+        if (file && file.file && !file.isExisting) {
           formDataToSend.append('assignmentFiles', file.file);
         }
       });
       
       // Add assignment files to remove
-      if (assignmentFilesToRemove.length > 0) {
+      if (assignmentFilesToRemove && assignmentFilesToRemove.length > 0) {
         formDataToSend.append('assignmentFilesToRemove', JSON.stringify(assignmentFilesToRemove));
       }
-    } else if (!id && assignmentFiles) {
+    } else if (!id && assignmentFiles && Array.isArray(assignmentFiles)) {
       // For CREATE - add all assignment files
       assignmentFiles.forEach((file) => {
-        if (file.file) {
+        if (file && file.file) {
           formDataToSend.append('assignmentFiles', file.file);
         }
       });
     }
 
     // Handle attachments for UPDATE
-    if (id && attachments) {
+    if (id && attachments && Array.isArray(attachments)) {
       // Get existing attachments (those that weren't removed)
       const existingAttachments = attachments
-        .filter(file => file.isExisting && file.url)
+        .filter(file => file && file.isExisting && file.url)
         .map(file => file.url);
       
       if (existingAttachments.length > 0) {
@@ -2241,19 +2249,19 @@ const handleSubmit = async (formData, id, assignmentFiles = [], attachments = []
       
       // Add new attachments (actual file objects)
       attachments.forEach((file) => {
-        if (file.file && !file.isExisting) {
+        if (file && file.file && !file.isExisting) {
           formDataToSend.append('attachments', file.file);
         }
       });
       
       // Add attachments to remove
-      if (attachmentsToRemove.length > 0) {
+      if (attachmentsToRemove && attachmentsToRemove.length > 0) {
         formDataToSend.append('attachmentsToRemove', JSON.stringify(attachmentsToRemove));
       }
-    } else if (!id && attachments) {
+    } else if (!id && attachments && Array.isArray(attachments)) {
       // For CREATE - add all attachments
       attachments.forEach((file) => {
-        if (file.file) {
+        if (file && file.file) {
           formDataToSend.append('attachments', file.file);
         }
       });
