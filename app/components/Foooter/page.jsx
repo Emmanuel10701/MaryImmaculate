@@ -568,75 +568,82 @@ export default function ModernFooter() {
         </div>
       )}
 
-      {/* Sitemap Modal */}
-      {showSitemap && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div 
-            className="absolute inset-0 bg-black/80" 
-            onClick={() => setShowSitemap(false)} 
-          />
-          <div className="relative bg-slate-900 text-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700 p-4 sm:p-6 md:p-8 my-auto">
-            <div className="flex justify-between items-start gap-3 mb-6 flex-wrap">
-              <div className="flex items-center gap-3 min-w-0">
-                <FiGlobe className="text-2xl text-white flex-shrink-0" />
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-white break-words">Site Navigation</h2>
-              </div>
-              <button 
-                onClick={() => setShowSitemap(false)} 
-                className="text-2xl text-white hover:text-gray-300 transition-colors font-bold flex-shrink-0"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {['Main Sections', 'Resources', 'Quick Links'].map((section, idx) => (
-                <div key={idx}>
-                  <h3 className="font-semibold text-white mb-4 text-base sm:text-lg border-b border-gray-700 pb-3 break-words">
-                    {section}
-                  </h3>
-                  <div className="space-y-3">
-                    {(section === 'Main Sections' ? quickLinks.slice(0, 4) : 
-                      section === 'Resources' ? resources.slice(0, 4) : 
-                      quickLinks.slice(4)).map((item, index) => {
-                      const Icon = item.icon;
-                      return (
-                        <a
-                          key={index}
-                          href={item.href}
-                          className="flex items-center gap-2.5 p-3 rounded-lg hover:bg-gray-800 text-gray-300 hover:text-white transition-all group font-normal text-sm sm:text-base hover:translate-x-1 break-words"
-                          onClick={() => setShowSitemap(false)}
-                        >
-                          <Icon className="group-hover:scale-100 transition-transform flex-shrink-0 text-white/70" />
-                          <span className="break-words">{item.name}</span>
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-<div className="mt-6 pt-6 border-t border-slate-700/50">
-  <div className="flex flex-row gap-3 items-center">
-    <button 
+{/* Sitemap Modal */}
+{showSitemap && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto overflow-x-hidden">
+    <div 
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
       onClick={() => setShowSitemap(false)} 
-      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all active:scale-95 whitespace-nowrap"
-    >
-      Close Menu
-    </button>
-    <a
-      href="/pages/contact"
-      onClick={() => setShowSitemap(false)}
-      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all active:scale-95 text-center shadow-lg shadow-blue-500/20 whitespace-nowrap"
-    >
-      Contact
-    </a>
-  </div>
-</div>
-          </div>
+    />
+    
+    <div className="relative bg-slate-900 text-white rounded-[2rem] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-white/10 p-5 sm:p-8 my-auto animate-slide-up">
+      
+      {/* Header - Scaled for Mobile */}
+      <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+        <div className="flex items-center gap-2">
+          <FiGlobe className="text-xl sm:text-2xl text-blue-400" />
+          <h2 className="text-base sm:text-xl font-black uppercase tracking-tight">Navigation</h2>
         </div>
-      )}
+        <button 
+          onClick={() => setShowSitemap(false)} 
+          className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-90"
+        >
+          <FiX size={20} className="text-white" />
+        </button>
+      </div>
+
+      {/* Grid: 1 col on mobile, 2 on small tablets, 3 on desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {['Main Sections', 'Resources', 'Quick Links'].map((section, idx) => (
+          <div key={idx} className="space-y-4">
+            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+              <span className="w-4 h-[1px] bg-blue-500/50" /> {section}
+            </h3>
+            <div className="flex flex-col gap-1">
+              {(section === 'Main Sections' ? quickLinks.slice(0, 4) : 
+                section === 'Resources' ? resources.slice(0, 4) : 
+                quickLinks.slice(4)).map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <a
+                    key={index}
+                    href={item.href}
+                    className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 text-slate-300 hover:text-blue-400 transition-all group"
+                    onClick={() => setShowSitemap(false)}
+                  >
+                    <div className="p-1.5 bg-white/5 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                      <Icon size={14} className="shrink-0" />
+                    </div>
+                    <span className="text-xs font-bold tracking-tight">{item.name}</span>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer Actions - The ones we just perfected */}
+      <div className="mt-8 pt-6 border-t border-white/5">
+        <div className="flex flex-row gap-3 items-center">
+          <button 
+            onClick={() => setShowSitemap(false)} 
+            className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10"
+          >
+            Close
+          </button>
+          <a
+            href="/pages/contact"
+            onClick={() => setShowSitemap(false)}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 text-center shadow-lg shadow-blue-500/25"
+          >
+            Contact
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </footer>
   );
 }
