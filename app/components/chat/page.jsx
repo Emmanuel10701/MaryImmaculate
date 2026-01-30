@@ -75,7 +75,7 @@ const staticCategories = {
     icon: 'school',
     content: `Mary Immaculate Girls
 
-**A Public County School in Mweiga, Nyeri**
+**A Private County School in Mweiga, Nyeri**
 
 Quick Facts:
 • Established: 1976
@@ -367,7 +367,7 @@ ${schoolData.vision || 'To be a center of excellence in holistic education'}
 ${schoolData.mission || 'To provide quality education that nurtures intellectual, moral, and physical development'}
 
 **About Our School:**
-${schoolData.description || 'A public county school committed to academic excellence and holistic development'}
+${schoolData.description || 'A Private county school committed to academic excellence and holistic development'}
 
 Quick Facts:
 • Students: ${schoolData.studentCount || '1000+'}
