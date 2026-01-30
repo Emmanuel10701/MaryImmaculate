@@ -307,156 +307,158 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
         </div>
       </section>
       
-      {/* Values Section */}
-      <section className="py-24 px-6 max-w-7xl mx-auto overflow-hidden">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          
-          {/* Left Side: Content & Values Grid */}
-          <div className="order-2 lg:order-1">
-            <div className="mb-10">
-              <span className="inline-block px-4 py-1.5 mb-4 text-[10px] font-bold tracking-[0.2em] text-orange-700 uppercase bg-orange-50 rounded-full border border-orange-100">
-                Our Foundation
-              </span>
-              <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
-                Character Over <br />
-                <span className="text-orange-600 italic">Everything.</span>
-              </h3>
-              <p className="text-lg text-slate-600 max-w-xl leading-relaxed">
-                Integrity, Discipline, and Resilience aren't just words here—they are the pillars of the Mary Immaculate experience and the DNA of our community.
-              </p>
-            </div>
+{/* Values Section */}
+<section className="py-12 sm:py-24 px-4 sm:px-6 max-w-7xl mx-auto overflow-hidden">
+  <div className="grid lg:grid-cols-2 gap-10 sm:gap-16 items-center">
+    
+    {/* Left Side: Content & Values Grid */}
+    <div className="order-2 lg:order-1">
+      <div className="mb-8 sm:mb-10 text-center lg:text-left">
+        <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 mb-4 text-[9px] sm:text-[10px] font-black tracking-[0.2em] text-orange-700 uppercase bg-orange-50 rounded-full border border-orange-100">
+          Our Foundation
+        </span>
+        <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4 sm:mb-6 leading-[1.1]">
+          Character Over <br />
+          <span className="text-orange-600 italic">Everything.</span>
+        </h3>
+        <p className="text-sm sm:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+          Integrity, Discipline, and Resilience aren't just words here—they are the pillars of our community's DNA.
+        </p>
+      </div>
 
-            {/* Expanded Values Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { title: "Integrity", icon: <ShieldCheck size={20} />, desc: "Doing right always." },
-                { title: "Discipline", icon: <Clock size={20} />, desc: "Consistency in effort." },
-                { title: "Resilience", icon: <TrendingUp size={20} />, desc: "Bouncing back stronger." },
-                { title: "Empathy", icon: <Heart size={20} />, desc: "Understanding others." },
-                { title: "Innovation", icon: <Lightbulb size={20} />, desc: "Thinking beyond limits." },
-                { title: "Leadership", icon: <Users size={20} />, desc: "Inspiring the collective." }
-              ].map((val, i) => (
-                <div 
-                  key={i} 
-                  className="group flex flex-col p-4 bg-white border border-slate-100 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-orange-900/5 hover:-translate-y-1 hover:border-orange-100"
-                >
-                  <div className="flex items-center gap-3 mb-1">
-                    <div className="p-2 rounded-lg bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300">
-                      {val.icon}
-                    </div>
-                    <span className="font-bold text-slate-800">{val.title}</span>
-                  </div>
-                  <p className="text-xs text-slate-500 ml-11">{val.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right Side: Image with Zoom Effect */}
-          <div className="relative order-1 lg:order-2 group">
-            {/* Background decoration */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-orange-50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -z-10"></div>
-            
-            {/* Main Image Container */}
-            <div className="relative overflow-hidden rounded-[2.5rem] shadow-2xl border-[8px] border-white">
-              <img 
-                src="https://images.unsplash.com/photo-1511629091441-ee46146481b6?auto=format&fit=crop&q=80&w=1000" 
-                className="w-full aspect-[4/5] object-cover transition-transform duration-1000 group-hover:scale-110" 
-                alt="Culture and community"
-              />
-              
-              {/* Floating Detail Badge */}
-              <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl border border-white/20 transform group-hover:-translate-y-2 transition-transform duration-500">
-                <div className="text-orange-600 font-black text-2xl tracking-tighter">100%</div>
-                <div className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Commitment</div>
+      {/* Values Grid - Compact on Mobile */}
+      <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+        {[
+          { title: "Integrity", icon: <ShieldCheck size={18} />, desc: "Doing right always." },
+          { title: "Discipline", icon: <Clock size={18} />, desc: "Consistency in effort." },
+          { title: "Resilience", icon: <TrendingUp size={18} />, desc: "Bouncing back stronger." },
+          { title: "Empathy", icon: <Heart size={18} />, desc: "Understanding others." },
+          { title: "Innovation", icon: <Lightbulb size={18} />, desc: "Thinking beyond limits." },
+          { title: "Leadership", icon: <Users size={18} />, desc: "Inspiring the collective." }
+        ].map((val, i) => (
+          <div 
+            key={i} 
+            className="group flex flex-col p-3 sm:p-4 bg-white border border-slate-100 rounded-xl sm:rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-orange-900/5 hover:-translate-y-1 hover:border-orange-100"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300 shrink-0">
+                {val.icon}
               </div>
+              <span className="font-black text-xs sm:text-sm text-slate-800 tracking-tight">{val.title}</span>
             </div>
+            {/* Hidden on very small screens to save space, visible from 'xs' up */}
+            <p className="hidden xs:block text-[10px] sm:text-xs text-slate-500 mt-2 ml-11 leading-tight">{val.desc}</p>
           </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Right Side: Image with Mobile-Friendly Scale */}
+    <div className="relative order-1 lg:order-2 group">
+      {/* Background decoration - dimmed for mobile focus */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] bg-orange-100/50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -z-10"></div>
+      
+      {/* Main Image Container */}
+      <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border-[4px] sm:border-[8px] border-white">
+        <img 
+          src="https://images.unsplash.com/photo-1511629091441-ee46146481b6?auto=format&fit=crop&q=80&w=1000" 
+          className="w-full aspect-square sm:aspect-[4/5] object-cover transition-transform duration-1000 group-hover:scale-110" 
+          alt="Culture and community"
+        />
+        
+        {/* Floating Detail Badge - Scaled for Mobile */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-white/95 backdrop-blur-md px-4 py-2 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl border border-white/20">
+          <div className="text-orange-600 font-black text-xl sm:text-2xl tracking-tighter">100%</div>
+          <div className="text-[8px] sm:text-[10px] uppercase font-black text-slate-500 tracking-widest">Commitment</div>
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Location Section */}
-      <section className="py-24 bg-gradient-to-br from-orange-50 to-amber-50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-12 gap-8 items-stretch">
-            
-            {/* 1. Contact Card - High Contrast */}
-            <div className="lg:col-span-4 group relative overflow-hidden bg-gradient-to-br from-orange-600 to-amber-600 p-8 md:p-10 rounded-[2.5rem] shadow-2xl shadow-orange-200 flex flex-col justify-between transition-transform duration-500 hover:-translate-y-2">
-              {/* Decorative background circle */}
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-orange-500 rounded-full opacity-50 transition-transform duration-700 group-hover:scale-150"></div>
-              
-              <div className="relative z-10">
-                <span className="inline-block px-3 py-1 mb-6 text-[10px] font-bold tracking-widest text-orange-100 uppercase bg-orange-700/50 rounded-full border border-orange-400/30">
-                  Find Us
-                </span>
-                <h4 className="text-3xl font-extrabold text-white mb-10 tracking-tight">Get in Touch</h4>
-                
-                <div className="space-y-8">
-                  <div className="flex gap-5 group/item">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-orange-500/50 flex items-center justify-center text-white border border-orange-400/30 group-hover/item:bg-white group-hover/item:text-orange-600 transition-all">
-                      <MapPin size={24} />
-                    </div>
-                    <div>
-                      <p className="text-orange-100 text-xs uppercase font-bold tracking-tighter mb-1">Campus Address</p>
-                      <p className="text-white font-medium leading-relaxed">
-                        Main Campus, Mweiga, Nyeri<br />Mary Immaculate Girls Secondary
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-5 group/item">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-orange-500/50 flex items-center justify-center text-white border border-orange-400/30 group-hover/item:bg-white group-hover/item:text-orange-600 transition-all">
-                      <Phone size={24} />
-                    </div>
-                    <div>
-                      <p className="text-orange-100 text-xs uppercase font-bold tracking-tighter mb-1">Direct Line</p>
-                      <p className="text-white font-medium">+254 123 456 789</p>
-                    </div>
-                  </div>
-                </div>
+<section className="py-12 sm:py-24 bg-gradient-to-br from-orange-50 to-amber-50 overflow-hidden">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="grid lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
+      
+      {/* 1. Contact Card - High Contrast & Mobile Responsive */}
+      <div className="lg:col-span-4 group relative overflow-hidden bg-gradient-to-br from-orange-600 to-amber-600 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl shadow-orange-200/50 flex flex-col justify-between transition-all duration-500 hover:-translate-y-2">
+        
+        {/* Decorative background circle - scaled for mobile */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 sm:w-64 sm:h-64 bg-orange-500 rounded-full opacity-40 transition-transform duration-700 group-hover:scale-150"></div>
+        
+        <div className="relative z-10">
+          <span className="inline-block px-3 py-1 mb-4 sm:mb-6 text-[9px] sm:text-[10px] font-black tracking-widest text-orange-100 uppercase bg-orange-700/50 rounded-full border border-orange-400/30">
+            Find Us
+          </span>
+          <h4 className="text-2xl sm:text-3xl font-black text-white mb-6 sm:mb-10 tracking-tight leading-tight">
+            Get in <br className="hidden sm:block" /> Touch
+          </h4>
+          
+          <div className="space-y-6 sm:space-y-8">
+            <div className="flex gap-4 sm:gap-5 group/item items-start">
+              <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-orange-500/50 flex items-center justify-center text-white border border-orange-400/30 group-hover/item:bg-white group-hover/item:text-orange-600 transition-all shadow-lg">
+                <MapPin size={20} className="sm:w-[24px] sm:h-[24px]" />
               </div>
-
-              <div className="relative z-10 mt-12">
-                <button className="w-full py-4 bg-white text-orange-600 font-bold rounded-2xl shadow-lg hover:bg-orange-50 active:scale-95 transition-all flex items-center justify-center gap-2 group">
-                  Open in Google Maps
-                  <ExternalLink size={18} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                </button>
+              <div>
+                <p className="text-orange-100 text-[9px] sm:text-xs uppercase font-black tracking-tighter mb-0.5 sm:mb-1 opacity-80">Campus Address</p>
+                <p className="text-white text-sm sm:text-base font-bold leading-snug sm:leading-relaxed">
+                  Main Campus, Mweiga, Nyeri
+                </p>
               </div>
             </div>
-{/* 2. Map Container - Smart Scale Responsive */}
-<div className="lg:col-span-8 group relative bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-3 sm:p-4 border border-slate-200 shadow-xl shadow-slate-200/50 transition-all duration-500 hover:border-orange-200">
-  
-  {/* Header Section - Scaled Padding/Font */}
-  <div className="flex items-center justify-between mb-3 sm:mb-4 px-2 sm:px-4 pt-1 sm:pt-2">
-    <h3 className="text-base sm:text-lg lg:text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
-      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-      Interactive Map
-    </h3>
-    
-    {/* Control Plugs - Hidden on very small screens to save space */}
-    <div className="hidden xs:flex gap-1.5 sm:gap-2">
-      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-50 border border-slate-100"></div>
-      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-50 border border-slate-100"></div>
-    </div>
-  </div>
-  
-  {/* Map Wrapper - Height Optimized */}
-  <div className="relative h-[300px] xs:h-[350px] sm:h-[400px] lg:h-full min-h-[300px] sm:min-h-[400px] rounded-[1.2rem] sm:rounded-[1.8rem] overflow-hidden border border-slate-100">
-    <div className="absolute inset-0 transition-transform duration-1000 group-hover:scale-105">
-      <MapComponent />
-    </div>
-    
-    {/* Modern Floating Map Overlay - Now visible & refined on mobile */}
-    <div className="absolute bottom-3 right-3 sm:bottom-6 sm:right-6 bg-slate-900/90 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-2xl border border-white/10">
-      <p className="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-[0.15em] sm:tracking-widest">
-        Mweiga, Nyeri
-      </p>
-    </div>
-  </div>
-</div>
+
+            <div className="flex gap-4 sm:gap-5 group/item items-start">
+              <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-orange-500/50 flex items-center justify-center text-white border border-orange-400/30 group-hover/item:bg-white group-hover/item:text-orange-600 transition-all shadow-lg">
+                <Phone size={20} className="sm:w-[24px] sm:h-[24px]" />
+              </div>
+              <div>
+                <p className="text-orange-100 text-[9px] sm:text-xs uppercase font-black tracking-tighter mb-0.5 sm:mb-1 opacity-80">Direct Line</p>
+                <p className="text-white text-sm sm:text-base font-bold">+254 123 456 789</p>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+
+        <div className="relative z-10 mt-8 sm:mt-12">
+          <button className="w-full py-3 sm:py-4 bg-white text-orange-600 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-xl hover:bg-orange-50 active:scale-95 transition-all flex items-center justify-center gap-2 group uppercase tracking-wider">
+            Google Maps
+            <ExternalLink size={16} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Map Container - Fully Optimized */}
+      <div className="lg:col-span-8 group relative bg-white rounded-[2rem] sm:rounded-[2.5rem] p-3 sm:p-4 border border-slate-200 shadow-xl shadow-slate-200/40 transition-all duration-500 hover:border-orange-200">
+        
+        <div className="flex items-center justify-between mb-3 sm:mb-4 px-2 sm:px-4 pt-1 sm:pt-2">
+          <h3 className="text-sm sm:text-lg lg:text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight uppercase">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            Interactive Map
+          </h3>
+          
+          <div className="hidden xs:flex gap-1.5">
+            <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100"></div>
+            <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100"></div>
+          </div>
+        </div>
+        
+        <div className="relative h-[280px] sm:h-[400px] lg:h-full min-h-[280px] sm:min-h-[400px] rounded-[1.5rem] sm:rounded-[1.8rem] overflow-hidden border border-slate-100 shadow-inner">
+          <div className="absolute inset-0 transition-transform duration-[2000ms] group-hover:scale-110">
+            <MapComponent />
+          </div>
+          
+          <div className="absolute bottom-3 right-3 sm:bottom-6 sm:right-6 bg-slate-900/90 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-2xl border border-white/10">
+            <p className="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest">
+              Mweiga, Nyeri
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
       {/* Modern Institutional Section - Refined Small Text Edition */}
       <section className="py-12 sm:py-20 px-4 sm:px-6 overflow-hidden bg-gradient-to-br from-orange-950 via-amber-950 to-red-950">
