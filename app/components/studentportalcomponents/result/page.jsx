@@ -12,7 +12,7 @@ import {
   FiTrash2, FiPlus, FiX, FiCheckCircle,
   FiInfo, FiCalendar, FiUser, FiClock,
   FiBarChart2, FiPercent, FiActivity,
-  FiChevronLeft, FiChevronRight as FiChevronRightIcon, FiDownloadCloud 
+  FiChevronLeft, FiChevronRight as FiChevronRightIcon, FiDownloadCloud, FiArrowRight  
 } from 'react-icons/fi';
 
 
@@ -1069,7 +1069,6 @@ export default function ModernResultsView({
                             className={`grid grid-cols-12 gap-1 sm:gap-2 px-2 sm:px-3 md:px-6 py-2 sm:py-3 hover:bg-gray-50 transition-colors ${isStudentResult ? 'bg-blue-50' : ''}`}
                           >
 <div className="col-span-3 flex flex-col items-start gap-0.5">
-  {/* Header Row: ID + Badge */}
   <div className="flex items-center gap-2 max-w-full">
     <div className="font-black text-slate-900 text-xs sm:text-sm tracking-tight truncate">
       {result.admissionNumber}
@@ -1090,7 +1089,7 @@ export default function ModernResultsView({
     <span className="border-b border-blue-600/30 group-hover:border-blue-700 transition-colors">
       View Results
     </span>
-    <ArrowRight size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+    <FiArrowRight  size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
   </button>
 </div>
 
