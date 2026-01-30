@@ -646,63 +646,68 @@ const handleSaveAdmin = async (e) => {
           </div>
           
           {/* Profile Card */}
-          {session?.user && (
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 min-w-[300px]">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl">
-                    <User className="text-white text-lg" />
-                  </div>
-                  <div>
-                    <h2 className="font-bold text-md">Your Profile</h2>
-                    <p className="text-blue-100 opacity-80 text-sm">Logged in as {session.user.role || 'ADMIN'}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-blue-100">Status</p>
-                  <span className="px-3 py-1 bg-green-500/20 text-orange-500  rounded-full text-xs font-bold border border-green-300/30">
-                    Active
-                  </span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-3">
-                <div className="flex items-center gap-2 p-2 bg-white/5 rounded-xl">
-                  <User className="text-blue-200 text-sm" />
-                  <div>
-                    <p className="text-xs text-blue-200">Name</p>
-                    <p className="font-semibold text-sm truncate">{session.user.name}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 p-2 bg-white/5 rounded-xl">
-                  <Mail className="text-blue-200 text-sm" />
-                  <div>
-                    <p className="text-xs text-blue-200">Email</p>
-                    <p className="font-semibold text-sm truncate">{session.user.email}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 p-2 bg-white/5 rounded-xl">
-                  <Phone className="text-blue-200 text-sm" />
-                  <div>
-                    <p className="text-xs text-blue-200">Phone</p>
-                    <p className="font-semibold text-sm truncate">{session.user.phone || '+254712345678'}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-4 pt-4 border-t border-white/20">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 border border-white/30 hover:border-white/50"
-                >
-                  <LogOut className="text-sm" />
-                  <span className="text-sm font-medium">Logout</span>
-                </button>
-              </div>
-            </div>
-          )}
+{session?.user && (
+  <div className="bg-slate-900/90 backdrop-blur-xl rounded-[2rem] p-5 sm:p-7 border border-white/10 w-full max-w-[450px] shadow-2xl relative overflow-hidden group">
+    {/* Subtle Background Glow */}
+    <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl" />
+    
+    {/* Header Section */}
+    <div className="flex items-start justify-between mb-6 relative z-10">
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-emerald-400 rounded-2xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-500">
+            <User className="text-white" size={20} />
+          </div>
+          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-slate-900 rounded-full shadow-sm" />
+        </div>
+        <div>
+          <h2 className="font-black text-white text-sm uppercase tracking-widest leading-none mb-1">
+            {session.user.name.split(' ')[0]}'s Profile
+          </h2>
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-tighter opacity-80">
+            {session.user.role || 'System Administrator'}
+          </p>
+        </div>
+      </div>
+
+      {/* Modern Compact Logout */}
+      <button
+        onClick={handleLogout}
+        title="Logout"
+        className="p-2.5 bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-xl border border-white/10 hover:border-red-500/30 transition-all duration-300 active:scale-90"
+      >
+        <LogOut size={16} />
+      </button>
+    </div>
+
+    {/* Info Grid - Adaptive for Zooming */}
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 relative z-10">
+      {[
+        { label: 'Ident', val: session.user.name, icon: <User size={12} /> },
+        { label: 'Mail', val: session.user.email, icon: <Mail size={12} /> },
+        { label: 'Call', val: session.user.phone || '+2547...', icon: <Phone size={12} /> }
+      ].map((item, i) => (
+        <div key={i} className="flex flex-col p-3 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors">
+          <div className="flex items-center gap-1.5 mb-1 text-blue-300/60 uppercase font-black text-[8px] tracking-[0.15em]">
+            {item.icon} {item.label}
+          </div>
+          <p className="text-[11px] font-bold text-slate-100 truncate tracking-tight">
+            {item.val}
+          </p>
+        </div>
+      ))}
+    </div>
+
+    {/* Bottom Status Bar */}
+    <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between">
+       <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Session Active</span>
+       </div>
+       <span className="text-[9px] font-black text-slate-500 italic">v2.0.26</span>
+    </div>
+  </div>
+)}
         </div>
       </div>
 
