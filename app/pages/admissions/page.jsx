@@ -449,84 +449,91 @@ const ModernEducationSystemCard = ({ system, icon: Icon, color, description, fea
 };
 const AdmissionPathCard = ({ path, onApply, index }) => {
   const getLocalImage = (type) => {
-    const images = {
-      grade7: '/im2.jpeg',
-      transfer: '/student.jpg',
-    };
+    const images = { grade7: '/im2.jpeg', transfer: '/student.jpg' };
     return images[type] || '/im2.jpeg';
   };
 
-  // Dynamic theme color selection
   const themeColor = path.color.includes('blue') ? 'blue' : 'purple';
 
   return (
-    <div className="relative bg-white rounded-2xl md:rounded-[2.5rem] border border-slate-100 overflow-hidden transition-all duration-500 flex flex-col h-full">
+    <div className="relative bg-white rounded-none md:rounded-[3rem] border-y md:border border-slate-100 overflow-hidden flex flex-col h-full shadow-sm md:shadow-xl">
       
-      {/* 1. Image Section: Taller on mobile for visual impact */}
-      <div className="relative h-48 md:h-56 overflow-hidden">
+      <div className="relative h-44 md:h-64 overflow-hidden">
         <img
           src={getLocalImage(path.type)}
           alt={path.title}
-          className="w-full h-full object-cover transition-transform duration-700"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
-        {/* Mobile-optimized Status Badge */}
         <div className="absolute top-4 left-4">
-          <span className="flex items-center gap-1.5 backdrop-blur-md bg-black/40 border border-white/20 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest text-white">
+          <span className="flex items-center gap-1.5 backdrop-blur-md bg-white/10 border border-white/20 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-white">
             <IoFlash className="text-yellow-400" />
-            {path.deadline === 'Rolling Admission' ? 'Open' : 'Limited Seats'}
+            {path.deadline === 'Rolling Admission' ? 'Open Now' : 'Limited Entry'}
           </span>
+        </div>
+
+        {/* Floating Title on Image for Mobile */}
+        <div className="absolute bottom-4 left-4 right-4 md:hidden">
+            <h3 className="font-black text-white text-xl tracking-tight leading-none uppercase italic">
+                {path.title}
+            </h3>
         </div>
       </div>
 
-      {/* 2. Content Body: Responsive Padding */}
-      <div className="p-4 md:p-8 flex flex-col flex-1">
-        
-        {/* Layout: Icon + Title */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-5">
-          <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br ${path.color} p-0.5 shadow-lg`}>
+      {/* 2. Content Body */}
+      <div className="p-6 md:p-10 flex flex-col flex-1">
+        {/* Desktop Title (Hidden on Mobile because it's on the image) */}
+        <div className="hidden md:flex items-center gap-5 mb-6">
+          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${path.color} p-0.5 shadow-lg`}>
             <div className="w-full h-full bg-white rounded-[calc(1rem-1px)] flex items-center justify-center">
-               {path.icon({ className: `text-xl md:text-2xl text-${themeColor}-600` })}
+               {path.icon({ className: `text-2xl text-${themeColor}-600` })}
             </div>
           </div>
-          <h3 className="font-black text-slate-800 text-xl md:text-2xl tracking-tight leading-tight">
+          <h3 className="font-black text-slate-800 text-3xl tracking-tighter uppercase leading-none">
             {path.title}
           </h3>
         </div>
 
-        <p className="text-slate-500 text-sm md:text-base leading-relaxed mb-6">
+        <p className="text-slate-500 text-[13px] md:text-base font-bold leading-relaxed mb-6">
           {path.description}
         </p>
 
-        {/* Features: Adaptive Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 md:mb-8">
-          {path.features.slice(0, 4).map((feature, idx) => (
-            <div key={idx} className="flex items-center gap-2 text-sm text-slate-600 font-medium bg-slate-50/50 p-2 rounded-lg border border-slate-100/50">
-              <IoCheckmarkCircle className={`text-${themeColor}-500 shrink-0`} />
+        {/* Features: Compact on Mobile */}
+        <div className="grid grid-cols-1 gap-2 md:gap-3 mb-8">
+          {path.features.slice(0, 3).map((feature, idx) => (
+            <div key={idx} className="flex items-center gap-3 text-[12px] md:text-sm text-slate-700 font-black uppercase tracking-tight bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <IoCheckmarkCircle className={`text-${themeColor}-500 text-lg shrink-0`} />
               <span className="truncate">{feature}</span>
             </div>
           ))}
         </div>
 
-        {/* 3. Footer: Vertical on tiny phones, Horizontal on tablet+ */}
-        <div className="mt-auto pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="p-2 bg-slate-100 rounded-full">
-               <IoCalendarOutline className="text-slate-500 text-lg" />
+        {/* 3. Footer Action */}
+        <div className="mt-auto pt-6 border-t border-slate-100 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-slate-100 rounded-lg">
+                 <IoCalendarOutline className="text-slate-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] uppercase font-black text-slate-400 tracking-widest">Deadline</span>
+                <span className="text-xs font-black text-slate-900">{path.deadline}</span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Apply Before</span>
-              <span className="text-sm font-bold text-slate-700">{path.deadline}</span>
-            </div>
+            
+            {/* Price/Fee Tag (Optional addition) */}
+            <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase">
+              Apply Today
+            </span>
           </div>
           
           <button
-            onClick={() => router.push('/pages/apply-for-admissions')}
-            className={`w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r ${path.color} text-white rounded-xl md:rounded-2xl text-sm md:text-base font-bold transition-all active:scale-95 shadow-lg`}
+            onClick={onApply}
+            className={`w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r ${path.color} text-white rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-transform`}
           >
-            Get Started
-            <IoArrowForward className="ml-2 text-xl transition-transform" />
+            Start Application
+            <IoArrowForward size={18} />
           </button>
         </div>
       </div>
@@ -2167,32 +2174,39 @@ return (
     </div>
 
     {/* 3. Admission Paths - Mobile Optimized Grid */}
-    <section className="relative overflow-hidden py-10 px-4 sm:px-8 bg-slate-50 rounded-3xl md:rounded-[40px] md:mx-4">
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-blue-200/20 blur-3xl rounded-full" />
-      
-      <div className="relative z-10 max-w-7xl mx-auto">
-        <div className="mb-8 text-center md:text-left">
-          <h3 className="text-xl md:text-5xl font-black text-slate-900 tracking-tighter mb-3">
-            Your <span className="text-blue-600">Future</span> Starts Here
-          </h3>
-          <p className="text-slate-500 text-xs md:text-lg max-w-xl mx-auto md:mx-0">
-            Select the enrollment track that matches your goals.
-          </p>
-        </div>
-
-        {/* Ensure cards don't get too tall on mobile */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-10">
-          {admissionPaths.map((path, index) => (
-            <AdmissionPathCard
-              key={path.title}
-              path={path}
-              index={index}
-              onApply={() => router.push('/pages/apply-for-admissions')}
-            />
-          ))}
-        </div>
+{/* 3. Admission Paths - Full Bleed on Mobile */}
+<section className="relative overflow-hidden py-12 md:py-20 bg-slate-50 rounded-none md:rounded-[40px] md:mx-4 px-0 md:px-8">
+  <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-blue-200/20 blur-3xl rounded-full" />
+  
+  <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-0">
+    <div className="mb-10 text-center md:text-left">
+      <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100/50 rounded-full mb-4">
+        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-blue-700">Admissions 2026</span>
       </div>
-    </section>
+      <h3 className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter mb-4 leading-none">
+        Your <span className="text-blue-600">Future</span> Starts Here
+      </h3>
+      {/* Added additional line of description below */}
+      <p className="text-slate-500 text-sm md:text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
+        Select the enrollment track that matches your goals. <br className="hidden md:block" />
+        Join a community dedicated to academic excellence and character development.
+      </p>
+    </div>
+
+    {/* Grid: 0 gap on mobile for the full-bleed cards to stack perfectly */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+      {admissionPaths.map((path, index) => (
+        <AdmissionPathCard
+          key={path.title}
+          path={path}
+          index={index}
+          onApply={() => router.push('/pages/apply-for-admissions')}
+        />
+      ))}
+    </div>
+  </div>
+</section>
 
     {/* 4. Bento Grid - Refined for Small Screens */}
     <div className="py-10 md:py-16 px-4 md:px-6 max-w-6xl mx-auto">
