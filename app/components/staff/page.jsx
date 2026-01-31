@@ -55,6 +55,7 @@ import {
   FaUpload,
   FaGraduationCap,
   FaCrown,
+  FaFolderOpen, 
   FaShieldAlt,
   FaUsers,
   FaBook,
