@@ -2328,34 +2328,49 @@ return (
       </section>
     ))}
 
-    {/* Section 5: Stats & Calendar - Dark Banner Optimized for Mobile */}
-    {schoolData?.openDate && (
-      <div className="relative overflow-hidden bg-slate-900 rounded-[2rem] p-6 md:p-16 mx-1">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full -mr-20 -mt-20" />
-        
-        <div className="relative z-10 flex flex-col gap-8 text-center md:text-left">
-          <div>
-            <h3 className="text-white text-xl md:text-3xl font-black tracking-tight mb-2">Academic Calendar</h3>
-            <p className="text-slate-400 text-xs md:text-lg">Mark your journey. Stay ahead of the curve.</p>
-          </div>
+{/* Section 5: Stats & Calendar - Dark Banner Optimized for Mobile */}
+{schoolData?.openDate && (
+  /* Removed mx-1 and rounded on mobile; restored md:rounded and md:mx-0 for desktop */
+  <div className="relative overflow-hidden bg-slate-900 md:rounded-[3rem] p-8 md:p-16 w-full">
+    {/* Decorative Glow - Positioned for edge-to-edge look on phone */}
+    <div className="absolute top-0 right-0 w-48 md:w-96 h-48 md:h-96 bg-blue-500/10 blur-[60px] md:blur-[100px] rounded-full -mr-24 -mt-24" />
+    
+    <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8 md:gap-12">
+      {/* Header text stays centered on mobile, left-aligned on desktop */}
+      <div className="text-center lg:text-left max-w-sm">
+        <h3 className="text-white text-2xl md:text-3xl font-black tracking-tight mb-3 uppercase">
+          Academic <span className="text-blue-500">Calendar</span>
+        </h3>
+        <p className="text-slate-400 text-xs md:text-lg font-medium leading-relaxed">
+          Mark your journey. Stay ahead of the curve with our key enrollment dates.
+        </p>
+      </div>
 
-          <div className="grid grid-cols-2 gap-3 md:gap-8">
-            <div className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-white/10">
-              <div className="text-blue-400 font-black text-[9px] uppercase tracking-widest mb-2">Year Opens</div>
-              <div className="text-white text-sm md:text-2xl font-bold truncate">
-                {formatDate(schoolData.openDate)}
-              </div>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-white/10">
-              <div className="text-rose-400 font-black text-[9px] uppercase tracking-widest mb-2">Year Closes</div>
-              <div className="text-white text-sm md:text-2xl font-bold truncate">
-                {formatDate(schoolData.closeDate)}
-              </div>
-            </div>
+      {/* Grid: 2 columns even on very small screens, but with tighter padding */}
+      <div className="grid grid-cols-2 gap-3 md:gap-8 w-full lg:w-auto">
+        {/* Year Opens Card */}
+        <div className="bg-white/5 backdrop-blur-xl p-5 md:p-8 rounded-2xl border border-white/10 text-center min-w-0">
+          <div className="text-blue-400 font-black text-[8px] md:text-[10px] uppercase tracking-[0.2em] mb-3">
+            Year Opens
+          </div>
+          <div className="text-white text-sm md:text-2xl font-black tracking-tighter tabular-nums truncate">
+            {formatDate(schoolData.openDate)}
+          </div>
+        </div>
+
+        {/* Year Closes Card */}
+        <div className="bg-white/5 backdrop-blur-xl p-5 md:p-8 rounded-2xl border border-white/10 text-center min-w-0">
+          <div className="text-rose-400 font-black text-[8px] md:text-[10px] uppercase tracking-[0.2em] mb-3">
+            Year Closes
+          </div>
+          <div className="text-white text-sm md:text-2xl font-black tracking-tighter tabular-nums truncate">
+            {formatDate(schoolData.closeDate)}
           </div>
         </div>
       </div>
-    )}
+    </div>
+  </div>
+)}
   </div>
 )}
 
