@@ -85,7 +85,7 @@ import {
   FiCoffee,
   FiChef,
   FiMusic as FiMusicIcon,
-  FiArrowUpRight,
+  FiChevronRight,
    FiChevronLeft 
 } from 'react-icons/fi';
 import { 
