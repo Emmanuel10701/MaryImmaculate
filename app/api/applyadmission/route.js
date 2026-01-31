@@ -1251,16 +1251,7 @@ export async function POST(req) {
         return NextResponse.json({ success: false, error: "Invalid email format" }, { status: 400 });
       }
       
-      // Check for existing email only if email is provided
-      const existing = await prisma.admissionApplication.findUnique({
-        where: { email: data.email.toLowerCase() }
-      });
-      if (existing) {
-        return NextResponse.json({ 
-          success: false, 
-          error: "Email already registered" 
-        }, { status: 400 });
-      }
+  
     }
 
     // Phone validation (phone is now optional, but validate if provided)
@@ -1402,30 +1393,32 @@ export async function GET(req) {
     
     let applications;
     
-    // If searching by specific criteria
-    if (applicationNumber) {
-      applications = await prisma.admissionApplication.findUnique({
-        where: { applicationNumber }
-      });
-      applications = applications ? [applications] : [];
-    } 
-    else if (email) {
-      applications = await prisma.admissionApplication.findUnique({
-        where: { email }
-      });
-      applications = applications ? [applications] : [];
-    }
-    else if (phone) {
-      applications = await prisma.admissionApplication.findMany({
-        where: { phone: { contains: phone } }
-      });
-    }
-    else {
-      // Get all applications
-      applications = await prisma.admissionApplication.findMany({
-        orderBy: { createdAt: "desc" },
-      });
-    }
+ // If searching by specific criteria
+if (applicationNumber) {
+  applications = await prisma.admissionApplication.findUnique({
+    where: { applicationNumber }
+  });
+  applications = applications ? [applications] : [];
+} 
+else if (email) {
+  // ✅ FIXED: Use findMany for email since it's not unique
+  applications = await prisma.admissionApplication.findMany({
+    where: { email: email },
+    orderBy: { createdAt: "desc" }
+  });
+}
+else if (phone) {
+  applications = await prisma.admissionApplication.findMany({
+    where: { phone: { contains: phone } },
+    orderBy: { createdAt: "desc" }
+  });
+}
+else {
+  // Get all applications
+  applications = await prisma.admissionApplication.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+}
 
     // Format the applications
     const formattedApplications = applications.map(app => ({
