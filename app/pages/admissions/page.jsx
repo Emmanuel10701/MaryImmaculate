@@ -226,9 +226,7 @@ const ModernCareerDepartmentCard = ({ department, icon: Icon, color, subjects, c
     </>
   );
 };
-// Updated CareerPortalModal - Fixed Responsive Issues
 const CareerPortalModal = ({ isOpen, onClose, data }) => {
-  // Prevent background scrolling when modal is active
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = 'unset';
@@ -236,179 +234,99 @@ const CareerPortalModal = ({ isOpen, onClose, data }) => {
   }, [isOpen]);
 
   const router = useRouter();
-
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Modern Backdrop with Blur */}
       <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-[999] animate-in fade-in duration-300"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-0 z-[999] animate-in fade-in duration-300"
         onClick={onClose}
       />
       
-      {/* Centered Modal Container - Modern Design */}
       <div 
-        className="fixed inset-0 z-[1000] flex items-center justify-center p-4 pointer-events-none"
+        className="fixed inset-0 z-[1000] flex items-center justify-center p-2 md:p-6 pointer-events-none"
         onClick={onClose}
       >
         <div 
-          className="bg-white w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[2.5rem] shadow-2xl shadow-black/30 border border-slate-200/80 pointer-events-auto animate-in fade-in zoom-in duration-500"
+          className="bg-white w-full max-w-3xl max-h-[95vh] overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl border border-slate-200 pointer-events-auto animate-in fade-in zoom-in-95 duration-500"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Modern Header with Gradient */}
-          <div className={`relative bg-gradient-to-br ${data.color} p-8 md:p-10 text-white overflow-hidden`}>
-            {/* Animated Background Elements */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-            
+          {/* Header - Compact & Responsive */}
+          <div className={`relative bg-gradient-to-br ${data.color} p-5 md:p-8 text-white overflow-hidden`}>
             <div className="relative z-10">
-              {/* Top Bar */}
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                    <data.Icon className="text-2xl" />
+                  <div className="p-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shrink-0">
+                    <data.Icon className="text-xl md:text-2xl" />
                   </div>
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">
+                  <div className="min-w-0"> {/* Prevents text overflow */}
+                    <span className="text-[7px] md:text-[9px] font-black uppercase tracking-[0.2em] text-white/70 block truncate">
                       CAREER PORTAL
                     </span>
-                    <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase">
+                    <h2 className="text-lg md:text-2xl font-black text-white tracking-tighter uppercase leading-none truncate">
                       {data.department}
                     </h2>
                   </div>
                 </div>
-                
-                <button 
-                  onClick={onClose} 
-                  className="p-3 hover:bg-white/10 rounded-2xl transition-all duration-300 active:scale-90"
-                >
-                  <FiX className="text-xl" />
+                <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full shrink-0">
+                  <FiX className="text-lg" />
                 </button>
               </div>
 
-              {/* Quick Stats */}
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-                  <FiBook className="text-white/80" />
-                  <span className="text-sm font-bold">{data.subjects.length} Subjects</span>
+              {/* Stats - Wrapped to prevent overflow on 320px screens */}
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg border border-white/10 shrink-0">
+                  <FiBook className="text-white/80 text-[10px]" />
+                  <span className="text-[10px] md:text-xs font-bold whitespace-nowrap">{data.subjects.length} Subjects</span>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-                  <FiBriefcase className="text-white/80" />
-                  <span className="text-sm font-bold">{data.careerPaths.length} Career Paths</span>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg border border-white/10 shrink-0">
+                  <FiBriefcase className="text-white/80 text-[10px]" />
+                  <span className="text-[10px] md:text-xs font-bold whitespace-nowrap">{data.careerPaths.length} Paths</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Scrollable Content Area */}
-          <div className="p-8 md:p-10 max-h-[calc(90vh-180px)] overflow-y-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="p-4 md:p-8 max-h-[calc(95vh-200px)] overflow-y-auto">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8">
               
-              {/* Left Panel: Overview */}
-              <div className="lg:col-span-1 space-y-8">
-                {/* Mission Statement */}
-                <div className="relative">
-                  <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
-                  <div>
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Domain Focus</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed font-medium italic pl-4">
-                      "{data.description}"
-                    </p>
-                  </div>
+              {/* Left Column: Requirements */}
+              <div className="w-full md:w-[40%] space-y-5">
+                <div>
+                  <h3 className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Focus Area</h3>
+                  <p className="text-slate-600 text-[12px] leading-relaxed font-bold italic border-l-2 border-blue-500 pl-3">
+                    "{data.description}"
+                  </p>
                 </div>
 
-                {/* Prerequisites Card */}
-                <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-blue-100 rounded-xl">
-                      <FiCheckCircle className="text-blue-600" />
-                    </div>
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Core Prerequisites</h3>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {data.subjects.map((subject, index) => (
-                      <span 
-                        key={index} 
-                        className="px-3 py-2 bg-white border border-slate-200 text-slate-900 rounded-xl text-xs font-bold hover:border-blue-400 hover:shadow-sm transition-all"
-                      >
-                        {subject}
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <h3 className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3">Core Requirements</h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {data.subjects.map((s, i) => (
+                      <span key={i} className="px-2 py-0.5 bg-white border border-slate-200 text-slate-700 rounded text-[9px] font-black uppercase whitespace-nowrap">
+                        {s}
                       </span>
                     ))}
                   </div>
                 </div>
-
-                {/* Key Benefits */}
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-100 p-6">
-                  <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mb-4">Key Benefits</h3>
-                  <ul className="space-y-3">
-                    {[
-                      "Industry-recognized certifications",
-                      "University articulation pathways",
-                      "Internship opportunities",
-                      "Career counseling services"
-                    ].map((benefit, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <FiCheck className="text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-slate-700 font-medium">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               </div>
 
-              {/* Right Panel: Career Paths */}
-              <div className="lg:col-span-2">
-                <div className="mb-6">
-                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">Career Trajectories</h3>
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                    Explore Professional Pathways
-                  </h2>
-                </div>
-
-                <div className="space-y-6">
-                  {data.careerPaths.map((career, index) => (
-                    <div 
-                      key={index} 
-                      className="group relative bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-2xl p-6 transition-all duration-300 hover:border-blue-300 hover:shadow-xl"
-                    >
-                      {/* Number Badge */}
-                      <div className="absolute -left-3 -top-3 w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg">
-                        0{index + 1}
-                      </div>
-
-                      <div className="pl-10">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">
-                              {career.title}
-                            </h4>
-                            <p className="text-slate-500 text-sm leading-relaxed mb-4">
-                              {career.description}
-                            </p>
-                          </div>
-                          <FiArrowRight className="text-slate-400 group-hover:text-blue-600 transition-colors transform group-hover:translate-x-1" />
-                        </div>
-
-                        {/* Examples Card */}
-                        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                          <div className="text-[10px] font-black text-blue-600 uppercase tracking-wider mb-2">
-                            Potential Career Roles
-                          </div>
-                          <p className="text-sm text-slate-700 font-medium">
-                            {career.examples}
+              {/* Right Column: Careers */}
+              <div className="w-full md:w-[60%]">
+                <h3 className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3">Trajectories</h3>
+                <div className="space-y-3">
+                  {data.careerPaths.map((career, idx) => (
+                    <div key={idx} className="bg-white border border-slate-100 rounded-xl p-3">
+                      <div className="flex items-start gap-2">
+                        <span className="text-blue-500 font-black text-xs mt-0.5">0{idx + 1}</span>
+                        <div className="min-w-0">
+                          <h4 className="text-[11px] md:text-sm font-black text-slate-900 uppercase leading-tight mb-1 truncate">
+                            {career.title}
+                          </h4>
+                          <p className="text-slate-500 text-[10px] md:text-[11px] leading-snug">
+                            {career.description}
                           </p>
-                        </div>
-
-                        {/* Quick Actions */}
-                        <div className="flex items-center gap-3 mt-4">
-                          <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                            High Demand
-                          </span>
-                          <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                            Growth Sector
-                          </span>
                         </div>
                       </div>
                     </div>
@@ -418,38 +336,22 @@ const CareerPortalModal = ({ isOpen, onClose, data }) => {
             </div>
           </div>
 
-          {/* Modern Footer */}
-          <div className="border-t border-slate-100 bg-gradient-to-r from-slate-50 to-white p-8">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-              {/* Left: Info */}
-              <div className="text-center lg:text-left">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
-                  Ready to Explore This Path?
-                </p>
-                <p className="text-sm font-bold text-slate-900">
-                  Contact our career advisors for personalized guidance
-                </p>
-              </div>
-
-              {/* Right: Actions */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-                <button
-                  onClick={onClose}
-                  className="w-full sm:w-auto px-8 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-all duration-300 active:scale-95"
-                >
-                  Close Preview
-                </button>
-                <button 
-                  onClick={() => {
-                    onClose();
-                    router.push('/pages/contact');
-                  }}
-                  className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-slate-900 to-blue-700 text-white rounded-xl font-bold text-sm hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
-                >
-                  <FiMessageCircle />
-                  <span>Schedule Career Consultation</span>
-                </button>
-              </div>
+          {/* Footer - Vertical on mobile to prevent text overlap */}
+          <div className="border-t border-slate-100 p-4 md:p-6 bg-slate-50">
+            <div className="flex flex-col sm:flex-row gap-2 md:gap-4">
+              <button
+                onClick={onClose}
+                className="w-full py-3 bg-white text-slate-600 border border-slate-200 rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest"
+              >
+                Close
+              </button>
+              <button 
+                onClick={() => { onClose(); router.push('/pages/contact'); }}
+                className="w-full py-3 bg-slate-900 text-white rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
+              >
+                <FiMessageCircle size={14} />
+                <span>Consult Advisor</span>
+              </button>
             </div>
           </div>
         </div>
