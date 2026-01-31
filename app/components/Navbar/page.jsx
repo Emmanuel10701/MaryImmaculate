@@ -140,6 +140,11 @@ export default function ModernNavbar() {
       name: 'Apply Now',
       href: '/pages/apply-for-admissions',
       icon: FiUserPlus
+    },
+       {
+      name: 'School Rules',
+      href: '/pages/TermsandPrivacy',
+      icon: FiUserPlus
     }
   ];
 
