@@ -1006,60 +1006,60 @@ const VideoTourSection = ({ videoTour, videoType, videoThumbnail }) => {
 
 const VisionMissionSection = ({ vision, mission, motto }) => {
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8">
-      {/* Bento Grid with reduced scaling */}
+    <div className="w-full max-w-6xl mx-auto px-2 md:px-4 py-6 md:py-8">
+      {/* Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         
-        {/* 1. Vision Card - Compact & Modern */}
-        <div className="md:col-span-7 bg-slate-900 rounded-3xl p-6 md:p-8 relative overflow-hidden border border-slate-800 shadow-xl flex flex-col justify-between min-h-[220px]">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 blur-[60px] rounded-full -mr-16 -mt-16"></div>
+        {/* 1. Vision Card - Responsive height */}
+        <div className="md:col-span-7 bg-slate-900 rounded-[2rem] p-6 md:p-8 relative overflow-hidden border border-slate-800 shadow-xl flex flex-col justify-center md:justify-between min-h-[180px] md:min-h-[220px]">
+          <div className="absolute top-0 right-0 w-32 md:w-48 h-32 md:h-48 bg-blue-600/10 blur-[50px] md:blur-[60px] rounded-full -mr-10 -mt-10"></div>
           
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 backdrop-blur-md rounded-lg border border-white/10 mb-4">
-              <IoEyeOutline className="text-blue-400 text-lg" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-100">Vision</span>
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/5 backdrop-blur-md rounded-lg border border-white/10 mb-3 md:mb-4">
+              <IoEyeOutline className="text-blue-400 text-base md:text-lg" />
+              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-blue-100">Vision</span>
             </div>
-            <h3 className="text-xl md:text-2xl font-black text-white mb-3 tracking-tight uppercase italic">
+            <h3 className="text-lg md:text-2xl font-black text-white mb-2 md:mb-3 tracking-tight uppercase italic">
               The <span className="text-blue-500">Future</span> we build
             </h3>
-            <p className="text-slate-400 text-sm md:text-base font-bold leading-snug max-w-lg">
+            <p className="text-slate-400 text-[13px] md:text-base font-bold leading-snug max-w-lg">
               {vision || "To be a premier center of academic excellence in Machakos, nurturing globally competitive leaders through integrity."}
             </p>
           </div>
         </div>
 
-        {/* 2. Mission Card - High Contrast */}
-        <div className="md:col-span-5 bg-white rounded-3xl p-6 md:p-8 border-2 border-slate-100 shadow-md flex flex-col justify-between min-h-[220px]">
-          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 mb-4">
+        {/* 2. Mission Card - Tighter for mobile */}
+        <div className="md:col-span-5 bg-white rounded-[2rem] p-6 md:p-8 border-2 border-slate-100 shadow-md flex flex-col justify-center md:justify-between min-h-[160px] md:min-h-[220px]">
+          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 mb-4 shrink-0">
             <FiTarget className="text-blue-600 text-xl" />
           </div>
           
           <div>
-            <h3 className="text-lg font-black text-slate-900 mb-2 uppercase tracking-tight">Our Mission</h3>
-            <p className="text-slate-600 text-xs md:text-sm font-bold leading-relaxed">
+            <h3 className="text-base md:text-lg font-black text-slate-900 mb-1.5 md:mb-2 uppercase tracking-tight">Our Mission</h3>
+            <p className="text-slate-600 text-[12px] md:text-sm font-bold leading-relaxed">
               {mission || "Providing quality education via modern infrastructure, fostering discipline, innovation, and self-reliance."}
             </p>
           </div>
         </div>
 
-        {/* 3. Motto Banner - Slimmed Down */}
-        <div className="md:col-span-12 bg-gradient-to-r from-blue-700 to-indigo-800 rounded-3xl p-5 md:p-6 relative overflow-hidden shadow-lg">
-          <FiZap className="absolute right-0 top-1/2 -translate-y-1/2 text-white/5 text-8xl -rotate-12 pointer-events-none" />
+        {/* 3. Motto Banner - Stacked layout on mobile */}
+        <div className="md:col-span-12 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[2rem] p-5 md:p-6 relative overflow-hidden shadow-lg">
+          <FiZap className="absolute right-[-5%] top-1/2 -translate-y-1/2 text-white/5 text-7xl md:text-8xl -rotate-12 pointer-events-none" />
           
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/10 backdrop-blur-xl rounded-xl flex items-center justify-center border border-white/20 shrink-0">
-                <FiAward className="text-white text-2xl" />
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5">
+            <div className="flex items-center gap-4 self-start md:self-center">
+              <div className="w-11 h-11 md:w-12 md:h-12 bg-white/10 backdrop-blur-xl rounded-xl flex items-center justify-center border border-white/20 shrink-0">
+                <FiAward className="text-white text-xl md:text-2xl" />
               </div>
               <div className="text-left">
-                <span className="text-blue-200 text-[9px] font-black uppercase tracking-widest block">The Spirit of Katwanyaa</span>
-                <h3 className="text-white text-lg font-black tracking-tighter uppercase">School Motto</h3>
+                <span className="text-blue-200 text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] block mb-0.5">The Spirit of Katwanyaa</span>
+                <h3 className="text-white text-base md:text-lg font-black tracking-tighter uppercase">School Motto</h3>
               </div>
             </div>
 
             <div className="w-full md:w-auto">
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-2xl text-center">
-                <p className="text-white text-xl md:text-2xl font-black italic tracking-tighter">
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 px-5 md:px-8 py-3 rounded-2xl md:rounded-3xl text-center">
+                <p className="text-white text-lg md:text-2xl font-black italic tracking-tighter leading-none">
                   "{motto || "Strive for Excellence"}"
                 </p>
               </div>
