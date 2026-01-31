@@ -2272,15 +2272,13 @@ return (
       </section>
     ))}
 
-{/* Section 5: Stats & Calendar - Dark Banner Optimized for Mobile */}
+{/* Section 5: Stats & Calendar - Refined Responsive Dates */}
 {schoolData?.openDate && (
-  /* Removed mx-1 and rounded on mobile; restored md:rounded and md:mx-0 for desktop */
   <div className="relative overflow-hidden bg-slate-900 md:rounded-[3rem] p-8 md:p-16 w-full">
-    {/* Decorative Glow - Positioned for edge-to-edge look on phone */}
+    {/* Decorative Glow */}
     <div className="absolute top-0 right-0 w-48 md:w-96 h-48 md:h-96 bg-blue-500/10 blur-[60px] md:blur-[100px] rounded-full -mr-24 -mt-24" />
     
     <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8 md:gap-12">
-      {/* Header text stays centered on mobile, left-aligned on desktop */}
       <div className="text-center lg:text-left max-w-sm">
         <h3 className="text-white text-2xl md:text-3xl font-black tracking-tight mb-3 uppercase">
           Academic <span className="text-blue-500">Calendar</span>
@@ -2290,27 +2288,45 @@ return (
         </p>
       </div>
 
-      {/* Grid: 2 columns even on very small screens, but with tighter padding */}
-      <div className="grid grid-cols-2 gap-3 md:gap-8 w-full lg:w-auto">
+      {/* Grid: Tighter gap on mobile to prevent overflow */}
+      <div className="grid grid-cols-2 gap-2 md:gap-8 w-full lg:w-auto">
+        
         {/* Year Opens Card */}
-        <div className="bg-white/5 backdrop-blur-xl p-5 md:p-8 rounded-2xl border border-white/10 text-center min-w-0">
-          <div className="text-blue-400 font-black text-[8px] md:text-[10px] uppercase tracking-[0.2em] mb-3">
+        <div className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-white/10 text-center min-w-0">
+          <div className="text-blue-400 font-black text-[8px] md:text-[10px] uppercase tracking-[0.2em] mb-2 md:mb-3">
             Year Opens
           </div>
-          <div className="text-white text-sm md:text-2xl font-black tracking-tighter tabular-nums truncate">
-            {formatDate(schoolData.openDate)}
+          <div className="text-white font-black tracking-tighter tabular-nums">
+            {/* Mobile Format: 23rd 09/2025 */}
+            <span className="block md:hidden text-[13px]">
+              {new Date(schoolData.openDate).getDate()}
+              {getOrdinal(new Date(schoolData.openDate).getDate())} {new Date(schoolData.openDate).toLocaleDateString('en-GB', { month: '2-digit', year: 'numeric' })}
+            </span>
+            {/* Desktop Format: Full Date */}
+            <span className="hidden md:block text-2xl">
+              {formatDate(schoolData.openDate)}
+            </span>
           </div>
         </div>
 
         {/* Year Closes Card */}
-        <div className="bg-white/5 backdrop-blur-xl p-5 md:p-8 rounded-2xl border border-white/10 text-center min-w-0">
-          <div className="text-rose-400 font-black text-[8px] md:text-[10px] uppercase tracking-[0.2em] mb-3">
+        <div className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-white/10 text-center min-w-0">
+          <div className="text-rose-400 font-black text-[8px] md:text-[10px] uppercase tracking-[0.2em] mb-2 md:mb-3">
             Year Closes
           </div>
-          <div className="text-white text-sm md:text-2xl font-black tracking-tighter tabular-nums truncate">
-            {formatDate(schoolData.closeDate)}
+          <div className="text-white font-black tracking-tighter tabular-nums">
+            {/* Mobile Format: 23rd 09/2025 */}
+            <span className="block md:hidden text-[13px]">
+              {new Date(schoolData.closeDate).getDate()}
+              {getOrdinal(new Date(schoolData.closeDate).getDate())} {new Date(schoolData.closeDate).toLocaleDateString('en-GB', { month: '2-digit', year: 'numeric' })}
+            </span>
+            {/* Desktop Format: Full Date */}
+            <span className="hidden md:block text-2xl">
+              {formatDate(schoolData.closeDate)}
+            </span>
           </div>
         </div>
+
       </div>
     </div>
   </div>
