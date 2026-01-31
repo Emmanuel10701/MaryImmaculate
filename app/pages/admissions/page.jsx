@@ -158,6 +158,156 @@ import { CircularProgress } from '@mui/material';
 // Modern Modal Component - Mobile Responsive
 
 
+ const careerDepartments = [
+    {
+      department: 'SCIENCES',
+      icon: IoFlaskOutline,
+      color: 'from-blue-600 to-cyan-500',
+      description: 'Explore the world through scientific inquiry and discovery',
+      subjects: ['Biology', 'Chemistry', 'Physics', 'Mathematics', 'Agriculture'],
+      careerPaths: [
+        {
+          title: 'Medical & Health Sciences',
+          description: 'Pursue careers in healthcare and medical research',
+          examples: 'Doctors, Nurses, Pharmacists, Medical Researchers, Dentists'
+        },
+        {
+          title: 'Engineering & Technology',
+          description: 'Design and build innovative solutions for the future',
+          examples: 'Civil Engineers, Electrical Engineers, Mechanical Engineers, Architects'
+        },
+        {
+          title: 'Environmental Sciences',
+          description: 'Protect and preserve our natural environment',
+          examples: 'Environmental Scientists, Conservationists, Wildlife Biologists'
+        },
+        {
+          title: 'Research & Development',
+          description: 'Advance scientific knowledge through research',
+          examples: 'Research Scientists, Laboratory Technicians, Biotechnologists'
+        }
+      ]
+    },
+    {
+      department: 'MATHEMATICS',
+      icon: IoCalculatorOutline,
+      color: 'from-purple-600 to-pink-500',
+      description: 'Master logical thinking and problem-solving skills',
+      subjects: ['Pure Mathematics', 'Applied Mathematics', 'Statistics', 'Business Mathematics'],
+      careerPaths: [
+        {
+          title: 'Finance & Banking',
+          description: 'Excel in financial analysis and economic planning',
+          examples: 'Accountants, Financial Analysts, Bankers, Actuaries'
+        },
+        {
+          title: 'Data Science & Analytics',
+          description: 'Transform data into valuable insights',
+          examples: 'Data Scientists, Statisticians, Market Researchers'
+        },
+        {
+          title: 'Engineering & Architecture',
+          description: 'Apply mathematical principles to design and construction',
+          examples: 'Structural Engineers, Architects, Quantity Surveyors'
+        },
+        {
+          title: 'Education & Research',
+          description: 'Share mathematical knowledge and conduct research',
+          examples: 'Mathematics Teachers, University Lecturers, Researchers'
+        }
+      ]
+    },
+    {
+      department: 'LANGUAGES',
+      icon: IoLanguageOutline,
+      color: 'from-green-600 to-emerald-500',
+      description: 'Develop communication skills and cultural understanding',
+      subjects: ['English', 'Kiswahili', 'French', 'German', 'Chinese'],
+      careerPaths: [
+        {
+          title: 'Communication & Media',
+          description: 'Excel in writing, broadcasting, and media production',
+          examples: 'Journalists, Editors, Translators, Content Writers'
+        },
+        {
+          title: 'International Relations',
+          description: 'Bridge cultural gaps in global contexts',
+          examples: 'Diplomats, UN Officers, International Business Consultants'
+        },
+        {
+          title: 'Education & Publishing',
+          description: 'Teach languages and contribute to literary works',
+          examples: 'Language Teachers, Publishers, Literary Critics'
+        },
+        {
+          title: 'Tourism & Hospitality',
+          description: 'Connect with people from around the world',
+          examples: 'Tour Guides, Hotel Managers, Flight Attendants'
+        }
+      ]
+    },
+    {
+      department: 'HUMANITIES',
+      icon: IoNewspaperOutline,
+      color: 'from-amber-600 to-orange-500',
+      description: 'Understand human society, culture, and behavior',
+      subjects: ['History', 'Geography', 'CRE/IRE/HRE', 'Life Skills', 'Government'],
+      careerPaths: [
+        {
+          title: 'Law & Governance',
+          description: 'Shape legal systems and public policy',
+          examples: 'Lawyers, Judges, Policy Analysts, Human Rights Officers'
+        },
+        {
+          title: 'Social Services',
+          description: 'Support communities and individuals in need',
+          examples: 'Social Workers, Counselors, Community Developers'
+        },
+        {
+          title: 'Cultural Heritage',
+          description: 'Preserve and promote cultural identity',
+          examples: 'Museum Curators, Historians, Cultural Officers'
+        },
+        {
+          title: 'Urban Planning',
+          description: 'Design sustainable communities and cities',
+          examples: 'Urban Planners, Environmental Consultants'
+        }
+      ]
+    },
+    {
+      department: 'TECHNICAL & VOCATIONAL',
+      icon: IoConstructOutline,
+      color: 'from-red-600 to-rose-500',
+      description: 'Develop practical skills for immediate employment',
+      subjects: ['Computer Studies', 'Business Studies', 'Home Science', 'Agriculture', 'Art & Design'],
+      careerPaths: [
+        {
+          title: 'Information Technology',
+          description: 'Drive digital transformation and innovation',
+          examples: 'Software Developers, Network Administrators, Cybersecurity Experts'
+        },
+        {
+          title: 'Business & Entrepreneurship',
+          description: 'Start and manage successful enterprises',
+          examples: 'Business Owners, Marketing Managers, Financial Analysts'
+        },
+        {
+          title: 'Hospitality & Home Economics',
+          description: 'Excel in food, nutrition, and hospitality services',
+          examples: 'Chefs, Nutritionists, Hotel Managers, Fashion Designers'
+        },
+        {
+          title: 'Creative Arts & Design',
+          description: 'Express creativity through various media',
+          examples: 'Graphic Designers, Artists, Multimedia Specialists'
+        }
+      ]
+    }
+  ];
+
+
+
 const CareerDepartmentPages = () => {
   const [globalSearch, setGlobalSearch] = useState("");
 
@@ -1372,153 +1522,7 @@ export default function ComprehensiveAdmissions() {
   const router = useRouter();
 
   // Data for Career Departments
-  const careerDepartments = [
-    {
-      department: 'SCIENCES',
-      icon: IoFlaskOutline,
-      color: 'from-blue-600 to-cyan-500',
-      description: 'Explore the world through scientific inquiry and discovery',
-      subjects: ['Biology', 'Chemistry', 'Physics', 'Mathematics', 'Agriculture'],
-      careerPaths: [
-        {
-          title: 'Medical & Health Sciences',
-          description: 'Pursue careers in healthcare and medical research',
-          examples: 'Doctors, Nurses, Pharmacists, Medical Researchers, Dentists'
-        },
-        {
-          title: 'Engineering & Technology',
-          description: 'Design and build innovative solutions for the future',
-          examples: 'Civil Engineers, Electrical Engineers, Mechanical Engineers, Architects'
-        },
-        {
-          title: 'Environmental Sciences',
-          description: 'Protect and preserve our natural environment',
-          examples: 'Environmental Scientists, Conservationists, Wildlife Biologists'
-        },
-        {
-          title: 'Research & Development',
-          description: 'Advance scientific knowledge through research',
-          examples: 'Research Scientists, Laboratory Technicians, Biotechnologists'
-        }
-      ]
-    },
-    {
-      department: 'MATHEMATICS',
-      icon: IoCalculatorOutline,
-      color: 'from-purple-600 to-pink-500',
-      description: 'Master logical thinking and problem-solving skills',
-      subjects: ['Pure Mathematics', 'Applied Mathematics', 'Statistics', 'Business Mathematics'],
-      careerPaths: [
-        {
-          title: 'Finance & Banking',
-          description: 'Excel in financial analysis and economic planning',
-          examples: 'Accountants, Financial Analysts, Bankers, Actuaries'
-        },
-        {
-          title: 'Data Science & Analytics',
-          description: 'Transform data into valuable insights',
-          examples: 'Data Scientists, Statisticians, Market Researchers'
-        },
-        {
-          title: 'Engineering & Architecture',
-          description: 'Apply mathematical principles to design and construction',
-          examples: 'Structural Engineers, Architects, Quantity Surveyors'
-        },
-        {
-          title: 'Education & Research',
-          description: 'Share mathematical knowledge and conduct research',
-          examples: 'Mathematics Teachers, University Lecturers, Researchers'
-        }
-      ]
-    },
-    {
-      department: 'LANGUAGES',
-      icon: IoLanguageOutline,
-      color: 'from-green-600 to-emerald-500',
-      description: 'Develop communication skills and cultural understanding',
-      subjects: ['English', 'Kiswahili', 'French', 'German', 'Chinese'],
-      careerPaths: [
-        {
-          title: 'Communication & Media',
-          description: 'Excel in writing, broadcasting, and media production',
-          examples: 'Journalists, Editors, Translators, Content Writers'
-        },
-        {
-          title: 'International Relations',
-          description: 'Bridge cultural gaps in global contexts',
-          examples: 'Diplomats, UN Officers, International Business Consultants'
-        },
-        {
-          title: 'Education & Publishing',
-          description: 'Teach languages and contribute to literary works',
-          examples: 'Language Teachers, Publishers, Literary Critics'
-        },
-        {
-          title: 'Tourism & Hospitality',
-          description: 'Connect with people from around the world',
-          examples: 'Tour Guides, Hotel Managers, Flight Attendants'
-        }
-      ]
-    },
-    {
-      department: 'HUMANITIES',
-      icon: IoNewspaperOutline,
-      color: 'from-amber-600 to-orange-500',
-      description: 'Understand human society, culture, and behavior',
-      subjects: ['History', 'Geography', 'CRE/IRE/HRE', 'Life Skills', 'Government'],
-      careerPaths: [
-        {
-          title: 'Law & Governance',
-          description: 'Shape legal systems and public policy',
-          examples: 'Lawyers, Judges, Policy Analysts, Human Rights Officers'
-        },
-        {
-          title: 'Social Services',
-          description: 'Support communities and individuals in need',
-          examples: 'Social Workers, Counselors, Community Developers'
-        },
-        {
-          title: 'Cultural Heritage',
-          description: 'Preserve and promote cultural identity',
-          examples: 'Museum Curators, Historians, Cultural Officers'
-        },
-        {
-          title: 'Urban Planning',
-          description: 'Design sustainable communities and cities',
-          examples: 'Urban Planners, Environmental Consultants'
-        }
-      ]
-    },
-    {
-      department: 'TECHNICAL & VOCATIONAL',
-      icon: IoConstructOutline,
-      color: 'from-red-600 to-rose-500',
-      description: 'Develop practical skills for immediate employment',
-      subjects: ['Computer Studies', 'Business Studies', 'Home Science', 'Agriculture', 'Art & Design'],
-      careerPaths: [
-        {
-          title: 'Information Technology',
-          description: 'Drive digital transformation and innovation',
-          examples: 'Software Developers, Network Administrators, Cybersecurity Experts'
-        },
-        {
-          title: 'Business & Entrepreneurship',
-          description: 'Start and manage successful enterprises',
-          examples: 'Business Owners, Marketing Managers, Financial Analysts'
-        },
-        {
-          title: 'Hospitality & Home Economics',
-          description: 'Excel in food, nutrition, and hospitality services',
-          examples: 'Chefs, Nutritionists, Hotel Managers, Fashion Designers'
-        },
-        {
-          title: 'Creative Arts & Design',
-          description: 'Express creativity through various media',
-          examples: 'Graphic Designers, Artists, Multimedia Specialists'
-        }
-      ]
-    }
-  ];
+ 
 
   // Data for Education Systems
   const educationSystems = [
