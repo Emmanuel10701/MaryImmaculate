@@ -85,7 +85,7 @@ import {
   FiChevronRight,
    FiChevronLeft 
 } from 'react-icons/fi';
-import { FiChevronDown, FiChevronUp, FiArrowRight } from 'react-icons/fi';
+import {  FiChevronUp, FiArrowRight } from 'react-icons/fi';
 
 import { 
   IoSchoolOutline,
