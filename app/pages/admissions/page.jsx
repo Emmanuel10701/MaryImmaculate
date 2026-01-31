@@ -153,7 +153,7 @@ const ModernCareerDepartmentCard = ({ department, icon: Icon, color, subjects, c
     <>
       <div 
         onClick={() => setIsModalOpen(true)}
-        className="group relative bg-white rounded-[2rem] border border-slate-200 p-6 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-blue-200 active:scale-95"
+        className="group relative bg-white rounded-[2rem] border border-slate-200 p-6 md:p-8 cursor-pointer transition-all duration-100  "
       >
         <div className="flex flex-col gap-5">
           {/* Icon Header */}
@@ -211,14 +211,14 @@ const CareerPortalModal = ({ isOpen, onClose, data }) => {
     <>
       {/* Backdrop with high Z-index */}
       <div 
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[999] animate-in fade-in duration-300"
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[999] "
         onClick={onClose}
       />
       
       {/* Container: Bottom-aligned on mobile (Drawer style), Centered on desktop */}
       <div className="fixed inset-0 z-[1000] flex items-end md:items-center justify-center p-0 md:p-4 pointer-events-none">
         <div 
-          className="relative bg-white w-full md:max-w-4xl h-[94vh] md:h-auto md:max-h-[90vh] overflow-hidden rounded-t-[2.5rem] md:rounded-[3rem] shadow-2xl animate-in slide-in-from-bottom-full duration-500 pointer-events-auto flex flex-col"
+          className="relative bg-white w-full md:max-w-4xl h-[94vh] md:h-auto md:max-h-[90vh] overflow-hidden rounded-t-[2.5rem] md:rounded-[3rem] shadow-xl animate-in slide-in-from-bottom-full duration-500 pointer-events-auto flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header Banner - Edge to Edge */}
@@ -865,13 +865,13 @@ const VideoTourSection = ({ videoTour, videoType, videoThumbnail }) => {
                 className="absolute inset-0 flex items-center justify-center z-20 cursor-pointer group-hover:bg-black/20 transition-all duration-500"
                 onClick={handlePlay}
               >
-                <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-blue-600/90 backdrop-blur-md border-4 border-white/30 flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-blue-600/90 backdrop-blur-md border-4 border-white/30 flex items-center justify-center shadow-2xl transform group-110 transition-transform">
                   <FiPlay className="text-white text-2xl md:text-4xl ml-1.5" />
                 </div>
                 
                 {/* Background Thumbnail */}
                 {videoThumbnail && (
-                  <div className="absolute inset-0 -z-10 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" 
+                  <div className="absolute inset-0 -z-10 bg-cover bg-center transition-transform duration-700 group-105" 
                        style={{ backgroundImage: `url(${videoThumbnail})` }} />
                 )}
                 <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -2521,7 +2521,7 @@ return (
           "Submit copies along with originals for verification"
         ].map((note, i) => (
           <div key={i} className="flex items-start gap-4 group">
-            <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0 group-hover:scale-125 transition-transform" />
+            <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0 group-125 transition-transform" />
             <p className="text-[11px] font-bold text-slate-400 leading-relaxed group-hover:text-white transition-colors">
               {note}
             </p>
