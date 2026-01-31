@@ -1227,7 +1227,7 @@ const ModernFeeCard = ({
 
       {/* Breakdown Section - Mapped from Distribution JSON */}
       <div className="p-6 md:p-12">
-        <h4 className={`text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] mb-6 opacity-30`}>
+        <h4 className={`text-[10px] md:text-lg font-black uppercase tracking-[0.3em] mb-6 opacity-30`}>
           Detailed Breakdown
         </h4>
         
