@@ -2595,9 +2595,12 @@ return (
           <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-4">
             Academic <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Programs</span>
           </h2>
-          <p className="text-slate-500 text-sm md:text-md font-medium leading-relaxed max-w-2xl">
-            Mary Immaculate Girls High School offers a future-ready curriculum designed to cultivate critical thinking and global leadership.
-          </p>
+       <p className="text-slate-600 text-md md:text-lg font-medium leading-relaxed ">
+  Mary Immaculate Girls High School offers a future-ready, holistic curriculum 
+  specifically designed to cultivate critical thinking, academic excellence, 
+  and global leadership. We empower our students to navigate the complexities 
+  of the modern world with integrity, innovation, and a commitment to excellence.
+</p>
         </div>
 
         {/* Download Button - Fixed width for mobile */}
