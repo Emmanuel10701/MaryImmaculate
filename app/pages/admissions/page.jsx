@@ -910,7 +910,7 @@ const AdmissionPathCard = ({ path, onApply, index }) => {
       </div>
 
       {/* 2. Content Body */}
-      <div className="p-6 md:p-10 flex flex-col flex-1">
+      <div className="p-6 md:p-6 flex flex-col flex-1">
         {/* Desktop Title (Hidden on Mobile because it's on the image) */}
         <div className="hidden md:flex items-center gap-5 mb-6">
           <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${path.color} p-0.5 shadow-lg`}>

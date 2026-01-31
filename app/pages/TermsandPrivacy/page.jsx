@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-
+import { FiChevronLeft, FiChevronRight, FiMessageCircle } from "react-icons/fi";
 // Data for all terms and conditions with detailed descriptions for Mary Immaculate Girls Secondary School
 const allTerms = [
   { 
