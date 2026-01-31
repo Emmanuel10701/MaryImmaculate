@@ -2004,68 +2004,68 @@ export default function ComprehensiveAdmissions() {
   const closeDate = new Date(schoolData.admissionCloseDate);
   const isOpen = today >= openDate && today <= closeDate;
 
-  return (
-    <div className={`rounded-2xl p-5 md:p-8 shadow-2xl border-2 transition-all duration-500 ${
-      isOpen 
-        ? 'bg-gradient-to-r from-emerald-600 to-teal-700 border-emerald-400/20' 
-        : 'bg-gradient-to-r from-slate-800 to-slate-950 border-slate-700'
-    }`}>
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        
-        {/* Status Section */}
-        <div className="flex items-center gap-4">
-          <div className={`p-3.5 rounded-2xl backdrop-blur-md border shadow-inner ${
-            isOpen ? 'bg-white/20 border-white/30' : 'bg-slate-800 border-slate-700'
-          }`}>
-            <IoCalendarOutline className={`w-7 h-7 ${isOpen ? 'text-white' : 'text-slate-500'}`} />
-          </div>
-          <div>
-            <h3 className="font-black text-xl md:text-2xl text-white tracking-tighter uppercase">
-              {isOpen ? 'Admissions Now Open' : 'Admissions Currently Closed'}
-            </h3>
-            <p className={`text-sm font-bold leading-tight ${isOpen ? 'text-emerald-100' : 'text-slate-400'}`}>
-              {isOpen 
-                ? 'Join Marry Immculate Girls High School for the upcoming academic year.' 
-                : 'The application window has officially ended for this period.'}
-            </p>
-          </div>
+return (
+  <div className={`rounded-2xl p-5 md:p-8 shadow-2xl border-2 transition-all duration-500 ${
+    isOpen 
+      ? 'bg-gradient-to-br from-emerald-600 to-teal-800 border-emerald-400/20' 
+      : 'bg-gradient-to-br from-slate-800 to-slate-950 border-slate-700'
+  }`}>
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      
+      {/* Status Section */}
+      <div className="flex items-start sm:items-center gap-4">
+        <div className={`p-3 md:p-4 rounded-2xl backdrop-blur-md border shadow-inner shrink-0 ${
+          isOpen ? 'bg-white/20 border-white/30' : 'bg-slate-800 border-slate-700'
+        }`}>
+          <IoCalendarOutline className={`w-6 h-6 md:w-7 md:h-7 ${isOpen ? 'text-white' : 'text-slate-500'}`} />
         </div>
-
-        {/* Dynamic Date Grid */}
-        <div className="grid grid-cols-2 gap-4 md:gap-10 px-6 py-4 bg-black/20 rounded-2xl border border-white/5">
-          <div className="text-left md:text-center">
-            <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isOpen ? 'text-emerald-300' : 'text-slate-500'}`}>
-              Applications are Opened
-            </p>
-            <p className="font-black text-lg text-white tabular-nums">
-              {formatDate(schoolData.admissionOpenDate)}
-            </p>
-          </div>
-          <div className="text-left md:text-center border-l border-white/10 pl-4 md:pl-0 md:border-l-0">
-            <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isOpen ? 'text-emerald-300' : 'text-slate-500'}`}>
-              Final Deadline
-            </p>
-            <p className="font-black text-lg text-white tabular-nums">
-              {formatDate(schoolData.admissionCloseDate)}
-            </p>
-          </div>
+        <div className="min-w-0">
+          <h3 className="font-black text-lg md:text-2xl text-white tracking-tighter uppercase leading-tight">
+            {isOpen ? 'Admissions Now Open' : 'Admissions Currently Closed'}
+          </h3>
+          <p className={`text-[11px] md:text-sm font-bold leading-snug mt-1 ${isOpen ? 'text-emerald-100' : 'text-slate-400'}`}>
+            {isOpen 
+              ? 'Join Mary Immaculate Girls High School for the upcoming academic year.' 
+              : 'The application window has officially ended for this period.'}
+          </p>
         </div>
-
-        {/* Interactive Action Button */}
-        <button
-          disabled={!isOpen}
-          onClick={() => router.push('/pages/apply-for-admissions')}
-          className={`px-8 py-4 rounded-xl font-black text-xs uppercase tracking-[0.15em] shadow-xl transition-all active:scale-95 ${
-            isOpen 
-              ? 'bg-white text-emerald-700 hover:shadow-emerald-500/20' 
-              : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-          }`}
-        >
-          {isOpen ? 'Apply Now' : 'Closed'}
-        </button>
       </div>
+
+      {/* Dynamic Date Grid - Optimized for Mobile */}
+      <div className="grid grid-cols-2 gap-0 py-3 px-2 sm:px-6 sm:py-4 bg-black/20 rounded-2xl border border-white/5">
+        <div className="px-4 border-r border-white/10">
+          <p className={`text-[9px] font-black uppercase tracking-wider mb-1 ${isOpen ? 'text-emerald-300' : 'text-slate-500'}`}>
+            Open Date
+          </p>
+          <p className="font-black text-sm md:text-lg text-white tabular-nums">
+            {formatDate(schoolData.admissionOpenDate)}
+          </p>
+        </div>
+        <div className="px-4">
+          <p className={`text-[9px] font-black uppercase tracking-wider mb-1 ${isOpen ? 'text-emerald-300' : 'text-slate-500'}`}>
+            Final Deadline
+          </p>
+          <p className="font-black text-sm md:text-lg text-white tabular-nums">
+            {formatDate(schoolData.admissionCloseDate)}
+          </p>
+        </div>
+      </div>
+
+      {/* Interactive Action Button - Full width on mobile */}
+      <button
+        disabled={!isOpen}
+        onClick={() => router.push('/pages/apply-for-admissions')}
+        className={`w-full lg:w-auto px-8 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 ${
+          isOpen 
+            ? 'bg-white text-emerald-800 hover:bg-emerald-50 hover:shadow-emerald-500/20' 
+            : 'bg-slate-800/50 text-slate-500 cursor-not-allowed border border-slate-700'
+        }`}
+      >
+        {isOpen ? 'Apply Now' : 'Closed'}
+      </button>
     </div>
-  );
+  </div>
+);
 })()}
 
         {/* Navigation Tabs - Modernized */}
@@ -2093,198 +2093,149 @@ export default function ComprehensiveAdmissions() {
 
         {/* Tab Content */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-4 md:p-5">
-          {activeTab === 'overview' && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-12 md:space-y-24">
-              
-              {/* 1. Hero / Introduction Section */}
-              <div className="relative pt-6 pb-4 text-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-6">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                  </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Admissions Open {new Date().getFullYear()}</span>
-                </div>
-                <h2 className="
-                  text-2xl sm:text-3xl md:text-3xl lg:text-5xl
-                  font-extrabold text-slate-900
-                  mb-3 sm:mb-5
-                  tracking-tight
-                  leading-snug sm:leading-[1.2]
-                  break-words
-                  text-balance
-                ">
-                  Welcome to{" "}
-                  <span className="
-                    text-transparent bg-clip-text
-                    bg-gradient-to-r from-blue-600 to-indigo-500
-                    break-words
-                  ">
-                    {schoolData?.name || "Our School"}
-                  </span>
-                </h2>
-                
-                <p className="
-                  text-slate-500
-                  max-w-xl sm:max-w-2xl
-                  mx-auto
-                  text-sm sm:text-base md:text-lg
-                  leading-relaxed sm:leading-loose
-                  px-4
-                  break-words
-                ">
-                  {schoolData?.description ||
-                    "We are committed to nurturing well-rounded learners through quality education, strong values, and modern facilities that support academic excellence, creativity, and personal growth."}
-                </p>
-              </div>
-
-              {/* 2. Interactive Vision/Mission Cards */}
-              <div className="px-2 md:px-4">
-                <VisionMissionSection 
-                  vision={schoolData?.vision}
-                  mission={schoolData?.mission}
-                  motto={schoolData?.motto}
-                />
-              </div>
-
-              {/* 3. Admission Paths - High Impact Layout */}
-              <section className="relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 rounded-3xl md:rounded-[40px] md:mx-4">
-                {/* Decorative background element */}
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-blue-200/20 blur-3xl rounded-full" />
-                
-                <div className="relative z-10 max-w-7xl mx-auto">
-                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6">
-                    <div className="text-left">
-                      <h3 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
-                        Your <span className="text-blue-600">Future</span> Starts Here
-                      </h3>
-                      <p className="text-slate-500 text-base md:text-lg max-w-xl">
-                        Select the enrollment track that matches your goals. Our process is seamless and digital-first.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-                    {admissionPaths.map((path, index) => (
-                      <AdmissionPathCard
-                        key={path.title}
-                        path={path}
-                        index={index}
-                        onApply={() => router.push('/pages/apply-for-admissions')}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </section>
-
-              {/* 4. Video Tour - Immersive Experience */}
-              {schoolData?.videoTour && (
-                <div className="px-2 md:px-4 max-w-7xl mx-auto">
-                  <div className="rounded-2xl md:rounded-[2.5rem] overflow-hidden shadow-2xl shadow-blue-900/10">
-                    <VideoTourSection 
-                      videoTour={schoolData.videoTour}
-                      videoType={schoolData.videoType}
-                      videoThumbnail={schoolData.videoThumbnail}
-                    />
-                  </div>
-                </div>
-              )}
-
-<div className="py-12 md:py-16 px-4 md:px-6 max-w-6xl mx-auto bg-white">
-  {/* Modernized Tight Header */}
-  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 pb-8 border-b-2 border-slate-100">
-    <div className="flex-1">
-      <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-md mb-4 border border-slate-200">
-        <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">
-          Institutional Profile
+    {activeTab === 'overview' && (
+  <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-10 md:space-y-24">
+    
+    {/* 1. Hero / Introduction Section */}
+    <div className="relative pt-4 pb-2 text-center px-4">
+      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-4 md:mb-6">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+        </span>
+        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider text-blue-700">
+          Admissions Open {new Date().getFullYear()}
         </span>
       </div>
-      <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none">
-        Why <span className="text-blue-600">Marry Immculate Girls High?</span>
+      
+      <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-slate-900 mb-3 tracking-tight leading-[1.1] text-balance">
+        Welcome to{" "}
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">
+          {schoolData?.name || "Our School"}
+        </span>
       </h2>
-    </div>
-    
-    <div className="sm:text-right">
-      <p className="text-slate-600 text-sm md:text-base font-bold leading-tight max-w-xs">
-        Building strong foundations in Machakos through discipline and academic rigor.
+      
+      <p className="text-slate-500 max-w-2xl mx-auto text-xs sm:text-base md:text-lg leading-relaxed px-2 text-balance">
+        {schoolData?.description || "We are committed to nurturing well-rounded learners through quality education and strong values."}
       </p>
-      <div className="flex items-center sm:justify-end gap-3 mt-4">
-        <div className="flex items-center gap-1 text-xs text-slate-500 font-black">
-          <FiAward className="text-blue-600" />
-          <span>KICD APPROVED</span>
-        </div>
-        <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-        <div className="flex items-center gap-1 text-xs text-slate-500 font-black">
-          <FiUsers className="text-blue-600" />
-          <span>COMMUNITY DRIVEN</span>
-        </div>
-      </div>
     </div>
-  </div>
 
-  {/* Modern Bento Grid - No Hovers */}
-  <div className="grid grid-cols-1 md:grid-cols-12 auto-rows-[180px] md:auto-rows-[200px] gap-4">
-    
-    {/* 1. Academic Performance - Real Information */}
-    <div className="md:col-span-7 relative overflow-hidden rounded-3xl bg-slate-50 border-2 border-slate-200 p-6 md:p-8">
-      <div className="relative z-10 flex flex-col h-full justify-between">
-        <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center shadow-sm border border-slate-200">
-          <IoBulbOutline size={24} />
-        </div>
-        <div>
-          <h4 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Academic Achievement</h4>
-          <p className="text-slate-600 text-sm font-bold leading-snug max-w-md">
-            Consistently producing strong KCSE results with a specialized focus on STEM subjects and early career guidance.
+    {/* 2. Vision/Mission Section */}
+    <div className="px-2 md:px-4">
+      <VisionMissionSection 
+        vision={schoolData?.vision}
+        mission={schoolData?.mission}
+        motto={schoolData?.motto}
+      />
+    </div>
+
+    {/* 3. Admission Paths - Mobile Optimized Grid */}
+    <section className="relative overflow-hidden py-10 px-4 sm:px-8 bg-slate-50 rounded-3xl md:rounded-[40px] md:mx-4">
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-blue-200/20 blur-3xl rounded-full" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <div className="mb-8 text-center md:text-left">
+          <h3 className="text-xl md:text-5xl font-black text-slate-900 tracking-tighter mb-3">
+            Your <span className="text-blue-600">Future</span> Starts Here
+          </h3>
+          <p className="text-slate-500 text-xs md:text-lg max-w-xl mx-auto md:mx-0">
+            Select the enrollment track that matches your goals.
           </p>
         </div>
-      </div>
-    </div>
 
-    {/* 2. TSC Certified Faculty */}
-    <div className="md:col-span-5 relative overflow-hidden rounded-3xl bg-slate-900 p-6 md:p-8 text-white">
-      <div className="relative z-10 flex flex-col h-full justify-between">
-        <div className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center">
-          <FiUsers size={24} className="text-white" />
-        </div>
-        <div>
-          <h4 className="text-xl font-black mb-2 uppercase tracking-tight text-blue-400">Expert Educators</h4>
-          <p className="text-slate-300 text-sm font-bold leading-snug">
-            Staffed by TSC-certified professionals dedicated to individualized student mentorship and CBC implementation.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* 3. Facilities & Infrastructure */}
-    <div className="md:col-span-12 relative overflow-hidden rounded-3xl bg-white border-2 border-slate-900 p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
-      <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border border-blue-100 shrink-0">
-        <FiCpu size={32} />
-      </div>
-
-      <div className="flex-1 text-center md:text-left">
-        <h4 className="text-xl font-black text-slate-900 mb-1 uppercase">Modern Learning Resources</h4>
-        <p className="text-slate-600 text-sm md:text-base font-bold leading-relaxed max-w-2xl">
-          Investment in functional science laboratories, computer literacy programs, and spacious classrooms to enhance the student experience.
-        </p>
-      </div>
-
-      {/* Capacity Indicator */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-2xl border border-slate-200 shrink-0">
-        <div className="flex -space-x-2">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-300" />
+        {/* Ensure cards don't get too tall on mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-10">
+          {admissionPaths.map((path, index) => (
+            <AdmissionPathCard
+              key={path.title}
+              path={path}
+              index={index}
+              onApply={() => router.push('/pages/apply-for-admissions')}
+            />
           ))}
         </div>
-        <span className="text-[11px] font-black text-slate-900 uppercase">
-          10k+ Alumni
-        </span>
+      </div>
+    </section>
+
+    {/* 4. Bento Grid - Refined for Small Screens */}
+    <div className="py-10 md:py-16 px-4 md:px-6 max-w-6xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 pb-6 border-b-2 border-slate-100">
+        <div className="flex-1">
+          <div className="inline-flex items-center gap-2 px-2 py-1 bg-slate-100 rounded-md mb-3 border border-slate-200">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+            <span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Institutional Profile</span>
+          </div>
+          <h2 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tighter leading-[1.1]">
+            Why <span className="text-blue-600 whitespace-nowrap">Mary Immaculate?</span>
+          </h2>
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-3 mt-2">
+          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-black uppercase">
+            <FiAward className="text-blue-600" />
+            <span>KICD APPROVED</span>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-black uppercase">
+            <FiUsers className="text-blue-600" />
+            <span>COMMUNITY</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bento Grid: Rows adjusted for mobile readability */}
+      <div className="grid grid-cols-1 md:grid-cols-12 auto-rows-min md:auto-rows-[200px] gap-4">
+        
+        {/* Academic Card */}
+        <div className="md:col-span-7 relative rounded-3xl bg-slate-50 border-2 border-slate-200 p-6">
+          <div className="flex flex-col h-full gap-4">
+            <div className="w-10 h-10 bg-white text-blue-600 rounded-xl flex items-center justify-center shadow-sm border border-slate-200 shrink-0">
+              <IoBulbOutline size={20} />
+            </div>
+            <div>
+              <h4 className="text-lg font-black text-slate-900 mb-1 uppercase tracking-tight">Academic Achievement</h4>
+              <p className="text-slate-600 text-[11px] sm:text-sm font-bold leading-snug">
+                Consistently producing strong KCSE results with a focus on STEM subjects.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Faculty Card */}
+        <div className="md:col-span-5 relative rounded-3xl bg-slate-900 p-6 text-white">
+          <div className="flex flex-col h-full gap-4">
+            <div className="w-10 h-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl flex items-center justify-center shrink-0">
+              <FiUsers size={20} className="text-white" />
+            </div>
+            <div>
+              <h4 className="text-lg font-black mb-1 uppercase tracking-tight text-blue-400">Expert Educators</h4>
+              <p className="text-slate-300 text-[11px] sm:text-sm font-bold leading-snug">
+                TSC-certified professionals dedicated to student mentorship.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Infrastructure Card - Full width, row flex on mobile */}
+        <div className="md:col-span-12 relative rounded-3xl bg-white border-2 border-slate-900 p-6 flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100 shrink-0">
+              <FiCpu size={24} />
+            </div>
+            <h4 className="text-lg font-black text-slate-900 uppercase">Modern Resources</h4>
+          </div>
+          <p className="text-slate-600 text-xs sm:text-base font-bold leading-relaxed">
+            Science laboratories, computer programs, and spacious classrooms.
+          </p>
+          <div className="flex items-center gap-3 mt-2 px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 self-start">
+            <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">
+              10k+ Alumni
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
-            </div>
-          )}
+)}
 
           {activeTab === 'academics' && (
             <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 space-y-12 md:space-y-20">
