@@ -855,35 +855,6 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
     }
   }, [resource]);
 
-  // Calculate total size whenever files change
-  useEffect(() => {
-    let totalBytes = 0;
-    
-    // Add size of new files
-    files.forEach(fileObj => {
-      if (fileObj.file && fileObj.file.size) {
-        totalBytes += fileObj.file.size;
-      }
-    });
-    
-    // Add size of existing files (excluding those marked for removal)
-    existingFiles.forEach((file) => {
-      if (!filesToRemove.includes(file.url)) {
-        totalBytes += file.size || 0;
-      }
-    });
-    
-    const totalMB = totalBytes / (1024 * 1024);
-    setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
-    
-    // Check Vercel's 4.5MB limit
-    const VERCEL_LIMIT_MB = 4.5;
-    if (totalMB > VERCEL_LIMIT_MB) {
-      setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's ${VERCEL_LIMIT_MB}MB limit`);
-    } else {
-      setFileSizeError('');
-    }
-  }, [files, existingFiles, filesToRemove]);
 
   // Disable submit button based on conditions
   const isSubmitDisabled = 
@@ -992,6 +963,38 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
       alert('Please select valid files (max 10MB each, supported formats: PDF, DOC, PPT, XLS, Images, Videos, Audio)');
       return;
     }
+
+
+
+// Remove this entire useEffect block from ResourcesManager:
+useEffect(() => {
+  // Calculate total file size
+  let totalBytes = 0;
+  
+  // Add new files size
+  files.forEach(fileObj => {
+    if (fileObj.file && fileObj.file.size) {
+      totalBytes += fileObj.file.size;
+    }
+  });
+  
+  // Add existing files size (excluding those marked for removal)
+  existingFiles.forEach((file, index) => {
+    if (!filesToRemove.includes(file.url)) {
+      totalBytes += file.size || 0;
+    }
+  });
+  
+  const totalMB = totalBytes / (1024 * 1024);
+  setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
+  
+  // Check if exceeds Vercel's 4.5MB limit
+  if (totalMB > 4.5) {
+    setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's 4.5MB limit`);
+  } else {
+    setFileSizeError('');
+  }
+}, [files, existingFiles, filesToRemove]);
 
     // Calculate new total size if we add these files
     let newFilesTotalBytes = 0;
