@@ -308,76 +308,394 @@ import { CircularProgress } from '@mui/material';
 
 
 
-const CareerDepartmentPages = () => {
+// Modern Career Search Component with Filtering & Pagination
+const CareerSearchPage = () => {
   const [globalSearch, setGlobalSearch] = useState("");
-
-  // FILTER ENGINE: Checks department names, subjects, and specific career titles
-  const filteredDepartments = careerDepartments.filter((dept) => {
-    const query = globalSearch.toLowerCase();
-    const matchesDept = dept.department.toLowerCase().includes(query);
-    const matchesSubject = dept.subjects.some(sub => sub.toLowerCase().includes(query));
-    const matchesPath = dept.careerPaths.some(path => path.title.toLowerCase().includes(query));
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const careersPerPage = 6;
+  
+  // Flatten all careers from all departments
+  const allCareers = careerDepartments.flatMap(dept => 
+    dept.careerPaths.map(career => ({
+      ...career,
+      department: dept.department,
+      departmentColor: dept.color,
+      departmentIcon: dept.icon,
+      subjects: dept.subjects
+    }))
+  );
+  
+  // Get unique departments for filter
+  const departments = [
+    { value: "all", label: "All Departments" },
+    ...careerDepartments.map(dept => ({
+      value: dept.department.toLowerCase(),
+      label: dept.department
+    }))
+  ];
+  
+  // Filter careers based on search and department
+  const filteredCareers = allCareers.filter((career) => {
+    const matchesSearch = 
+      globalSearch === "" ||
+      career.title.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      career.description.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      career.examples.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      career.department.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      career.subjects.some(subject => 
+        subject.toLowerCase().includes(globalSearch.toLowerCase())
+      );
     
-    return matchesDept || matchesSubject || matchesPath;
+    const matchesDepartment = 
+      selectedDepartment === "all" || 
+      career.department.toLowerCase() === selectedDepartment;
+    
+    return matchesSearch && matchesDepartment;
   });
+  
+  // Pagination logic
+  const totalPages = Math.ceil(filteredCareers.length / careersPerPage);
+  const indexOfLastCareer = currentPage * careersPerPage;
+  const indexOfFirstCareer = indexOfLastCareer - careersPerPage;
+  const currentCareers = filteredCareers.slice(indexOfFirstCareer, indexOfLastCareer);
+  
+  // Handle page change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  // Reset filters
+  const resetFilters = () => {
+    setGlobalSearch("");
+    setSelectedDepartment("all");
+    setCurrentPage(1);
+  };
+  
+  // Career Card Component
+  const CareerCard = ({ career, index }) => {
+    const DepartmentIcon = career.departmentIcon;
+    
+    return (
+      <div className="group relative bg-white rounded-2xl md:rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm transition-all duration-500 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1">
+        {/* Department Badge */}
+        <div className={`absolute top-4 right-4 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white z-20 bg-gradient-to-r ${career.departmentColor}`}>
+          {career.department.split(' ')[0]}
+        </div>
+        
+        {/* Content */}
+        <div className="p-6 md:p-8">
+          <div className="flex items-start gap-4 mb-6">
+            <div className={`p-3 rounded-2xl bg-gradient-to-br ${career.departmentColor} bg-opacity-10`}>
+              <DepartmentIcon className={`text-2xl ${career.departmentColor.includes('blue') ? 'text-blue-600' : 
+                career.departmentColor.includes('purple') ? 'text-purple-600' :
+                career.departmentColor.includes('green') ? 'text-green-600' :
+                career.departmentColor.includes('amber') ? 'text-amber-600' :
+                'text-red-600'}`} 
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight mb-2 leading-tight">
+                {career.title}
+              </h3>
+              <p className="text-slate-500 text-sm font-medium leading-relaxed">
+                {career.description}
+              </p>
+            </div>
+          </div>
+          
+          {/* Examples */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <FiBriefcase className="text-slate-400" />
+              <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                Career Examples
+              </span>
+            </div>
+            <p className="text-slate-700 text-sm font-bold leading-relaxed">
+              {career.examples}
+            </p>
+          </div>
+          
+          {/* Subjects */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <FiBook className="text-slate-400" />
+              <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                Related Subjects
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {career.subjects.slice(0, 3).map((subject, idx) => (
+                <span key={idx} className="px-3 py-1.5 bg-slate-50 text-slate-700 rounded-lg text-xs font-bold">
+                  {subject}
+                </span>
+              ))}
+              {career.subjects.length > 3 && (
+                <span className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold">
+                  +{career.subjects.length - 3} more
+                </span>
+              )}
+            </div>
+          </div>
+          
+          {/* CTA Button */}
+          <button className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 group-hover:bg-blue-500">
+            <span>Explore Career Path</span>
+            <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4 md:px-8 font-sans">
       <div className="max-w-7xl mx-auto">
         
         {/* Header Section */}
-        <div className="mb-10 text-center md:text-left">
+        <div className="mb-12 text-center">
           <h1 className="text-3xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-4">
             Career <span className="text-blue-600">Explorer</span>
           </h1>
-          <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mb-8">
-            Select your department to discover professional pathways
+          <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mb-10">
+            Search and discover professional pathways across all departments
           </p>
 
-          {/* MAIN SEARCH ENGINE */}
-          <div className="relative max-w-2xl group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <FiSearch className="text-slate-400 group-focus-within:text-blue-600 transition-colors" size={20} />
+          {/* SEARCH & FILTER BAR */}
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              {/* Search Input */}
+              <div className="md:col-span-2 relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <FiSearch className="text-slate-400 group-focus-within:text-blue-600 transition-colors" size={20} />
+                </div>
+                <input 
+                  type="text"
+                  placeholder="Search careers (e.g. Doctor, Engineer, Accountant)..."
+                  className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                  value={globalSearch}
+                  onChange={(e) => {
+                    setGlobalSearch(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+              
+              {/* Department Filter */}
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <FiFilter className="text-slate-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+                </div>
+                <select
+                  className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all outline-none appearance-none"
+                  value={selectedDepartment}
+                  onChange={(e) => {
+                    setSelectedDepartment(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                >
+                  {departments.map((dept) => (
+                    <option key={dept.value} value={dept.value}>
+                      {dept.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                  <FiChevronDown className="text-slate-400" />
+                </div>
+              </div>
             </div>
-            <input 
-              type="text"
-              placeholder="Search by subject (e.g. Biology) or career (e.g. Law)..."
-              className="w-full pl-12 pr-4 py-4 md:py-5 bg-white border-2 border-slate-200 rounded-2xl text-[13px] md:text-sm font-bold text-slate-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
-              value={globalSearch}
-              onChange={(e) => setGlobalSearch(e.target.value)}
-            />
+            
+            {/* Results Stats & Reset */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+              <div className="text-center sm:text-left">
+                <h3 className="text-lg font-black text-slate-900">
+                  {filteredCareers.length} {filteredCareers.length === 1 ? 'Career' : 'Careers'} Found
+                </h3>
+                <p className="text-slate-500 text-sm">
+                  {selectedDepartment !== "all" && `in ${departments.find(d => d.value === selectedDepartment)?.label}`}
+                  {globalSearch && ` matching "${globalSearch}"`}
+                </p>
+              </div>
+              
+              {(globalSearch || selectedDepartment !== "all") && (
+                <button
+                  onClick={resetFilters}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors"
+                >
+                  <FiRotateCw />
+                  Reset Filters
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* MAPPING ENGINE */}
-        {filteredDepartments.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredDepartments.map((deptData, index) => (
-              <CareerDepartmentPages   
-                key={deptData.department || index} 
-                data={deptData} 
-              />
-            ))}
-          </div>
+        {/* CAREERS GRID */}
+        {currentCareers.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {currentCareers.map((career, index) => (
+                <CareerCard 
+                  key={`${career.department}-${index}`} 
+                  career={career} 
+                  index={index}
+                />
+              ))}
+            </div>
+            
+            {/* PAGINATION */}
+            {totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t border-slate-200">
+                <div className="text-slate-500 text-sm font-medium">
+                  Showing {indexOfFirstCareer + 1}-{Math.min(indexOfLastCareer, filteredCareers.length)} of {filteredCareers.length} careers
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {/* Previous Button */}
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`p-3 rounded-xl border flex items-center justify-center ${
+                      currentPage === 1 
+                        ? 'border-slate-200 text-slate-300 cursor-not-allowed' 
+                        : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <FiChevronLeft />
+                  </button>
+                  
+                  {/* Page Numbers */}
+                  <div className="flex items-center gap-1">
+                    {[...Array(totalPages)].map((_, index) => {
+                      const pageNumber = index + 1;
+                      // Show first, last, and pages around current
+                      if (
+                        pageNumber === 1 ||
+                        pageNumber === totalPages ||
+                        (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={pageNumber}
+                            onClick={() => handlePageChange(pageNumber)}
+                            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-colors ${
+                              currentPage === pageNumber
+                                ? 'bg-blue-600 text-white'
+                                : 'text-slate-700 hover:bg-slate-100'
+                            }`}
+                          >
+                            {pageNumber}
+                          </button>
+                        );
+                      } else if (
+                        pageNumber === currentPage - 2 ||
+                        pageNumber === currentPage + 2
+                      ) {
+                        return <span key={pageNumber} className="px-2 text-slate-400">...</span>;
+                      }
+                      return null;
+                    })}
+                  </div>
+                  
+                  {/* Next Button */}
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`p-3 rounded-xl border flex items-center justify-center ${
+                      currentPage === totalPages 
+                        ? 'border-slate-200 text-slate-300 cursor-not-allowed' 
+                        : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <FiChevronRight />
+                  </button>
+                </div>
+                
+                {/* Results per page selector (optional) */}
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <span>Show:</span>
+                  <select 
+                    className="bg-transparent border-none font-bold"
+                    value={careersPerPage}
+                    onChange={(e) => {
+                      // You can make this dynamic if needed
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value="6">6 per page</option>
+                    <option value="12">12 per page</option>
+                    <option value="24">24 per page</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
+          /* NO RESULTS STATE */
           <div className="py-20 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
-            <FiBriefcase className="mx-auto text-slate-300 mb-4" size={40} />
-            <p className="text-slate-400 font-bold italic text-sm">
-              No departments found matching "{globalSearch}"
+            <FiBriefcase className="mx-auto text-slate-300 mb-4" size={48} />
+            <h3 className="text-xl font-black text-slate-900 mb-2">
+              No careers found
+            </h3>
+            <p className="text-slate-500 font-medium mb-6 max-w-md mx-auto">
+              {globalSearch 
+                ? `No careers found matching "${globalSearch}"${selectedDepartment !== "all" ? ` in ${departments.find(d => d.value === selectedDepartment)?.label}` : ''}`
+                : `No careers available in ${departments.find(d => d.value === selectedDepartment)?.label}`
+              }
             </p>
             <button 
-              onClick={() => setGlobalSearch("")}
-              className="mt-4 text-blue-600 font-black text-[10px] uppercase tracking-widest underline"
+              onClick={resetFilters}
+              className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors"
             >
-              Clear Search
+              Show All Careers
             </button>
           </div>
         )}
+
+        {/* STATS FOOTER */}
+        <div className="mt-16 pt-8 border-t border-slate-200">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="text-3xl font-black text-slate-900 mb-2">
+                {allCareers.length}
+              </div>
+              <div className="text-slate-500 text-sm font-medium">
+                Total Career Paths
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-slate-900 mb-2">
+                {careerDepartments.length}
+              </div>
+              <div className="text-slate-500 text-sm font-medium">
+                Academic Departments
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-slate-900 mb-2">
+                {[...new Set(allCareers.flatMap(c => c.subjects))].length}
+              </div>
+              <div className="text-slate-500 text-sm font-medium">
+                Subjects Covered
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-slate-900 mb-2">
+                100%
+              </div>
+              <div className="text-slate-500 text-sm font-medium">
+                KICD Aligned
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
-
 
 const ModernEducationSystemCard = ({ system, icon: Icon, color, description, features, structure, advantages }) => {
   return (
@@ -2422,7 +2740,7 @@ return (
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {careerDepartments.map((dept, index) => (
-          <CareerDepartmentPages key={index} {...dept} />
+          <CareerSearchPage key={index} {...dept} />
         ))}
       </div>
     </div>
