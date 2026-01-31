@@ -124,9 +124,21 @@ import { IoCheckmarkCircle, IoArrowForward, IoFlash } from 'react-icons/io5';
 
 // Add this function after your imports and before any component definitions
 const getOrdinal = (n) => {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  if (n === undefined || n === null || isNaN(n)) return '';
+  
+  const lastDigit = n % 10;
+  const lastTwoDigits = n % 100;
+  
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
+    return n + 'th';
+  }
+  
+  switch (lastDigit) {
+    case 1: return n + 'st';
+    case 2: return n + 'nd';
+    case 3: return n + 'rd';
+    default: return n + 'th';
+  }
 };
 
 import { useRouter } from 'next/navigation';
@@ -2361,23 +2373,23 @@ return (
       {/* Grid: Tighter gap on mobile to prevent overflow */}
       <div className="grid grid-cols-2 gap-2 md:gap-8 w-full lg:w-auto">
         
-        {/* Year Opens Card */}
-        <div className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-white/10 text-center min-w-0">
-          <div className="text-blue-400 font-black text-[8px] md:text-[10px] uppercase tracking-[0.2em] mb-2 md:mb-3">
-            Year Opens
-          </div>
-          <div className="text-white font-black tracking-tighter tabular-nums">
-            {/* Mobile Format: 23rd 09/2025 */}
-            <span className="block md:hidden text-[13px]">
-{new Date(schoolData.closeDate).getDate()}
-{getOrdinal(new Date(schoolData.closeDate).getDate())} {new Date(schoolData.closeDate).toLocaleDateString('en-GB', { month: '2-digit', year: 'numeric' })}
-            </span>
-            {/* Desktop Format: Full Date */}
-            <span className="hidden md:block text-2xl">
-              {formatDate(schoolData.openDate)}
-            </span>
-          </div>
-        </div>
+{/* Year Opens Card */}
+<div className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-white/10 text-center min-w-0">
+  <div className="text-blue-400 font-black text-[8px] md:text-[10px] uppercase tracking-[0.2em] mb-2 md:mb-3">
+    Year Opens
+  </div>
+  <div className="text-white font-black tracking-tighter tabular-nums">
+    {/* Mobile Format: 23rd 09/2025 */}
+    <span className="block md:hidden text-[13px]">
+        {new Date(schoolData.openDate).getDate()} {/* ← FIXED: changed from closeDate to openDate */}
+       {getOrdinal(new Date(schoolData.openDate).getDate())} {new Date(schoolData.openDate).toLocaleDateString('en-GB', { month: '2-digit', year: 'numeric' })}
+    </span>
+    {/* Desktop Format: Full Date */}
+    <span className="hidden md:block text-2xl">
+      {formatDate(schoolData.openDate)}
+    </span>
+  </div>
+</div>
 
         {/* Year Closes Card */}
         <div className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-white/10 text-center min-w-0">
