@@ -298,19 +298,41 @@ const CareerPortalModal = ({ isOpen, onClose, data }) => {
             </div>
           </div>
 
-          {/* Sticky Footer */}
-          <div className="shrink-0 p-6 md:p-8 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4">
-             <div className="text-center sm:text-left">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Inquiry Code</p>
-                <p className="text-xs font-black text-slate-900 uppercase">DEPT-{data.department.substring(0,3)}-2026</p>
-             </div>
-             <button 
-              onClick={() => router.push('/pages/contact')}
-              className="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] hover:bg-blue-600 transition-colors active:scale-95 shadow-xl"
-             >
-               Consult Advisor
-             </button>
-          </div>
+  {/* Sticky Footer - Refined Flex Layout */}
+<div className="shrink-0 p-6 md:p-8 border-t border-slate-100 bg-slate-50/80 backdrop-blur-md">
+  <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+    
+    {/* Left: Inquiry Info - Hidden on tiny screens if space is tight, or centered */}
+    <div className="text-center sm:text-left">
+      <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
+        Inquiry Reference
+      </p>
+      <p className="text-xs md:text-sm font-black text-slate-900 uppercase tracking-tight">
+        DEPT-{data.department.substring(0,3)}-2026
+      </p>
+    </div>
+
+    {/* Right: Button Group - Always Flex */}
+    <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
+      {/* Secondary Close Button - Visible only on mobile for better UX */}
+      <button
+        onClick={onClose}
+        className="flex-1 sm:hidden px-6 py-4 bg-slate-200 text-slate-700 rounded-[1.2rem] font-black uppercase tracking-widest text-[10px] transition-all active:scale-95"
+      >
+        Close
+      </button>
+
+      {/* Main Action Button */}
+      <button 
+        onClick={() => router.push('/pages/contact')}
+        className="flex-[2] sm:flex-none px-6 md:px-10 py-4 bg-slate-900 text-white rounded-[1.2rem] md:rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] md:text-[11px] hover:bg-blue-600 transition-all active:scale-95 shadow-xl shadow-blue-900/10 flex items-center justify-center gap-2"
+      >
+        <span>Ask <span className="hidden xs:inline">About Path</span></span>
+        <FiArrowRight className="text-blue-400" />
+      </button>
+    </div>
+  </div>
+</div>
         </div>
       </div>
     </>
