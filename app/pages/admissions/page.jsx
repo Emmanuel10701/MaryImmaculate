@@ -975,38 +975,51 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
       {/* Bento Grid: gap-0 on mobile to stack perfectly, gap-4 on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-4">
         
-        {/* 1. Vision Card - Full bleed on mobile */}
-        <div className="md:col-span-7 bg-slate-900 rounded-none md:rounded-[3rem] p-8 md:p-12 relative overflow-hidden border-b border-white/5 md:border md:border-slate-800 shadow-xl flex flex-col justify-center min-h-[220px] md:min-h-[280px]">
-          {/* Decorative Glow */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 blur-[60px] rounded-full -mr-10 -mt-10"></div>
-          
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 mb-6">
-              <IoEyeOutline className="text-blue-400 text-lg" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-100">Our Vision</span>
-            </div>
-            <h3 className="text-2xl md:text-4xl font-black text-white mb-4 tracking-tighter uppercase italic leading-none">
-              The <span className="text-blue-500">Future</span> we build
-            </h3>
-            <p className="text-slate-400 text-sm md:text-lg font-bold leading-relaxed max-w-lg">
-              {vision || "To be a premier center of academic excellence in Machakos, nurturing globally competitive leaders through integrity."}
-            </p>
-          </div>
-        </div>
+{/* 1. Vision Card - Compact & Full bleed on mobile */}
+<div className="md:col-span-7 bg-slate-900 rounded-none md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden border-b border-white/5 md:border md:border-slate-800 shadow-xl flex flex-col justify-center min-h-[180px] md:min-h-[280px]">
+  
+  {/* Decorative Glow - Slightly smaller on mobile to keep it subtle */}
+  <div className="absolute top-0 right-0 w-32 md:w-48 h-32 md:h-48 bg-blue-600/10 blur-[50px] md:blur-[60px] rounded-full -mr-8 -mt-8"></div>
+  
+  <div className="relative z-10">
+    {/* Tag: Reduced margin-bottom for a tighter look */}
+    <div className="inline-flex items-center gap-2 px-2.5 py-1 md:px-3 md:py-1.5 bg-white/5 backdrop-blur-md rounded-lg md:rounded-xl border border-white/10 mb-4 md:mb-6">
+      <IoEyeOutline className="text-blue-400 text-base md:text-lg" />
+      <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-blue-100">Our Vision</span>
+    </div>
 
-        {/* 2. Mission Card - Full bleed on mobile */}
-        <div className="md:col-span-5 bg-white rounded-none md:rounded-[3rem] p-8 md:p-12 border-b md:border-2 border-slate-100 shadow-md flex flex-col justify-center min-h-[200px] md:min-h-[280px]">
-          <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100 mb-6 shrink-0 shadow-sm">
-            <FiTarget className="text-blue-600 text-2xl" />
-          </div>
-          
-          <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-3 uppercase tracking-tighter">Our Mission</h3>
-            <p className="text-slate-600 text-sm md:text-base font-bold leading-relaxed">
-              {mission || "Providing quality education via modern infrastructure, fostering discipline, innovation, and self-reliance."}
-            </p>
-          </div>
-        </div>
+    {/* Heading: Adjusted to text-xl on mobile to match the Mission title scaling */}
+    <h3 className="text-xl md:text-4xl font-black text-white mb-2 md:mb-4 tracking-tighter uppercase italic leading-none">
+      The <span className="text-blue-500">Future</span> we build
+    </h3>
+
+    {/* Description: text-[13px] matches the Mission card's body text size */}
+    <p className="text-slate-400 text-[13px] md:text-lg font-bold leading-snug md:leading-relaxed max-w-lg">
+      {vision || "To be a premier center of academic excellence in Machakos, nurturing globally competitive leaders through integrity."}
+    </p>
+  </div>
+</div>
+
+   {/* 2. Mission Card - Compact & Full bleed on mobile */}
+<div className="md:col-span-5 bg-white rounded-none md:rounded-[3rem] p-6 md:p-12 border-b md:border-2 border-slate-100 shadow-md flex flex-col justify-center min-h-[160px] md:min-h-[280px]">
+  
+  {/* Icon: Scaled down on mobile (w-10) to save space */}
+  <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 rounded-xl md:rounded-2xl flex items-center justify-center border border-blue-100 mb-4 md:mb-6 shrink-0 shadow-sm">
+    <FiTarget className="text-blue-600 text-xl md:text-2xl" />
+  </div>
+  
+  <div>
+    {/* Heading: Tighter tracking and smaller size for mobile */}
+    <h3 className="text-lg md:text-2xl font-black text-slate-900 mb-1.5 md:mb-3 uppercase tracking-tighter leading-tight">
+      Our Mission
+    </h3>
+    
+    {/* Text: text-xs/sm keeps the mission statement readable but concise */}
+    <p className="text-slate-600 text-[13px] md:text-base font-bold leading-relaxed md:leading-relaxed">
+      {mission || "Providing quality education via modern infrastructure, fostering discipline, innovation, and self-reliance."}
+    </p>
+  </div>
+</div>
 
         {/* 3. Motto Banner - Full bleed on mobile */}
         <div className="md:col-span-12 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-none md:rounded-[3rem] p-8 md:p-10 relative overflow-hidden shadow-lg">
