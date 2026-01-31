@@ -2703,7 +2703,7 @@ return (
         {formatDateWithOrdinal(schoolData.openDate)}
       </span>
       {/* Desktop View */}
-      <span className="hidden md:block text-xl lg:text-l">
+      <span className="hidden md:block text-xl ">
         {formatDateWithOrdinal(schoolData.openDate)}
       </span>
     </div>
@@ -2720,7 +2720,7 @@ return (
         {formatDateWithOrdinal(schoolData.closeDate)}
       </span>
       {/* Desktop View */}
-      <span className="hidden md:block text-xl lg:text-2xl">
+      <span className="hidden md:block text-xl ">
         {formatDateWithOrdinal(schoolData.closeDate)}
       </span>
     </div>
