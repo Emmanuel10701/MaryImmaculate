@@ -1,46 +1,111 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../libs/prisma";
-import { FileManager } from "../../../libs/superbase"; // Changed from cloudinary
+import cloudinary from "../../../libs/cloudinary";
 
-// Helper functions
-const uploadFileToSupabase = async (file) => {
-  if (!file || !file.name || file.size === 0) return null;
+// Helper: Upload file to Cloudinary
+const uploadFileToCloudinary = async (file) => {
+  if (!file?.name || file.size === 0) return null;
 
   try {
-    const result = await FileManager.uploadFile(file, `resources/files`);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const timestamp = Date.now();
+    const originalName = file.name;
+    const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.'));
+    const sanitizedFileName = nameWithoutExt.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const extension = originalName.substring(originalName.lastIndexOf('.')).toLowerCase();
+
+    // Determine file type and resource type
+    const isVideo = file.type.startsWith('video/');
+    const isImage = file.type.startsWith('image/');
+    const isPDF = extension === '.pdf';
+    const isDocument = ['.doc', '.docx', '.txt'].includes(extension);
+    const isSpreadsheet = ['.xls', '.xlsx', '.csv'].includes(extension);
+    const isPresentation = ['.ppt', '.pptx'].includes(extension);
+    const isArchive = ['.zip', '.rar', '.7z'].includes(extension);
+    const isAudio = file.type.startsWith('audio/');
     
-    if (!result) return null;
+    const resourceType = isVideo ? "video" : isImage ? "image" : "raw";
     
-    return {
-      url: result.url,
-      name: result.fileName,
-      size: result.fileSize,
-      extension: result.fileName.substring(result.fileName.lastIndexOf('.')).toLowerCase(),
-      uploadedAt: new Date().toISOString(),
-    };
-  } catch (err) {
-    console.error("❌ Supabase upload error:", err);
+    return await new Promise((resolve, reject) => {
+      const uploadOptions = {
+        resource_type: resourceType,
+        folder: "school_resources/files",
+        public_id: `${timestamp}-${sanitizedFileName}`,
+        use_filename: false,
+        unique_filename: true,
+        overwrite: false,
+      };
+
+      // Add transformations for images only
+      if (isImage) {
+        uploadOptions.transformation = [
+          { width: 1200, crop: "scale" },
+          { quality: "auto:good" }
+        ];
+      } else if (isVideo) {
+        uploadOptions.transformation = [
+          { width: 1280, crop: "scale" },
+          { quality: "auto" }
+        ];
+      }
+
+      const stream = cloudinary.uploader.upload_stream(
+        uploadOptions,
+        (error, result) => {
+          if (error) reject(error);
+          else {
+            // Determine file type for display
+            let fileType = 'document';
+            if (isImage) fileType = 'image';
+            else if (isVideo) fileType = 'video';
+            else if (isPDF) fileType = 'pdf';
+            else if (isDocument) fileType = 'document';
+            else if (isSpreadsheet) fileType = 'spreadsheet';
+            else if (isPresentation) fileType = 'presentation';
+            else if (isArchive) fileType = 'archive';
+            else if (isAudio) fileType = 'audio';
+
+            resolve({
+              url: result.secure_url,
+              name: originalName,
+              size: file.size,
+              extension: extension,
+              uploadedAt: new Date().toISOString(),
+              fileType: fileType,
+              storageType: 'cloudinary',
+              publicId: result.public_id,
+              format: result.format,
+              resourceType: result.resource_type
+            });
+          }
+        }
+      );
+      stream.end(buffer);
+    });
+  } catch (error) {
+    console.error("Cloudinary upload error:", error);
     return null;
   }
 };
 
-const uploadMultipleFilesToSupabase = async (files) => {
+// Helper: Upload multiple files to Cloudinary
+const uploadMultipleFilesToCloudinary = async (files) => {
   if (!files || files.length === 0) return [];
 
   const uploadedFiles = [];
 
   for (const file of files) {
-    // Skip empty files
     if (!file.name || file.size === 0) continue;
     
-    const result = await uploadFileToSupabase(file);
+    const result = await uploadFileToCloudinary(file);
     if (result) {
       uploadedFiles.push({
         url: result.url,
         name: result.name,
-        size: formatFileSize(result.size),
+        size: result.size,
         extension: result.extension,
         uploadedAt: result.uploadedAt,
+        fileType: result.fileType
       });
     }
   }
@@ -48,6 +113,32 @@ const uploadMultipleFilesToSupabase = async (files) => {
   return uploadedFiles;
 };
 
+// Helper: Delete files from Cloudinary
+const deleteFileFromCloudinary = async (fileUrl) => {
+  if (!fileUrl) return;
+
+  try {
+    const urlMatch = fileUrl.match(/\/upload\/(?:v\d+\/)?(.+?)\.\w+(?:$|\?)/);
+    if (!urlMatch) return;
+    
+    const publicId = urlMatch[1];
+    const isVideo = fileUrl.includes('/video/') || 
+                   fileUrl.match(/\.(mp4|mpeg|avi|mov|wmv|flv|webm|mkv)$/i);
+    const isRaw = fileUrl.includes('/raw/') || 
+                 fileUrl.match(/\.(pdf|doc|docx|txt|ppt|pptx|xls|xlsx|csv|zip|rar|7z|mp3|wav|m4a|ogg)$/i);
+    
+    const resourceType = isVideo ? "video" : isRaw ? "raw" : "image";
+    
+    await cloudinary.uploader.destroy(publicId, { 
+      resource_type: resourceType 
+    });
+    console.log(`✅ Deleted from Cloudinary: ${fileUrl}`);
+  } catch (error) {
+    console.warn("⚠️ Could not delete Cloudinary file:", error.message);
+  }
+};
+
+// Helper: Format file size
 const formatFileSize = (bytes) => {
   if (bytes === 0) return "0 Bytes";
   const k = 1024;
@@ -56,8 +147,18 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
+// Helper: Get file type from name
 const getFileType = (fileName) => {
-  const ext = fileName.split(".").pop().toLowerCase();
+  if (!fileName || typeof fileName !== 'string') {
+    return "document";
+  }
+  
+  const parts = fileName.split(".");
+  if (parts.length < 2) {
+    return "document";
+  }
+  
+  const ext = parts.pop().toLowerCase();
 
   const typeMap = {
     pdf: "pdf",
@@ -95,10 +196,26 @@ const getFileType = (fileName) => {
   return typeMap[ext] || "document";
 };
 
+// Helper: Determine main type from files
 const determineMainTypeFromFiles = (files) => {
-  if (!files || files.length === 0) return "document";
+  if (!files || !Array.isArray(files) || files.length === 0) {
+    return "document";
+  }
 
-  const types = files.map((file) => getFileType(file.name));
+  const types = files
+    .map((file) => {
+      if (file && file.fileType) {
+        return file.fileType;
+      }
+      if (file && file.name) {
+        return getFileType(file.name);
+      }
+      return "document";
+    })
+    .filter(type => type);
+
+  if (types.length === 0) return "document";
+
   const typeCount = {};
   types.forEach((type) => {
     typeCount[type] = (typeCount[type] || 0) + 1;
@@ -116,10 +233,22 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
+    // Format file sizes for display
+    const formattedResources = resources.map(resource => {
+      if (resource.files && Array.isArray(resource.files)) {
+        const formattedFiles = resource.files.map(file => ({
+          ...file,
+          formattedSize: formatFileSize(file.size || 0)
+        }));
+        return { ...resource, files: formattedFiles };
+      }
+      return resource;
+    });
+
     return NextResponse.json({ 
       success: true, 
-      resources, 
-      count: resources.length 
+      resources: formattedResources, 
+      count: formattedResources.length 
     }, { status: 200 });
   } catch (error) {
     console.error("❌ Error fetching resources:", error);
@@ -166,8 +295,8 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    // Upload files to Supabase
-    const uploadedFiles = await uploadMultipleFilesToSupabase(validFiles);
+    // Upload files to Cloudinary
+    const uploadedFiles = await uploadMultipleFilesToCloudinary(validFiles);
     if (uploadedFiles.length === 0) {
       return NextResponse.json({ 
         success: false, 
@@ -175,7 +304,7 @@ export async function POST(request) {
       }, { status: 500 });
     }
 
-    const mainType = determineMainTypeFromFiles(validFiles);
+    const mainType = determineMainTypeFromFiles(uploadedFiles);
 
     // Save resource to database
     const resource = await prisma.resource.create({
