@@ -157,208 +157,132 @@ import { CircularProgress } from '@mui/material';
 
 // Modern Modal Component - Mobile Responsive
 
-// Updated ModernCareerDepartmentCard with Modern Design
-const ModernCareerDepartmentCard = ({ department, icon: Icon, color, subjects, careerPaths, description }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+const ModernCareerDepartmentCard = ({ data }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
+  // Filter career paths based on search
+  const filteredCareers = data.careerPaths.filter(career => 
+    career.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    career.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    career.examples.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <>
-      <div 
-        onClick={() => setIsModalOpen(true)}
-        className="group relative bg-white rounded-2xl border border-slate-200 p-6 md:p-8 cursor-pointer transition-all duration-300 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/10"
-      >
-        {/* Top Icon */}
-        <div className="flex items-center justify-between mb-6">
-          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} p-0.5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-            <div className="w-full h-full bg-slate-900 rounded-[calc(1rem-1px)] flex items-center justify-center">
-              <Icon className="text-2xl text-white" />
+    <div className={`
+      relative overflow-hidden transition-all duration-500 bg-white
+      border border-slate-200 rounded-[1.5rem] md:rounded-[2.2rem]
+      ${isExpanded ? 'ring-2 ring-blue-600 shadow-2xl' : 'hover:shadow-md'}
+    `}>
+      {/* Header Row */}
+      <div className={`p-4 md:p-6 bg-gradient-to-br ${data.color} text-white relative overflow-hidden`}>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10" />
+        <div className="flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shrink-0">
+              <data.Icon className="text-xl" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[7px] font-black uppercase tracking-[0.3em] text-white/80 block">Career Compass</span>
+              <h3 className="text-base md:text-xl font-black uppercase tracking-tight truncate leading-none">
+                {data.department}
+              </h3>
             </div>
           </div>
-          <FiArrowRight className="text-slate-400 group-hover:text-blue-500 group-hover:translate-x-2 transition-all" />
-        </div>
-
-        {/* Content */}
-        <div className="space-y-4">
-          <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-            {department}
-          </h3>
-          <p className="text-slate-500 text-sm font-medium leading-relaxed line-clamp-2">
-            {description}
-          </p>
-
-          {/* Subject Tags */}
-          <div className="flex flex-wrap gap-2 pt-2">
-            {subjects.slice(0, 3).map((subject, index) => (
-              <span 
-                key={index} 
-                className="px-3 py-1.5 bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider rounded-lg border border-slate-100"
-              >
-                {subject}
-              </span>
-            ))}
-            {subjects.length > 3 && (
-              <span className="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg">
-                +{subjects.length - 3} more
-              </span>
-            )}
-          </div>
-
-          {/* Career Count */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-            <div className="flex items-center gap-2">
-              <FiBriefcase className="text-slate-400" />
-              <span className="text-xs font-bold text-slate-600">
-                {careerPaths.length} career paths
-              </span>
-            </div>
-            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">
-              Explore →
-            </span>
-          </div>
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-transform duration-500 shadow-inner"
+            style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          >
+            <FiChevronDown size={20} />
+          </button>
         </div>
       </div>
 
-      <CareerPortalModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        data={{ department, Icon, color, subjects, careerPaths, description }}
-      />
-    </>
-  );
-};
-const CareerPortalModal = ({ isOpen, onClose, data }) => {
-  useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [isOpen]);
-
-  const router = useRouter();
-  if (!isOpen) return null;
-
-  return (
-    <>
-      <div 
-        className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-0 z-[999] animate-in fade-in duration-300"
-        onClick={onClose}
-      />
-      
-      <div 
-        className="fixed inset-0 z-[1000] flex items-center justify-center p-2 md:p-6 pointer-events-none"
-        onClick={onClose}
-      >
-        <div 
-          className="bg-white w-full max-w-3xl max-h-[95vh] overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl border border-slate-200 pointer-events-auto animate-in fade-in zoom-in-95 duration-500"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header - Compact & Responsive */}
-          <div className={`relative bg-gradient-to-br ${data.color} p-5 md:p-8 text-white overflow-hidden`}>
-            <div className="relative z-10">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shrink-0">
-                    <data.Icon className="text-xl md:text-2xl" />
-                  </div>
-                  <div className="min-w-0"> {/* Prevents text overflow */}
-                    <span className="text-[7px] md:text-[9px] font-black uppercase tracking-[0.2em] text-white/70 block truncate">
-                      CAREER PORTAL
-                    </span>
-                    <h2 className="text-lg md:text-2xl font-black text-white tracking-tighter uppercase leading-none truncate">
-                      {data.department}
-                    </h2>
-                  </div>
-                </div>
-                <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full shrink-0">
-                  <FiX className="text-lg" />
-                </button>
-              </div>
-
-              {/* Stats - Wrapped to prevent overflow on 320px screens */}
-              <div className="flex flex-wrap gap-2">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg border border-white/10 shrink-0">
-                  <FiBook className="text-white/80 text-[10px]" />
-                  <span className="text-[10px] md:text-xs font-bold whitespace-nowrap">{data.subjects.length} Subjects</span>
-                </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg border border-white/10 shrink-0">
-                  <FiBriefcase className="text-white/80 text-[10px]" />
-                  <span className="text-[10px] md:text-xs font-bold whitespace-nowrap">{data.careerPaths.length} Paths</span>
-                </div>
-              </div>
-            </div>
+      {/* Searchable Content */}
+      <div className={`
+        overflow-hidden transition-all duration-500 ease-in-out
+        ${isExpanded ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}
+      `}>
+        <div className="p-4 md:p-8 space-y-5 bg-white">
+          
+          {/* 1. Integrated Search Engine Bar */}
+          <div className="relative group">
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+            <input 
+              type="text"
+              placeholder={`Search roles in ${data.department}...`}
+              className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
-          {/* Scrollable Content Area */}
-          <div className="p-4 md:p-8 max-h-[calc(95vh-200px)] overflow-y-auto">
-            <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-              
-              {/* Left Column: Requirements */}
-              <div className="w-full md:w-[40%] space-y-5">
-                <div>
-                  <h3 className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Focus Area</h3>
-                  <p className="text-slate-600 text-[12px] leading-relaxed font-bold italic border-l-2 border-blue-500 pl-3">
-                    "{data.description}"
-                  </p>
-                </div>
+          {/* 2. Results Mapping Area */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h4 className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                Matching Pathways ({filteredCareers.length})
+              </h4>
+              {searchQuery && (
+                <button onClick={() => setSearchQuery("")} className="text-[8px] font-black text-blue-600 uppercase">Clear</button>
+              )}
+            </div>
 
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <h3 className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3">Core Requirements</h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    {data.subjects.map((s, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-white border border-slate-200 text-slate-700 rounded text-[9px] font-black uppercase whitespace-nowrap">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column: Careers */}
-              <div className="w-full md:w-[60%]">
-                <h3 className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3">Trajectories</h3>
-                <div className="space-y-3">
-                  {data.careerPaths.map((career, idx) => (
-                    <div key={idx} className="bg-white border border-slate-100 rounded-xl p-3">
-                      <div className="flex items-start gap-2">
-                        <span className="text-blue-500 font-black text-xs mt-0.5">0{idx + 1}</span>
-                        <div className="min-w-0">
-                          <h4 className="text-[11px] md:text-sm font-black text-slate-900 uppercase leading-tight mb-1 truncate">
-                            {career.title}
-                          </h4>
-                          <p className="text-slate-500 text-[10px] md:text-[11px] leading-snug">
-                            {career.description}
-                          </p>
+            <div className="grid grid-cols-1 gap-3 max-h-[350px] overflow-y-auto pr-1 scrollbar-hide">
+              {filteredCareers.length > 0 ? (
+                filteredCareers.map((career, idx) => (
+                  <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-blue-200 transition-all">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-[9px] font-black shrink-0">
+                        {idx + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <h5 className="text-[11px] font-black text-slate-900 uppercase mb-1">{career.title}</h5>
+                        <p className="text-[10px] text-slate-500 leading-relaxed mb-2">{career.description}</p>
+                        
+                        {/* Examples / Offers */}
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          <span className="text-[8px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">Offers:</span>
+                          <p className="text-[9px] text-slate-700 font-bold">{career.examples}</p>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))
+              ) : (
+                <div className="py-10 text-center">
+                  <p className="text-[11px] font-bold text-slate-400 italic">No matching roles found in this department.</p>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Footer - Vertical on mobile to prevent text overlap */}
-          <div className="border-t border-slate-100 p-4 md:p-6 bg-slate-50">
-            <div className="flex flex-col sm:flex-row gap-2 md:gap-4">
-              <button
-                onClick={onClose}
-                className="w-full py-3 bg-white text-slate-600 border border-slate-200 rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest"
-              >
-                Close
-              </button>
-              <button 
-                onClick={() => { onClose(); router.push('/pages/contact'); }}
-                className="w-full py-3 bg-slate-900 text-white rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
-              >
-                <FiMessageCircle size={14} />
-                <span>Consult Advisor</span>
-              </button>
-            </div>
+          {/* 3. Footer Actions */}
+          <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
+            <button 
+              onClick={() => router.push('/pages/contact')}
+              className="flex-1 py-3.5 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
+            >
+              <FiMessageCircle size={14} />
+              Career Counseling
+            </button>
+            <button 
+              onClick={() => setIsExpanded(false)}
+              className="px-6 py-3.5 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
+
+
 
 const ModernEducationSystemCard = ({ system, icon: Icon, color, description, features, structure, advantages }) => {
   return (
