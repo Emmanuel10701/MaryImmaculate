@@ -923,15 +923,15 @@ const AdmissionPathCard = ({ path, onApply, index }) => {
           </h3>
         </div>
 
-        <p className="text-slate-500 text-md md:text-base font-bold leading-relaxed mb-6">
+        <p className="text-slate-500 text-sm md:text-base font-bold leading-relaxed mb-6">
           {path.description}
         </p>
 
         {/* Features: Compact on Mobile */}
         <div className="grid grid-cols-1 gap-2 md:gap-3 mb-8">
           {path.features.slice(0, 3).map((feature, idx) => (
-            <div key={idx} className="flex items-center gap-3 text-md md:text-sm text-slate-700 font-black uppercase tracking-tight bg-slate-50 p-3 rounded-xl border border-slate-100">
-              <IoCheckmarkCircle className={`text-${themeColor}-500 text-md shrink-0`} />
+            <div key={idx} className="flex items-center gap-3 text-xl md:text-sm text-slate-700 font-black uppercase tracking-tight bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <IoCheckmarkCircle className={`text-${themeColor}-500 text-sm shrink-0`} />
               <span className="truncate">{feature}</span>
             </div>
           ))}
