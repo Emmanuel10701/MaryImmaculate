@@ -535,7 +535,7 @@ const CareerSearchPage = () => {
                   className="flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium text-xs"
                 >
                   <FiRotateCw />
-                  Reset Filters
+                  Clear Filters
                 </button>
               )}
             </div>
@@ -2123,7 +2123,7 @@ export default function ComprehensiveAdmissions() {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: FiBook },
     { id: 'academics', label: 'Academics', icon: FiBookOpen },
-    { id: 'career-paths', label: 'Career Paths', icon: FiBriefcase },
+    { id: 'career-paths', label: 'Career compass', icon: FiBriefcase },
     { id: 'requirements', label: 'Requirements', icon: FiFileText },
     { id: 'fees', label: 'Fee Structure', icon: IoReceiptOutline },
     { id: 'results', label: 'Results', icon: IoStatsChartOutline }, // New Results tab
