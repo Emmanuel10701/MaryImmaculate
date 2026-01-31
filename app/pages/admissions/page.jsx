@@ -528,13 +528,34 @@ const AdmissionPathCard = ({ path, onApply, index }) => {
             </span>
           </div>
           
-          <button
-            onClick={onApply}
-            className={`w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r ${path.color} text-white rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-transform`}
-          >
-            Start Application
-            <IoArrowForward size={18} />
-          </button>
+      <button
+  onClick={onApply}
+  className={`
+    /* Layout */
+    w-full md:w-max flex items-center justify-center gap-3 
+    px-8 py-4 md:px-10 md:py-5
+    
+    /* Style & Color */
+    bg-gradient-to-r ${path.color} 
+    text-white rounded-xl md:rounded-2xl 
+    shadow-xl md:shadow-2xl
+    
+    /* Typography */
+    font-black text-[10px] md:text-[11px] 
+    uppercase tracking-[0.2em]
+    
+    /* Interaction:
+       - Transition-transform handles the smooth scale
+       - md:active:scale-95 ensures it only shrinks on Desktop
+    */
+    transition-transform duration-300
+    md:active:scale-95
+    md:hover:brightness-110
+  `}
+>
+  Start Application
+  <IoArrowForward size={18} className="shrink-0" />
+</button>
         </div>
       </div>
     </div>
