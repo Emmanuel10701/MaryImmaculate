@@ -928,11 +928,12 @@ if (!student || !token) {
                 <HiSparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-blue-600" />
                 Empowering Excellence Since 1978
               </div>
-              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 
-                font-black tracking-tighter leading-[0.85] xs:leading-[0.9] text-slate-950">
-                PRAYER  
-                <span className="block text-blue-600 italic mt-1 xs:mt-2">DISPLINE AND  HARDWORK.</span>
-              </h1>
+           <h1 className="text-xl xs:text-2xl sm:text-3xl font-black tracking-tighter leading-[0.9] text-slate-950">
+  PRAYER  
+  <span className="block text-blue-600 italic mt-1 tracking-[-0.04em] text-[0.7em] uppercase">
+    Discipline & Hardwork
+  </span>
+</h1>
               <p className="text-sm xs:text-base sm:text-lg md:text-xl text-slate-500 font-medium 
                 max-w-full xs:max-w-xs sm:max-w-md leading-relaxed xs:leading-snug">
                 Welcome to the Marry Immculate Girls High School Digital Student Portal. Your unified hub for academics, finance, and communication.
