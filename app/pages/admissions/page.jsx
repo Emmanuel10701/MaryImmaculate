@@ -2237,145 +2237,127 @@ return (
   </div>
 )}
 
-          {activeTab === 'academics' && (
-            <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 space-y-12 md:space-y-20">
-              
-              {/* Section 1: Hero Header */}
-              <div className="relative group">
-                {/* Background Glow */}
-                <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-100/50 rounded-full blur-3xl opacity-0 transition-opacity duration-700" />
-                
-                <div className="relative flex flex-col lg:flex-row lg:items-end justify-between gap-6 md:gap-8 border-b border-slate-100 pb-8 md:pb-12">
-                  <div className="max-w-3xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 rounded-full mb-6">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-100 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                      </span>
-                      <span className="text-[10px] text-white font-black uppercase tracking-[0.2em]">Academic Excellence</span>
-                    </div>
-                    <h2 className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter leading-none mb-6">
-                      Academic <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Programs</span>
-                    </h2>
-                    <p className="text-slate-500 text-base md:text-xl font-medium leading-relaxed">
-                      Marry Immculate Girls High School offers a future-ready curriculum designed to cultivate critical thinking, 
-                      innovation, and global leadership.
-                    </p>
-                  </div>
+{activeTab === 'academics' && (
+  <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 space-y-10 md:space-y-20">
+    
+    {/* Section 1: Hero Header - Mobile Optimized */}
+    <div className="relative pt-2">
+      <div className="relative flex flex-col lg:flex-row lg:items-end justify-between gap-6 md:gap-8 border-b border-slate-100 pb-8 md:pb-12 px-2">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 rounded-full mb-4 md:mb-6">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-100 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+            </span>
+            <span className="text-[9px] md:text-[10px] text-white font-black uppercase tracking-[0.2em]">Academic Excellence</span>
+          </div>
+          <h2 className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-4">
+            Academic <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Programs</span>
+          </h2>
+          <p className="text-slate-500 text-sm md:text-xl font-medium leading-relaxed max-w-2xl">
+            Mary Immaculate Girls High School offers a future-ready curriculum designed to cultivate critical thinking and global leadership.
+          </p>
+        </div>
 
-                  {documentData?.curriculumPDF && (
-                    <a 
-                      href={documentData.curriculumPDF}
-                      download={documentData.curriculumPdfName}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group/btn relative inline-flex items-center gap-4 px-6 py-3 md:px-8 md:py-4 bg-slate-900 text-white rounded-2xl overflow-hidden transition-all"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 transition-opacity duration-300" />
-                      <FiDownload className="relative z-10 text-xl" />
-                      <div className="relative z-10">
-                        <div className="font-bold text-sm tracking-tight">Download Curriculum</div>
-                        {documentData.curriculumYear && (
-                          <div className="text-xs opacity-80">
-                            {documentData.curriculumYear} • {documentData.curriculumTerm || 'All Terms'}
-                          </div>
-                        )}
-                      </div>
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {/* Section 2: Education Systems - Bento Layout */}
-              <section>
-                <div className="flex flex-col mb-8 md:mb-12">
-                  <h3 className="text-sm font-black text-blue-600 uppercase tracking-[0.3em] mb-2">Paths to Success</h3>
-                  <h4 className="text-2xl md:text-3xl font-bold text-slate-900">Education Systems</h4>
-                </div>
-                
-                <div className="grid lg:grid-cols-2 gap-8 md:gap-10">
-                  {educationSystems.map((system, index) => (
-                    <ModernEducationSystemCard key={index} {...system} />
-                  ))}
-                </div>
-              </section>
-
-              {/* Section 3: Subject Tiles - Visual Grid */}
-              <section className="relative overflow-hidden bg-slate-50 rounded-2xl md:rounded-[3rem] p-6 md:p-12">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 md:mb-10 gap-4">
-                  <div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Subjects Offered</h3>
-                    <p className="text-slate-500 font-medium">Core and elective disciplines for holistic mastery.</p>
-                  </div>
-                  <div className="px-4 py-2 bg-white rounded-full shadow-sm border border-slate-200 text-sm font-bold text-slate-700">
-                    {schoolData?.subjects?.length || 0} Specialties
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                  {schoolData?.subjects?.map((subject, index) => {
-                    const SubjectIcon = getSubjectIcon(subject);
-                    return (
-                      <div 
-                        key={index}
-                        className="group bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl border border-slate-100 transition-all duration-300"
-                      >
-                        <div className="w-10 h-10 md:w-12 md:h-12 mb-4 rounded-xl md:rounded-2xl bg-slate-50 flex items-center justify-center">
-                          <SubjectIcon className="text-blue-600 text-xl" />
-                        </div>
-                        <h4 className="font-bold text-slate-800 text-sm tracking-tight leading-tight">{subject}</h4>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-
-              {/* Section 4: Departments - Minimalist Cards */}
-              <section>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6 md:mb-8 text-center">Departmental Faculties</h3>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                  {schoolData?.departments?.map((department, index) => {
-                    const DepartmentIcon = getDepartmentIcon(department);
-                    return (
-                      <div key={index} className="group relative p-6 md:p-8 bg-white rounded-xl md:rounded-[2rem] border border-slate-100">
-                        <div className="mb-4 md:mb-6 inline-block p-3 md:p-4 bg-purple-50 rounded-xl md:rounded-2xl">
-                          <DepartmentIcon className="text-purple-600 text-2xl" />
-                        </div>
-                        <h4 className="font-black text-slate-900 text-lg md:text-xl mb-4 leading-tight">{department}</h4>
-                        <div className="w-8 h-1 bg-slate-100" />
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-
-              {/* Section 5: Stats & Calendar - Dark Banner */}
-              {schoolData?.openDate && (
-                <div className="relative overflow-hidden bg-slate-900 rounded-2xl md:rounded-[3rem] p-8 md:p-16">
-                  {/* Abstract Background Shapes */}
-                  <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 blur-[100px] rounded-full -mr-48 -mt-48" />
-                  
-                  <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8 md:gap-12">
-                    <div className="text-center lg:text-left">
-                      <h3 className="text-white text-2xl md:text-3xl font-black tracking-tight mb-4">Academic Calendar</h3>
-                      <p className="text-slate-400 text-base md:text-lg">Mark your journey. Stay ahead of the curve.</p>
-                    </div>
-
-                    <div className="flex gap-4 md:gap-8">
-                      <div className="bg-white/5 backdrop-blur-xl p-6 md:p-8 rounded-xl md:rounded-[2rem] border border-white/10 text-center min-w-[140px] md:min-w-[160px]">
-                        <div className="text-blue-400 font-black text-[10px] uppercase tracking-widest mb-3">Year Opens</div>
-                        <div className="text-white text-xl md:text-2xl font-bold">{formatDate(schoolData.openDate)}</div>
-                      </div>
-                      <div className="bg-white/5 backdrop-blur-xl p-6 md:p-8 rounded-xl md:rounded-[2rem] border border-white/10 text-center min-w-[140px] md:min-w-[160px]">
-                        <div className="text-rose-400 font-black text-[10px] uppercase tracking-widest mb-3">Year Closes</div>
-                        <div className="text-white text-xl md:text-2xl font-bold">{formatDate(schoolData.closeDate)}</div>
-                      </div>
-                    </div>
-                  </div>
+        {/* Download Button - Fixed width for mobile */}
+        {documentData?.curriculumPDF && (
+          <a 
+            href={documentData.curriculumPDF}
+            download={documentData.curriculumPdfName}
+            target="_blank"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-4 px-6 py-4 bg-slate-900 text-white rounded-2xl active:scale-95 transition-all shadow-xl"
+          >
+            <FiDownload className="text-xl text-blue-400" />
+            <div className="text-left">
+              <div className="font-bold text-xs md:text-sm tracking-tight">Download Curriculum</div>
+              {documentData.curriculumYear && (
+                <div className="text-[10px] opacity-60">
+                  {documentData.curriculumYear} • {documentData.curriculumTerm || 'Full Year'}
                 </div>
               )}
             </div>
-          )}
+          </a>
+        )}
+      </div>
+    </div>
+
+    {/* Section 2: Education Systems */}
+    <section className="px-2">
+      <div className="flex flex-col mb-6 md:mb-12">
+        <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mb-1">Paths to Success</h3>
+        <h4 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Education Systems</h4>
+      </div>
+      
+      {/* Grid: 1 column on mobile, 2 on large */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
+        {educationSystems.map((system, index) => (
+          <ModernEducationSystemCard key={index} {...system} />
+        ))}
+      </div>
+    </section>
+
+    {/* Section 3 & 4: Subject Tiles & Departments (Unified Visuals) */}
+    {[
+      { title: "Subjects Offered", desc: "Core and elective disciplines.", count: schoolData?.subjects?.length, data: schoolData?.subjects, iconColor: "text-blue-600", bgColor: "bg-blue-50" },
+      { title: "Departments", desc: "Academic and administrative wings.", count: schoolData?.departments?.length, data: schoolData?.departments, iconColor: "text-purple-600", bgColor: "bg-purple-50" }
+    ].map((sect, i) => (
+      <section key={i} className="relative bg-slate-50 rounded-[2rem] p-6 md:p-12 mx-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+          <div>
+            <h3 className="text-xl md:text-3xl font-black text-slate-900 tracking-tight">{sect.title}</h3>
+            <p className="text-slate-500 text-xs font-medium">{sect.desc}</p>
+          </div>
+          <div className="px-3 py-1.5 bg-white self-start rounded-full shadow-sm border border-slate-200 text-[10px] font-black text-slate-600 uppercase">
+            {sect.count || 0} Specialties
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+          {sect.data?.map((item, idx) => {
+            const Icon = i === 0 ? getSubjectIcon(item) : getDepartmentIcon(item);
+            return (
+              <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
+                <div className={`w-10 h-10 mb-3 rounded-xl ${sect.bgColor} flex items-center justify-center shrink-0`}>
+                  <Icon className={`${sect.iconColor} text-lg`} />
+                </div>
+                <h4 className="font-bold text-slate-800 text-[11px] leading-tight uppercase tracking-tight">{item}</h4>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+
+    {/* Section 5: Stats & Calendar - Dark Banner Optimized for Mobile */}
+    {schoolData?.openDate && (
+      <div className="relative overflow-hidden bg-slate-900 rounded-[2rem] p-6 md:p-16 mx-1">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full -mr-20 -mt-20" />
+        
+        <div className="relative z-10 flex flex-col gap-8 text-center md:text-left">
+          <div>
+            <h3 className="text-white text-xl md:text-3xl font-black tracking-tight mb-2">Academic Calendar</h3>
+            <p className="text-slate-400 text-xs md:text-lg">Mark your journey. Stay ahead of the curve.</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 md:gap-8">
+            <div className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-white/10">
+              <div className="text-blue-400 font-black text-[9px] uppercase tracking-widest mb-2">Year Opens</div>
+              <div className="text-white text-sm md:text-2xl font-bold truncate">
+                {formatDate(schoolData.openDate)}
+              </div>
+            </div>
+            <div className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-white/10">
+              <div className="text-rose-400 font-black text-[9px] uppercase tracking-widest mb-2">Year Closes</div>
+              <div className="text-white text-sm md:text-2xl font-bold truncate">
+                {formatDate(schoolData.closeDate)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
           {/* Career Paths Tab - Modern */}
           {activeTab === 'career-paths' && (
@@ -2415,10 +2397,13 @@ return (
                     </p>
                   </div>
                   <div className="flex-shrink-0">
-                    <button className="px-6 py-3 md:px-8 md:py-4 bg-white text-slate-900 rounded-xl md:rounded-2xl font-bold tracking-tight flex items-center gap-3">
-                      <span>Schedule Consultation</span>
-                      <FiArrowRight className="transition-transform" />
-                    </button>
+            <button 
+              onClick={() => router.push('/pages/contact')}
+              className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 bg-white text-slate-900 rounded-xl md:rounded-2xl font-bold tracking-tight flex items-center justify-center gap-3 shadow-lg hover:bg-slate-50 transition-all active:scale-95"
+            >
+              <span>Schedule Consultation</span>
+              <FiArrowRight className="transition-transform group-hover:translate-x-1" />
+            </button>
                   </div>
                 </div>
               </div>
