@@ -3,6 +3,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Toaster, toast } from 'sonner';
 
+import { Eye, EyeOff } from "lucide-react";
+
+
+
 // React Icons from fa6 (only the ones you're actually using)
 import { 
   FaX,
@@ -129,7 +133,8 @@ export default function AdminManager() {
   const [session, setSession] = useState(null);
   const [status, setStatus] = useState('loading');
   const router = useRouter();
-  
+  const [showPassword, setShowPassword] = useState(false);
+
   const [admins, setAdmins] = useState([]);
   const [filteredAdmins, setFilteredAdmins] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -1046,19 +1051,34 @@ const handleSaveAdmin = async (e) => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-gray-900 font-bold mb-3 text-sm">
-                    {editingAdmin ? 'New Password (optional)' : 'Password *'}
-                  </label>
-                  <input
-                    type="password"
-                    required={!editingAdmin}
-                    value={adminData.password}
-                    onChange={(e) => setAdminData({ ...adminData, password: e.target.value })}
-                    className="w-full px-4 py-4 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-                    placeholder="Enter password"
-                  />
-                </div>
+         <div>
+  <label className="block text-gray-900 font-bold mb-3 text-sm">
+    {editingAdmin ? 'New Password (optional)' : 'Password *'}
+  </label>
+
+  <div className="relative">
+    <input
+      type={showPassword ? "text" : "password"}
+      required={!editingAdmin}
+      value={adminData.password}
+      onChange={(e) =>
+        setAdminData({ ...adminData, password: e.target.value })
+      }
+      className="w-full px-4 py-4 pr-12 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+      placeholder="Enter password"
+    />
+
+    {/* Eye Icon */}
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+    >
+      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+    </button>
+  </div>
+</div>
+
 
                 <div>
                   <label className="block text-gray-900 font-bold mb-3 text-sm">Phone *</label>

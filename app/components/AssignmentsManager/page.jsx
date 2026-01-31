@@ -1314,7 +1314,7 @@ useEffect(() => {
 
             {/* Title - Full Width - FIX THE ICON */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <span className="text-red-500">*</span>
                 <FiTag className="text-indigo-500" />
                 Assignment Title
@@ -1333,7 +1333,7 @@ useEffect(() => {
             {/* Subject and Class in Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                   <span className="text-red-500">*</span>
                   <FiBookOpen className="text-purple-500" />
                   Subject
@@ -1353,7 +1353,7 @@ useEffect(() => {
               </div>
 
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                   <span className="text-red-500">*</span>
                   <FiUsers className="text-green-500" />
                   Class
@@ -1375,7 +1375,7 @@ useEffect(() => {
 
             {/* Teacher - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <FiUserCheck className="text-amber-500" />
                 Teacher
               </label>
@@ -1391,7 +1391,7 @@ useEffect(() => {
 
             {/* Description - Full Width - FIX THE ICON */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <span className="text-red-500">*</span>
                 <FiFileText className="text-blue-500" />
                 Description
@@ -1410,7 +1410,7 @@ useEffect(() => {
             {/* Dates in Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                   <span className="text-red-500">*</span>
                   <FiCalendar className="text-indigo-500" />
                   Due Date
@@ -1426,7 +1426,7 @@ useEffect(() => {
               </div>
               
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                   <FiCalendar className="text-indigo-500" />
                   Date Assigned
                 </label>
@@ -1443,7 +1443,7 @@ useEffect(() => {
             {/* Status and Priority in Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <label className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                   <FiCheckCircle className="text-green-500" />
                   Status
                 </label>
@@ -1462,7 +1462,7 @@ useEffect(() => {
               </div>
 
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                   <FiTarget className="text-orange-500" />
                   Priority
                 </label>
@@ -1481,7 +1481,7 @@ useEffect(() => {
 
             {/* Estimated Time - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <label className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <FiClock className="text-amber-500" />
                 Estimated Time
               </label>
@@ -1497,7 +1497,7 @@ useEffect(() => {
 
             {/* Learning Objectives */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <label className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <FiTarget className="text-purple-500" />
                 Learning Objectives
               </label>
@@ -1547,7 +1547,7 @@ useEffect(() => {
 
             {/* Instructions - Full Width - FIX THE ICON */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <FiBookOpen className="text-green-500" />
                 Instructions
               </label>
@@ -1563,7 +1563,7 @@ useEffect(() => {
 
             {/* Additional Work - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <label className=" text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <FiFileText className="text-blue-500" />
                 Additional Work
               </label>
@@ -1579,7 +1579,7 @@ useEffect(() => {
 
             {/* Teacher Remarks - Full Width */}
             <div>
-              <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <label className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <FiEdit className="text-amber-500" />
                 Teacher Remarks
               </label>
