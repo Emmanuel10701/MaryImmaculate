@@ -1621,12 +1621,6 @@ export default function ResourcesManager() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [files, setFiles] = useState([]);
-  const [existingFiles, setExistingFiles] = useState([]);
-  const [filesToRemove, setFilesToRemove] = useState([]);
-  const [totalSizeMB, setTotalSizeMB] = useState(0);
-  const [fileSizeError, setFileSizeError] = useState('');
-  
   // Notification state
   const [notification, setNotification] = useState({
     open: false,
@@ -1849,35 +1843,7 @@ export default function ResourcesManager() {
     fetchResources();
   }, []);
 
-  // Calculate total size whenever files or existingFiles change
-useEffect(() => {
-  // Calculate total file size
-  let totalBytes = 0;
   
-  // Add new files size
-  files.forEach(fileObj => {
-    if (fileObj.file && fileObj.file.size) {
-      totalBytes += fileObj.file.size;
-    }
-  });
-  
-  // Add existing files size (excluding those marked for removal)
-  existingFiles.forEach((file, index) => {
-    if (!filesToRemove.includes(file.url)) {
-      totalBytes += file.size || 0;
-    }
-  });
-  
-  const totalMB = totalBytes / (1024 * 1024);
-  setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
-  
-  // Check if exceeds Vercel's 4.5MB limit
-  if (totalMB > 4.5) {
-    setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's 4.5MB limit`);
-  } else {
-    setFileSizeError('');
-  }
-}, [files, existingFiles, filesToRemove]);
   // Filter resources
   useEffect(() => {
     let filtered = resources;
