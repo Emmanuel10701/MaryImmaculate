@@ -158,140 +158,71 @@ import { CircularProgress } from '@mui/material';
 // Modern Modal Component - Mobile Responsive
 
 
-const ModernCareerDepartmentCard = ({ data }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
+const CareerDepartmentPages = () => {
+  const [globalSearch, setGlobalSearch] = useState("");
 
-  // FIXED: Changed from data?.careerPaths to data?.careerPaths
-  const careerPaths = data?.careerPaths || [];
-  
-  const filteredCareers = careerPaths.filter(career => 
-    career?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    career?.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    career?.examples?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Safety Return: If data is missing entirely, show a skeleton or nothing instead of crashing
-  if (!data) return <div className="p-4 bg-slate-50 animate-pulse rounded-xl h-20" />;
+  // FILTER ENGINE: Checks department names, subjects, and specific career titles
+  const filteredDepartments = careerDepartments.filter((dept) => {
+    const query = globalSearch.toLowerCase();
+    const matchesDept = dept.department.toLowerCase().includes(query);
+    const matchesSubject = dept.subjects.some(sub => sub.toLowerCase().includes(query));
+    const matchesPath = dept.careerPaths.some(path => path.title.toLowerCase().includes(query));
+    
+    return matchesDept || matchesSubject || matchesPath;
+  });
 
   return (
-    <div className={`
-      relative overflow-hidden transition-all duration-500 bg-white
-      border border-slate-200 rounded-[1.5rem] md:rounded-[2.2rem]
-      ${isExpanded ? 'ring-2 ring-blue-600 shadow-2xl' : 'hover:shadow-md'}
-    `}>
-      {/* Header Row */}
-      <div className={`p-4 md:p-6 bg-gradient-to-br ${data.color || 'from-slate-500 to-slate-700'} text-white relative overflow-hidden`}>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10" />
-        <div className="flex items-center justify-between relative z-10">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shrink-0">
-              {data.icon && <data.icon className="text-xl" />}
-            </div>
-            <div className="min-w-0">
-              <span className="text-[7px] font-black uppercase tracking-[0.3em] text-white/80 block">Career Compass</span>
-              <h3 className="text-base md:text-lg font-black uppercase tracking-tight truncate leading-none">
-                {data.department || "Loading..."}
-              </h3>
-            </div>
-          </div>
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-transform duration-500 shadow-inner shrink-0"
-            style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-          >
-            <FiChevronDown size={20} />
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50 py-12 px-4 md:px-8 font-sans">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header Section */}
+        <div className="mb-10 text-center md:text-left">
+          <h1 className="text-3xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-4">
+            Career <span className="text-blue-600">Explorer</span>
+          </h1>
+          <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mb-8">
+            Select your department to discover professional pathways
+          </p>
 
-      {/* Searchable Content */}
-      <div className={`
-        overflow-hidden transition-all duration-500 ease-in-out
-        ${isExpanded ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}
-      `}>
-        <div className="p-4 md:p-6 space-y-4 bg-white">
-          
-          <div className="relative group">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          {/* MAIN SEARCH ENGINE */}
+          <div className="relative max-w-2xl group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <FiSearch className="text-slate-400 group-focus-within:text-blue-600 transition-colors" size={20} />
+            </div>
             <input 
               type="text"
-              placeholder={`Search roles in ${data.department}...`}
-              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by subject (e.g. Biology) or career (e.g. Law)..."
+              className="w-full pl-12 pr-4 py-4 md:py-5 bg-white border-2 border-slate-200 rounded-2xl text-[13px] md:text-sm font-bold text-slate-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+              value={globalSearch}
+              onChange={(e) => setGlobalSearch(e.target.value)}
             />
           </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-              <h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest">
-                Career Mapping ({filteredCareers.length})
-              </h4>
-              {searchQuery && (
-                <span className="text-[8px] text-blue-600 font-bold">
-                  {filteredCareers.length} result{filteredCareers.length !== 1 ? 's' : ''}
-                </span>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-1 scrollbar-hide">
-              {filteredCareers.length > 0 ? (
-                filteredCareers.map((career, idx) => (
-                  <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100 hover:bg-blue-50 transition-colors">
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded bg-white text-blue-600 border border-slate-200 flex items-center justify-center text-[9px] font-black shrink-0">
-                        {idx + 1}
-                      </div>
-                      <div className="min-w-0">
-                        <h5 className="text-[10px] font-black text-slate-900 uppercase mb-0.5">{career?.title}</h5>
-                        <p className="text-[9px] text-slate-500 leading-snug mb-1.5">{career?.description}</p>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[7px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase">Examples:</span>
-                          <p className="text-[8px] text-slate-700 font-bold truncate">{career?.examples}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="py-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                  {searchQuery ? (
-                    <>
-                      <FiSearch className="w-5 h-5 text-slate-400 mx-auto mb-2" />
-                      <p className="text-[10px] font-bold text-slate-400 italic">No careers match "{searchQuery}"</p>
-                      <button 
-                        onClick={() => setSearchQuery("")}
-                        className="mt-2 text-[9px] text-blue-600 font-bold underline"
-                      >
-                        Clear search
-                      </button>
-                    </>
-                  ) : (
-                    <p className="text-[10px] font-bold text-slate-400 italic">No career paths available for this department.</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
-            <button 
-              onClick={() => router.push('/pages/contact')}
-              className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
-            >
-              <FiMessageCircle size={12} />
-              Career Counseling
-            </button>
-            <button 
-              onClick={() => setIsExpanded(false)}
-              className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl font-black text-[9px] uppercase tracking-widest transition-colors"
-            >
-              Collapse
-            </button>
-          </div>
         </div>
+
+        {/* MAPPING ENGINE */}
+        {filteredDepartments.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredDepartments.map((deptData, index) => (
+              <ModernCareerDepartmentCard 
+                key={deptData.department || index} 
+                data={deptData} 
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="py-20 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
+            <FiBriefcase className="mx-auto text-slate-300 mb-4" size={40} />
+            <p className="text-slate-400 font-bold italic text-sm">
+              No departments found matching "{globalSearch}"
+            </p>
+            <button 
+              onClick={() => setGlobalSearch("")}
+              className="mt-4 text-blue-600 font-black text-[10px] uppercase tracking-widest underline"
+            >
+              Clear Search
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -687,23 +618,6 @@ const SubjectCard = ({ subject, index }) => {
   );
 };
 
-// Department Card Component
-const DepartmentCard = ({ department, index }) => {
-  const DepartmentIcon = getDepartmentIcon(department);
-
-  return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/70 p-4 transition-all duration-300">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="p-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-sm">
-          <DepartmentIcon className="text-white text-lg" />
-        </div>
-        <div>
-          <h4 className="font-bold text-gray-900">{department}</h4>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const ModernFeeCard = ({ 
   feeType, total, distribution = [], pdfPath, 
@@ -2504,7 +2418,7 @@ return (
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {careerDepartments.map((dept, index) => (
-          <ModernCareerDepartmentCard key={index} {...dept} />
+          <CareerDepartmentPages key={index} {...dept} />
         ))}
       </div>
     </div>
