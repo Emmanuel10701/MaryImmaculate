@@ -350,86 +350,88 @@ export default function TermsAndConditions() {
           )}
         </div>
 
-        {/* Modern Pagination */}
-        {filteredPages > 1 && (
-          <div className="sticky bottom-4 z-10">
-            <div className="bg-white/95 backdrop-blur-lg rounded-2xl border border-slate-200 shadow-xl p-4 max-w-2xl mx-auto">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                {/* Page Info */}
-                <div className="text-center sm:text-left">
-                  <div className="text-sm font-medium text-slate-700">Showing page {currentPage} of {filteredPages}</div>
-                  <div className="text-xs text-slate-500">{filteredTerms.length} total rules found</div>
-                </div>
-
-                {/* Page Numbers */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="p-2 rounded-lg border border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: Math.min(5, filteredPages) }, (_, i) => {
-                      let pageNum;
-                      if (filteredPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= filteredPages - 2) {
-                        pageNum = filteredPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
-                      
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => handlePageChange(pageNum)}
-                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-bold transition-all ${
-                            currentPage === pageNum
-                              ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg'
-                              : 'text-slate-700 hover:bg-slate-100'
-                          }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  
-                  <button
-                    onClick={() => handlePageChange(Math.min(filteredPages, currentPage + 1))}
-                    disabled={currentPage === filteredPages}
-                    className="p-2 rounded-lg border border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Quick Jump */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-slate-600">Go to:</span>
-                  <select
-                    value={currentPage}
-                    onChange={(e) => handlePageChange(Number(e.target.value))}
-                    className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm bg-white"
-                  >
-                    {Array.from({ length: filteredPages }, (_, i) => i + 1).map(page => (
-                      <option key={page} value={page}>Page {page}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
+     {/* Modern Pagination */}
+{filteredPages > 1 && (
+  <div className="sticky bottom-4 z-10 px-4">
+    <div className="bg-white/95 backdrop-blur-lg rounded-2xl border border-slate-200 shadow-xl p-4 max-w-2xl mx-auto">
+      {/* Container: Stacked on Mobile (col), Row on Desktop (sm:row) */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-4">
+        
+        {/* 1. Page Info - Smaller text on mobile */}
+        <div className="text-center sm:text-left shrink-0">
+          <div className="text-[11px] sm:text-sm font-black text-slate-800 uppercase tracking-tight">
+            Page {currentPage} of {filteredPages}
           </div>
-        )}
+          <div className="text-[10px] sm:text-xs text-slate-500 font-medium">
+            {filteredTerms.length} Rules available
+          </div>
+        </div>
+
+        {/* 2. Page Numbers - Reduced gap on mobile to fit */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="p-1.5 sm:p-2 rounded-lg border border-slate-200 disabled:opacity-30 hover:bg-slate-50 transition-colors"
+          >
+            <FiChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+          
+          <div className="flex items-center gap-1">
+            {Array.from({ length: Math.min(filteredPages > 4 ? 3 : 5, filteredPages) }, (_, i) => {
+              // Logic for page numbering stays the same, but we show fewer on tiny screens
+              let pageNum;
+              if (filteredPages <= 5) pageNum = i + 1;
+              else if (currentPage <= 3) pageNum = i + 1;
+              else if (currentPage >= filteredPages - 2) pageNum = filteredPages - 4 + i;
+              else pageNum = currentPage - 2 + i;
+              
+              if (!pageNum) return null;
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg text-[11px] sm:text-sm font-black transition-all ${
+                    currentPage === pageNum
+                      ? 'bg-slate-900 text-white shadow-md scale-105'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+          </div>
+          
+          <button
+            onClick={() => handlePageChange(Math.min(filteredPages, currentPage + 1))}
+            disabled={currentPage === filteredPages}
+            className="p-1.5 sm:p-2 rounded-lg border border-slate-200 disabled:opacity-30 hover:bg-slate-50 transition-colors"
+          >
+            <FiChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
+
+        {/* 3. Quick Jump - Hidden on very small screens or moved to a neat row */}
+        <div className="flex items-center gap-2 border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0 w-full sm:w-auto justify-center">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Jump:</span>
+          <select
+            value={currentPage}
+            onChange={(e) => handlePageChange(Number(e.target.value))}
+            className="pl-2 pr-8 py-1.5 border border-slate-200 rounded-lg text-[11px] font-bold bg-slate-50 focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none cursor-pointer"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='Length19l-7 7-7-7' /%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1em' }}
+          >
+            {Array.from({ length: filteredPages }, (_, i) => i + 1).map(page => (
+              <option key={page} value={page}>P. {page}</option>
+            ))}
+          </select>
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
 
         {/* Footer */}
         <div className="mt-12 pt-8 border-t border-slate-200">
