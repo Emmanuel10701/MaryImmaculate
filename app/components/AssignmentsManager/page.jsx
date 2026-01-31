@@ -968,6 +968,41 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
     }
   };
 
+
+
+   // Calculate total size whenever files change
+useEffect(() => {
+  let totalBytes = 0;
+  
+  // Add assignment files size
+  assignmentFiles.forEach(file => {
+    if (file.file && file.file.size) {
+      totalBytes += file.file.size;
+    } else if (file.size && typeof file.size === 'number') {
+      totalBytes += file.size;
+    }
+  });
+  
+  // Add attachments size
+  attachments.forEach(file => {
+    if (file.file && file.file.size) {
+      totalBytes += file.file.size;
+    } else if (file.size && typeof file.size === 'number') {
+      totalBytes += file.size;
+    }
+  });
+  
+  const totalMB = totalBytes / (1024 * 1024);
+  setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
+  
+  // Check if exceeds Vercel's 4.5MB limit
+  if (totalMB > 4.5) {
+    setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's 4.5MB limit`);
+  } else {
+    setFileSizeError('');
+  }
+}, [assignmentFiles, attachments]);
+ 
   const handleRemoveObjective = (index) => {
     setLearningObjectives(prev => prev.filter((_, i) => i !== index));
   };
@@ -1999,38 +2034,6 @@ export default function AssignmentsManager() {
     fetchAssignments();
   }, []);
 
-  // Calculate total size whenever files change
-useEffect(() => {
-  let totalBytes = 0;
-  
-  // Add assignment files size
-  assignmentFiles.forEach(file => {
-    if (file.file && file.file.size) {
-      totalBytes += file.file.size;
-    } else if (file.size && typeof file.size === 'number') {
-      totalBytes += file.size;
-    }
-  });
-  
-  // Add attachments size
-  attachments.forEach(file => {
-    if (file.file && file.file.size) {
-      totalBytes += file.file.size;
-    } else if (file.size && typeof file.size === 'number') {
-      totalBytes += file.size;
-    }
-  });
-  
-  const totalMB = totalBytes / (1024 * 1024);
-  setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
-  
-  // Check if exceeds Vercel's 4.5MB limit
-  if (totalMB > 4.5) {
-    setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's 4.5MB limit`);
-  } else {
-    setFileSizeError('');
-  }
-}, [assignmentFiles, attachments]);
 
 
   // Filter assignments
