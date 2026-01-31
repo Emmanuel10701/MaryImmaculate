@@ -100,26 +100,27 @@ export default function StudentLoginModal({
   };
 
   // Updated with Kamba names
-  const studentExamples = [
-    { name: "Musau Mwanzia Mutuku", admission: "2903" },
-    { name: "Mwende Mumbua Kalondu", admission: "2902" },
-    { name: "Mwikali Kasimu", admission: "1234" },
-    { name: "Mutinda Kitheka", admission: "5678" },
-    { name: "Kalondu Mutua", admission: "9012" }
-  ];
+const studentExamples = [
+  { name: "Mary Wambui", admission: "2903" },
+  { name: "Susan Wanjiku", admission: "2902" },
+  { name: "Jane Njoki", admission: "1234" },
+  { name: "Grace Mumbi", admission: "5678" },
+  { name: "Esther Wangui", admission: "9012" }
+];
 
-  const nameFormats = [
-    "Musau Mutuku",
-    "Musau Mwanzia Mutuku", 
-    "MUSAU MUTUKU",
-    "musau mutuku",
-    "M. Mutuku",
-    "Mutuku Musau",
-    "Mwanzia Mutuku",
-    "Mwende Mumbua",
-    "Mumbua Kalondu",
-    "Mwikali Kasimu"
-  ];
+// Change the name formats array (around line 160):
+const nameFormats = [
+  "Mary Wambui",
+  "Mary W. Wambui", 
+  "MARY WAMBUI",
+  "mary wambui",
+  "M. Wambui",
+  "Wambui Mary",
+  "Susan Wanjiku",
+  "Susan W. Wanjiku",
+  "Jane Njoki",
+  "Grace Mumbi"
+];
 
   return (
     <div 
@@ -260,11 +261,11 @@ export default function StudentLoginModal({
                   </span>
                 </div>
                 <input
-                  type="text"
+              type="text"
                   value={formData.fullName}
                   onChange={(e) => handleInputChange('fullName', e.target.value)}
-                  placeholder="Examples: Musau Mutuku, MUSAU MUTUKU, M. Mutuku, Mutuku Musau"
-                  className={`
+                  placeholder="Examples: Mary Wambui, MARY WAMBUI, M. Wambui, Wambui Mary"
+                                  className={`
                     w-full px-3 py-2.5 sm:px-4 sm:py-3 
                     border-[3px] rounded-xl
                     focus:ring-2 focus:ring-blue-500/40 focus:border-blue-600 
