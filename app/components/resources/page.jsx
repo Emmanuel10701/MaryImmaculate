@@ -827,34 +827,33 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
   const [totalSizeMB, setTotalSizeMB] = useState(0); // Total file size in MB
   const [fileSizeError, setFileSizeError] = useState(''); // Size error message
 
-  // Add this useEffect to properly initialize existingFiles
-  useEffect(() => {
-    if (resource?.files) {
-      try {
-        // Handle different file formats
-        const filesArray = Array.isArray(resource.files) ? resource.files : [];
-        const formattedFiles = filesArray.map(file => {
-          // Ensure each file has required properties
-          const fileName = file.name || (typeof file === 'string' ? file : 'Unknown');
-          const fileUrl = file.url || (typeof file === 'string' ? file : '');
-          
-          return {
-            url: fileUrl,
-            name: fileName,
-            size: file.size || 0,
-            extension: file.extension || fileName.split('.').pop()?.toLowerCase() || 'unknown',
-            uploadedAt: file.uploadedAt || new Date().toISOString()
-          };
-        });
+// ✅ THIS IS ALREADY IN ModernResourceModal:
+useEffect(() => {
+  if (resource?.files) {
+    try {
+      // Handle different file formats
+      const filesArray = Array.isArray(resource.files) ? resource.files : [];
+      const formattedFiles = filesArray.map(file => {
+        // Ensure each file has required properties
+        const fileName = file.name || (typeof file === 'string' ? file : 'Unknown');
+        const fileUrl = file.url || (typeof file === 'string' ? file : '');
         
-        setExistingFiles(formattedFiles);
-      } catch (error) {
-        console.error('Error parsing resource files:', error);
-        setExistingFiles([]);
-      }
+        return {
+          url: fileUrl,
+          name: fileName,
+          size: file.size || 0,
+          extension: file.extension || fileName.split('.').pop()?.toLowerCase() || 'unknown',
+          uploadedAt: file.uploadedAt || new Date().toISOString()
+        };
+      });
+      
+      setExistingFiles(formattedFiles);
+    } catch (error) {
+      console.error('Error parsing resource files:', error);
+      setExistingFiles([]);
     }
-  }, [resource]);
-
+  }
+}, [resource]);
 
   // Disable submit button based on conditions
   const isSubmitDisabled = 
