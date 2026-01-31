@@ -827,7 +827,7 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
   const [totalSizeMB, setTotalSizeMB] = useState(0); // Total file size in MB
   const [fileSizeError, setFileSizeError] = useState(''); // Size error message
 
-// ✅ THIS IS ALREADY IN ModernResourceModal:
+// ✅ THIS IS ALREADY IN ModernResourceModal (lines 1139-1163):
 useEffect(() => {
   if (resource?.files) {
     try {
@@ -854,7 +854,6 @@ useEffect(() => {
     }
   }
 }, [resource]);
-
   // Disable submit button based on conditions
   const isSubmitDisabled = 
     loading || 
@@ -1709,28 +1708,6 @@ export default function ResourcesManager() {
     });
   };
 
-// ❌ THIS useEffect IS USING 'resource' BUT IT'S NOT DEFINED IN ResourcesManager
-useEffect(() => {
-  if (resource?.files) {
-    try {
-      const filesArray = Array.isArray(resource.files) ? resource.files : [];
-      const formattedFiles = filesArray.map(file => {
-        return {
-          url: file.url || (typeof file === 'string' ? file : ''),
-          name: file.name || (typeof file === 'string' ? file : 'Unknown'),
-          size: file.size || 0,
-          extension: file.extension || (file.name ? file.name.split('.').pop()?.toLowerCase() : 'unknown'),
-          uploadedAt: file.uploadedAt || new Date().toISOString()
-        };
-      });
-      
-      setExistingFiles(formattedFiles);
-    } catch (error) {
-      console.error('Error parsing resource files:', error);
-      setExistingFiles([]);
-    }
-  }
-}, [resource]);
 
 
   // Map API data to our component structure
@@ -1917,28 +1894,6 @@ useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, selectedType, selectedSubject, selectedCategory, selectedClass, selectedAccessLevel, selectedStatus, resources]);
 
-
-useEffect(() => {
-  if (resource?.files) {
-    try {
-      const filesArray = Array.isArray(resource.files) ? resource.files : [];
-      const formattedFiles = filesArray.map(file => {
-        return {
-          url: file.url || (typeof file === 'string' ? file : ''),
-          name: file.name || (typeof file === 'string' ? file : 'Unknown'),
-          size: file.size || 0,
-          extension: file.extension || (file.name ? file.name.split('.').pop()?.toLowerCase() : 'unknown'),
-          uploadedAt: file.uploadedAt || new Date().toISOString()
-        };
-      });
-      
-      setExistingFiles(formattedFiles);
-    } catch (error) {
-      console.error('Error parsing resource files:', error);
-      setExistingFiles([]);
-    }
-  }
-}, [resource]);
 
 
   // Pagination
