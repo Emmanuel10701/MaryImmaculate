@@ -2369,7 +2369,6 @@ return (
           <div className="text-white font-black tracking-tighter tabular-nums">
             {/* Mobile Format: 23rd 09/2025 */}
             <span className="block md:hidden text-[13px]">
-            // In the mobile format for Year Closes:
 {new Date(schoolData.closeDate).getDate()}
 {getOrdinal(new Date(schoolData.closeDate).getDate())} {new Date(schoolData.closeDate).toLocaleDateString('en-GB', { month: '2-digit', year: 'numeric' })}
             </span>
