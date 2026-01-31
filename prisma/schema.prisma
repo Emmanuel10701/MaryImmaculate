@@ -354,7 +354,7 @@ model AdmissionApplication {
   constituency           String
   ward                   String
   village                String?
-  email                  String?   @unique
+  email                  String?
   phone                  String? // Changed to optional
   alternativePhone       String?
   postalAddress          String
