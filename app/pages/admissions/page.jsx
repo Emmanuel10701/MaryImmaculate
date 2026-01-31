@@ -2004,10 +2004,16 @@ export default function ComprehensiveAdmissions() {
                      active:scale-95 disabled:opacity-50"
         >
           {loading ? (
-            <>
-              <CircularProgress size={12} thickness={6} sx={{ color: '#3b82f6' }} />
-              <span>Refreshing...</span>
-            </>
+          <>
+  <CircularProgress 
+    size={12} 
+    thickness={6} 
+    sx={{ color: '#ffffff' }} // Pure White
+  />
+  <span className="text-white font-black uppercase tracking-widest text-[10px]">
+    Refreshing...
+  </span>
+</>
           ) : (
             <>
               <FiRefreshCw className={`text-xs md:text-base ${loading ? 'animate-spin' : ''}`} />
