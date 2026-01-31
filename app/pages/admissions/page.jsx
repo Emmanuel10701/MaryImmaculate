@@ -85,7 +85,8 @@ import {
   FiCoffee,
   FiChef,
   FiMusic as FiMusicIcon,
-  FiArrowUpRight,  FiChevronLeft 
+  FiArrowUpRight,
+   FiChevronLeft 
 } from 'react-icons/fi';
 import { 
   IoSchoolOutline,
