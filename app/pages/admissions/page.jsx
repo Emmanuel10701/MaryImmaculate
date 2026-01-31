@@ -906,7 +906,7 @@ const AdmissionPathCard = ({ path, onApply, index }) => {
 
         {/* Floating Title on Image for Mobile */}
         <div className="absolute bottom-4 left-4 right-4 md:hidden">
-            <h3 className="font-black text-white text-xl tracking-tight leading-none uppercase italic">
+            <h3 className="font-black text-white text-lg tracking-tight leading-none  italic">
                 {path.title}
             </h3>
         </div>
@@ -921,20 +921,20 @@ const AdmissionPathCard = ({ path, onApply, index }) => {
                {path.icon({ className: `text-2xl text-${themeColor}-600` })}
             </div>
           </div>
-          <h3 className="font-black text-slate-800 text-3xl tracking-tighter uppercase leading-none">
+          <h3 className="font-black text-slate-800 text-lg tracking-tighter uppercase leading-none">
             {path.title}
           </h3>
         </div>
 
-        <p className="text-slate-500 text-[13px] md:text-base font-bold leading-relaxed mb-6">
+        <p className="text-slate-500 text-md md:text-base font-bold leading-relaxed mb-6">
           {path.description}
         </p>
 
         {/* Features: Compact on Mobile */}
         <div className="grid grid-cols-1 gap-2 md:gap-3 mb-8">
           {path.features.slice(0, 3).map((feature, idx) => (
-            <div key={idx} className="flex items-center gap-3 text-[12px] md:text-sm text-slate-700 font-black uppercase tracking-tight bg-slate-50 p-3 rounded-xl border border-slate-100">
-              <IoCheckmarkCircle className={`text-${themeColor}-500 text-lg shrink-0`} />
+            <div key={idx} className="flex items-center gap-3 text-md md:text-sm text-slate-700 font-black uppercase tracking-tight bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <IoCheckmarkCircle className={`text-${themeColor}-500 text-md shrink-0`} />
               <span className="truncate">{feature}</span>
             </div>
           ))}
@@ -954,7 +954,7 @@ const AdmissionPathCard = ({ path, onApply, index }) => {
             </div>
             
             {/* Price/Fee Tag (Optional addition) */}
-            <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase">
+            <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase">
               Apply Today
             </span>
           </div>
@@ -2483,7 +2483,7 @@ return (
         Your <span className="text-blue-600">Future</span> Starts Here
       </h3>
       {/* Added additional line of description below */}
-      <p className="text-slate-500 text-sm md:text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
+      <p className="text-slate-500 text-sm md:text-md max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
         Select the enrollment track that matches your goals. <br className="hidden md:block" />
         Join a community dedicated to academic excellence and character development.
       </p>
