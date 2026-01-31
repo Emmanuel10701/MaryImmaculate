@@ -577,16 +577,24 @@ const CareerSearchPage = () => {
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-bold">
-                          {dept.careerPaths.length} careers
-                        </span>
-                        {isExpanded ? (
-                          <FiChevronUp className="text-slate-400" />
-                        ) : (
-                          <FiChevronDown className="text-slate-400" />
-                        )}
-                      </div>
+                  <div className="flex items-center gap-3">
+  {/* Career Count Badge - Modern Pill Style */}
+  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 border border-blue-100 rounded-full shadow-sm">
+    <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" /> {/* Active indicator dot */}
+    <span className="text-[10px] md:text-xs font-black text-blue-700 uppercase tracking-tight">
+      {dept.careerPaths.length} <span className="hidden xs:inline">Pathways</span>
+      <span className="xs:hidden">Paths</span>
+    </span>
+  </div>
+
+  {/* Interactive Toggle Circle */}
+  <div className={`
+    w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300
+    ${isExpanded ? 'bg-slate-900 text-white shadow-lg rotate-180' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}
+  `}>
+    <FiChevronDown size={16} strokeWidth={3} />
+  </div>
+</div>
                     </button>
 
                     {/* Department Description (Always visible) */}
