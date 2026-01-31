@@ -932,34 +932,8 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
   }, [assignment]);
 
   // Calculate total file size whenever files change
-  useEffect(() => {
-    let totalBytes = 0;
-    
-    // Add size of new assignment files
-    assignmentFiles.forEach(file => {
-      if (file.file && file.file.size && !file.isExisting) {
-        totalBytes += file.file.size;
-      }
-    });
-    
-    // Add size of new attachments
-    attachments.forEach(file => {
-      if (file.file && file.file.size && !file.isExisting) {
-        totalBytes += file.file.size;
-      }
-    });
-    
-    const totalMB = totalBytes / (1024 * 1024);
-    setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
-    
-    // Check Vercel's 4.5MB limit
-    const VERCEL_LIMIT_MB = 4.5;
-    if (totalMB > VERCEL_LIMIT_MB) {
-      setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's ${VERCEL_LIMIT_MB}MB limit`);
-    } else {
-      setFileSizeError('');
-    }
-  }, [assignmentFiles, attachments]);
+
+
 
   const handleAddObjective = () => {
     if (newObjective.trim()) {
