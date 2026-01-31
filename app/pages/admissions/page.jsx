@@ -376,7 +376,7 @@ const CareerPortalModal = ({ isOpen, onClose, data }) => {
 const ModernEducationSystemCard = ({ system, icon: Icon, color, description, features, structure, advantages }) => {
   return (
     /* Removed p-2 on mobile so the card is edge-to-edge; kept rounded for desktop */
-    <div className="group relative bg-slate-50 md:rounded-[2.5rem] p-0 md:p-2 transition-all duration-500 hover:shadow-2xl">
+    <div className="group relative bg-slate-50 md:rounded-[2.5rem] p-0 md:p-2 ">
       {/* Outer Glow Effect - Hidden on mobile to keep edge clean */}
       <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 md:rounded-[2.5rem] hidden md:block`} />
       
