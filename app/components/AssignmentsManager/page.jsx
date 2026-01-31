@@ -1627,136 +1627,145 @@ useEffect(() => {
                 </div>
               </div>
 
-              {/* Assignment Files Upload */}
-              <div className="mb-6">
-                <label className="block text-base font-bold text-gray-800 mb-3">
-                  Assignment Resources
-                </label>
-                <div className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
-                  loading || totalSizeMB > 4.5
-                    ? 'border-gray-300 bg-gray-100 cursor-not-allowed'
-                    : 'border-blue-300 bg-blue-50/30 hover:border-blue-400 hover:bg-blue-50'
-                }`}
-                     onClick={() => !loading && totalSizeMB <= 4.5 && document.getElementById('assignment-files').click()}>
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleAssignmentFileChange}
-                    className="hidden"
-                    id="assignment-files"
-                    disabled={loading || totalSizeMB > 4.5}
-                  />
-                  <FiUpload className="text-3xl text-blue-500 mx-auto mb-3" />
-                  <p className="text-gray-700 font-medium mb-2">
-                    {totalSizeMB > 4.5 ? 'Storage Full' : 'Click to upload assignment files'}
+      {/* Modern Assignment Resource Manager */}
+<div className="space-y-6">
+  
+  {/* Header Section */}
+  <div className="flex items-center justify-between">
+    <label className="text-sm font-black uppercase tracking-[0.15em] text-slate-500 ml-1">
+      Assignment Resources
+    </label>
+    <div className="flex items-center gap-2">
+      <span className={`text-[11px] font-bold ${totalSizeMB > 4.5 ? 'text-red-500' : 'text-slate-400'}`}>
+        {totalSizeMB.toFixed(1)}MB / 4.5MB
+      </span>
+    </div>
+  </div>
+
+  {/* Vercel Size Warning - Glassmorphism Style */}
+  {totalSizeMB > 4.5 && (
+    <div className="p-4 bg-red-50/50 border border-red-100 rounded-2xl animate-in fade-in zoom-in duration-300">
+      <div className="flex items-center gap-4">
+        <div className="p-2 bg-red-500 text-white rounded-lg shadow-lg shadow-red-200">
+          <FiAlertCircle size={20} />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-black text-red-900">Storage Limit Exceeded</p>
+          <p className="text-xs text-red-700 font-medium">Please remove some files to proceed with the upload.</p>
+        </div>
+        <button
+          onClick={() => { setFiles([]); setFilesToRemove([]); }}
+          className="px-4 py-2 bg-white text-red-600 text-xs font-black uppercase tracking-wider rounded-xl border border-red-100 shadow-sm hover:bg-red-50 transition-all"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+  )}
+
+  {/* Size Progress Bar - Modern Slim Design */}
+  <div className="relative w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+    <div 
+      className={`absolute top-0 left-0 h-full transition-all duration-500 ease-out ${
+        totalSizeMB > 4.5 ? 'bg-red-500' : totalSizeMB > 3.5 ? 'bg-amber-500' : 'bg-indigo-600'
+      }`}
+      style={{ width: `${Math.min((totalSizeMB / 4.5) * 100, 100)}%` }}
+    />
+  </div>
+
+  {/* Modern Dropzone Area */}
+  <div className="relative group">
+    <input
+      type="file"
+      multiple
+      onChange={handleAssignmentFileChange}
+      className="hidden"
+      id="assignment-files"
+      disabled={loading || totalSizeMB > 4.5}
+    />
+    <label 
+      htmlFor="assignment-files" 
+      className={`cursor-pointer w-full py-12 border-2 border-dashed rounded-[32px] flex flex-col items-center justify-center text-center px-6 transition-all duration-300 ${
+        totalSizeMB > 4.5
+          ? 'border-slate-200 bg-slate-50/50 opacity-50 cursor-not-allowed'
+          : 'border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/30'
+      }`}
+    >
+      <div className={`p-5 rounded-3xl mb-4 transition-all duration-300 ${
+        totalSizeMB > 4.5 
+          ? 'bg-slate-100 text-slate-400' 
+          : 'bg-slate-50 text-indigo-600 group-hover:scale-110 group-hover:bg-white group-hover:shadow-xl group-hover:shadow-indigo-100'
+      }`}>
+        <FiUpload size={32} />
+      </div>
+      <p className={`text-lg font-black tracking-tight mb-1 ${totalSizeMB > 4.5 ? 'text-slate-400' : 'text-slate-900'}`}>
+        {totalSizeMB > 4.5 ? 'Storage Capacity Reached' : 'Drop resources here'}
+      </p>
+      <p className="text-slate-500 text-sm font-medium">
+        Support PDF, DOCX, PPT, or Images up to 10MB
+      </p>
+    </label>
+  </div>
+
+  {/* Asset List Section */}
+  {(assignmentFiles.length > 0 || attachments.length > 0) && (
+    <div className="pt-4 space-y-4">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="h-px flex-1 bg-slate-100" />
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+          Managed Assets ({assignmentFiles.length + attachments.length})
+        </span>
+        <div className="h-px flex-1 bg-slate-100" />
+      </div>
+
+      <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+        {/* Unified File Component */}
+        {[...assignmentFiles, ...attachments].map((file, idx) => {
+          const isExisting = file.isExisting;
+          const fileSize = file.size ? (file.size / (1024 * 1024)).toFixed(1) : '0.0';
+
+          return (
+            <div 
+              key={file.id || idx} 
+              className="group flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-indigo-200 hover:shadow-md hover:shadow-indigo-50/50 transition-all duration-200"
+            >
+              <div className="flex items-center gap-4 min-w-0">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  isExisting ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'
+                }`}>
+                  {file.type?.includes('image') ? <FiUpload /> : <FiFileText size={20} />}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-slate-800 truncate pr-4">
+                    {file.name}
                   </p>
-                  <p className="text-gray-500 text-sm">
-                    PDF, DOCX, PPT, or Images (max 10MB each)
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                      isExisting ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'
+                    }`}>
+                      {isExisting ? 'Cloud' : 'New'}
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-400">
+                      {fileSize} MB
+                    </span>
+                  </div>
                 </div>
               </div>
-
-              {/* Attachments Upload */}
-              <div className="mb-6">
-                <label className="block text-base font-bold text-gray-800 mb-3">
-                  Additional Attachments
-                </label>
-                <div className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
-                  loading || totalSizeMB > 4.5
-                    ? 'border-gray-300 bg-gray-100 cursor-not-allowed'
-                    : 'border-purple-300 bg-purple-50/30 hover:border-purple-400 hover:bg-purple-50'
-                }`}
-                     onClick={() => !loading && totalSizeMB <= 4.5 && document.getElementById('attachments').click()}>
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleAttachmentFileChange}
-                    className="hidden"
-                    id="attachments"
-                    disabled={loading || totalSizeMB > 4.5}
-                  />
-                  <FiPaperclip className="text-3xl text-purple-500 mx-auto mb-3" />
-                  <p className="text-gray-700 font-medium mb-2">
-                    {totalSizeMB > 4.5 ? 'Storage Full' : 'Click to upload attachments'}
-                  </p>
-                  <p className="text-gray-500 text-sm">
-                    Supporting documents (max 10MB each)
-                  </p>
-                </div>
-              </div>
-
-              {/* File Lists */}
-              {(assignmentFiles.length > 0 || attachments.length > 0) && (
-                <div className="space-y-4">
-                  {/* Assignment Files List */}
-                  {assignmentFiles.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-bold text-gray-700 mb-2">
-                        Assignment Files ({assignmentFiles.length})
-                      </h4>
-                      <div className="space-y-2 max-h-40 overflow-y-auto">
-                        {assignmentFiles.map((file) => (
-                          <div key={file.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
-                            <div className="flex items-center gap-3">
-                              <FiFileText className="text-blue-500" />
-                              <div className="min-w-0">
-                                <p className="text-sm font-medium text-gray-800 truncate max-w-xs">
-                                  {file.name}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {file.isExisting ? 'Existing file' : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
-                                </p>
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeAssignmentFile(file.id)}
-                              className="text-red-500 hover:text-red-700 p-1"
-                              disabled={loading}
-                            >
-                              <FiX />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Attachments List */}
-                  {attachments.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-bold text-gray-700 mb-2">
-                        Attachments ({attachments.length})
-                      </h4>
-                      <div className="space-y-2 max-h-40 overflow-y-auto">
-                        {attachments.map((file) => (
-                          <div key={file.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
-                            <div className="flex items-center gap-3">
-                              <FiPaperclip className="text-purple-500" />
-                              <div className="min-w-0">
-                                <p className="text-sm font-medium text-gray-800 truncate max-w-xs">
-                                  {file.name}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {file.isExisting ? 'Existing attachment' : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
-                                </p>
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeAttachment(file.id)}
-                              className="text-red-500 hover:text-red-700 p-1"
-                              disabled={loading}
-                            >
-                              <FiX />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+              
+              <button
+                type="button"
+                onClick={() => isExisting ? removeAttachment(file.id) : removeAssignmentFile(file.id)}
+                className="p-2.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  )}
+</div>
             </div>
 
             {/* Form Actions */}
