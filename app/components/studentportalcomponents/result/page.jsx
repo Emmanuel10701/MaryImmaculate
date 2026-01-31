@@ -457,7 +457,31 @@ function ResultCard({ result, studentAdmissionNumber, onViewSubjects }) {
   );
 }
 
-// Update the DocumentCard component to handle different file types properly
+// Add this helper function to convert Cloudinary URLs for proper PDF display
+const getDisplayablePdfUrl = (url) => {
+  if (!url) return url;
+  
+  // Check if it's a Cloudinary URL
+  if (url.includes('cloudinary.com') && url.includes('/raw/upload/')) {
+    // Remove any existing flags and add fl_attachment for PDF display
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    
+    // Check if it's a PDF file
+    if (pathname.toLowerCase().endsWith('.pdf')) {
+      // Add fl_attachment flag to force browser to display PDF instead of download
+      if (url.includes('?')) {
+        return `${url}&fl_attachment`;
+      } else {
+        return `${url}?fl_attachment`;
+      }
+    }
+  }
+  
+  return url;
+};
+
+// Update the DocumentCard component to use this function
 function DocumentCard({ document, type = 'additional' }) {
   const getIcon = () => {
     const iconBase = "text-lg sm:text-xl md:text-2xl";
@@ -469,7 +493,7 @@ function DocumentCard({ document, type = 'additional' }) {
     if (fileExtension === 'pdf' || type === 'exam') {
       return <FiFileText className={`${iconBase} text-rose-500`} />;
     } else if (fileExtension === 'docx' || fileExtension === 'doc') {
-      return <FiFileText className={`${iconBase} text-blue-500`} />; // Blue for Word docs
+      return <FiFileText className={`${iconBase} text-blue-500`} />;
     } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif') {
       return <FiImage className={`${iconBase} text-emerald-500`} />;
     }
@@ -506,6 +530,12 @@ function DocumentCard({ document, type = 'additional' }) {
     return 'Document';
   };
 
+  // Get the displayable URL
+  const displayUrl = getDisplayablePdfUrl(document.pdf || document.filepath);
+  const fileName = document.name || document.filename || '';
+  const fileExtension = fileName.split('.').pop().toLowerCase();
+  const isPdf = fileExtension === 'pdf';
+
   return (
     <div className="group relative bg-white rounded-2xl p-3 sm:p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
       
@@ -518,7 +548,7 @@ function DocumentCard({ document, type = 'additional' }) {
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start">
             <h5 className="font-bold text-gray-800 text-sm sm:text-base leading-tight truncate pr-1">
-              {document.name || document.filename}
+              {fileName}
             </h5>
             {document.year && (
               <span className="flex-shrink-0 text-[10px] xs:text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full ml-1">
@@ -560,34 +590,36 @@ function DocumentCard({ document, type = 'additional' }) {
         </div>
       )}
 
-      {/* Action Button - Updated to handle different file types */}
+      {/* Action Button - Updated with proper PDF handling */}
       <div className="mt-3 sm:mt-4">
-        <a
-          href={document.pdf || document.filepath}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1 sm:gap-2 w-full py-2 px-3 sm:py-2.5 sm:px-4 bg-gray-900 hover:bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 shadow-md hover:shadow-blue-500/25 active:scale-[0.98]"
-          onClick={(e) => {
-            // For DOCX files, we might need to handle them differently
-            const fileName = document.name || document.filename || '';
-            const fileExtension = fileName.split('.').pop().toLowerCase();
-            
-            if (fileExtension === 'docx' || fileExtension === 'doc') {
-              // For Word documents, we can add a download attribute
-              e.currentTarget.setAttribute('download', fileName);
-              // Or open in a new tab if you want preview
-              window.open(document.pdf || document.filepath, '_blank');
-            }
-            // For PDFs, they should open normally in the browser
-          }}
-        >
-          <span>{
-            (document.name || document.filename || '').toLowerCase().endsWith('.docx') 
-              ? 'Download Document' 
-              : 'View Document'
-          }</span>
-          <FiExternalLink className="text-xs sm:text-sm" />
-        </a>
+        {isPdf ? (
+          // For PDFs: Open in new tab with proper Cloudinary flags
+          <button
+            onClick={() => {
+              // Force PDF to open in browser tab
+              const pdfWindow = window.open();
+              if (pdfWindow) {
+                pdfWindow.location.href = displayUrl;
+              }
+            }}
+            className="flex items-center justify-center gap-1 sm:gap-2 w-full py-2 px-3 sm:py-2.5 sm:px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 shadow-md hover:shadow-rose-500/25 active:scale-[0.98]"
+          >
+            <FiEye className="text-xs sm:text-sm" />
+            <span>View PDF</span>
+          </button>
+        ) : (
+          // For non-PDF files (DOCX, etc.)
+          <a
+            href={displayUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            download={!isPdf} // Download for non-PDF files
+            className="flex items-center justify-center gap-1 sm:gap-2 w-full py-2 px-3 sm:py-2.5 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 shadow-md hover:shadow-blue-500/25 active:scale-[0.98]"
+          >
+            <FiDownload className="text-xs sm:text-sm" />
+            <span>Download File</span>
+          </a>
+        )}
       </div>
     </div>
   );
