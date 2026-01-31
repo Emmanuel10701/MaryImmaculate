@@ -153,21 +153,21 @@ const ModernCareerDepartmentCard = ({ department, icon: Icon, color, subjects, c
     <>
       <div 
         onClick={() => setIsModalOpen(true)}
-        className="group relative bg-white rounded-[2rem] border border-slate-200/60 p-4 md:p-7 cursor-pointer transition-all active:scale-95"
+        className="group relative bg-white rounded-[2rem] border border-slate-200 p-6 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-blue-200 active:scale-95"
       >
-        <div className="flex flex-col gap-4 md:gap-5">
+        <div className="flex flex-col gap-5">
           {/* Icon Header */}
-          <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br ${color} p-0.5 shadow-md`}>
+          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} p-0.5 shadow-lg group-hover:rotate-3 transition-transform`}>
             <div className="w-full h-full bg-slate-900 rounded-[calc(1rem+2px)] flex items-center justify-center">
-              <Icon className="text-xl md:text-2xl text-white" />
+              <Icon className="text-2xl text-white" />
             </div>
           </div>
           
           <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase leading-tight">
+            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">
               {department}
             </h3>
-            <p className="text-slate-500 text-sm font-medium mt-2 line-clamp-2">
+            <p className="text-slate-500 text-xs md:text-sm font-bold mt-3 leading-relaxed line-clamp-2">
               {description}
             </p>
           </div>
@@ -175,19 +175,18 @@ const ModernCareerDepartmentCard = ({ department, icon: Icon, color, subjects, c
           {/* Quick Subject Tags */}
           <div className="flex flex-wrap gap-2">
             {subjects.slice(0, 3).map((s, i) => (
-              <span key={i} className="px-2 py-1 md:px-3 md:py-1 bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-wider rounded-md">
+              <span key={i} className="px-2 py-1 bg-slate-50 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-md border border-slate-100">
                 {s}
               </span>
             ))}
           </div>
 
-          <div className={`mt-2 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-${baseColor}-600`}>
+          <div className={`mt-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-${baseColor}-600 group-hover:gap-4 transition-all`}>
             Explore Careers <FiArrowRight />
           </div>
         </div>
       </div>
 
-      {/* Career Portal Modal - Centered with Dark Backdrop */}
       <CareerPortalModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
@@ -199,173 +198,118 @@ const ModernCareerDepartmentCard = ({ department, icon: Icon, color, subjects, c
 
 // Updated CareerPortalModal - Mobile Responsive with hidden scrollbar
 const CareerPortalModal = ({ isOpen, onClose, data }) => {
+  // Prevent background scrolling when modal is active
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
+
   if (!isOpen) return null;
-
-  // Function to limit text length
-  const truncateText = (text, maxLength = 120) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
-
-  // Function to truncate career examples
-  const truncateExamples = (examples, maxLength = 40) => {
-    if (examples.length <= maxLength) return examples;
-    return examples.substring(0, maxLength) + '...';
-  };
 
   return (
     <>
-      {/* Dark Backdrop */}
+      {/* Backdrop with high Z-index */}
       <div 
-        className="fixed inset-0  backdrop-blur-sm z-[100] animate-in fade-in duration-300"
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[999] animate-in fade-in duration-300"
         onClick={onClose}
       />
       
-      {/* Centered Modal Container */}
-      <div className="fixed inset-0 z-[101] flex items-center justify-center p-2 md:p-4 pointer-events-none">
-        {/* Modal Content - Mobile Responsive */}
+      {/* Container: Bottom-aligned on mobile (Drawer style), Centered on desktop */}
+      <div className="fixed inset-0 z-[1000] flex items-end md:items-center justify-center p-0 md:p-4 pointer-events-none">
         <div 
-          className="relative bg-white w-full max-w-full md:max-w-3xl max-h-[110vh] md:max-h-[100vh] overflow-y-auto rounded-xl md:rounded-[2rem] shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 pointer-events-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative bg-white w-full md:max-w-4xl h-[94vh] md:h-auto md:max-h-[90vh] overflow-hidden rounded-t-[2.5rem] md:rounded-[3rem] shadow-2xl animate-in slide-in-from-bottom-full duration-500 pointer-events-auto flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Modal Header Banner - Mobile Responsive */}
-          <div className={`relative h-32 md:h-40 bg-gradient-to-br ${data.color} p-4 md:p-8 flex items-end`}>
+          {/* Header Banner - Edge to Edge */}
+          <div className={`relative shrink-0 h-40 md:h-52 bg-gradient-to-br ${data.color} p-8 flex items-end overflow-hidden`}>
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-3xl rounded-full -mr-32 -mt-32" />
+            
             <button 
               onClick={onClose} 
-              className="absolute top-3 right-3 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 bg-black/30 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-all z-10"
+              className="absolute top-6 right-6 w-10 h-10 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center backdrop-blur-xl transition-all z-20"
             >
-              <FiX className="text-lg md:text-xl" />
+              <FiX className="text-xl" />
             </button>
             
-            <div className="relative z-10 flex items-center gap-3 md:gap-4 w-full">
-              <div className="p-2 md:p-3 bg-white/90 backdrop-blur-sm rounded-lg md:rounded-xl shadow-lg">
-                <data.Icon className={`text-xl md:text-2xl text-${data.baseColor}-600`} />
+            <div className="relative z-10 flex items-center gap-5">
+              <div className="p-3 bg-white rounded-2xl shadow-2xl rotate-3 group-hover:rotate-0 transition-transform">
+                <data.Icon className={`text-2xl md:text-3xl text-slate-900`} />
               </div>
               <div>
-                <span className="px-2 py-1 md:px-3 md:py-1 bg-black/30 backdrop-blur-md rounded-full text-white text-[10px] font-bold uppercase tracking-[0.2em] mb-2 inline-block">
+                <span className="px-2 py-0.5 bg-black/20 rounded-full text-white text-[9px] font-black uppercase tracking-[0.3em] mb-2 inline-block">
                   Career Portal
                 </span>
-                <h2 className="text-xl md:text-3xl font-black text-white tracking-tight leading-tight">
+                <h2 className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none">
                   {data.department}
                 </h2>
               </div>
             </div>
           </div>
 
-          {/* Modal Content - Mobile Responsive */}
-          <div className="p-4 md:p-8">
-            <div className="grid md:grid-cols-3 gap-4 md:gap-8">
+          {/* Scrollable Content Body */}
+          <div className="flex-1 overflow-y-auto p-6 md:p-12 scrollbar-hide">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
               
-              {/* Left Column: Overview & Subjects */}
-              <div className="md:col-span-1 space-y-4 md:space-y-6">
-                {/* Overview - Reduced Text */}
+              {/* Left Side: Stats & About */}
+              <div className="lg:col-span-1 space-y-8">
                 <div>
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
-                    Overview
-                  </h4>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {truncateText(data.description, 100)}
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Domain Focus</h4>
+                  <p className="text-slate-600 text-sm md:text-base leading-relaxed font-bold italic">
+                    "{data.description}"
                   </p>
                 </div>
                 
-                {/* Core Subjects - Compact Display */}
-                <div>
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
-                    Core Subjects
-                  </h4>
+                <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Core Prerequisites</h4>
                   <div className="flex flex-wrap gap-2">
-                    {data.subjects.slice(0, 4).map((s, i) => (
-                      <span 
-                        key={i} 
-                        className={`px-2 py-1 md:px-3 md:py-1.5 bg-${data.baseColor}-50 text-white rounded-lg text-xs font-semibold border border-${data.baseColor}-100`}
-                      >
+                    {data.subjects.map((s, i) => (
+                      <span key={i} className={`px-3 py-1.5 bg-white border border-slate-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-tight`}>
                         {s}
                       </span>
                     ))}
                   </div>
                 </div>
-
-                {/* Quick Stats */}
-                <div className="pt-4 border-t border-slate-100">
-                  <div className="flex justify-between text-xs text-slate-500 font-medium">
-                    <span>Career Paths:</span>
-                    <span className="font-bold text-slate-700">{data.careerPaths.length}</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-slate-500 font-medium mt-2">
-                    <span>Subjects:</span>
-                    <span className="font-bold text-slate-700">{data.subjects.length}</span>
-                  </div>
-                </div>
               </div>
 
-              {/* Right Column: Career Trajectories - Mobile Responsive */}
-              <div className="md:col-span-2">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">
-                  Career Pathways
-                </h4>
-                <div className="space-y-3">
-                  {data.careerPaths.slice(0, 4).map((career, idx) => (
-                    <div 
-                      key={idx} 
-                      className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-100 transition-all"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`flex-shrink-0 w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-sm font-bold text-${data.baseColor}-500`}>
-                          0{idx + 1}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h5 className="text-base font-bold text-slate-900 mb-1 leading-tight">
-                            {career.title}
-                          </h5>
-                          <p className="text-slate-500 text-xs leading-relaxed mb-2 line-clamp-2">
-                            {truncateText(career.description, 80)}
-                          </p>
-                          
-                          {career.examples && (
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                Roles:
-                              </span>
-                              <span className={`text-[10px] font-medium text-${data.baseColor}-600 bg-white px-2 py-1 rounded border border-slate-200 line-clamp-1`}>
-                                {truncateExamples(career.examples, 35)}
-                              </span>
-                            </div>
-                          )}
+              {/* Right Side: Career Grid */}
+              <div className="lg:col-span-2">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Career Trajectories</h4>
+                <div className="space-y-4">
+                  {data.careerPaths.map((career, idx) => (
+                    <div key={idx} className="group/item bg-white p-5 md:p-6 rounded-[2rem] border border-slate-100 hover:border-blue-500 transition-all hover:shadow-lg">
+                      <div className="flex gap-5">
+                        <div className="text-2xl font-black text-slate-100 group-hover/item:text-blue-500 transition-colors">0{idx + 1}</div>
+                        <div>
+                          <h5 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-2">{career.title}</h5>
+                          <p className="text-slate-500 text-sm leading-relaxed mb-4 font-medium">{career.description}</p>
+                          <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
+                            <span className="text-[9px] font-black text-blue-600 uppercase">Key Roles:</span>
+                            <span className="text-[10px] font-bold text-slate-500">{career.examples}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-
-                {/* View More Indicator */}
-                {data.careerPaths.length > 4 && (
-                  <div className="mt-4 text-center">
-                    <span className="text-xs text-slate-400 font-medium">
-                      +{data.careerPaths.length - 4} more career paths available
-                    </span>
-                  </div>
-                )}
               </div>
 
             </div>
           </div>
 
-          {/* Modal Footer - Mobile Responsive */}
-          <div className="p-4 md:p-6 border-t border-slate-100 bg-slate-50/50">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-              <div className="text-xs text-slate-500 font-medium">
-                <span className="font-bold text-slate-700">{data.department}</span> Faculty
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={onClose}
-                  className="px-3 py-2 md:px-4 md:py-2 border border-slate-300 text-slate-700 rounded-lg font-medium transition-all duration-200 text-xs"
-                >
-                  Close
-                </button>
-    
-              </div>
-            </div>
+          {/* Sticky Footer */}
+          <div className="shrink-0 p-6 md:p-8 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+             <div className="text-center sm:text-left">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Inquiry Code</p>
+                <p className="text-xs font-black text-slate-900 uppercase">DEPT-{data.department.substring(0,3)}-2026</p>
+             </div>
+             <button 
+              onClick={() => router.push('/pages/contact')}
+              className="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] hover:bg-blue-600 transition-colors active:scale-95 shadow-xl"
+             >
+               Consult Advisor
+             </button>
           </div>
         </div>
       </div>
@@ -2374,79 +2318,73 @@ return (
   </div>
 )}
 
-          {/* Career Paths Tab - Modern */}
-          {activeTab === 'career-paths' && (
-            <div className="space-y-12 md:space-y-16">
-              {/* Hero Section */}
-              <div className="text-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-6">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                  </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Career Readiness</span>
-                </div>
-                <h2 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
-                  Future <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Pathways</span>
-                </h2>
-                <p className="text-slate-500 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                  Strategic academic planning for diverse career trajectories. Our curriculum integrates industry-relevant skills with traditional excellence.
-                </p>
-              </div>
+{/* Career Paths Tab - Modern */}
+{activeTab === 'career-paths' && (
+  <div className="space-y-10 md:space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    {/* Hero Section */}
+    <div className="text-center px-4">
+      <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-6">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+        </span>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Career Readiness</span>
+      </div>
+      <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
+        Future <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Pathways</span>
+      </h2>
+      <p className="text-slate-500 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">
+        Strategic academic planning for diverse career trajectories. Our curriculum integrates industry-relevant skills with traditional excellence.
+      </p>
+    </div>
 
-              {/* Career Guidance Banner - Modern */}
-              <div className="relative overflow-hidden bg-slate-900 rounded-2xl md:rounded-[2.5rem] p-6 md:p-10 text-white">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 blur-[80px] rounded-full -mr-48 -mt-48" />
-                
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
-                  <div className="max-w-2xl">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center">
-                        <FiTarget className="text-blue-300 text-lg md:text-xl" />
-                      </div>
-                      <h3 className="text-xl md:text-2xl font-bold">Professional Development Program</h3>
-                    </div>
-                    <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-                      Personalized career mapping, university placement strategy, and industry immersion experiences. 
-                      We bridge academic learning with professional reality.
-                    </p>
-                  </div>
-                  <div className="flex-shrink-0">
-            <button 
-              onClick={() => router.push('/pages/contact')}
-              className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 bg-white text-slate-900 rounded-xl md:rounded-2xl font-bold tracking-tight flex items-center justify-center gap-3 shadow-lg hover:bg-slate-50 transition-all active:scale-95"
-            >
-              <span>Schedule Consultation</span>
-              <FiArrowRight className="transition-transform group-hover:translate-x-1" />
-            </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Career Departments - Modern Grid */}
-              <div>
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-10 border-b border-slate-100 pb-4 md:pb-6">
-                  <div>
-                    <h3 className="text-xl md:text-3xl font-bold text-slate-900">Academic Tracks</h3>
-                    <p className="text-slate-500 mt-2">Structured pathways aligned with industry demands</p>
-                  </div>
-                  <div className="mt-4 md:mt-0">
-                    <div className="text-sm text-slate-400 font-medium">
-                      {careerDepartments.length} Specialized Domains
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {careerDepartments.map((dept, index) => (
-                    <ModernCareerDepartmentCard key={index} {...dept} />
-                  ))}
-                </div>
-              </div>
-
- 
+    {/* Career Guidance Banner - Full Width on Mobile */}
+    <div className="relative overflow-hidden bg-slate-900 md:rounded-[2.5rem] p-8 md:p-12 text-white w-full">
+      <div className="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-blue-500/20 blur-[60px] md:blur-[100px] rounded-full -mr-32 -mt-32" />
+      
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div className="max-w-2xl">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center">
+              <FiTarget className="text-blue-300 text-xl" />
             </div>
-          )}
+            <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight">Professional Development</h3>
+          </div>
+          <p className="text-slate-300 text-sm md:text-base leading-relaxed font-medium">
+            Personalized career mapping, university placement strategy, and industry immersion experiences. 
+            We bridge academic learning with professional reality.
+          </p>
+        </div>
+        <button 
+          onClick={() => router.push('/pages/contact')}
+          className="w-full lg:w-auto px-8 py-4 bg-white text-slate-900 rounded-2xl font-black tracking-tight flex items-center justify-center gap-3 shadow-xl hover:bg-blue-50 transition-all active:scale-95"
+        >
+          <span>Schedule Consultation</span>
+          <FiArrowRight />
+        </button>
+      </div>
+    </div>
+
+    {/* Career Departments Grid */}
+    <div className="px-4 md:px-0">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-slate-100 pb-6">
+        <div>
+          <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase">Academic Tracks</h3>
+          <p className="text-slate-500 mt-1 text-sm">Structured pathways aligned with industry demands</p>
+        </div>
+        <div className="mt-4 md:mt-0 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+          {careerDepartments.length} Specialized Domains
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {careerDepartments.map((dept, index) => (
+          <ModernCareerDepartmentCard key={index} {...dept} />
+        ))}
+      </div>
+    </div>
+  </div>
+)}
 
           {activeTab === 'requirements' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-8 md:space-y-12">
