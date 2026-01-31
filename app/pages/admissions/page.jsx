@@ -2773,12 +2773,35 @@ return (
           </div>
         </div>
         
-        <button 
-          onClick={() => router.push('/pages/apply-for-admissions')}
-       className="hidden md:flex w-auto px-10 py-5 bg-white text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-50 transition-all active:scale-95 shadow-2xl shadow-white/5"
-        >
-          Start Application
-        </button>
+  <button 
+  onClick={() => router.push('/pages/apply-for-admissions')}
+  className={`
+    /* Basic Layout */
+    flex items-center justify-center
+    w-full md:w-max md:min-w-[220px]
+    px-8 py-4 md:px-10 md:py-5 
+    
+    /* Colors & Typography */
+    bg-white text-slate-900 
+    rounded-xl md:rounded-2xl 
+    font-black uppercase 
+    tracking-[0.15em] md:tracking-widest 
+    text-[10px] md:text-[11px] 
+    
+    /* SCALING & HOVER ADJUSTMENTS:
+       - md:active:scale-95 -> Only shrinks on desktop
+       - md:hover:bg-blue-50 -> Only changes color on desktop
+    */
+    transition-all 
+    md:hover:bg-blue-50
+    md:active:scale-95 
+    
+    /* Depth */
+    shadow-lg md:shadow-2xl shadow-white/10
+  `}
+>
+  Start Application
+</button>
       </div>
     </div>
   </div>
