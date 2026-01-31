@@ -925,6 +925,50 @@ const handleFileChange = (e) => {
       existingTotalBytes += file.size || 0;
     }
   });
+
+
+
+
+  // Calculate total size whenever files change
+useEffect(() => {
+  let totalBytes = 0;
+  
+  // Add size of new files
+  files.forEach(fileObj => {
+    if (fileObj.file && fileObj.file.size) {
+      totalBytes += fileObj.file.size;
+    }
+  });
+  
+  // Add size of existing files (excluding those marked for removal)
+  existingFiles.forEach((file, index) => {
+    if (!filesToRemove.includes(index)) {
+      totalBytes += file.size || 0;
+    }
+  });
+  
+  const totalMB = totalBytes / (1024 * 1024);
+  setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
+  
+  // Check Vercel's 4.5MB limit
+  const VERCEL_LIMIT_MB = 4.5;
+  if (totalMB > VERCEL_LIMIT_MB) {
+    setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's ${VERCEL_LIMIT_MB}MB limit`);
+  } else {
+    setFileSizeError('');
+  }
+}, [files, existingFiles, filesToRemove]);
+
+// Disable submit button based on conditions
+const isSubmitDisabled = 
+  loading || 
+  !formData.title.trim() || 
+  !formData.subject || 
+  !formData.className || 
+  !formData.teacher ||
+  (files.length === 0 && existingFiles.length === 0 && !resource) ||
+  totalSizeMB > 4.5 ||
+  fileSizeError;
   
   // Calculate total current size
   const currentTotalBytesAll = currentTotalBytes + existingTotalBytes;
@@ -1026,6 +1070,27 @@ const handleSubmit = async (e) => {
     return;
   }
 
+  // Check Vercel size limit before proceeding
+  const VERCEL_LIMIT_MB = 4.5;
+  if (totalSizeMB > VERCEL_LIMIT_MB) {
+    alert(`Total file size (${totalSizeMB.toFixed(1)}MB) exceeds Vercel's ${VERCEL_LIMIT_MB}MB limit. Please remove some files.`);
+    return;
+  }
+
+  // Calculate total size for API validation (optional extra check)
+  let apiTotalBytes = 0;
+  files.forEach(fileObj => {
+    if (fileObj.file && fileObj.file.size) {
+      apiTotalBytes += fileObj.file.size;
+    }
+  });
+  const apiTotalMB = apiTotalBytes / (1024 * 1024);
+  
+  if (apiTotalMB > VERCEL_LIMIT_MB) {
+    alert(`New files total (${apiTotalMB.toFixed(1)}MB) exceeds limit. Please reduce file sizes.`);
+    return;
+  }
+
   // Create FormData for submission
   const formDataToSend = new FormData();
   
@@ -1063,8 +1128,13 @@ const handleSubmit = async (e) => {
     }
   });
 
+  // Add size validation info (optional, for backend to double-check)
+  formDataToSend.append('totalSizeMB', totalSizeMB.toString());
+  formDataToSend.append('vercelLimit', '4.5');
+
   await onSave(formDataToSend, resource?.id);
 };
+
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -1104,6 +1174,22 @@ const handleSubmit = async (e) => {
                   Upload educational materials and resources
                 </p>
               </div>
+              {/* File Size Warning */}
+{fileSizeError && (
+  <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-100 border border-red-200 rounded-2xl">
+    <div className="flex items-start gap-3">
+      <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" />
+      <div className="flex-1">
+        <p className="text-red-700 text-sm font-bold">
+          File Size Limit Exceeded!
+        </p>
+        <p className="text-red-600 text-xs mt-1">
+          {fileSizeError}
+        </p>
+      </div>
+    </div>
+  </div>
+)}
             </div>
             {!loading && (
               <button onClick={onClose} className="p-2 hover:bg-white hover:bg-opacity-20 rounded-xl cursor-pointer">
