@@ -460,7 +460,7 @@ const CareerSearchPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4 md:px-6 font-sans">
+    <div className="min-h-screen bg-slate-50 py-6 px-0 font-sans">
       <div className="max-w-7xl mx-auto">
         
         {/* Header Section */}
@@ -578,14 +578,11 @@ const CareerSearchPage = () => {
                       </div>
                       
                   <div className="flex items-center gap-3">
-  {/* Career Count Badge - Modern Pill Style */}
-  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 border border-blue-100 rounded-full shadow-sm">
-    <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" /> {/* Active indicator dot */}
-    <span className="text-[10px] md:text-xs font-black text-blue-700 uppercase tracking-tight">
-      {dept.careerPaths.length} <span className="hidden xs:inline">Pathways</span>
-      <span className="xs:hidden">Paths</span>
-    </span>
-  </div>
+<div className="flex items-center gap-1 text-blue-700">
+  <span className="text-[10px] md:text-xs font-black uppercase">
+    {dept?.careerPaths?.length || 0} Pathways
+  </span>
+</div>
 
   {/* Interactive Toggle Circle */}
   <div className={`
