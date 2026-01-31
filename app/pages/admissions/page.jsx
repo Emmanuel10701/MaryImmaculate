@@ -981,8 +981,7 @@ const AdmissionPathCard = ({ path, onApply, index }) => {
     md:hover:brightness-110
   `}
 >
-  Start Application
-  <IoArrowForward size={18} className="shrink-0" />
+   Apply now
 </button>
         </div>
       </div>
