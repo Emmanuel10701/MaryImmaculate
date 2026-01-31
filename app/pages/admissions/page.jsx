@@ -121,6 +121,14 @@ import {
 } from 'react-icons/io5';
 import { IoCheckmarkCircle, IoArrowForward, IoFlash } from 'react-icons/io5';
 
+
+// Add this function after your imports and before any component definitions
+const getOrdinal = (n) => {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
 import { useRouter } from 'next/navigation';
 import { CircularProgress } from '@mui/material';
 
@@ -1372,38 +1380,64 @@ const AcademicResultsSection = ({ documentData }) => {
   );
 };
 
-// FAQ Item Component
 const ModernFAQItem = ({ faq, index, openFaq, setOpenFaq }) => {
   const isOpen = openFaq === index;
   
   return (
-    <div className="bg-gradient-to-br from-white to-slate-50/50 border border-slate-200/80 rounded-xl md:rounded-2xl overflow-hidden shadow-sm">
+    /* Responsive rounding: rounded-none on mobile for edge-to-edge feel */
+    <div className={`
+      transition-all duration-300 border-b md:border border-slate-200/80 
+      md:rounded-2xl overflow-hidden 
+      ${isOpen ? 'bg-white shadow-xl md:shadow-blue-900/5' : 'bg-transparent md:bg-white/50'}
+    `}>
       <button
         onClick={() => setOpenFaq(isOpen ? null : index)}
-        className="w-full px-4 md:px-6 py-4 md:py-5 text-left flex items-center justify-between active:bg-slate-50/50"
+        className="w-full px-5 md:px-8 py-5 md:py-6 text-left flex items-center justify-between transition-colors active:bg-slate-50"
       >
-        <div className="flex items-start gap-3 md:gap-4 flex-1">
-          <div className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 flex items-center justify-center mt-0.5">
-            <span className="text-blue-600 font-bold text-xs md:text-sm">{index + 1}</span>
+        <div className="flex items-start gap-4 md:gap-6 flex-1">
+          {/* Number badge - refined sizing */}
+          <div className={`
+            flex-shrink-0 w-7 h-7 md:w-9 md:h-9 rounded-lg flex items-center justify-center mt-0.5 transition-colors
+            ${isOpen ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}
+          `}>
+            <span className="font-black text-[10px] md:text-xs">
+              {String(index + 1).padStart(2, '0')}
+            </span>
           </div>
-          <div className="flex-1 text-left">
-            <h3 className="font-bold text-slate-900 text-sm md:text-lg leading-tight pr-4 md:pr-8">
+
+          <div className="flex-1 min-w-0">
+            <h3 className={`
+              font-black tracking-tight text-[13px] md:text-lg transition-colors
+              ${isOpen ? 'text-blue-600' : 'text-slate-900'}
+            `}>
               {faq.question}
             </h3>
           </div>
         </div>
-        <FiChevronDown 
-          className={`text-blue-500 transition-transform duration-300 flex-shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`} 
-        />
+
+        {/* Improved Icon with background ring */}
+        <div className={`
+          ml-4 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center border transition-all
+          ${isOpen ? 'rotate-180 border-blue-200 bg-blue-50' : 'border-slate-200 bg-white'}
+        `}>
+          <FiChevronDown className={isOpen ? 'text-blue-600' : 'text-slate-400'} size={14} />
+        </div>
       </button>
       
+      {/* Animated Answer Section */}
       {isOpen && (
-        <div className="px-4 md:px-6 pb-4 md:pb-6 pt-2">
-          <div className="pl-10 md:pl-12">
-            <div className="h-px w-full bg-gradient-to-r from-blue-100 to-cyan-100 mb-4"></div>
-            <p className="text-slate-600 leading-relaxed text-sm md:text-lg">
+        <div className="px-5 md:px-8 pb-6 md:pb-8 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="pl-[44px] md:pl-[60px]"> {/* Aligns text perfectly with the start of the question text */}
+            <div className="h-px w-full bg-slate-100 mb-5" />
+            <p className="text-slate-600 font-medium leading-relaxed text-xs md:text-base">
               {faq.answer}
             </p>
+            
+            {/* Contextual Action - Optional visual touch */}
+            <div className="mt-4 flex items-center gap-2 text-[10px] font-black text-blue-500 uppercase tracking-widest">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              Official School Policy
+            </div>
           </div>
         </div>
       )}
@@ -2335,8 +2369,9 @@ return (
           <div className="text-white font-black tracking-tighter tabular-nums">
             {/* Mobile Format: 23rd 09/2025 */}
             <span className="block md:hidden text-[13px]">
-              {new Date(schoolData.openDate).getDate()}
-              {getOrdinal(new Date(schoolData.openDate).getDate())} {new Date(schoolData.openDate).toLocaleDateString('en-GB', { month: '2-digit', year: 'numeric' })}
+            // In the mobile format for Year Closes:
+{new Date(schoolData.closeDate).getDate()}
+{getOrdinal(new Date(schoolData.closeDate).getDate())} {new Date(schoolData.closeDate).toLocaleDateString('en-GB', { month: '2-digit', year: 'numeric' })}
             </span>
             {/* Desktop Format: Full Date */}
             <span className="hidden md:block text-2xl">
@@ -2563,125 +2598,146 @@ return (
     ))}
   </div>
 
-  {/* Important Notes - High Visibility Section */}
-  <div className="mt-12 p-8 bg-slate-900 rounded-[2.5rem] relative overflow-hidden border border-white/5 shadow-2xl">
-    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[80px] rounded-full -mr-32 -mt-32"></div>
+{/* Important Notes - Full-Screen Mobile Strategy */}
+<div className="mt-8 md:mt-12 p-6 md:p-12 bg-slate-900 rounded-none md:rounded-[2.5rem] relative overflow-hidden border-y border-white/5 md:border shadow-2xl">
+  {/* Amber Glow - Repositioned for mobile visibility */}
+  <div className="absolute top-0 right-0 w-48 md:w-64 h-48 md:h-64 bg-amber-500/10 blur-[60px] md:blur-[80px] rounded-full -mr-24 -mt-24 md:-mr-32 md:-mt-32"></div>
+  
+  <div className="relative z-10">
+    <div className="flex items-center gap-4 mb-8">
+      <div className="p-2.5 bg-amber-500 rounded-xl shadow-lg shadow-amber-500/20">
+        <FiAlertTriangle className="text-slate-900 text-lg md:text-xl" />
+      </div>
+      <h4 className="text-[10px] md:text-[11px] font-black text-white uppercase tracking-[0.3em] md:tracking-[0.4em]">
+        Important <span className="text-amber-500">Submission</span> Notes
+      </h4>
+    </div>
     
-    <div className="relative z-10">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="p-2.5 bg-amber-500 rounded-xl">
-          <FiAlertTriangle className="text-slate-900 text-xl" />
+    {/* Grid: 1 column on mobile, 2 on desktop */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 md:gap-y-5">
+      {[
+        "All documents must be original or certified copies",
+        "Documents should be submitted in a clear plastic folder",
+        "Incomplete applications will not be processed",
+        "Submit copies along with originals for verification"
+      ].map((note, i) => (
+        <div key={i} className="flex items-start gap-4 group">
+          {/* Bullet Point with subtle pulse for high visibility */}
+          <div className="relative mt-1.5 shrink-0">
+            <div className="w-2 h-2 rounded-full bg-amber-500 z-10 relative" />
+            <div className="absolute inset-0 w-2 h-2 rounded-full bg-amber-500 animate-ping opacity-20" />
+          </div>
+          
+          <p className="text-[12px] md:text-[13px] font-bold text-slate-400 leading-relaxed transition-colors group-hover:text-white">
+            {note}
+          </p>
         </div>
-        <h4 className="text-[11px] font-black text-white uppercase tracking-[0.4em]">
-          Important Submission Notes
-        </h4>
+      ))}
+    </div>
+  </div>
+</div>
+</div>
+
+{/* Transfer Process - Modern Timeline Optimized for All Screens */}
+<div className="bg-slate-900 rounded-none md:rounded-[3rem] p-6 md:p-12 text-white relative overflow-hidden">
+  {/* Decorative Background Glow */}
+  <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full -mr-32 -mt-32 invisible md:visible" />
+
+  <div className="relative z-10">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 md:mb-16 gap-4">
+      <div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-600/20">
+            <FiArrowRight className="text-white text-xl" />
+          </div>
+          <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tighter">
+            Transfer <span className="text-blue-400">Process</span>
+          </h3>
+        </div>
+        <p className="text-slate-400 text-sm md:text-base font-medium">Seamless transition with 4-step verification</p>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-x-12 gap-y-5">
-        {[
-          "All documents must be original or certified copies",
-          "Documents should be submitted in a clear plastic folder",
-          "Incomplete applications will not be processed",
-          "Submit copies along with originals for verification"
-        ].map((note, i) => (
-          <div key={i} className="flex items-start gap-4 group">
-            <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0 group-125 transition-transform" />
-            <p className="text-[11px] font-bold text-slate-400 leading-relaxed group-hover:text-white transition-colors">
-              {note}
-            </p>
+      {/* Time Badge - Styled for mobile */}
+      <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-full">
+        <FiClock className="text-yellow-400 text-sm" />
+        <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-300">2-3 Weeks Total</span>
+      </div>
+    </div>
+
+    {/* Steps Grid: Stacked on mobile, Grid on Tablet/Desktop */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6">
+      {transferProcess.map((step, index) => (
+        <div 
+          key={index}
+          className="group relative bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 transition-all duration-500 hover:bg-white/[0.07]"
+        >
+          {/* Step Number Badge */}
+          <div className="absolute -top-3 -left-3 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-xl shadow-blue-900/40 z-20">
+            {step.step}
           </div>
-        ))}
+          
+          <div className="relative z-10 space-y-4">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <h4 className="text-lg font-black uppercase tracking-tight text-white group-hover:text-blue-400 transition-colors">
+                  {step.title}
+                </h4>
+              </div>
+              <div className="flex items-center gap-1.5 text-yellow-500/80 text-[10px] font-black uppercase tracking-widest">
+                <FiClock className="text-xs" />
+                {step.duration}
+              </div>
+            </div>
+            
+            <p className="text-slate-400 text-xs md:text-sm font-bold leading-relaxed">
+              {step.description}
+            </p>
+            
+            {/* Requirements List */}
+            <div className="pt-4 border-t border-white/5 space-y-3">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Checklist</span>
+              <ul className="space-y-2.5">
+                {step.requirements.map((req, idx) => (
+                  <li key={idx} className="flex items-start gap-3 text-[11px] md:text-xs text-slate-300 font-medium">
+                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-blue-500/50 shrink-0" />
+                    <span>{req}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Desktop Connector Line */}
+          {index < transferProcess.length - 1 && (
+            <div className="hidden lg:block absolute -right-3 top-1/2 w-6 h-[1px] bg-white/10 z-0" />
+          )}
+        </div>
+      ))}
+    </div>
+
+    {/* CTA Footer - Bento Style */}
+    <div className="mt-12 md:mt-16 p-6 md:p-8 bg-white/[0.03] border border-white/5 rounded-2xl md:rounded-[2rem]">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+        <div className="flex flex-col md:flex-row items-center gap-5">
+          <div className="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+            <IoCheckmarkCircleOutline className="text-emerald-400 text-3xl" />
+          </div>
+          <div>
+            <h4 className="text-xl font-black text-white">Ready to Join Us?</h4>
+            <p className="text-slate-400 text-sm font-medium">Complete all steps for official admission approval</p>
+          </div>
+        </div>
+        
+        <button 
+          onClick={() => router.push('/pages/apply-for-admissions')}
+       className="hidden md:flex w-auto px-10 py-5 bg-white text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-50 transition-all active:scale-95 shadow-2xl shadow-white/5"
+        >
+          Start Application
+        </button>
       </div>
     </div>
   </div>
 </div>
-
-              {/* Transfer Process - Modern Timeline */}
-              <div className="bg-slate-900 rounded-2xl md:rounded-3xl p-6 md:p-10 text-white">
-                <div className="flex items-center justify-between mb-8 md:mb-10">
-                  <div>
-                    <div className="flex items-center gap-2 md:gap-3 mb-2">
-                      <div className="p-2 md:p-2.5 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
-                        <FiArrowRight className="text-white text-lg md:text-xl" />
-                      </div>
-                      <h3 className="text-xl md:text-2xl font-bold">Transfer Student Process</h3>
-                    </div>
-                    <p className="text-slate-300">Seamless transition with 4-step verification</p>
-                  </div>
-                  <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full">
-                    <FiClock className="text-yellow-400" />
-                    <span className="text-sm font-medium">2-3 Weeks Total</span>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                  {transferProcess.map((step, index) => (
-                    <div 
-                      key={index}
-                      className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-6 transition-all duration-300"
-                    >
-                      {/* Step Number */}
-                      <div className="absolute -top-2 -left-2 md:-top-3 md:-left-3 w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-base md:text-lg shadow-lg">
-                        {step.step}
-                      </div>
-                      
-                      {/* Step Content */}
-                      <div className="space-y-3 md:space-y-4">
-                        <div className="flex items-start justify-between">
-                          <h4 className="text-base md:text-lg font-bold leading-tight">{step.title}</h4>
-                          <div className="flex items-center gap-1 text-yellow-300 text-xs font-bold">
-                            <FiClock className="text-sm" />
-                            {step.duration}
-                          </div>
-                        </div>
-                        
-                        <p className="text-slate-300 text-sm leading-relaxed">{step.description}</p>
-                        
-                        {/* Requirements List */}
-                        <div className="space-y-2 pt-3 md:pt-4 border-t border-white/10">
-                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Requirements</span>
-                          <ul className="space-y-2">
-                            {step.requirements.map((req, idx) => (
-                              <li key={idx} className="flex items-center gap-2 text-xs md:text-sm text-slate-300">
-                                <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-                                <span>{req}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-
-                      {/* Connector Line for Desktop */}
-                      {index < transferProcess.length - 1 && (
-                        <div className="hidden lg:block absolute -right-3 top-1/2 w-6 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 transform translate-x-full -translate-y-1/2">
-                          <div className="absolute -right-2 top-1/2 w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transform -translate-y-1/2 animate-pulse"></div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Process Completion Indicator */}
-                <div className="mt-8 md:mt-10 p-4 md:p-6 bg-white/5 backdrop-blur-sm rounded-xl md:rounded-2xl border border-white/10">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 md:p-2.5 bg-green-500/20 rounded-xl">
-                        <IoCheckmarkCircleOutline className="text-green-400 text-lg md:text-xl" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-lg">Ready to Transfer?</h4>
-                        <p className="text-slate-300 text-sm">Complete all 4 steps for admission approval</p>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => router.push('/pages/apply-for-admissions')}
-                      className="px-4 py-3 md:px-6 md:py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-bold transition-all duration-200 shadow-lg"
-                    >
-                      Start Transfer Process
-                    </button>
-                  </div>
-                </div>
-              </div>
 
          
             </div>
