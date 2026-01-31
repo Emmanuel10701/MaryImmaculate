@@ -893,7 +893,7 @@ if (!student || !token) {
 
               <div>
                 <span className="text-sm xs:text-base sm:text-lg md:text-xl font-black tracking-tighter block leading-none">
-                  KATWANYAA
+                  MARY IMMULATE GIRLS
                 </span>
                 <span className="text-[7px] xs:text-[8px] sm:text-[9px] md:text-[10px] font-bold text-blue-600 
                   tracking-[0.1em] xs:tracking-[0.15em] sm:tracking-[0.2em] uppercase">
@@ -930,8 +930,8 @@ if (!student || !token) {
               </div>
               <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 
                 font-black tracking-tighter leading-[0.85] xs:leading-[0.9] text-slate-950">
-                EDUCATION  
-                <span className="block text-blue-600 italic mt-1 xs:mt-2">IS LIGHT.</span>
+                PRAYER  
+                <span className="block text-blue-600 italic mt-1 xs:mt-2">DISPLINE AND  HARDWORK.</span>
               </h1>
               <p className="text-sm xs:text-base sm:text-lg md:text-xl text-slate-500 font-medium 
                 max-w-full xs:max-w-xs sm:max-w-md leading-relaxed xs:leading-snug">
