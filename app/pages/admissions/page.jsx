@@ -163,9 +163,9 @@ const ModernCareerDepartmentCard = ({ data }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  // This handles the "reading 'careerPaths' of undefined" error
+  // FIXED: Changed from data?.careerPaths to data?.careerPaths
   const careerPaths = data?.careerPaths || [];
-
+  
   const filteredCareers = careerPaths.filter(career => 
     career?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     career?.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -187,7 +187,7 @@ const ModernCareerDepartmentCard = ({ data }) => {
         <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3 min-w-0">
             <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shrink-0">
-              {data.Icon && <data.Icon className="text-xl" />}
+              {data.icon && <data.icon className="text-xl" />}
             </div>
             <div className="min-w-0">
               <span className="text-[7px] font-black uppercase tracking-[0.3em] text-white/80 block">Career Compass</span>
@@ -217,7 +217,7 @@ const ModernCareerDepartmentCard = ({ data }) => {
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
               type="text"
-              placeholder={`Search roles...`}
+              placeholder={`Search roles in ${data.department}...`}
               className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -229,12 +229,17 @@ const ModernCareerDepartmentCard = ({ data }) => {
               <h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest">
                 Career Mapping ({filteredCareers.length})
               </h4>
+              {searchQuery && (
+                <span className="text-[8px] text-blue-600 font-bold">
+                  {filteredCareers.length} result{filteredCareers.length !== 1 ? 's' : ''}
+                </span>
+              )}
             </div>
 
             <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-1 scrollbar-hide">
               {filteredCareers.length > 0 ? (
                 filteredCareers.map((career, idx) => (
-                  <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100 hover:bg-blue-50 transition-colors">
                     <div className="flex items-start gap-2.5">
                       <div className="w-5 h-5 rounded bg-white text-blue-600 border border-slate-200 flex items-center justify-center text-[9px] font-black shrink-0">
                         {idx + 1}
@@ -243,7 +248,7 @@ const ModernCareerDepartmentCard = ({ data }) => {
                         <h5 className="text-[10px] font-black text-slate-900 uppercase mb-0.5">{career?.title}</h5>
                         <p className="text-[9px] text-slate-500 leading-snug mb-1.5">{career?.description}</p>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[7px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase">Offers:</span>
+                          <span className="text-[7px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase">Examples:</span>
                           <p className="text-[8px] text-slate-700 font-bold truncate">{career?.examples}</p>
                         </div>
                       </div>
@@ -252,7 +257,20 @@ const ModernCareerDepartmentCard = ({ data }) => {
                 ))
               ) : (
                 <div className="py-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                  <p className="text-[10px] font-bold text-slate-400 italic">No specific path matches your search.</p>
+                  {searchQuery ? (
+                    <>
+                      <FiSearch className="w-5 h-5 text-slate-400 mx-auto mb-2" />
+                      <p className="text-[10px] font-bold text-slate-400 italic">No careers match "{searchQuery}"</p>
+                      <button 
+                        onClick={() => setSearchQuery("")}
+                        className="mt-2 text-[9px] text-blue-600 font-bold underline"
+                      >
+                        Clear search
+                      </button>
+                    </>
+                  ) : (
+                    <p className="text-[10px] font-bold text-slate-400 italic">No career paths available for this department.</p>
+                  )}
                 </div>
               )}
             </div>
@@ -261,14 +279,14 @@ const ModernCareerDepartmentCard = ({ data }) => {
           <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
             <button 
               onClick={() => router.push('/pages/contact')}
-              className="flex-1 py-3 bg-slate-900 text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
             >
               <FiMessageCircle size={12} />
               Career Counseling
             </button>
             <button 
               onClick={() => setIsExpanded(false)}
-              className="px-5 py-3 bg-slate-100 text-slate-500 rounded-xl font-black text-[9px] uppercase tracking-widest"
+              className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl font-black text-[9px] uppercase tracking-widest transition-colors"
             >
               Collapse
             </button>
@@ -278,7 +296,6 @@ const ModernCareerDepartmentCard = ({ data }) => {
     </div>
   );
 };
-
 
 
 const ModernEducationSystemCard = ({ system, icon: Icon, color, description, features, structure, advantages }) => {

@@ -151,20 +151,41 @@ const FeesView = ({ student, token }) => {
     }
   };
 
-  // Loading State
-  if (loading) {
-    return (
-      <div className="mx-auto bg-slate-50 p-4 md:p-8 font-sans text-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <CircularProgress size={60} className="mb-4" />
-          <p className="text-slate-600">Loading fee information...</p>
-          <p className="text-sm text-slate-400 mt-2">
-            Admission: {student?.admissionNumber || 'Not found'}
+// Loading State
+if (loading) {
+  return (
+    <div className="min-h-[60vh] md:min-h-screen w-full bg-slate-50 p-4 flex flex-col items-center justify-center font-sans">
+      <div className="text-center flex flex-col items-center w-full max-w-[280px] md:max-w-sm mx-auto">
+        
+        {/* Responsive Spinner Container */}
+        <div className="mb-4 md:mb-6 transform scale-75 md:scale-100 origin-center">
+          <CircularProgress 
+            size={50} // Base size
+            thickness={4.5}
+            className="text-blue-600" 
+          />
+        </div>
+        
+        <div className="space-y-1">
+          <h3 className="text-base md:text-lg font-black tracking-tight text-slate-800 uppercase">
+            Syncing Account
+          </h3>
+          
+          <p className="text-slate-500 text-[12px] md:text-sm font-bold leading-tight">
+            Retrieving fee records for:
+          </p>
+        </div>
+
+        {/* Admission Badge - Minimalist version */}
+        <div className="mt-5 px-3 py-1.5 bg-slate-200/50 rounded-lg">
+          <p className="text-[10px] md:text-xs font-black text-slate-600 tracking-tighter">
+            ADM: <span className="text-blue-700">{student?.admissionNumber || 'PENDING'}</span>
           </p>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   // Show "No Fee Records" state for both error and no data
   if (error || !feeData?.feeBalances?.length) {
