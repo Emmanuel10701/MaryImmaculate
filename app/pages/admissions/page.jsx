@@ -968,63 +968,65 @@ const VideoTourSection = ({ videoTour, videoType, videoThumbnail }) => {
 
 
 // Vision & Mission Section
-
 const VisionMissionSection = ({ vision, mission, motto }) => {
   return (
-    <div className="w-full max-w-6xl mx-auto px-2 md:px-4 py-6 md:py-8">
-      {/* Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+    /* We remove outer padding on mobile (px-0) so the cards can touch the screen edges */
+    <div className="w-full max-w-6xl mx-auto px-0 md:px-4 py-0 md:py-8">
+      {/* Bento Grid: gap-0 on mobile to stack perfectly, gap-4 on desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-4">
         
-        {/* 1. Vision Card - Responsive height */}
-        <div className="md:col-span-7 bg-slate-900 rounded-[2rem] p-6 md:p-8 relative overflow-hidden border border-slate-800 shadow-xl flex flex-col justify-center md:justify-between min-h-[180px] md:min-h-[220px]">
-          <div className="absolute top-0 right-0 w-32 md:w-48 h-32 md:h-48 bg-blue-600/10 blur-[50px] md:blur-[60px] rounded-full -mr-10 -mt-10"></div>
+        {/* 1. Vision Card - Full bleed on mobile */}
+        <div className="md:col-span-7 bg-slate-900 rounded-none md:rounded-[3rem] p-8 md:p-12 relative overflow-hidden border-b border-white/5 md:border md:border-slate-800 shadow-xl flex flex-col justify-center min-h-[220px] md:min-h-[280px]">
+          {/* Decorative Glow */}
+          <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 blur-[60px] rounded-full -mr-10 -mt-10"></div>
           
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/5 backdrop-blur-md rounded-lg border border-white/10 mb-3 md:mb-4">
-              <IoEyeOutline className="text-blue-400 text-base md:text-lg" />
-              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-blue-100">Vision</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 mb-6">
+              <IoEyeOutline className="text-blue-400 text-lg" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-100">Our Vision</span>
             </div>
-            <h3 className="text-lg md:text-2xl font-black text-white mb-2 md:mb-3 tracking-tight uppercase italic">
+            <h3 className="text-2xl md:text-4xl font-black text-white mb-4 tracking-tighter uppercase italic leading-none">
               The <span className="text-blue-500">Future</span> we build
             </h3>
-            <p className="text-slate-400 text-[13px] md:text-base font-bold leading-snug max-w-lg">
+            <p className="text-slate-400 text-sm md:text-lg font-bold leading-relaxed max-w-lg">
               {vision || "To be a premier center of academic excellence in Machakos, nurturing globally competitive leaders through integrity."}
             </p>
           </div>
         </div>
 
-        {/* 2. Mission Card - Tighter for mobile */}
-        <div className="md:col-span-5 bg-white rounded-[2rem] p-6 md:p-8 border-2 border-slate-100 shadow-md flex flex-col justify-center md:justify-between min-h-[160px] md:min-h-[220px]">
-          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 mb-4 shrink-0">
-            <FiTarget className="text-blue-600 text-xl" />
+        {/* 2. Mission Card - Full bleed on mobile */}
+        <div className="md:col-span-5 bg-white rounded-none md:rounded-[3rem] p-8 md:p-12 border-b md:border-2 border-slate-100 shadow-md flex flex-col justify-center min-h-[200px] md:min-h-[280px]">
+          <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100 mb-6 shrink-0 shadow-sm">
+            <FiTarget className="text-blue-600 text-2xl" />
           </div>
           
           <div>
-            <h3 className="text-base md:text-lg font-black text-slate-900 mb-1.5 md:mb-2 uppercase tracking-tight">Our Mission</h3>
-            <p className="text-slate-600 text-[12px] md:text-sm font-bold leading-relaxed">
+            <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-3 uppercase tracking-tighter">Our Mission</h3>
+            <p className="text-slate-600 text-sm md:text-base font-bold leading-relaxed">
               {mission || "Providing quality education via modern infrastructure, fostering discipline, innovation, and self-reliance."}
             </p>
           </div>
         </div>
 
-        {/* 3. Motto Banner - Stacked layout on mobile */}
-        <div className="md:col-span-12 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[2rem] p-5 md:p-6 relative overflow-hidden shadow-lg">
-          <FiZap className="absolute right-[-5%] top-1/2 -translate-y-1/2 text-white/5 text-7xl md:text-8xl -rotate-12 pointer-events-none" />
+        {/* 3. Motto Banner - Full bleed on mobile */}
+        <div className="md:col-span-12 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-none md:rounded-[3rem] p-8 md:p-10 relative overflow-hidden shadow-lg">
+          {/* Large background icon for texture */}
+          <FiZap className="absolute right-[-2%] top-1/2 -translate-y-1/2 text-white/5 text-8xl md:text-9xl -rotate-12 pointer-events-none" />
           
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5">
-            <div className="flex items-center gap-4 self-start md:self-center">
-              <div className="w-11 h-11 md:w-12 md:h-12 bg-white/10 backdrop-blur-xl rounded-xl flex items-center justify-center border border-white/20 shrink-0">
-                <FiAward className="text-white text-xl md:text-2xl" />
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-5 self-start md:self-center">
+              <div className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shrink-0 shadow-2xl">
+                <FiAward className="text-white text-3xl" />
               </div>
               <div className="text-left">
-                <span className="text-blue-200 text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] block mb-0.5">The Spirit of Katwanyaa</span>
-                <h3 className="text-white text-base md:text-lg font-black tracking-tighter uppercase">School Motto</h3>
+                <span className="text-blue-200 text-[10px] font-black uppercase tracking-[0.3em] block mb-1">The Spirit of the School</span>
+                <h3 className="text-white text-xl md:text-2xl font-black tracking-tighter uppercase">School Motto</h3>
               </div>
             </div>
 
             <div className="w-full md:w-auto">
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 px-5 md:px-8 py-3 rounded-2xl md:rounded-3xl text-center">
-                <p className="text-white text-lg md:text-2xl font-black italic tracking-tighter leading-none">
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 px-8 py-5 rounded-2xl md:rounded-[2rem] text-center shadow-inner">
+                <p className="text-white text-2xl md:text-4xl font-black italic tracking-tighter leading-none">
                   "{motto || "Strive for Excellence"}"
                 </p>
               </div>
@@ -1036,6 +1038,7 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
     </div>
   );
 };
+
 
 
 const ModernUniformRequirementsSection = ({ 
@@ -2313,7 +2316,7 @@ return (
             <p className="text-slate-500 text-xs font-medium">{sect.desc}</p>
           </div>
           <div className="px-3 py-1.5 bg-white self-start rounded-full shadow-sm border border-slate-200 text-[10px] font-black text-slate-600 uppercase">
-            {sect.count || 0} Specialties
+            {sect.count || 0} Subjects
           </div>
         </div>
 
