@@ -2651,7 +2651,6 @@ return (
   </div>
 )}
 
-{/* Career Paths Tab - Modern */}
 {activeTab === 'career-paths' && (
   <div className="space-y-10 md:space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
     {/* Hero Section */}
@@ -2688,62 +2687,46 @@ return (
             We bridge academic learning with professional reality.
           </p>
         </div>
-    <button 
-  onClick={() => router.push('/pages/contact')}
-  className="
-    /* Layout */
-    flex items-center justify-center gap-2 md:gap-3
-    w-full lg:w-auto 
-    
-    /* Sizing & Shape */
-    px-5 md:px-10 
-    py-3.5 md:py-5 
-    rounded-xl md:rounded-2xl 
-    
-    /* Aesthetics */
-    bg-white text-slate-900 
-    border border-slate-200 
-    shadow-sm
-    
-    /* Typography */
-    font-black uppercase 
-    tracking-[0.1em] md:tracking-[0.2em] 
-    text-[10px] md:text-[11px]
-    
-    /* Interactions (Simplified) */
-    transition-transform active:scale-95
-  "
->
-  <span className="whitespace-nowrap">
-    Schedule <span className="hidden xs:inline">Consultation</span>
-    <span className="xs:hidden">Now</span>
-  </span>
-  
-  <div className="flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full bg-slate-900 text-white">
-    <FiArrowRight className="text-[10px] md:text-[12px]" />
-  </div>
-</button>
+        <button 
+          onClick={() => router.push('/pages/contact')}
+          className="
+            /* Layout */
+            flex items-center justify-center gap-2 md:gap-3
+            w-full lg:w-auto 
+            
+            /* Sizing & Shape */
+            px-5 md:px-10 
+            py-3.5 md:py-5 
+            rounded-xl md:rounded-2xl 
+            
+            /* Aesthetics */
+            bg-white text-slate-900 
+            border border-slate-200 
+            shadow-sm
+            
+            /* Typography */
+            font-black uppercase 
+            tracking-[0.1em] md:tracking-[0.2em] 
+            text-[10px] md:text-[11px]
+            
+            /* Interactions (Simplified) */
+            transition-transform active:scale-95
+          "
+        >
+          <span className="whitespace-nowrap">
+            Schedule <span className="hidden xs:inline">Consultation</span>
+            <span className="xs:hidden">Now</span>
+          </span>
+          
+          <div className="flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full bg-slate-900 text-white">
+            <FiArrowRight className="text-[10px] md:text-[12px]" />
+          </div>
+        </button>
       </div>
     </div>
 
-    {/* Career Departments Grid */}
-    <div className="px-4 md:px-0">
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-slate-100 pb-6">
-        <div>
-          <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase">Academic Tracks</h3>
-          <p className="text-slate-500 mt-1 text-sm">Structured pathways aligned with industry demands</p>
-        </div>
-        <div className="mt-4 md:mt-0 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
-          {careerDepartments.length} Specialized Domains
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {careerDepartments.map((dept, index) => (
-          <CareerSearchPage key={index} {...dept} />
-        ))}
-      </div>
-    </div>
+    {/* Render the CareerSearchPage component */}
+    <CareerSearchPage />
   </div>
 )}
 
