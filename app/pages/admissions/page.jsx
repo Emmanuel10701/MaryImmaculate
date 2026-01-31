@@ -1039,8 +1039,6 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
 };
 
 
-
-// Updated Modern Uniform Requirements Component
 const ModernUniformRequirementsSection = ({ 
   admissionFeeDistribution, 
   admissionFeePdf, 
@@ -1053,25 +1051,36 @@ const ModernUniformRequirementsSection = ({
   const totalCost = uniformItems.reduce((sum, item) => sum + (item.amount || 0), 0);
 
   return (
-    <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl overflow-hidden max-w-full">
+    /* Removed margins and rounding on mobile (rounded-none), restored for desktop */
+    <div className="bg-white rounded-none md:rounded-[2.5rem] border-x-0 border-t-0 md:border border-slate-100 shadow-2xl overflow-hidden max-w-full">
       
-      {/* Header Section: Now uses the high-end Slate-900 look */}
-      <div className="relative p-6 md:p-10 bg-[#0F172A] text-white">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 blur-[100px] rounded-full -mr-32 -mt-32"></div>
+      {/* Header Section: Edge-to-edge on mobile */}
+      <div className="relative p-6 md:p-12 bg-[#0F172A] text-white">
+        {/* Glow effect - adjusted for mobile center */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 blur-[80px] md:blur-[100px] rounded-full -mr-32 -mt-32"></div>
         
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shrink-0">
               <IoShirtOutline className="text-blue-400 text-2xl md:text-3xl" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-lg md:text-2xl font-black uppercase tracking-tighter">Admission Breakdown</h3>
-              <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mt-1">
-                {admissionFeeYear || '2026'} • {admissionFeeTerm || 'Full Session'}
-              </p>
-              {admissionFeeDescription && (
-                <p className="text-white/40 text-[10px] mt-1 italic font-bold truncate">{admissionFeeDescription}</p>
-              )}
+              <h3 className="text-xl md:text-3xl font-black uppercase tracking-tighter leading-tight">
+                Admission <span className="text-blue-500">Breakdown</span>
+              </h3>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
+                  {admissionFeeYear || '2026'} • {admissionFeeTerm || 'Full Session'}
+                </p>
+                {admissionFeeDescription && (
+                  <span className="hidden md:inline text-white/20 text-[10px]">•</span>
+                )}
+                {admissionFeeDescription && (
+                  <p className="text-white/40 text-[10px] italic font-bold truncate max-w-[150px] md:max-w-none">
+                    {admissionFeeDescription}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           
@@ -1081,53 +1090,57 @@ const ModernUniformRequirementsSection = ({
               download={admissionFeePdfName}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-blue-900/40 shrink-0 active:scale-95"
+              className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-blue-900/40 active:scale-95"
             >
               <IoCloudDownloadOutline className="text-lg" />
-              <span>Download PDF</span>
+              <span>Full Document (PDF)</span>
             </a>
           )}
         </div>
       </div>
 
       {/* Content Section: Individual Item Cards */}
-      <div className="p-5 md:p-10 bg-slate-50/50">
+      <div className="p-4 md:p-12 bg-slate-50/50">
         {uniformItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {uniformItems.map((item, index) => (
               <div 
                 key={item.id || index}
-                className="group bg-white border border-slate-200 rounded-2xl p-5 transition-all hover:shadow-xl hover:border-blue-200"
+                className="group bg-white border border-slate-200 rounded-2xl p-6 transition-all shadow-sm md:hover:shadow-xl md:hover:border-blue-200"
               >
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-5">
                   <div className="min-w-0">
-                    <h4 className="font-black text-slate-900 text-[11px] uppercase tracking-wider mb-1 truncate">
+                    <h4 className="font-black text-slate-900 text-[12px] uppercase tracking-wider mb-1">
                       {item.name}
                     </h4>
-                    <p className="text-slate-400 text-[10px] font-bold leading-tight line-clamp-2">
+                    <p className="text-slate-400 text-[10px] font-bold leading-relaxed line-clamp-2">
                       {item.description || 'Standard requirement'}
                     </p>
                   </div>
-                  <div className={`p-1.5 rounded-lg shrink-0 ${item.optional ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
-                    {item.optional ? <FiCheckCircle size={14} /> : <IoCheckmarkCircleOutline size={14} />}
+                  <div className={`p-2 rounded-xl shrink-0 ${item.optional ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
+                    {item.optional ? <FiCheckCircle size={16} /> : <IoCheckmarkCircleOutline size={16} />}
                   </div>
                 </div>
 
                 <div className="flex items-end justify-between mt-6">
                   <div className="flex flex-col">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Amount</span>
-                    <span className="text-lg font-black text-slate-900 tabular-nums">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fee Amount</span>
+                    <span className="text-xl font-black text-slate-900 tabular-nums">
                       KSh {parseInt(item.amount || 0).toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    {item.optional && <span className="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-black uppercase">Optional</span>}
-                    {item.boardingOnly && <span className="text-[9px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-black uppercase">Boarding</span>}
+                  <div className="flex flex-col items-end gap-1.5">
+                    {item.optional && (
+                      <span className="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md font-black uppercase tracking-tighter">Optional</span>
+                    )}
+                    {item.boardingOnly && (
+                      <span className="text-[9px] bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-black uppercase tracking-tighter">Boarding</span>
+                    )}
                   </div>
                 </div>
                 
-                {/* Visual Progress Bar - Boldened */}
-                <div className="w-full h-1.5 bg-slate-100 rounded-full mt-4 overflow-hidden">
+                {/* Visual Progress Line */}
+                <div className="w-full h-1.5 bg-slate-100 rounded-full mt-5 overflow-hidden">
                   <div 
                     className={`h-full transition-all duration-1000 ${item.optional ? 'bg-emerald-500' : 'bg-blue-600'}`}
                     style={{ width: '100%' }}
@@ -1137,38 +1150,38 @@ const ModernUniformRequirementsSection = ({
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 border-2 border-dashed border-slate-200 rounded-[2rem]">
+          <div className="text-center py-20 bg-white border-2 border-dashed border-slate-200 rounded-[2rem]">
             <FiAlertTriangle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
             <h4 className="text-slate-900 font-black uppercase tracking-widest text-sm">No items found</h4>
             <p className="text-slate-400 text-xs font-bold mt-2">The admission list is being updated by the registrar.</p>
           </div>
         )}
 
-        {/* Total Cost Summary Bento - Sticky-ready for Mobile */}
+        {/* Total Cost Summary Bento - Full width on Mobile */}
         {uniformItems.length > 0 && (
-          <div className="mt-10 p-6 md:p-8 bg-slate-900 rounded-[2rem] text-white shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8 border border-white/5">
-            <div className="flex items-center gap-5 w-full md:w-auto">
-              <div className="p-4 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/20">
-                <FiDollarSign size={24} className="text-white" />
+          <div className="mt-8 md:mt-12 p-8 md:p-12 bg-slate-900 rounded-[2rem] text-white shadow-2xl flex flex-col lg:flex-row justify-between items-center gap-10 border border-white/5">
+            <div className="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto">
+              <div className="p-5 bg-blue-600 rounded-[1.5rem] shadow-xl shadow-blue-600/20">
+                <FiDollarSign size={28} className="text-white" />
               </div>
-              <div>
-                <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] mb-1">
-                  Cumulative Total
+              <div className="text-center sm:text-left">
+                <h4 className="text-[10px] md:text-xs font-black text-blue-400 uppercase tracking-[0.4em] mb-2">
+                  Total Admission Cost
                 </h4>
-                <div className="text-3xl md:text-5xl font-black tracking-tighter tabular-nums leading-none">
+                <div className="text-4xl md:text-6xl font-black tracking-tighter tabular-nums leading-none">
                   KSh {totalCost.toLocaleString()}
                 </div>
               </div>
             </div>
             
-            <div className="flex gap-6 w-full md:w-auto border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-10">
-              <div className="flex flex-col">
-                <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Mandatory</span>
-                <span className="text-xl font-black text-white">{uniformItems.filter(i => !i.optional).length} Items</span>
+            <div className="flex justify-around w-full lg:w-auto lg:border-l border-white/10 lg:pl-12 gap-10 border-t lg:border-t-0 pt-8 lg:pt-0">
+              <div className="flex flex-col items-center lg:items-start">
+                <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] mb-1">Mandatory</span>
+                <span className="text-2xl font-black text-white">{uniformItems.filter(i => !i.optional).length} Items</span>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Optional</span>
-                <span className="text-xl font-black text-emerald-400">{uniformItems.filter(i => i.optional).length} Items</span>
+              <div className="flex flex-col items-center lg:items-start">
+                <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] mb-1">Optional</span>
+                <span className="text-2xl font-black text-emerald-400">{uniformItems.filter(i => i.optional).length} Items</span>
               </div>
             </div>
           </div>
@@ -1252,23 +1265,24 @@ const AcademicResultsSection = ({ documentData }) => {
   if (availableResults.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl overflow-hidden">
+    /* Responsive Wrapper: Full width (rounded-none) on mobile, Elegant Card on desktop */
+    <div className="bg-white rounded-none md:rounded-[2.5rem] border-x-0 md:border border-slate-100 shadow-2xl overflow-hidden">
       
-      {/* Header Section - Dark Bento Style */}
-      <div className="relative p-6 md:p-10 bg-[#0F172A] text-white">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/20 blur-[100px] rounded-full -mr-32 -mt-32"></div>
+      {/* Header Section - Edge-to-edge look */}
+      <div className="relative p-6 md:p-12 bg-[#0F172A] text-white">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/20 blur-[80px] md:blur-[100px] rounded-full -mr-32 -mt-32" />
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+            <div className="p-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shrink-0">
               <IoStatsChartOutline className="text-blue-400 text-2xl md:text-3xl" />
             </div>
-            <div>
-              <h3 className="text-xl md:text-2xl font-black uppercase tracking-tighter">Academic Reports</h3>
+            <div className="min-w-0">
+              <h3 className="text-xl md:text-3xl font-black uppercase tracking-tighter">Academic <span className="text-blue-400">Reports</span></h3>
               <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mt-1">Official Performance Archives</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl">
+          <div className="flex items-center self-start md:self-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl">
             <FiAward className="text-amber-400" />
             <span className="text-[10px] font-black uppercase tracking-widest text-white/70">Verified Data</span>
           </div>
@@ -1276,29 +1290,29 @@ const AcademicResultsSection = ({ documentData }) => {
       </div>
 
       {/* Main Grid - Results Cards */}
-      <div className="p-5 md:p-10 bg-slate-50/30">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="p-4 md:p-12 bg-slate-50/30">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
           {availableResults.map((result, index) => (
             <div 
               key={index}
-              className="group bg-white border border-slate-200 rounded-[2rem] p-6 transition-all hover:shadow-xl hover:-translate-y-1"
+              className="group bg-white border border-slate-200 rounded-2xl md:rounded-[2rem] p-6 transition-all hover:shadow-xl"
             >
               <div className="flex items-start justify-between mb-6">
-                <div className={`p-4 rounded-2xl ${result.bg} ${result.accent}`}>
-                  <result.icon size={24} />
+                <div className={`p-4 rounded-2xl ${result.bg} ${result.accent} shrink-0`}>
+                  <result.icon size={22} className="md:size-6" />
                 </div>
                 <div className="text-right">
-                  <span className="block text-lg font-black text-slate-900 leading-none">{result.year}</span>
+                  <span className="block text-xl font-black text-slate-900 leading-none">{result.year}</span>
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{result.term || 'Annual'}</span>
                 </div>
               </div>
               
-              <h4 className="font-black text-slate-900 text-sm uppercase tracking-tight mb-2 truncate">
+              <h4 className="font-black text-slate-900 text-[13px] md:text-sm uppercase tracking-tight mb-2 truncate">
                 {result.name}
               </h4>
               
               {result.description && (
-                <p className="text-slate-400 text-[10px] font-bold leading-relaxed mb-6 line-clamp-2 h-8">
+                <p className="text-slate-400 text-[10px] font-bold leading-relaxed mb-6 line-clamp-2 min-h-[30px]">
                   {result.description}
                 </p>
               )}
@@ -1308,10 +1322,10 @@ const AcademicResultsSection = ({ documentData }) => {
                 download={result.pdfName}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-3 w-full py-4 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:bg-blue-600 active:scale-95"
+                className="flex items-center justify-center gap-3 w-full py-4 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
               >
                 <IoCloudDownloadOutline size={16} />
-                <span>Download Report</span>
+                <span>Get Report</span>
               </a>
             </div>
           ))}
@@ -1319,13 +1333,13 @@ const AcademicResultsSection = ({ documentData }) => {
 
         {/* Additional Documents - Horizontal Bento */}
         {documentData?.additionalDocuments && documentData.additionalDocuments.length > 0 && (
-          <div className="mt-12 pt-10 border-t border-slate-200">
-            <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 px-2">
-              School Resource Archive
+          <div className="mt-10 md:mt-16 pt-10 border-t border-slate-200">
+            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 px-1">
+              Resources & Support Docs
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {documentData.additionalDocuments.map((doc, index) => (
-                <div key={index} className="flex items-center justify-between p-5 bg-white rounded-2xl border border-slate-200 group transition-all hover:border-blue-400">
+                <div key={index} className="flex items-center justify-between p-4 md:p-6 bg-white rounded-2xl border border-slate-200 group transition-all">
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="p-3 bg-slate-100 rounded-xl group-hover:bg-blue-50 transition-colors shrink-0">
                       <IoDocumentTextOutline className="text-slate-500 group-hover:text-blue-500" />
@@ -1344,9 +1358,9 @@ const AcademicResultsSection = ({ documentData }) => {
                     download={doc.filename}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-3 bg-slate-900 text-white rounded-xl hover:bg-blue-600 transition-all active:scale-90"
+                    className="p-3 bg-slate-900 text-white rounded-xl active:scale-90"
                   >
-                    <FiDownload size={16} />
+                    <FiDownload size={14} />
                   </a>
                 </div>
               ))}
@@ -2393,13 +2407,41 @@ return (
             We bridge academic learning with professional reality.
           </p>
         </div>
-        <button 
-          onClick={() => router.push('/pages/contact')}
-          className="w-full lg:w-auto px-8 py-4 bg-white text-slate-900 rounded-2xl font-black tracking-tight flex items-center justify-center gap-3 shadow-xl hover:bg-blue-50 transition-all active:scale-95"
-        >
-          <span>Schedule Consultation</span>
-          <FiArrowRight />
-        </button>
+    <button 
+  onClick={() => router.push('/pages/contact')}
+  className="
+    /* Layout */
+    flex items-center justify-center gap-2 md:gap-3
+    w-full lg:w-auto 
+    
+    /* Sizing & Shape */
+    px-5 md:px-10 
+    py-3.5 md:py-5 
+    rounded-xl md:rounded-2xl 
+    
+    /* Aesthetics */
+    bg-white text-slate-900 
+    border border-slate-200 
+    shadow-sm
+    
+    /* Typography */
+    font-black uppercase 
+    tracking-[0.1em] md:tracking-[0.2em] 
+    text-[10px] md:text-[11px]
+    
+    /* Interactions (Simplified) */
+    transition-transform active:scale-95
+  "
+>
+  <span className="whitespace-nowrap">
+    Schedule <span className="hidden xs:inline">Consultation</span>
+    <span className="xs:hidden">Now</span>
+  </span>
+  
+  <div className="flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full bg-slate-900 text-white">
+    <FiArrowRight className="text-[10px] md:text-[12px]" />
+  </div>
+</button>
       </div>
     </div>
 
