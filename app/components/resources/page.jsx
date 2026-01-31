@@ -966,36 +966,6 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
 
 
 
-// Remove this entire useEffect block from ResourcesManager:
-useEffect(() => {
-  // Calculate total file size
-  let totalBytes = 0;
-  
-  // Add new files size
-  files.forEach(fileObj => {
-    if (fileObj.file && fileObj.file.size) {
-      totalBytes += fileObj.file.size;
-    }
-  });
-  
-  // Add existing files size (excluding those marked for removal)
-  existingFiles.forEach((file, index) => {
-    if (!filesToRemove.includes(file.url)) {
-      totalBytes += file.size || 0;
-    }
-  });
-  
-  const totalMB = totalBytes / (1024 * 1024);
-  setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
-  
-  // Check if exceeds Vercel's 4.5MB limit
-  if (totalMB > 4.5) {
-    setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's 4.5MB limit`);
-  } else {
-    setFileSizeError('');
-  }
-}, [files, existingFiles, filesToRemove]);
-
     // Calculate new total size if we add these files
     let newFilesTotalBytes = 0;
     validFiles.forEach(file => {
@@ -1645,10 +1615,6 @@ export default function ResourcesManager() {
   const [deleting, setDeleting] = useState(false);
   const [stats, setStats] = useState(null);
 
-  // Add these state variables with the existing state declarations
-const [totalSizeMB, setTotalSizeMB] = useState(0);
-const [fileSizeError, setFileSizeError] = useState('');
-  
   // NEW: Bulk delete states
   const [selectedResources, setSelectedResources] = useState(new Set());
   const [deleteType, setDeleteType] = useState('single');
