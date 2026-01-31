@@ -154,7 +154,7 @@ const FeesView = ({ student, token }) => {
 // Loading State
 if (loading) {
   return (
-    <div className="min-h-[60vh] md:min-h-screen w-full bg-slate-50 p-4 flex flex-col items-center justify-center font-sans">
+    <div className="min-h-[60vh]  w-full bg-slate-50 p-4 flex flex-col items-center justify-center font-sans">
       <div className="text-center flex flex-col items-center w-full max-w-[280px] md:max-w-sm mx-auto">
         
         {/* Responsive Spinner Container */}
