@@ -1453,12 +1453,12 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
   
   <div>
     {/* Heading: Tighter tracking and smaller size for mobile */}
-    <h3 className="text-lg md:text-2xl font-black text-slate-900 mb-1.5 md:mb-3 uppercase tracking-tighter leading-tight">
+    <h3 className="text-md md:text-lg font-black text-slate-900 mb-1.5 md:mb-3 uppercase tracking-tighter leading-tight">
       Our Mission
     </h3>
     
     {/* Text: text-xs/sm keeps the mission statement readable but concise */}
-    <p className="text-slate-600 text-[13px] md:text-base font-bold leading-relaxed md:leading-relaxed">
+    <p className="text-slate-600 text-md md:text-base font-bold leading-relaxed md:leading-relaxed">
       {mission || "Providing quality education via modern infrastructure, fostering discipline, innovation, and self-reliance."}
     </p>
   </div>
@@ -1482,7 +1482,7 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
         <span className="text-blue-200 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] block mb-0">
           The Spirit of the School
         </span>
-        <h3 className="text-white text-base md:text-2xl font-black tracking-tighter uppercase leading-none">
+        <h3 className="text-white text-base md:text-lg font-black tracking-tighter uppercase leading-none">
           School Motto
         </h3>
       </div>
@@ -1491,7 +1491,7 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
     {/* Motto Card: Reduced padding for mobile (px-5 py-3) */}
     <div className="w-full md:w-auto">
       <div className="bg-white/10 backdrop-blur-md border border-white/20 px-5 py-3 md:px-8 md:py-5 rounded-xl md:rounded-[2rem] text-center shadow-inner active:scale-[0.98] transition-transform">
-        <p className="text-white text-lg md:text-2xl font-black italic tracking-tighter leading-tight md:leading-none">
+        <p className="text-white text-md md:text-lg font-black italic tracking-tighter leading-tight md:leading-none">
           "{motto || "Strive for Excellence"}"
         </p>
       </div>
