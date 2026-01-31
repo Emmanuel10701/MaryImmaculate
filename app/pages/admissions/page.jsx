@@ -375,76 +375,76 @@ const CareerPortalModal = ({ isOpen, onClose, data }) => {
 
 const ModernEducationSystemCard = ({ system, icon: Icon, color, description, features, structure, advantages }) => {
   return (
-    <div className="group relative bg-slate-50 rounded-[2.5rem] p-2 transition-all duration-500 hover:shadow-2xl">
-      {/* Outer Glow Effect */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-[2.5rem]`} />
+    /* Removed p-2 on mobile so the card is edge-to-edge; kept rounded for desktop */
+    <div className="group relative bg-slate-50 md:rounded-[2.5rem] p-0 md:p-2 transition-all duration-500 hover:shadow-2xl">
+      {/* Outer Glow Effect - Hidden on mobile to keep edge clean */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 md:rounded-[2.5rem] hidden md:block`} />
       
-      <div className="relative bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
+      <div className="relative bg-white md:rounded-[2rem] border-y md:border border-slate-200 overflow-hidden shadow-sm">
         
-        {/* Top Header - High Contrast Bento Style */}
-        <div className={`relative h-40 p-8 md:p-10 bg-gradient-to-br ${color} overflow-hidden`}>
+        {/* Top Header - Adjusted height for mobile screens */}
+        <div className={`relative h-32 md:h-40 p-6 md:p-10 bg-gradient-to-br ${color} overflow-hidden`}>
           {/* Decorative Elements */}
-          <div className="absolute top-0 right-0 w-72 h-72 bg-white/20 blur-[90px] rounded-full -mr-36 -mt-36 animate-pulse" />
-          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-black/10 blur-[50px] rounded-full" />
+          <div className="absolute top-0 right-0 w-64 md:w-72 h-64 md:h-72 bg-white/20 blur-[70px] md:blur-[90px] rounded-full -mr-32 -mt-32 animate-pulse" />
           
           <div className="relative z-10">
-            <h3 className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none">
+            <h3 className="text-xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none">
               {system.name}
             </h3>
-            <p className="text-white/90 text-[11px] font-black tracking-[0.3em] mt-3 uppercase opacity-80">
+            <p className="text-white/90 text-[9px] md:text-[11px] font-black tracking-[0.2em] md:tracking-[0.3em] mt-2 md:mt-3 uppercase opacity-80">
               {system.fullName}
             </p>
           </div>
         </div>
 
-        {/* Floating Icon - More Visible Border */}
-        <div className="relative px-8">
-          <div className="absolute -top-10 md:-top-12 right-8 p-1 bg-white rounded-[1.5rem] shadow-2xl border border-slate-100">
-            <div className={`p-4 md:p-5 rounded-[1.2rem] bg-gradient-to-br ${color} text-white shadow-inner active:scale-95 transition-transform`}>
-              <Icon className="text-3xl md:text-4xl" />
+        {/* Floating Icon - Smaller on mobile */}
+        <div className="relative px-6 md:px-8">
+          <div className="absolute -top-8 md:-top-12 right-6 md:right-8 p-1 bg-white rounded-[1.2rem] md:rounded-[1.5rem] shadow-2xl border border-slate-100">
+            <div className={`p-3 md:p-5 rounded-[1rem] md:rounded-[1.2rem] bg-gradient-to-br ${color} text-white shadow-inner active:scale-95 transition-transform`}>
+              <Icon className="text-2xl md:text-4xl" />
             </div>
           </div>
         </div>
 
         {/* Main Content Body */}
-        <div className="p-8 md:p-10 pt-12">
-          <div className="relative mb-10">
-            <span className="absolute -top-4 -left-2 text-6xl text-slate-100 font-black pointer-events-none">“</span>
-            <p className="relative z-10 text-slate-500 leading-relaxed text-sm md:text-base font-bold italic">
+        <div className="p-6 md:p-10 pt-10 md:pt-12">
+          <div className="relative mb-8 md:mb-10">
+            <span className="absolute -top-4 -left-2 text-4xl md:text-6xl text-slate-100 font-black pointer-events-none">“</span>
+            <p className="relative z-10 text-slate-500 leading-relaxed text-xs md:text-base font-bold italic">
               {description}
             </p>
           </div>
 
-          {/* Educational Structure - High Visibility Bento */}
-          <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-4 ml-1">Academic Path</h4>
-          <div className="grid grid-cols-3 gap-3 md:gap-4 mb-10">
+          {/* Educational Structure - 3 Columns preserved, font adjusted for small width */}
+          <h4 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4 ml-1">Academic Path</h4>
+          <div className="grid grid-cols-3 gap-2 md:gap-4 mb-8 md:mb-10">
             {structure.map((stage, idx) => (
-              <div key={idx} className="relative overflow-hidden p-4 md:p-5 rounded-[1.5rem] bg-[#0F172A] border border-slate-800 transition-transform hover:-translate-y-1">
+              <div key={idx} className="relative overflow-hidden p-3 md:p-5 rounded-2xl md:rounded-[1.5rem] bg-[#0F172A] border border-slate-800 transition-transform hover:-translate-y-1">
                 <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${color}`} />
-                <div className="font-black text-white text-2xl md:text-3xl leading-none tabular-nums">
+                <div className="font-black text-white text-xl md:text-3xl leading-none tabular-nums">
                   {stage.years}
                 </div>
-                <div className="text-[9px] text-blue-400 font-black uppercase tracking-widest mt-3 leading-tight">
+                <div className="text-[8px] md:text-[9px] text-blue-400 font-black uppercase tracking-widest mt-2 md:mt-3 leading-tight">
                   {stage.name}
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Features - Clean Minimalist Grid */}
-          <div className="space-y-6 mb-10">
-             <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-6 ml-1">
+          {/* Features - Optimized spacing for narrow screens */}
+          <div className="space-y-6 mb-8 md:mb-10">
+             <h4 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4 ml-1">
                System Pillars
              </h4>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 md:gap-y-6">
                 {features.map((feature, idx) => (
-                  <div key={idx} className="flex gap-4 items-start group/feat">
-                    <div className={`flex-shrink-0 w-3 h-3 rounded-full bg-gradient-to-r ${color} mt-1.5 group-hover/feat:scale-125 transition-transform`} />
+                  <div key={idx} className="flex gap-3 md:gap-4 items-start group/feat">
+                    <div className={`flex-shrink-0 w-2 h-2 md:w-3 md:h-3 rounded-full bg-gradient-to-r ${color} mt-1.5`} />
                     <div className="min-w-0">
-                      <h5 className="font-black text-slate-900 text-[13px] uppercase tracking-tight leading-tight mb-1">
+                      <h5 className="font-black text-slate-900 text-[11px] md:text-[13px] uppercase tracking-tight leading-tight mb-1">
                         {feature.title}
                       </h5>
-                      <p className="text-slate-400 text-[11px] font-bold leading-snug">
+                      <p className="text-slate-400 text-[10px] md:text-[11px] font-bold leading-snug">
                         {feature.description}
                       </p>
                     </div>
@@ -453,11 +453,11 @@ const ModernEducationSystemCard = ({ system, icon: Icon, color, description, fea
              </div>
           </div>
 
-          {/* Advantages - Modern Pill Tags */}
-          <div className="pt-8 border-t border-slate-100">
-            <div className="flex flex-wrap gap-2">
+          {/* Advantages - Pill Tags scrollable/wrap behavior */}
+          <div className="pt-6 md:pt-8 border-t border-slate-100">
+            <div className="flex flex-wrap gap-1.5 md:gap-2">
               {advantages.map((advantage, idx) => (
-                <span key={idx} className="px-4 py-2 bg-slate-100 text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] hover:bg-slate-900 hover:text-white transition-colors cursor-default">
+                <span key={idx} className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-100 text-slate-900 rounded-lg md:rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-wider md:tracking-[0.15em]">
                   {advantage}
                 </span>
               ))}
