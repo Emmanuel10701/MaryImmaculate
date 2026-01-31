@@ -580,7 +580,7 @@ const CareerSearchPage = () => {
                   <div className="flex items-center gap-3">
 <div className="flex items-center gap-1 text-blue-700">
   <span className="text-[10px] md:text-xs font-black uppercase">
-    {dept?.careerPaths?.length || 0} Pathways
+     Careers
   </span>
 </div>
 
