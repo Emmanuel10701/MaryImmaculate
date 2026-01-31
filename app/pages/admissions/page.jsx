@@ -11,6 +11,7 @@ import {
   FiAward,
   FiUsers,
   FiBook,
+  FiCheck,
   FiHome,
   FiMail,
   FiPhone,
