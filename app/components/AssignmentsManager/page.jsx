@@ -931,9 +931,35 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
     }
   }, [assignment]);
 
-  // Calculate total file size whenever files change
-
-
+  // Calculate total file size whenever files change - ADD THIS useEffect
+  useEffect(() => {
+    let totalBytes = 0;
+    
+    // Add size of new assignment files
+    assignmentFiles.forEach(file => {
+      if (file.file && file.file.size && !file.isExisting) {
+        totalBytes += file.file.size;
+      }
+    });
+    
+    // Add size of new attachments
+    attachments.forEach(file => {
+      if (file.file && file.file.size && !file.isExisting) {
+        totalBytes += file.file.size;
+      }
+    });
+    
+    const totalMB = totalBytes / (1024 * 1024);
+    setTotalSizeMB(parseFloat(totalMB.toFixed(2)));
+    
+    // Check Vercel's 4.5MB limit
+    const VERCEL_LIMIT_MB = 4.5;
+    if (totalMB > VERCEL_LIMIT_MB) {
+      setFileSizeError(`Total file size (${totalMB.toFixed(1)}MB) exceeds Vercel's ${VERCEL_LIMIT_MB}MB limit`);
+    } else {
+      setFileSizeError('');
+    }
+  }, [assignmentFiles, attachments]);
 
   const handleAddObjective = () => {
     if (newObjective.trim()) {
@@ -1108,6 +1134,18 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
     toast.info('Attachment removed');
   };
 
+  // Handle form field changes
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Get size color based on current usage
+  const getSizeColor = () => {
+    if (totalSizeMB > 4.5) return 'text-red-600';
+    if (totalSizeMB > 3.5) return 'text-amber-600';
+    return 'text-green-600';
+  };
+
   // Handle form submit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -1152,18 +1190,6 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
     );
   };
 
-  // Handle form field changes
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  // Get size color based on current usage
-  const getSizeColor = () => {
-    if (totalSizeMB > 4.5) return 'text-red-600';
-    if (totalSizeMB > 3.5) return 'text-amber-600';
-    return 'text-green-600';
-  };
-
   return (
     <Modal open={true} onClose={loading ? undefined : onClose}>
       <Box sx={{
@@ -1201,7 +1227,7 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
 
         <div className="max-h-[calc(95vh-150px)] overflow-y-auto">
           <form onSubmit={handleFormSubmit} className="p-6 space-y-6">
-            {/* File Size Warning */}
+            {/* File Size Warning - REMOVE THE DUPLICATE ONE */}
             {fileSizeError && (
               <div className="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-xl p-4">
                 <div className="flex items-start gap-3">
@@ -1216,7 +1242,42 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
               </div>
             )}
 
-            {/* Title - Full Width */}
+            {/* Size Progress Bar - ADD THIS SECTION */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border-2 border-blue-200">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <FiUpload className="text-blue-500" />
+                    <span>File Upload Status</span>
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Max 10MB per file • Total limit: 4.5MB • PDF, DOC, PPT, Images
+                  </p>
+                </div>
+                
+                {/* Size Indicator */}
+                <div className={`flex items-center gap-3 ${getSizeColor()}`}>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">{totalSizeMB.toFixed(1)} MB</p>
+                    <p className="text-xs">of 4.5 MB</p>
+                  </div>
+                  <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${
+                        totalSizeMB > 4.5 
+                          ? 'bg-red-500' 
+                          : totalSizeMB > 3.5
+                          ? 'bg-amber-500'
+                          : 'bg-green-500'
+                      }`}
+                      style={{ width: `${Math.min((totalSizeMB / 4.5) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Title - Full Width - FIX THE ICON */}
             <div>
               <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <span className="text-red-500">*</span>
@@ -1293,11 +1354,11 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
               />
             </div>
 
-            {/* Description - Full Width */}
+            {/* Description - Full Width - FIX THE ICON */}
             <div>
               <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <span className="text-red-500">*</span>
-                <FiEdit2 className="text-blue-500" />
+                <FiFileText className="text-blue-500" />
                 Description
               </label>
               <textarea
@@ -1449,10 +1510,10 @@ function ModernAssignmentModal({ onClose, onSave, assignment, loading }) {
               </div>
             </div>
 
-            {/* Instructions - Full Width */}
+            {/* Instructions - Full Width - FIX THE ICON */}
             <div>
               <label className="block text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <FiEdit2 className="text-green-500" />
+                <FiBookOpen className="text-green-500" />
                 Instructions
               </label>
               <textarea
