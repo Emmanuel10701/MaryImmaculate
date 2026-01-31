@@ -321,9 +321,8 @@ Steps:
 
 **Physical Address:**
 Mary Immaculate Girls
-, Matungulu Sub-County
 Mweiga, Nyeri County
-P.O. Box 363 – 90131 Tala, Kenya
+P.O. Box 363 – 90131 Nyeri, Kenya
 
 **Office Hours:**
 • Monday-Friday: 8:00 AM - 5:00 PM
