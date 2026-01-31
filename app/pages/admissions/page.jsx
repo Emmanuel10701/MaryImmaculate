@@ -1013,25 +1013,33 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
           {/* Large background icon for texture */}
           <FiZap className="absolute right-[-2%] top-1/2 -translate-y-1/2 text-white/5 text-8xl md:text-9xl -rotate-12 pointer-events-none" />
           
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex items-center gap-5 self-start md:self-center">
-              <div className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shrink-0 shadow-2xl">
-                <FiAward className="text-white text-3xl" />
-              </div>
-              <div className="text-left">
-                <span className="text-blue-200 text-[10px] font-black uppercase tracking-[0.3em] block mb-1">The Spirit of the School</span>
-                <h3 className="text-white text-xl md:text-2xl font-black tracking-tighter uppercase">School Motto</h3>
-              </div>
-            </div>
+<div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
+  {/* Header Part: Icon + Label */}
+  <div className="flex items-center gap-4 md:gap-5 self-start md:self-center w-full md:w-auto">
+    {/* Icon: Slightly smaller on mobile for better balance */}
+    <div className="w-12 h-12 md:w-14 md:h-14 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-2xl flex items-center justify-center border border-white/20 shrink-0 shadow-2xl">
+      <FiAward className="text-white text-2xl md:text-3xl" />
+    </div>
+    
+    <div className="text-left">
+      <span className="text-blue-200 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] block mb-0.5 md:mb-1">
+        The Spirit of the School
+      </span>
+      <h3 className="text-white text-lg md:text-2xl font-black tracking-tighter uppercase leading-tight">
+        School Motto
+      </h3>
+    </div>
+  </div>
 
-            <div className="w-full md:w-auto">
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 px-8 py-5 rounded-2xl md:rounded-[2rem] text-center shadow-inner">
-                <p className="text-white text-2xl md:text-4xl font-black italic tracking-tighter leading-none">
-                  "{motto || "Strive for Excellence"}"
-                </p>
-              </div>
-            </div>
-          </div>
+  {/* Motto Card: Full width on mobile, auto width on desktop */}
+  <div className="w-full md:w-auto">
+    <div className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-4 md:px-8 md:py-5 rounded-xl md:rounded-[2rem] text-center shadow-inner group transition-all duration-300 active:scale-[0.98]">
+      <p className="text-white text-xl md:text-4xl font-black italic tracking-tighter leading-tight md:leading-none">
+        "{motto || "Strive for Excellence"}"
+      </p>
+    </div>
+  </div>
+</div>
         </div>
 
       </div>
