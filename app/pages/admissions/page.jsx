@@ -163,12 +163,17 @@ const ModernCareerDepartmentCard = ({ data }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  // Filter career paths based on search
-  const filteredCareers = data.careerPaths.filter(career => 
-    career.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    career.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    career.examples.toLowerCase().includes(searchQuery.toLowerCase())
+  // This handles the "reading 'careerPaths' of undefined" error
+  const careerPaths = data?.careerPaths || [];
+
+  const filteredCareers = careerPaths.filter(career => 
+    career?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    career?.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    career?.examples?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Safety Return: If data is missing entirely, show a skeleton or nothing instead of crashing
+  if (!data) return <div className="p-4 bg-slate-50 animate-pulse rounded-xl h-20" />;
 
   return (
     <div className={`
@@ -177,23 +182,23 @@ const ModernCareerDepartmentCard = ({ data }) => {
       ${isExpanded ? 'ring-2 ring-blue-600 shadow-2xl' : 'hover:shadow-md'}
     `}>
       {/* Header Row */}
-      <div className={`p-4 md:p-6 bg-gradient-to-br ${data.color} text-white relative overflow-hidden`}>
+      <div className={`p-4 md:p-6 bg-gradient-to-br ${data.color || 'from-slate-500 to-slate-700'} text-white relative overflow-hidden`}>
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10" />
         <div className="flex items-center justify-between relative z-10">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shrink-0">
-              <data.Icon className="text-xl" />
+              {data.Icon && <data.Icon className="text-xl" />}
             </div>
             <div className="min-w-0">
               <span className="text-[7px] font-black uppercase tracking-[0.3em] text-white/80 block">Career Compass</span>
-              <h3 className="text-base md:text-xl font-black uppercase tracking-tight truncate leading-none">
-                {data.department}
+              <h3 className="text-base md:text-lg font-black uppercase tracking-tight truncate leading-none">
+                {data.department || "Loading..."}
               </h3>
             </div>
           </div>
           <button 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-transform duration-500 shadow-inner"
+            className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-transform duration-500 shadow-inner shrink-0"
             style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
           >
             <FiChevronDown size={20} />
@@ -206,74 +211,66 @@ const ModernCareerDepartmentCard = ({ data }) => {
         overflow-hidden transition-all duration-500 ease-in-out
         ${isExpanded ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}
       `}>
-        <div className="p-4 md:p-8 space-y-5 bg-white">
+        <div className="p-4 md:p-6 space-y-4 bg-white">
           
-          {/* 1. Integrated Search Engine Bar */}
           <div className="relative group">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
               type="text"
-              placeholder={`Search roles in ${data.department}...`}
-              className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              placeholder={`Search roles...`}
+              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          {/* 2. Results Mapping Area */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h4 className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-                Matching Pathways ({filteredCareers.length})
+          <div className="space-y-2">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+              <h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest">
+                Career Mapping ({filteredCareers.length})
               </h4>
-              {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="text-[8px] font-black text-blue-600 uppercase">Clear</button>
-              )}
             </div>
 
-            <div className="grid grid-cols-1 gap-3 max-h-[350px] overflow-y-auto pr-1 scrollbar-hide">
+            <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-1 scrollbar-hide">
               {filteredCareers.length > 0 ? (
                 filteredCareers.map((career, idx) => (
-                  <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-blue-200 transition-all">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-[9px] font-black shrink-0">
+                  <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-5 h-5 rounded bg-white text-blue-600 border border-slate-200 flex items-center justify-center text-[9px] font-black shrink-0">
                         {idx + 1}
                       </div>
                       <div className="min-w-0">
-                        <h5 className="text-[11px] font-black text-slate-900 uppercase mb-1">{career.title}</h5>
-                        <p className="text-[10px] text-slate-500 leading-relaxed mb-2">{career.description}</p>
-                        
-                        {/* Examples / Offers */}
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          <span className="text-[8px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">Offers:</span>
-                          <p className="text-[9px] text-slate-700 font-bold">{career.examples}</p>
+                        <h5 className="text-[10px] font-black text-slate-900 uppercase mb-0.5">{career?.title}</h5>
+                        <p className="text-[9px] text-slate-500 leading-snug mb-1.5">{career?.description}</p>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[7px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase">Offers:</span>
+                          <p className="text-[8px] text-slate-700 font-bold truncate">{career?.examples}</p>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="py-10 text-center">
-                  <p className="text-[11px] font-bold text-slate-400 italic">No matching roles found in this department.</p>
+                <div className="py-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                  <p className="text-[10px] font-bold text-slate-400 italic">No specific path matches your search.</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* 3. Footer Actions */}
-          <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
+          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
             <button 
               onClick={() => router.push('/pages/contact')}
-              className="flex-1 py-3.5 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-slate-900 text-white rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2"
             >
-              <FiMessageCircle size={14} />
+              <FiMessageCircle size={12} />
               Career Counseling
             </button>
             <button 
               onClick={() => setIsExpanded(false)}
-              className="px-6 py-3.5 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest"
+              className="px-5 py-3 bg-slate-100 text-slate-500 rounded-xl font-black text-[9px] uppercase tracking-widest"
             >
-              Close
+              Collapse
             </button>
           </div>
         </div>
