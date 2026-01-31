@@ -723,46 +723,40 @@ const DepartmentCard = ({ department, index }) => {
 };
 
 const ModernFeeCard = ({ 
-  feeType, 
-  total, 
-  distribution = [], 
-  pdfPath, 
-  pdfName, 
-  description,
-  year,
-  term,
-  icon: Icon, 
-  variant = "dark", // 'dark' (slate) or 'light' (white)
-  badge,
-  features = []
+  feeType, total, distribution = [], pdfPath, 
+  year, term, icon: Icon, variant = "dark", badge 
 }) => {
   const isDark = variant === "dark";
 
   return (
-    <div className={`relative rounded-[2.5rem] overflow-hidden transition-all duration-500 shadow-2xl border ${
-      isDark ? 'bg-[#0F172A] border-white/5 text-white' : 'bg-white border-slate-100 text-slate-900'
-    }`}>
+    <div className={`
+      relative transition-all duration-500 shadow-2xl
+      /* Mobile: Full Screen / Desktop: Rounded Card */
+      rounded-none md:rounded-[3rem] 
+      border-x-0 md:border
+      ${isDark ? 'bg-[#0F172A] border-white/5 text-white' : 'bg-white border-slate-100 text-slate-900'}
+    `}>
       
-      {/* Header Section */}
-      <div className="p-8 md:p-10 border-b border-white/5">
+      {/* Top Header - Adjusted for Mobile Spacing */}
+      <div className="p-6 md:p-12 border-b border-white/5">
         <div className="flex items-start justify-between mb-8">
           <div className="flex items-center gap-4">
             <div className={`p-3 rounded-2xl border ${
               isDark ? 'bg-white/5 border-white/10 text-blue-400' : 'bg-blue-50 border-blue-100 text-blue-600'
             }`}>
-              <Icon size={24} />
+              <Icon className="text-xl md:text-2xl" />
             </div>
-            <div>
-              <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tighter leading-none">
+            <div className="min-w-0">
+              <h3 className="text-xl md:text-3xl font-black uppercase tracking-tighter truncate leading-none">
                 {feeType}
               </h3>
-              <p className={`text-[10px] font-black uppercase tracking-[0.2em] mt-2 ${isDark ? 'text-white/40' : 'text-slate-400'}`}>
-                Session {year || '2026'} • {term || 'Full Term'}
+              <p className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mt-2 ${isDark ? 'text-white/40' : 'text-slate-400'}`}>
+                Session {year} • {term}
               </p>
             </div>
           </div>
           {badge && (
-            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+            <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
               isDark ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-600 text-white'
             }`}>
               {badge}
@@ -771,7 +765,7 @@ const ModernFeeCard = ({
         </div>
 
         <div className="space-y-1">
-          <p className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-white/30' : 'text-slate-400'}`}>
+          <p className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-40`}>
             Total Payable Amount
           </p>
           <div className={`text-4xl md:text-6xl font-black tracking-tighter tabular-nums ${isDark ? 'text-blue-400' : 'text-slate-900'}`}>
@@ -780,61 +774,53 @@ const ModernFeeCard = ({
         </div>
       </div>
 
-      {/* Breakdown Section - Mapped from API */}
-      <div className="p-8 md:p-10">
-        <div className="space-y-4">
-          <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] mb-6 ${isDark ? 'text-white/30' : 'text-slate-400'}`}>
-            Detailed Breakdown
-          </h4>
-          <div className="grid gap-3">
-            {distribution.map((item, idx) => (
-              <div key={item.id || idx} className={`flex justify-between items-center py-3 border-b ${isDark ? 'border-white/5' : 'border-slate-50'}`}>
-                <div className="flex flex-col">
-                  <span className="font-black text-sm uppercase tracking-tight">{item.name}</span>
-                  <span className={`text-[10px] font-bold ${isDark ? 'text-white/30' : 'text-slate-400'}`}>{item.description}</span>
-                </div>
-                <span className="font-black text-base tabular-nums">KSh {item.amount.toLocaleString()}</span>
+      {/* Breakdown Section - Mapped from Distribution JSON */}
+      <div className="p-6 md:p-12">
+        <h4 className={`text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] mb-6 opacity-30`}>
+          Detailed Breakdown
+        </h4>
+        
+        <div className="space-y-1">
+          {distribution.map((item, idx) => (
+            <div 
+              key={idx} 
+              className={`flex justify-between items-center py-4 border-b last:border-0 ${isDark ? 'border-white/5' : 'border-slate-50'}`}
+            >
+              <div className="flex flex-col min-w-0 pr-4">
+                <span className="font-black text-[13px] md:text-base uppercase tracking-tight truncate">
+                  {item.name}
+                </span>
+                {item.description && (
+                  <span className={`text-[10px] font-bold truncate opacity-40`}>
+                    {item.description}
+                  </span>
+                )}
               </div>
-            ))}
-          </div>
+              <span className="font-black text-sm md:text-lg tabular-nums shrink-0">
+                {item.amount?.toLocaleString()}
+              </span>
+            </div>
+          ))}
         </div>
 
-        {/* Features List */}
-        {features.length > 0 && (
-          <div className="mt-10">
-            <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] mb-4 ${isDark ? 'text-white/30' : 'text-slate-400'}`}>
-              Included Amenities
-            </h4>
-            <div className="grid grid-cols-2 gap-3">
-              {features.map((feature, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-blue-500' : 'bg-blue-600'}`} />
-                  <span className="font-black text-[10px] uppercase tracking-wide opacity-80">{feature}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Footer Action */}
-        <div className="mt-10 pt-8 border-t border-white/5 flex flex-col sm:flex-row gap-4 justify-between items-center">
+        {/* Footer Download Link */}
+        <div className="mt-10 pt-8 border-t border-white/5">
           <a 
             href={pdfPath} 
             target="_blank" 
-            className={`w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
-              isDark ? 'bg-white text-slate-900 hover:bg-blue-50' : 'bg-slate-900 text-white hover:bg-slate-800'
+            rel="noopener noreferrer"
+            className={`w-full flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all active:scale-95 shadow-xl ${
+              isDark ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'
             }`}
           >
-            <IoCloudDownloadOutline size={18} />
-            Download PDF
+            <IoCloudDownloadOutline size={20} />
+            Download PDF Structure
           </a>
-       
         </div>
       </div>
     </div>
   );
 };
-
 // Video Tour Component
 
 
@@ -2739,52 +2725,52 @@ return (
           )}
 
 {activeTab === 'fees' && (
-  <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-12">
+  <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-8 md:space-y-12">
     
-    <div className="grid lg:grid-cols-2 gap-8 md:gap-12 px-2">
+    {/* Layout shifts between 1 and 2 columns based on data availability */}
+    <div className={`grid gap-0 md:gap-12 ${
+      documentData?.feesDayDistributionJson?.length > 0 && documentData?.feesBoardingDistributionJson?.length > 0 
+      ? "lg:grid-cols-2" 
+      : "grid-cols-1"
+    }`}>
       
-      {/* Boarding Section - REAL MAPPING */}
-      <ModernFeeCard
-        variant="dark"
-        feeType="Boarding School"
-        total={documentData?.feesBoardingDistributionJson?.reduce((sum, i) => sum + i.amount, 0)}
-        distribution={documentData?.feesBoardingDistributionJson}
-        pdfPath={documentData?.feesBoardingDistributionPdf}
-        year={documentData?.feesBoardingYear || "2026"}
-        term={documentData?.feesBoardingTerm || "Term 1"}
-        icon={IoBookOutline}
-        badge="Full Board"
-        features={[
-          '24/7 Supervision',
-          'Full Accommodation',
-          'All Meals Included',
-          'Study Support',
-          'Health Services'
-        ]}
-      />
+      {/* Boarding Section */}
+      {documentData?.feesBoardingDistributionJson?.length > 0 && (
+        <ModernFeeCard
+          variant="dark"
+          feeType="Boarding School"
+          total={documentData?.feesBoardingDistributionJson?.reduce((sum, i) => sum + (i.amount || 0), 0)}
+          distribution={documentData?.feesBoardingDistributionJson}
+          pdfPath={documentData?.feesBoardingDistributionPdf}
+          year={documentData?.feesBoardingYear || "2026"}
+          term={documentData?.feesBoardingTerm || "Term 1"}
+          icon={IoBookOutline}
+          badge="Full Board"
+        />
+      )}
 
-      {/* Day Section - REAL MAPPING */}
-      <ModernFeeCard
-        variant="light"
-        feeType="Day School"
-        total={documentData?.feesDayDistributionJson?.reduce((sum, i) => sum + i.amount, 0)}
-        distribution={documentData?.feesDayDistributionJson}
-        pdfPath={documentData?.feesDayDistributionPdf}
-        year={documentData?.feesDayYear || "2026"}
-        term={documentData?.feesDayTerm || "Term 1"}
-        icon={FiHome}
-        badge="Standard"
-        features={[
-          'Lunch Provided',
-          'Library Access',
-          'Sports Facilities',
-          'Day Study Space',
-          'Lab Access'
-        ]}
-      />
+      {/* Day Section */}
+      {documentData?.feesDayDistributionJson?.length > 0 && (
+        <ModernFeeCard
+          variant="light"
+          feeType="Day School"
+          total={documentData?.feesDayDistributionJson?.reduce((sum, i) => sum + (i.amount || 0), 0)}
+          distribution={documentData?.feesDayDistributionJson}
+          pdfPath={documentData?.feesDayDistributionPdf}
+          year={documentData?.feesDayYear || "2026"}
+          term={documentData?.feesDayTerm || "Term 1"}
+          icon={FiHome}
+          badge="Standard"
+        />
+      )}
     </div>
 
-
+    {/* Optional: Empty State */}
+    {!documentData?.feesDayDistributionJson?.length && !documentData?.feesBoardingDistributionJson?.length && (
+      <div className="p-20 text-center border-2 border-dashed border-slate-200 rounded-[2rem]">
+        <p className="text-slate-400 font-black uppercase tracking-widest text-xs">Fees Structure Not Available</p>
+      </div>
+    )}
   </div>
 )}
 
