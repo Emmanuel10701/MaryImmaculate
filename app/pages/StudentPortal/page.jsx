@@ -941,18 +941,20 @@ if (!student || !token) {
               
               {/* Login Button - Enhanced Mobile */}
               <div className="flex flex-col xs:flex-row gap-3 xs:gap-4 max-w-full xs:max-w-xs sm:max-w-md">
-                <button
-                  onClick={() => setShowLoginModal(true)}
-                  className="flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-3 
-                    px-5 xs:px-6 sm:px-8 py-2.5 xs:py-3 sm:py-4 
-                    bg-slate-950 text-white rounded-lg xs:rounded-xl sm:rounded-2xl font-bold 
-                    hover:bg-blue-600 transition-all duration-300 active:scale-[0.98]
-                    shadow-lg sm:shadow-xl shadow-slate-200/50 
-                    group w-full xs:w-auto"
-                >
-                  <span className="text-xs xs:text-sm sm:text-base">Access Portal</span>
-                  <FaArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
+             <button
+  onClick={() => setShowLoginModal(true)}
+  className="flex items-center justify-center gap-2 
+    px-5 sm:px-8 py-3 sm:py-4 
+    bg-slate-950 text-white rounded-xl sm:rounded-2xl font-black 
+    hover:bg-blue-600 transition-all duration-300 active:scale-95
+    shadow-lg shadow-slate-200/50 
+    group w-full sm:w-fit"
+>
+  <span className="text-[11px] xs:text-xs sm:text-base uppercase tracking-wider">
+    Access Portal
+  </span>
+  <FaArrowRight className="w-3 h-3 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform shrink-0" />
+</button>
                 
             {/* Mobile Help Desk Button */}
 <button
