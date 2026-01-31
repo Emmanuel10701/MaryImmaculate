@@ -6,7 +6,6 @@ import {
   FiCalendar, 
   FiFileText, 
   FiCheckCircle,
-  FiArrowRight,
   FiClock,
   FiAward,
   FiUsers,
@@ -80,14 +79,14 @@ import {
   FiDroplet,
   FiTruck,
   FiScissors,
-  FiChevronUp,
-  FiChevronsDown,
   FiCoffee,
   FiChef,
   FiMusic as FiMusicIcon,
   FiChevronRight,
    FiChevronLeft 
 } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiArrowRight } from 'react-icons/fi';
+
 import { 
   IoSchoolOutline,
   IoDocumentsOutline,
@@ -159,62 +158,90 @@ import { CircularProgress } from '@mui/material';
 // Modern Modal Component - Mobile Responsive
 
 
- const careerDepartments = [
+const CareerSearchPage = () => {
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [expandedDept, setExpandedDept] = useState(null);
+  const deptsPerPage = 3; // Show 3 departments per page
+  
+  // Enhanced high school departments with more career paths
+  const highSchoolDepartments = [
+    {
+      department: 'MATHEMATICS',
+      icon: IoCalculatorOutline,
+      color: 'from-purple-600 to-pink-500',
+      description: 'Master logical thinking, problem-solving, and analytical skills',
+      subjects: ['Pure Mathematics', 'Applied Mathematics', 'Statistics', 'Business Mathematics'],
+      careerPaths: [
+        {
+          title: 'Finance & Banking',
+          description: 'Excel in financial analysis, investment, and economic planning',
+          examples: 'Accountants, Financial Analysts, Bankers, Actuaries, Investment Bankers'
+        },
+        {
+          title: 'Data Science & Analytics',
+          description: 'Transform data into valuable insights and predictive models',
+          examples: 'Data Scientists, Statisticians, Market Researchers, Business Analysts'
+        },
+        {
+          title: 'Engineering & Architecture',
+          description: 'Apply mathematical principles to design and construction',
+          examples: 'Structural Engineers, Architects, Quantity Surveyors, Civil Engineers'
+        },
+        {
+          title: 'Education & Research',
+          description: 'Share mathematical knowledge and conduct advanced research',
+          examples: 'Mathematics Teachers, University Lecturers, Researchers, Curriculum Developers'
+        },
+        {
+          title: 'Technology & Computing',
+          description: 'Develop algorithms and computational solutions',
+          examples: 'Software Engineers, Cryptographers, AI Specialists, Game Developers'
+        },
+        {
+          title: 'Actuarial Science',
+          description: 'Assess financial risks using mathematics and statistics',
+          examples: 'Actuaries, Risk Analysts, Insurance Underwriters, Pension Consultants'
+        }
+      ]
+    },
     {
       department: 'SCIENCES',
       icon: IoFlaskOutline,
       color: 'from-blue-600 to-cyan-500',
       description: 'Explore the world through scientific inquiry and discovery',
-      subjects: ['Biology', 'Chemistry', 'Physics', 'Mathematics', 'Agriculture'],
+      subjects: ['Biology', 'Chemistry', 'Physics', 'Agriculture', 'Physical Education'],
       careerPaths: [
         {
           title: 'Medical & Health Sciences',
           description: 'Pursue careers in healthcare and medical research',
-          examples: 'Doctors, Nurses, Pharmacists, Medical Researchers, Dentists'
+          examples: 'Doctors, Nurses, Pharmacists, Dentists, Medical Researchers, Physiotherapists'
         },
         {
           title: 'Engineering & Technology',
           description: 'Design and build innovative solutions for the future',
-          examples: 'Civil Engineers, Electrical Engineers, Mechanical Engineers, Architects'
+          examples: 'Civil Engineers, Electrical Engineers, Mechanical Engineers, Architects, Chemical Engineers'
         },
         {
           title: 'Environmental Sciences',
           description: 'Protect and preserve our natural environment',
-          examples: 'Environmental Scientists, Conservationists, Wildlife Biologists'
+          examples: 'Environmental Scientists, Conservationists, Wildlife Biologists, Forest Rangers'
         },
         {
           title: 'Research & Development',
           description: 'Advance scientific knowledge through research',
-          examples: 'Research Scientists, Laboratory Technicians, Biotechnologists'
-        }
-      ]
-    },
-    {
-      department: 'MATHEMATICS',
-      icon: IoCalculatorOutline,
-      color: 'from-purple-600 to-pink-500',
-      description: 'Master logical thinking and problem-solving skills',
-      subjects: ['Pure Mathematics', 'Applied Mathematics', 'Statistics', 'Business Mathematics'],
-      careerPaths: [
-        {
-          title: 'Finance & Banking',
-          description: 'Excel in financial analysis and economic planning',
-          examples: 'Accountants, Financial Analysts, Bankers, Actuaries'
+          examples: 'Research Scientists, Laboratory Technicians, Biotechnologists, Quality Controllers'
         },
         {
-          title: 'Data Science & Analytics',
-          description: 'Transform data into valuable insights',
-          examples: 'Data Scientists, Statisticians, Market Researchers'
+          title: 'Agricultural Sciences',
+          description: 'Improve food production and sustainable farming',
+          examples: 'Agricultural Officers, Food Scientists, Horticulturists, Animal Scientists'
         },
         {
-          title: 'Engineering & Architecture',
-          description: 'Apply mathematical principles to design and construction',
-          examples: 'Structural Engineers, Architects, Quantity Surveyors'
-        },
-        {
-          title: 'Education & Research',
-          description: 'Share mathematical knowledge and conduct research',
-          examples: 'Mathematics Teachers, University Lecturers, Researchers'
+          title: 'Sports Science',
+          description: 'Enhance athletic performance and physical health',
+          examples: 'Sports Coaches, Physiotherapists, Fitness Trainers, Sports Psychologists'
         }
       ]
     },
@@ -223,27 +250,37 @@ import { CircularProgress } from '@mui/material';
       icon: IoLanguageOutline,
       color: 'from-green-600 to-emerald-500',
       description: 'Develop communication skills and cultural understanding',
-      subjects: ['English', 'Kiswahili', 'French', 'German', 'Chinese'],
+      subjects: ['English', 'Kiswahili', 'French', 'German', 'Arabic'],
       careerPaths: [
         {
           title: 'Communication & Media',
           description: 'Excel in writing, broadcasting, and media production',
-          examples: 'Journalists, Editors, Translators, Content Writers'
+          examples: 'Journalists, Editors, Translators, Content Writers, Broadcasters'
         },
         {
           title: 'International Relations',
           description: 'Bridge cultural gaps in global contexts',
-          examples: 'Diplomats, UN Officers, International Business Consultants'
+          examples: 'Diplomats, UN Officers, International Business Consultants, Foreign Service Officers'
         },
         {
           title: 'Education & Publishing',
           description: 'Teach languages and contribute to literary works',
-          examples: 'Language Teachers, Publishers, Literary Critics'
+          examples: 'Language Teachers, Publishers, Literary Critics, Curriculum Developers'
         },
         {
           title: 'Tourism & Hospitality',
           description: 'Connect with people from around the world',
-          examples: 'Tour Guides, Hotel Managers, Flight Attendants'
+          examples: 'Tour Guides, Hotel Managers, Flight Attendants, Travel Agents'
+        },
+        {
+          title: 'Law & Advocacy',
+          description: 'Use language skills in legal and advocacy work',
+          examples: 'Lawyers, Legal Translators, Human Rights Officers, Policy Analysts'
+        },
+        {
+          title: 'Creative Writing',
+          description: 'Express ideas through various literary forms',
+          examples: 'Authors, Scriptwriters, Copywriters, Poets, Content Creators'
         }
       ]
     },
@@ -257,109 +294,151 @@ import { CircularProgress } from '@mui/material';
         {
           title: 'Law & Governance',
           description: 'Shape legal systems and public policy',
-          examples: 'Lawyers, Judges, Policy Analysts, Human Rights Officers'
+          examples: 'Lawyers, Judges, Policy Analysts, Human Rights Officers, Political Scientists'
         },
         {
           title: 'Social Services',
           description: 'Support communities and individuals in need',
-          examples: 'Social Workers, Counselors, Community Developers'
+          examples: 'Social Workers, Counselors, Community Developers, Humanitarian Workers'
         },
         {
           title: 'Cultural Heritage',
           description: 'Preserve and promote cultural identity',
-          examples: 'Museum Curators, Historians, Cultural Officers'
+          examples: 'Museum Curators, Historians, Cultural Officers, Anthropologists'
         },
         {
           title: 'Urban Planning',
           description: 'Design sustainable communities and cities',
-          examples: 'Urban Planners, Environmental Consultants'
+          examples: 'Urban Planners, Environmental Consultants, GIS Specialists, Surveyors'
+        },
+        {
+          title: 'Religious Studies',
+          description: 'Guide spiritual development and religious education',
+          examples: 'Clergy, Religious Educators, Chaplains, Interfaith Coordinators'
+        },
+        {
+          title: 'Public Administration',
+          description: 'Manage public resources and government services',
+          examples: 'Administrative Officers, Public Relations Officers, Policy Makers'
         }
       ]
     },
     {
-      department: 'TECHNICAL & VOCATIONAL',
+      department: 'TECHNICAL STUDIES',
       icon: IoConstructOutline,
       color: 'from-red-600 to-rose-500',
       description: 'Develop practical skills for immediate employment',
-      subjects: ['Computer Studies', 'Business Studies', 'Home Science', 'Agriculture', 'Art & Design'],
+      subjects: ['Computer Studies', 'Business Studies', 'Home Science', 'Art & Design', 'Music'],
       careerPaths: [
         {
           title: 'Information Technology',
           description: 'Drive digital transformation and innovation',
-          examples: 'Software Developers, Network Administrators, Cybersecurity Experts'
+          examples: 'Software Developers, Network Administrators, Cybersecurity Experts, Database Managers'
         },
         {
           title: 'Business & Entrepreneurship',
           description: 'Start and manage successful enterprises',
-          examples: 'Business Owners, Marketing Managers, Financial Analysts'
+          examples: 'Business Owners, Marketing Managers, Financial Analysts, Sales Executives'
         },
         {
           title: 'Hospitality & Home Economics',
           description: 'Excel in food, nutrition, and hospitality services',
-          examples: 'Chefs, Nutritionists, Hotel Managers, Fashion Designers'
+          examples: 'Chefs, Nutritionists, Hotel Managers, Fashion Designers, Caterers'
         },
         {
           title: 'Creative Arts & Design',
           description: 'Express creativity through various media',
-          examples: 'Graphic Designers, Artists, Multimedia Specialists'
+          examples: 'Graphic Designers, Artists, Multimedia Specialists, Animators, Musicians'
+        },
+        {
+          title: 'Technical Trades',
+          description: 'Master hands-on technical skills',
+          examples: 'Electricians, Plumbers, Mechanics, Carpenters, Technicians'
+        },
+        {
+          title: 'Media Production',
+          description: 'Create audio-visual content and productions',
+          examples: 'Film Directors, Sound Engineers, Photographers, Video Editors'
+        }
+      ]
+    },
+    {
+      department: 'COMMERCIAL STUDIES',
+      icon: IoBusinessOutline,
+      color: 'from-indigo-600 to-blue-500',
+      description: 'Master business principles and commercial operations',
+      subjects: ['Commerce', 'Accounting', 'Economics', 'Entrepreneurship', 'Office Practice'],
+      careerPaths: [
+        {
+          title: 'Accounting & Auditing',
+          description: 'Manage financial records and ensure compliance',
+          examples: 'Accountants, Auditors, Tax Consultants, Financial Controllers'
+        },
+        {
+          title: 'Marketing & Advertising',
+          description: 'Promote products and build brand awareness',
+          examples: 'Marketing Managers, Advertising Executives, Brand Managers, Digital Marketers'
+        },
+        {
+          title: 'Banking & Finance',
+          description: 'Manage monetary transactions and investments',
+          examples: 'Bankers, Financial Planners, Loan Officers, Investment Analysts'
+        },
+        {
+          title: 'Office Administration',
+          description: 'Ensure smooth office operations and management',
+          examples: 'Office Administrators, Secretaries, Receptionists, Office Managers'
+        },
+        {
+          title: 'Supply Chain',
+          description: 'Manage logistics and procurement processes',
+          examples: 'Procurement Officers, Logistics Managers, Supply Chain Analysts'
+        },
+        {
+          title: 'Customer Service',
+          description: 'Build customer relationships and satisfaction',
+          examples: 'Customer Care Representatives, Client Relations Managers, Call Center Agents'
         }
       ]
     }
   ];
-
-
-
-// Modern Career Search Component with Filtering & Pagination
-const CareerSearchPage = () => {
-  const [globalSearch, setGlobalSearch] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const careersPerPage = 6;
-  
-  // Flatten all careers from all departments
-  const allCareers = careerDepartments.flatMap(dept => 
-    dept.careerPaths.map(career => ({
-      ...career,
-      department: dept.department,
-      departmentColor: dept.color,
-      departmentIcon: dept.icon,
-      subjects: dept.subjects
-    }))
-  );
   
   // Get unique departments for filter
   const departments = [
     { value: "all", label: "All Departments" },
-    ...careerDepartments.map(dept => ({
+    ...highSchoolDepartments.map(dept => ({
       value: dept.department.toLowerCase(),
       label: dept.department
     }))
   ];
   
-  // Filter careers based on search and department
-  const filteredCareers = allCareers.filter((career) => {
+  // Filter departments based on search
+  const filteredDepartments = highSchoolDepartments.filter((dept) => {
     const matchesSearch = 
       globalSearch === "" ||
-      career.title.toLowerCase().includes(globalSearch.toLowerCase()) ||
-      career.description.toLowerCase().includes(globalSearch.toLowerCase()) ||
-      career.examples.toLowerCase().includes(globalSearch.toLowerCase()) ||
-      career.department.toLowerCase().includes(globalSearch.toLowerCase()) ||
-      career.subjects.some(subject => 
+      dept.department.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      dept.description.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      dept.subjects.some(subject => 
         subject.toLowerCase().includes(globalSearch.toLowerCase())
+      ) ||
+      dept.careerPaths.some(career => 
+        career.title.toLowerCase().includes(globalSearch.toLowerCase()) ||
+        career.description.toLowerCase().includes(globalSearch.toLowerCase()) ||
+        career.examples.toLowerCase().includes(globalSearch.toLowerCase())
       );
     
     const matchesDepartment = 
       selectedDepartment === "all" || 
-      career.department.toLowerCase() === selectedDepartment;
+      dept.department.toLowerCase() === selectedDepartment;
     
     return matchesSearch && matchesDepartment;
   });
   
-  // Pagination logic
-  const totalPages = Math.ceil(filteredCareers.length / careersPerPage);
-  const indexOfLastCareer = currentPage * careersPerPage;
-  const indexOfFirstCareer = indexOfLastCareer - careersPerPage;
-  const currentCareers = filteredCareers.slice(indexOfFirstCareer, indexOfLastCareer);
+  // Pagination for departments
+  const totalPages = Math.ceil(filteredDepartments.length / deptsPerPage);
+  const indexOfLastDept = currentPage * deptsPerPage;
+  const indexOfFirstDept = indexOfLastDept - deptsPerPage;
+  const currentDepartments = filteredDepartments.slice(indexOfFirstDept, indexOfLastDept);
   
   // Handle page change
   const handlePageChange = (pageNumber) => {
@@ -372,110 +451,39 @@ const CareerSearchPage = () => {
     setGlobalSearch("");
     setSelectedDepartment("all");
     setCurrentPage(1);
+    setExpandedDept(null);
   };
   
-  // Career Card Component
-  const CareerCard = ({ career, index }) => {
-    const DepartmentIcon = career.departmentIcon;
-    
-    return (
-      <div className="group relative bg-white rounded-2xl md:rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm transition-all duration-500 hover:shadow-xl hover:border-blue-200 hover:-translate-y-1">
-        {/* Department Badge */}
-        <div className={`absolute top-4 right-4 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white z-20 bg-gradient-to-r ${career.departmentColor}`}>
-          {career.department.split(' ')[0]}
-        </div>
-        
-        {/* Content */}
-        <div className="p-6 md:p-8">
-          <div className="flex items-start gap-4 mb-6">
-            <div className={`p-3 rounded-2xl bg-gradient-to-br ${career.departmentColor} bg-opacity-10`}>
-              <DepartmentIcon className={`text-2xl ${career.departmentColor.includes('blue') ? 'text-blue-600' : 
-                career.departmentColor.includes('purple') ? 'text-purple-600' :
-                career.departmentColor.includes('green') ? 'text-green-600' :
-                career.departmentColor.includes('amber') ? 'text-amber-600' :
-                'text-red-600'}`} 
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight mb-2 leading-tight">
-                {career.title}
-              </h3>
-              <p className="text-slate-500 text-sm font-medium leading-relaxed">
-                {career.description}
-              </p>
-            </div>
-          </div>
-          
-          {/* Examples */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <FiBriefcase className="text-slate-400" />
-              <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                Career Examples
-              </span>
-            </div>
-            <p className="text-slate-700 text-sm font-bold leading-relaxed">
-              {career.examples}
-            </p>
-          </div>
-          
-          {/* Subjects */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <FiBook className="text-slate-400" />
-              <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                Related Subjects
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {career.subjects.slice(0, 3).map((subject, idx) => (
-                <span key={idx} className="px-3 py-1.5 bg-slate-50 text-slate-700 rounded-lg text-xs font-bold">
-                  {subject}
-                </span>
-              ))}
-              {career.subjects.length > 3 && (
-                <span className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold">
-                  +{career.subjects.length - 3} more
-                </span>
-              )}
-            </div>
-          </div>
-          
-          {/* CTA Button */}
-          <button className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 group-hover:bg-blue-500">
-            <span>Explore Career Path</span>
-            <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-      </div>
-    );
+  // Toggle department expansion
+  const toggleDepartment = (deptIndex) => {
+    setExpandedDept(expandedDept === deptIndex ? null : deptIndex);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4 md:px-8 font-sans">
+    <div className="min-h-screen bg-slate-50 py-8 px-4 md:px-6 font-sans">
       <div className="max-w-7xl mx-auto">
         
         {/* Header Section */}
-        <div className="mb-12 text-center">
-          <h1 className="text-3xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-4">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-3">
             Career <span className="text-blue-600">Explorer</span>
           </h1>
-          <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mb-10">
-            Search and discover professional pathways across all departments
+          <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mb-6">
+            Browse careers by high school department
           </p>
 
           {/* SEARCH & FILTER BAR */}
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
               {/* Search Input */}
-              <div className="md:col-span-2 relative group">
+              <div className="md:col-span-2 relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <FiSearch className="text-slate-400 group-focus-within:text-blue-600 transition-colors" size={20} />
+                  <FiSearch className="text-slate-400" size={18} />
                 </div>
                 <input 
                   type="text"
-                  placeholder="Search careers (e.g. Doctor, Engineer, Accountant)..."
-                  className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                  placeholder="Search careers or subjects..."
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
                   value={globalSearch}
                   onChange={(e) => {
                     setGlobalSearch(e.target.value);
@@ -485,12 +493,12 @@ const CareerSearchPage = () => {
               </div>
               
               {/* Department Filter */}
-              <div className="relative group">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <FiFilter className="text-slate-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+                  <FiFilter className="text-slate-400" size={16} />
                 </div>
                 <select
-                  className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-200 rounded-2xl text-sm font-bold text-slate-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all outline-none appearance-none"
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none appearance-none"
                   value={selectedDepartment}
                   onChange={(e) => {
                     setSelectedDepartment(e.target.value);
@@ -503,19 +511,19 @@ const CareerSearchPage = () => {
                     </option>
                   ))}
                 </select>
-                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <FiChevronDown className="text-slate-400" />
                 </div>
               </div>
             </div>
             
             {/* Results Stats & Reset */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
               <div className="text-center sm:text-left">
-                <h3 className="text-lg font-black text-slate-900">
-                  {filteredCareers.length} {filteredCareers.length === 1 ? 'Career' : 'Careers'} Found
+                <h3 className="text-base font-black text-slate-900">
+                  {filteredDepartments.length} {filteredDepartments.length === 1 ? 'Department' : 'Departments'} Found
                 </h3>
-                <p className="text-slate-500 text-sm">
+                <p className="text-slate-500 text-xs">
                   {selectedDepartment !== "all" && `in ${departments.find(d => d.value === selectedDepartment)?.label}`}
                   {globalSearch && ` matching "${globalSearch}"`}
                 </p>
@@ -524,7 +532,7 @@ const CareerSearchPage = () => {
               {(globalSearch || selectedDepartment !== "all") && (
                 <button
                   onClick={resetFilters}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium text-xs"
                 >
                   <FiRotateCw />
                   Reset Filters
@@ -534,35 +542,121 @@ const CareerSearchPage = () => {
           </div>
         </div>
 
-        {/* CAREERS GRID */}
-        {currentCareers.length > 0 ? (
+        {/* DEPARTMENTS GRID */}
+        {currentDepartments.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {currentCareers.map((career, index) => (
-                <CareerCard 
-                  key={`${career.department}-${index}`} 
-                  career={career} 
-                  index={index}
-                />
-              ))}
+            <div className="space-y-4 mb-8">
+              {currentDepartments.map((dept, deptIndex) => {
+                const isExpanded = expandedDept === deptIndex;
+                const DepartmentIcon = dept.icon;
+                
+                return (
+                  <div key={dept.department} className="bg-white rounded-xl border border-slate-200 shadow-sm">
+                    {/* Department Header - Clickable to expand */}
+                    <button
+                      onClick={() => toggleDepartment(deptIndex)}
+                      className="w-full px-5 py-4 text-left flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-lg bg-gradient-to-br ${dept.color} bg-opacity-10`}>
+                          <DepartmentIcon className={`text-xl ${
+                            dept.color.includes('blue') ? 'text-blue-600' : 
+                            dept.color.includes('purple') ? 'text-purple-600' :
+                            dept.color.includes('green') ? 'text-green-600' :
+                            dept.color.includes('amber') ? 'text-amber-600' :
+                            'text-red-600'
+                          }`} />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                            {dept.department}
+                          </h3>
+                          <p className="text-slate-500 text-xs font-medium">
+                            {dept.careerPaths.length} career paths • {dept.subjects.length} subjects
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-bold">
+                          {dept.careerPaths.length} careers
+                        </span>
+                        {isExpanded ? (
+                          <FiChevronUp className="text-slate-400" />
+                        ) : (
+                          <FiChevronDown className="text-slate-400" />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Department Description (Always visible) */}
+                    <div className="px-5 pb-4">
+                      <p className="text-slate-600 text-sm font-medium">
+                        {dept.description}
+                      </p>
+                      
+                      {/* Subjects */}
+                      <div className="mt-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FiBook className="text-slate-400 text-sm" />
+                          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            Subjects
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {dept.subjects.map((subject, idx) => (
+                            <span key={idx} className="px-2.5 py-1 bg-slate-50 text-slate-700 rounded-lg text-xs font-medium">
+                              {subject}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Collapsible Career Paths */}
+                    {isExpanded && (
+                      <div className="border-t border-slate-100 px-5 py-4">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FiBriefcase className="text-slate-400" />
+                          <h4 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                            Career Paths
+                          </h4>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {dept.careerPaths.map((career, careerIndex) => (
+                            <div key={careerIndex} className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                              <h5 className="font-bold text-slate-900 text-sm mb-2">{career.title}</h5>
+                              <p className="text-slate-600 text-xs mb-3 leading-relaxed">{career.description}</p>
+                              <div className="text-xs text-slate-500 font-medium">
+                                <span className="font-bold text-slate-700">Examples:</span> {career.examples}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             
             {/* PAGINATION */}
             {totalPages > 1 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t border-slate-200">
-                <div className="text-slate-500 text-sm font-medium">
-                  Showing {indexOfFirstCareer + 1}-{Math.min(indexOfLastCareer, filteredCareers.length)} of {filteredCareers.length} careers
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-200">
+                <div className="text-slate-500 text-xs font-medium">
+                  Showing {indexOfFirstDept + 1}-{Math.min(indexOfLastDept, filteredDepartments.length)} of {filteredDepartments.length} departments
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   {/* Previous Button */}
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={`p-3 rounded-xl border flex items-center justify-center ${
+                    className={`p-2 rounded-lg border ${
                       currentPage === 1 
                         ? 'border-slate-200 text-slate-300 cursor-not-allowed' 
-                        : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+                        : 'border-slate-300 text-slate-700'
                     }`}
                   >
                     <FiChevronLeft />
@@ -582,10 +676,10 @@ const CareerSearchPage = () => {
                           <button
                             key={pageNumber}
                             onClick={() => handlePageChange(pageNumber)}
-                            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-colors ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
                               currentPage === pageNumber
                                 ? 'bg-blue-600 text-white'
-                                : 'text-slate-700 hover:bg-slate-100'
+                                : 'text-slate-700 bg-white border border-slate-300'
                             }`}
                           >
                             {pageNumber}
@@ -595,7 +689,7 @@ const CareerSearchPage = () => {
                         pageNumber === currentPage - 2 ||
                         pageNumber === currentPage + 2
                       ) {
-                        return <span key={pageNumber} className="px-2 text-slate-400">...</span>;
+                        return <span key={pageNumber} className="px-1 text-slate-400">...</span>;
                       }
                       return null;
                     })}
@@ -605,90 +699,73 @@ const CareerSearchPage = () => {
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={`p-3 rounded-xl border flex items-center justify-center ${
+                    className={`p-2 rounded-lg border ${
                       currentPage === totalPages 
                         ? 'border-slate-200 text-slate-300 cursor-not-allowed' 
-                        : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+                        : 'border-slate-300 text-slate-700'
                     }`}
                   >
                     <FiChevronRight />
                   </button>
-                </div>
-                
-                {/* Results per page selector (optional) */}
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <span>Show:</span>
-                  <select 
-                    className="bg-transparent border-none font-bold"
-                    value={careersPerPage}
-                    onChange={(e) => {
-                      // You can make this dynamic if needed
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <option value="6">6 per page</option>
-                    <option value="12">12 per page</option>
-                    <option value="24">24 per page</option>
-                  </select>
                 </div>
               </div>
             )}
           </>
         ) : (
           /* NO RESULTS STATE */
-          <div className="py-20 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
-            <FiBriefcase className="mx-auto text-slate-300 mb-4" size={48} />
-            <h3 className="text-xl font-black text-slate-900 mb-2">
-              No careers found
+          <div className="py-12 text-center bg-white rounded-xl border border-dashed border-slate-300">
+            <FiBriefcase className="mx-auto text-slate-300 mb-3" size={36} />
+            <h3 className="text-lg font-black text-slate-900 mb-2">
+              No departments found
             </h3>
-            <p className="text-slate-500 font-medium mb-6 max-w-md mx-auto">
+            <p className="text-slate-500 font-medium text-sm mb-4 max-w-md mx-auto">
               {globalSearch 
-                ? `No careers found matching "${globalSearch}"${selectedDepartment !== "all" ? ` in ${departments.find(d => d.value === selectedDepartment)?.label}` : ''}`
-                : `No careers available in ${departments.find(d => d.value === selectedDepartment)?.label}`
+                ? `No departments or careers found matching "${globalSearch}"${selectedDepartment !== "all" ? ` in ${departments.find(d => d.value === selectedDepartment)?.label}` : ''}`
+                : `No departments available in ${departments.find(d => d.value === selectedDepartment)?.label}`
               }
             </p>
             <button 
               onClick={resetFilters}
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm"
             >
-              Show All Careers
+              Show All Departments
             </button>
           </div>
         )}
 
         {/* STATS FOOTER */}
-        <div className="mt-16 pt-8 border-t border-slate-200">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="mt-8 pt-6 border-t border-slate-200">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-3xl font-black text-slate-900 mb-2">
-                {allCareers.length}
+              <div className="text-xl font-black text-slate-900 mb-1">
+                {highSchoolDepartments.length}
               </div>
-              <div className="text-slate-500 text-sm font-medium">
-                Total Career Paths
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-black text-slate-900 mb-2">
-                {careerDepartments.length}
-              </div>
-              <div className="text-slate-500 text-sm font-medium">
+              <div className="text-slate-500 text-xs font-medium">
                 Academic Departments
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-black text-slate-900 mb-2">
-                {[...new Set(allCareers.flatMap(c => c.subjects))].length}
+              <div className="text-xl font-black text-slate-900 mb-1">
+                {highSchoolDepartments.reduce((sum, dept) => sum + dept.careerPaths.length, 0)}
               </div>
-              <div className="text-slate-500 text-sm font-medium">
-                Subjects Covered
+              <div className="text-slate-500 text-xs font-medium">
+                Total Career Paths
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-black text-slate-900 mb-2">
+              <div className="text-xl font-black text-slate-900 mb-1">
+                {[...new Set(highSchoolDepartments.flatMap(dept => dept.subjects))].length}
+              </div>
+              <div className="text-slate-500 text-xs font-medium">
+                Subjects Offered
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-black text-slate-900 mb-1">
                 100%
               </div>
-              <div className="text-slate-500 text-sm font-medium">
-                KICD Aligned
+              <div className="text-slate-500 text-xs font-medium">
+                KCSE Aligned
               </div>
             </div>
           </div>
