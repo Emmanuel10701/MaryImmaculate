@@ -2000,7 +2000,7 @@ export default function ComprehensiveAdmissions() {
           disabled={loading}
           className="flex items-center justify-center gap-2 h-9 md:h-10 px-3 md:px-4 rounded-lg md:rounded-xl
                      transition-all font-black text-[9px] md:text-[10px] uppercase tracking-widest
-                     bg-white/5 hover:bg-white/10 text-white/70
+                     bg-white/5 hover:bg-white/10 text-white
                      active:scale-95 disabled:opacity-50"
         >
           {loading ? (
@@ -2016,9 +2016,9 @@ export default function ComprehensiveAdmissions() {
 </>
           ) : (
             <>
-              <FiRefreshCw className={`text-xs md:text-base ${loading ? 'animate-spin' : ''}`} />
+              <FiRefreshCw className={`text-xs md:text-base   text-white ${loading ? 'animate-spin' : ''}`} />
               {/* Show text on small screens too, but smaller */}
-              <span className="inline">Refresh Info</span>
+              <span className="inline text-white" >Refresh Info</span>
             </>
           )}
         </button>
