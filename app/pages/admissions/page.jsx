@@ -2191,57 +2191,56 @@ return (
     </div>
   </div>
 
-  {/* Bento Grid: Full-bleed on mobile via rounded-none */}
-  <div className="grid grid-cols-1 md:grid-cols-12 auto-rows-min md:auto-rows-[200px] gap-0 md:gap-4">
+<div className="grid grid-cols-1 md:grid-cols-12 auto-rows-min gap-4">
     
     {/* Academic Card */}
-    <div className="md:col-span-7 relative rounded-none md:rounded-3xl bg-slate-50 border-b md:border-2 border-slate-200 p-6 md:p-8">
-      <div className="flex flex-col h-full gap-4">
-        <div className="w-10 h-10 bg-white text-blue-600 rounded-xl flex items-center justify-center shadow-sm border border-slate-200 shrink-0">
-          <IoBulbOutline size={20} />
+    <div className="md:col-span-7 relative rounded-xl md:rounded-3xl bg-slate-50 border-b md:border-2 border-slate-200 p-5 md:p-6">
+      <div className="flex flex-col h-full gap-3">
+        <div className="w-9 h-9 bg-white text-blue-600 rounded-lg flex items-center justify-center shadow-sm border border-slate-200 shrink-0">
+          <IoBulbOutline size={18} />
         </div>
         <div>
-          <h4 className="text-lg md:text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Academic Achievement</h4>
-          <p className="text-slate-600 text-[13px] md:text-sm font-bold leading-relaxed">
-            We maintain a track record of academic excellence, consistently producing top-tier KCSE results. Our specialized focus on STEM subjects equips students with the technical skills and analytical mindset required for the modern global economy.
+          <h4 className="text-base md:text-lg font-black text-slate-900 mb-1 uppercase tracking-tight">Academic Achievement</h4>
+          <p className="text-slate-600 text-[12px] md:text-[13px] font-bold协议 leading-snug">
+            We maintain a track record of academic excellence, consistently producing top-tier KCSE results. Our specialized focus on STEM subjects equips students with technical skills for the modern economy.
           </p>
         </div>
       </div>
     </div>
 
     {/* Faculty Card */}
-    <div className="md:col-span-5 relative rounded-none md:rounded-3xl bg-slate-900 p-6 md:p-8 text-white border-b border-white/5 md:border-none">
-      <div className="flex flex-col h-full gap-4">
-        <div className="w-10 h-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl flex items-center justify-center shrink-0">
-          <FiUsers size={20} className="text-white" />
+    <div className="md:col-span-5 relative rounded-xl md:rounded-3xl bg-slate-900 p-5 md:p-6 text-white border-b border-white/5 md:border-none">
+      <div className="flex flex-col h-full gap-3">
+        <div className="w-9 h-9 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg flex items-center justify-center shrink-0">
+          <FiUsers size={18} className="text-white" />
         </div>
         <div>
-          <h4 className="text-lg md:text-xl font-black mb-2 uppercase tracking-tight text-blue-400">Expert Educators</h4>
-          <p className="text-slate-300 text-[13px] md:text-sm font-bold leading-relaxed">
-            Our faculty consists of TSC-certified professionals who go beyond traditional teaching. They provide personalized mentorship, ensuring every student discovers their unique potential through a balanced approach to discipline and innovation.
+          <h4 className="text-base md:text-lg font-black mb-1 uppercase tracking-tight text-blue-400">Expert Educators</h4>
+          <p className="text-slate-300 text-[12px] md:text-[13px] font-bold leading-snug">
+            Our faculty consists of TSC-certified professionals providing personalized mentorship, ensuring every student discovers their unique potential through innovation.
           </p>
         </div>
       </div>
     </div>
 
     {/* Infrastructure Card */}
-    <div className="md:col-span-12 relative rounded-none md:rounded-3xl bg-white border-b md:border-2 border-slate-900 p-6 md:p-10 flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100 shrink-0">
-          <FiCpu size={24} />
+    <div className="md:col-span-12 relative rounded-xl md:rounded-3xl bg-white border-b md:border-2 border-slate-900 p-5 md:p-8 flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center border border-blue-100 shrink-0">
+          <FiCpu size={20} />
         </div>
-        <h4 className="text-lg md:text-2xl font-black text-slate-900 uppercase tracking-tighter">Modern Learning Resources</h4>
+        <h4 className="text-base md:text-xl font-black text-slate-900 uppercase tracking-tighter">Modern Learning Resources</h4>
       </div>
-      <p className="text-slate-600 text-[13px] md:text-base font-bold leading-relaxed max-w-3xl">
-        Our campus features state-of-the-art science laboratories and advanced computer labs designed for 21st-century learning. We provide spacious, tech-integrated classrooms and a vast library to foster a culture of research and self-reliance among our students.
+      <p className="text-slate-600 text-[12px] md:text-[14px] font-bold leading-snug max-w-4xl">
+        Our campus features state-of-the-art science laboratories and advanced computer labs. We provide tech-integrated classrooms and a vast library to foster research and self-reliance.
       </p>
-      <div className="flex items-center gap-3 mt-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 self-start">
-        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">
+      <div className="flex items-center gap-3 mt-1 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200 self-start">
+        <span className="text-[9px] font-black text-slate-900 uppercase tracking-widest">
           10k+ Global Alumni Network
         </span>
       </div>
     </div>
-  </div>
+</div>
 </div>
   </div>
 )}
