@@ -141,28 +141,12 @@ const getOrdinal = (n) => {
   }
 };
 
+
 import { useRouter } from 'next/navigation';
 import { CircularProgress } from '@mui/material';
 
 // Modern Modal Component - Mobile Responsive
-const ModernModal = ({ children, open, onClose, maxWidth = '700px' }) => {
-  if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-      <div 
-        className="bg-white rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden w-full"
-        style={{ 
-          maxWidth: maxWidth,
-          maxHeight: '85vh',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-};
 
 // New: Career Department Card Component - Removed div hover effects
 const ModernCareerDepartmentCard = ({ department, icon: Icon, color, subjects, careerPaths, description }) => {
