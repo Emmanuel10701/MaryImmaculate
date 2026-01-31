@@ -465,7 +465,7 @@ const CareerSearchPage = () => {
         
         {/* Header Section */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-3">
+          <h1 className="text-xl md:text-3xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-3">
             Career <span className="text-blue-600">Explorer</span>
           </h1>
           <p className="text-slate-500 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mb-6">
@@ -790,7 +790,7 @@ const ModernEducationSystemCard = ({ system, icon: Icon, color, description, fea
           <div className="absolute top-0 right-0 w-64 md:w-72 h-64 md:h-72 bg-white/20 blur-[70px] md:blur-[90px] rounded-full -mr-32 -mt-32 animate-pulse" />
           
           <div className="relative z-10">
-            <h3 className="text-xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none">
+            <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter uppercase leading-none">
               {system.name}
             </h3>
             <p className="text-white/90 text-[9px] md:text-[11px] font-black tracking-[0.2em] md:tracking-[0.3em] mt-2 md:mt-3 uppercase opacity-80">
@@ -803,7 +803,7 @@ const ModernEducationSystemCard = ({ system, icon: Icon, color, description, fea
         <div className="relative px-6 md:px-8">
           <div className="absolute -top-8 md:-top-12 right-6 md:right-8 p-1 bg-white rounded-[1.2rem] md:rounded-[1.5rem] shadow-2xl border border-slate-100">
             <div className={`p-3 md:p-5 rounded-[1rem] md:rounded-[1.2rem] bg-gradient-to-br ${color} text-white shadow-inner active:scale-95 transition-transform`}>
-              <Icon className="text-2xl md:text-4xl" />
+              <Icon className="text-xl md:text-2xl" />
             </div>
           </div>
         </div>
@@ -811,7 +811,7 @@ const ModernEducationSystemCard = ({ system, icon: Icon, color, description, fea
         {/* Main Content Body */}
         <div className="p-6 md:p-10 pt-10 md:pt-12">
           <div className="relative mb-8 md:mb-10">
-            <span className="absolute -top-4 -left-2 text-4xl md:text-6xl text-slate-100 font-black pointer-events-none">“</span>
+            <span className="absolute -top-4 -left-2 text-2xl md:text-3xl text-slate-100 font-black pointer-events-none">“</span>
             <p className="relative z-10 text-slate-500 leading-relaxed text-xs md:text-base font-bold italic">
               {description}
             </p>
@@ -1211,7 +1211,7 @@ const ModernFeeCard = ({
           <p className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-40`}>
             Total Payable Amount
           </p>
-          <div className={`text-4xl md:text-6xl font-black tracking-tighter tabular-nums ${isDark ? 'text-blue-400' : 'text-slate-900'}`}>
+          <div className={`text-2xl md:text-3xl font-black tracking-tighter tabular-nums ${isDark ? 'text-blue-400' : 'text-slate-900'}`}>
             KSh {total?.toLocaleString()}
           </div>
         </div>
@@ -1330,7 +1330,7 @@ const VideoTourSection = ({ videoTour, videoType, videoThumbnail }) => {
                 onClick={handlePlay}
               >
                 <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-blue-600/90 backdrop-blur-md border-4 border-white/30 flex items-center justify-center shadow-2xl transform group-110 transition-transform">
-                  <FiPlay className="text-white text-2xl md:text-4xl ml-1.5" />
+                  <FiPlay className="text-white text-xl md:text-2xl ml-1.5" />
                 </div>
                 
                 {/* Background Thumbnail */}
@@ -1432,7 +1432,7 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
     </div>
 
     {/* Heading: Adjusted to text-xl on mobile to match the Mission title scaling */}
-    <h3 className="text-xl md:text-4xl font-black text-white mb-2 md:mb-4 tracking-tighter uppercase italic leading-none">
+    <h3 className="text-xl md:text-2xl font-black text-white mb-2 md:mb-4 tracking-tighter uppercase italic leading-none">
       The <span className="text-blue-500">Future</span> we build
     </h3>
 
@@ -1467,7 +1467,7 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
 {/* 3. Motto Banner - Full bleed & Tightened for mobile */}
 <div className="md:col-span-12 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-none md:rounded-[3rem] p-6 md:p-10 relative overflow-hidden shadow-lg">
   {/* Large background icon - Pushed further to the edge on mobile */}
-  <FiZap className="absolute right-[-5%] md:right-[-2%] top-1/2 -translate-y-1/2 text-white/5 text-7xl md:text-9xl -rotate-12 pointer-events-none" />
+  <FiZap className="absolute right-[-5%] md:right-[-2%] top-1/2 -translate-y-1/2 text-white/5 text-5xl md:text-6xl -rotate-12 pointer-events-none" />
   
   <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 md:gap-8">
     
@@ -1491,7 +1491,7 @@ const VisionMissionSection = ({ vision, mission, motto }) => {
     {/* Motto Card: Reduced padding for mobile (px-5 py-3) */}
     <div className="w-full md:w-auto">
       <div className="bg-white/10 backdrop-blur-md border border-white/20 px-5 py-3 md:px-8 md:py-5 rounded-xl md:rounded-[2rem] text-center shadow-inner active:scale-[0.98] transition-transform">
-        <p className="text-white text-lg md:text-4xl font-black italic tracking-tighter leading-tight md:leading-none">
+        <p className="text-white text-lg md:text-2xl font-black italic tracking-tighter leading-tight md:leading-none">
           "{motto || "Strive for Excellence"}"
         </p>
       </div>
@@ -1636,7 +1636,7 @@ const ModernUniformRequirementsSection = ({
                 <h4 className="text-[10px] md:text-xs font-black text-blue-400 uppercase tracking-[0.4em] mb-2">
                   Total Admission Cost
                 </h4>
-                <div className="text-4xl md:text-6xl font-black tracking-tighter tabular-nums leading-none">
+                <div className="text-2xl md:text-3xl font-black tracking-tighter tabular-nums leading-none">
                   KSh {totalCost.toLocaleString()}
                 </div>
               </div>
@@ -2279,7 +2279,7 @@ export default function ComprehensiveAdmissions() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-        <h1 className="text-xl sm:text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter uppercase leading-none">
           Admissions <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-blue-400">Portal</span>
         </h1>
         {/* Mobile-friendly session badge */}
@@ -2442,14 +2442,14 @@ return (
         </span>
       </div>
       
-      <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-slate-900 mb-3 tracking-tight leading-[1.1] text-balance">
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 mb-3 tracking-tight leading-[1.1] text-balance">
         Welcome to{" "}
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">
           {schoolData?.name || "Our School"}
         </span>
       </h2>
       
-      <p className="text-slate-500 max-w-2xl mx-auto text-xs sm:text-base md:text-lg leading-relaxed px-2 text-balance">
+      <p className="text-slate-500  mx-auto text-xs sm:text-base md:text-md leading-relaxed px-2 text-balance">
         {schoolData?.description || "We are committed to nurturing well-rounded learners through quality education and strong values."}
       </p>
     </div>
@@ -2474,7 +2474,7 @@ return (
         <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
         <span className="text-[10px] font-black uppercase tracking-widest text-blue-700">Admissions 2026</span>
       </div>
-      <h3 className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter mb-4 leading-none">
+      <h3 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter mb-4 leading-none">
         Your <span className="text-blue-600">Future</span> Starts Here
       </h3>
       {/* Added additional line of description below */}
@@ -2505,7 +2505,7 @@ return (
         <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
         <span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Institutional Profile</span>
       </div>
-      <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-[1.1]">
+      <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter leading-[1.1]">
         Why <span className="text-blue-600 whitespace-nowrap">Mary Immaculate?</span>
       </h2>
     </div>
@@ -2590,7 +2590,7 @@ return (
             </span>
             <span className="text-[9px] md:text-[10px] text-white font-black uppercase tracking-[0.2em]">Academic Excellence</span>
           </div>
-          <h2 className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-4">
+          <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-4">
             Academic <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Programs</span>
           </h2>
           <p className="text-slate-500 text-sm md:text-xl font-medium leading-relaxed max-w-2xl">
@@ -2740,7 +2740,7 @@ return (
         </span>
         <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Career Readiness</span>
       </div>
-      <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
+      <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
         Future <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Pathways</span>
       </h2>
       <p className="text-slate-500 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">
@@ -2820,7 +2820,7 @@ return (
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Admission Checklist</span>
                 </div>
-                <h2 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 px-2">
+                <h2 className="text-lg sm:text-xl md:text-3xl font-black text-slate-900 tracking-tight mb-4 px-2">
                   Application <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Requirements</span>
                 </h2>
                 <p className="text-slate-500 text-base md:text-lg max-w-3xl mx-auto leading-relaxed px-2">
@@ -2844,9 +2844,9 @@ return (
     <div>
       <div className="flex items-center gap-3 mb-3">
         <div className="p-3 bg-slate-900 rounded-2xl shadow-xl shadow-slate-200">
-          <IoDocumentTextOutline className="text-white text-2xl md:text-3xl" />
+          <IoDocumentTextOutline className="text-white text-xl md:text-2xl" />
         </div>
-        <h3 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tighter">
+        <h3 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tighter">
           Required Documents
         </h3>
       </div>
@@ -2957,7 +2957,7 @@ return (
           <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-600/20">
             <FiArrowRight className="text-white text-xl" />
           </div>
-          <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tighter">
+          <h3 className="text-xl md:text-xl font-black uppercase tracking-tighter">
             Transfer <span className="text-blue-400">Process</span>
           </h3>
         </div>
@@ -3136,7 +3136,7 @@ return (
         <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-blue-700">Academic Performance</span>
       </div>
       
-      <h2 className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter mb-4 px-4 leading-tight">
+      <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter mb-4 px-4 leading-tight">
         Examination <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Results</span>
       </h2>
       
@@ -3184,7 +3184,7 @@ return (
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Quick Answers</span>
                 </div>
-                <h2 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 px-2">
+                <h2 className="text-xl sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight mb-4 px-2">
                   Frequently Asked <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Questions</span>
                 </h2>
                 <p className="text-slate-500 text-base md:text-lg max-w-3xl mx-auto leading-relaxed px-2">
