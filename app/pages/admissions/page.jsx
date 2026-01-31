@@ -2680,10 +2680,10 @@ return (
     
     <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8 md:gap-12">
       <div className="text-center lg:text-left max-w-sm">
-        <h3 className="text-white text-2xl md:text-3xl font-black tracking-tight mb-3 uppercase">
+        <h3 className="text-white text-lg md:text-xl font-black tracking-tight mb-3 uppercase">
           Academic <span className="text-blue-500">Calendar</span>
         </h3>
-        <p className="text-slate-400 text-xs md:text-lg font-medium leading-relaxed">
+        <p className="text-slate-400 text-xs md:text-md font-medium leading-relaxed">
           Mark your journey. Stay ahead of the curve with our key enrollment dates.
         </p>
       </div>
@@ -2700,11 +2700,11 @@ return (
       {/* On mobile, we use a slightly smaller, tighter font size 
          to ensure the "Ordinal Jan Year" format fits on one line.
       */}
-      <span className="block md:hidden text-[11px] whitespace-nowrap">
+      <span className="block md:hidden text-md whitespace-nowrap">
         {formatDateWithOrdinal(schoolData.openDate)}
       </span>
       {/* Desktop View */}
-      <span className="hidden md:block text-2xl lg:text-3xl">
+      <span className="hidden md:block text-xl lg:text-l">
         {formatDateWithOrdinal(schoolData.openDate)}
       </span>
     </div>
@@ -2717,11 +2717,11 @@ return (
     </div>
     <div className="text-white font-black tracking-tighter tabular-nums leading-tight">
       {/* Mobile View */}
-      <span className="block md:hidden text-[11px] whitespace-nowrap">
+      <span className="block md:hidden text-md whitespace-nowrap">
         {formatDateWithOrdinal(schoolData.closeDate)}
       </span>
       {/* Desktop View */}
-      <span className="hidden md:block text-2xl lg:text-3xl">
+      <span className="hidden md:block text-xl lg:text-2xl">
         {formatDateWithOrdinal(schoolData.closeDate)}
       </span>
     </div>
