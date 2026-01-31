@@ -2774,50 +2774,53 @@ return (
   </div>
 )}
 
-          {/* NEW: Results Tab */}
-          {activeTab === 'results' && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-8 md:space-y-12">
-              
-              {/* Hero Header */}
-              <div className="text-center mb-8 md:mb-12">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-full mb-6">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                  </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Academic Performance</span>
-                </div>
-                <h2 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 px-2">
-                  Examination <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Results</span>
-                </h2>
-                <p className="text-slate-500 text-base md:text-lg max-w-3xl mx-auto leading-relaxed px-2">
-                  Access past examination results, performance reports, and academic achievements.
-                </p>
-              </div>
+{activeTab === 'results' && (
+  <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-6 md:space-y-12">
+    
+    {/* Hero Header - Adjusted for Mobile */}
+    <div className="text-center mb-6 md:mb-12 pt-4 md:pt-0">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100 rounded-full mb-4 md:mb-6">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+        </span>
+        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-blue-700">Academic Performance</span>
+      </div>
+      
+      <h2 className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter mb-4 px-4 leading-tight">
+        Examination <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Results</span>
+      </h2>
+      
+      <p className="text-slate-500 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed px-6">
+        Access past examination results, performance reports, and academic archives.
+      </p>
+    </div>
 
-              {/* Academic Results Section */}
-              <AcademicResultsSection documentData={documentData} />
+    {/* Academic Results Section - This will now occupy full width on mobile inside its component */}
+    <div className="-mx-4 md:mx-0">
+       <AcademicResultsSection documentData={documentData} />
+    </div>
 
-
-
-              {/* Results Archive Notice */}
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl md:rounded-2xl p-4 md:p-6">
-                <div className="flex items-start gap-3 md:gap-4">
-                  <div className="p-2 md:p-3 bg-white rounded-xl">
-                    <FiInfo className="text-blue-500 text-lg md:text-xl" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-blue-900 mb-2">Results Archive Information</h4>
-                    <p className="text-blue-700 text-sm">
-                      All examination results are available for download in PDF format. Results are typically uploaded 
-                      within 2 weeks after official release. For any missing results or technical issues, please contact 
-                      the academic office.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+    {/* Results Archive Notice - Full bleed on mobile */}
+    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border-y md:border border-blue-200/60 rounded-none md:rounded-3xl p-6 md:p-8 -mx-4 md:mx-0">
+      <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
+        <div className="p-3 bg-white rounded-2xl shadow-sm shadow-blue-200/50">
+          <FiInfo className="text-blue-500 text-xl md:text-2xl" />
+        </div>
+        <div className="space-y-2">
+          <h4 className="font-black text-blue-900 text-sm md:text-lg uppercase tracking-tight">
+            Results Archive Information
+          </h4>
+          <p className="text-blue-700/80 text-xs md:text-base font-medium leading-relaxed">
+            All examination results are available for download in PDF format. Results are typically uploaded 
+            within <span className="text-blue-900 font-bold">2 weeks</span> after official release. For any missing results or technical issues, please contact 
+            the academic office.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
           {/* FAQ Tab - Modern & Responsive */}
           {activeTab === 'faq' && (
