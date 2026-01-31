@@ -1620,6 +1620,12 @@ export default function ResourcesManager() {
   const [deleteType, setDeleteType] = useState('single');
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const [files, setFiles] = useState([]);
+  const [existingFiles, setExistingFiles] = useState([]);
+  const [filesToRemove, setFilesToRemove] = useState([]);
+  const [totalSizeMB, setTotalSizeMB] = useState(0);
+  const [fileSizeError, setFileSizeError] = useState('');
   
   // Notification state
   const [notification, setNotification] = useState({
