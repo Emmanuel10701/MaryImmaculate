@@ -209,97 +209,160 @@ const ModernCareerDepartmentCard = ({ department, icon: Icon, color, subjects, c
   );
 };
 
-// Updated CareerPortalModal - Mobile Responsive with hidden scrollbar
+// Updated CareerPortalModal - Fixed Responsive Issues
 const CareerPortalModal = ({ isOpen, onClose, data }) => {
   // Prevent background scrolling when modal is active
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
+
+  const router = useRouter();
 
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Backdrop with high Z-index */}
+      {/* Backdrop - Same as Admin Modal */}
       <div 
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[999] "
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[999]"
         onClick={onClose}
       />
       
-      {/* Container: Bottom-aligned on mobile (Drawer style), Centered on desktop */}
-      <div className="fixed inset-0 z-[1000] flex items-end md:items-center justify-center p-0 md:p-4 pointer-events-none">
+      {/* Modal Container - Centered and Responsive */}
+      <div 
+        className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
+        onClick={onClose}
+      >
         <div 
-          className="relative bg-white w-full md:max-w-4xl h-[94vh] md:h-auto md:max-h-[90vh] overflow-hidden rounded-t-[2.5rem] md:rounded-[3rem] shadow-xl animate-in slide-in-from-bottom-full duration-500 pointer-events-auto flex flex-col"
+          className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 animate-in fade-in zoom-in duration-300"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header Banner - Edge to Edge */}
-          <div className={`relative shrink-0 h-40 md:h-52 bg-gradient-to-br ${data.color} p-8 flex items-end overflow-hidden`}>
-            {/* Decorative circles */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-3xl rounded-full -mr-32 -mt-32" />
+          {/* Header with Gradient */}
+          <div className={`relative bg-gradient-to-br ${data.color} p-6 md:p-8 text-white`}>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full -mr-32 -mt-32"></div>
             
-            <button 
-              onClick={onClose} 
-              className="absolute top-6 right-6 w-10 h-10 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center backdrop-blur-xl transition-all z-20"
-            >
-              <FiX className="text-xl" />
-            </button>
-            
-            <div className="relative z-10 flex items-center gap-5">
-              <div className="p-3 bg-white rounded-2xl shadow-2xl rotate-3 group-hover:rotate-0 transition-transform">
-                <data.Icon className={`text-2xl md:text-3xl text-slate-900`} />
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+                  <data.Icon className="text-2xl" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2 py-1 bg-black/20 rounded-full text-white text-[9px] font-black uppercase tracking-[0.2em]">
+                      Career Portal
+                    </span>
+                    <span className="text-[9px] font-black text-white/70 uppercase tracking-widest">
+                      DEPT-{data.department.substring(0,3)}-2026
+                    </span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase">
+                    {data.department}
+                  </h2>
+                </div>
               </div>
-              <div>
-                <span className="px-2 py-0.5 bg-black/20 rounded-full text-white text-[9px] font-black uppercase tracking-[0.3em] mb-2 inline-block">
-                  Career Portal
-                </span>
-                <h2 className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none">
-                  {data.department}
-                </h2>
-              </div>
+              <button 
+                onClick={onClose} 
+                className="p-3 hover:bg-white/10 rounded-2xl transition-all duration-200"
+              >
+                <FiX className="text-xl" />
+              </button>
             </div>
           </div>
 
-          {/* Scrollable Content Body */}
-          <div className="flex-1 overflow-y-auto p-6 md:p-12 scrollbar-hide">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Scrollable Content */}
+          <div className="p-6 md:p-8 max-h-[calc(90vh-160px)] overflow-y-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
               
-              {/* Left Side: Stats & About */}
-              <div className="lg:col-span-1 space-y-8">
+              {/* Left Column: Stats & About */}
+              <div className="lg:col-span-1 space-y-6">
                 <div>
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Domain Focus</h4>
-                  <p className="text-slate-600 text-sm md:text-base leading-relaxed font-bold italic">
-                    "{data.description}"
+                  <p className="text-slate-600 text-sm leading-relaxed font-medium italic border-l-4 border-blue-500 pl-4">
+                    {data.description}
                   </p>
                 </div>
                 
-                <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                {/* Core Prerequisites */}
+                <div className="bg-slate-50 rounded-2xl border border-slate-100 p-5">
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Core Prerequisites</h4>
                   <div className="flex flex-wrap gap-2">
-                    {data.subjects.map((s, i) => (
-                      <span key={i} className={`px-3 py-1.5 bg-white border border-slate-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-tight`}>
-                        {s}
+                    {data.subjects.map((subject, index) => (
+                      <span 
+                        key={index} 
+                        className="px-3 py-1.5 bg-white border border-slate-200 text-slate-900 rounded-xl text-xs font-medium"
+                      >
+                        {subject}
                       </span>
                     ))}
                   </div>
                 </div>
+
+                {/* Additional Info */}
+                <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white">
+                  <h4 className="text-[10px] font-black text-white/60 uppercase tracking-[0.3em] mb-4">Pathway Insights</h4>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2 text-sm">
+                      <FiCheckCircle className="text-green-400" />
+                      <span>Industry-aligned curriculum</span>
+                    </li>
+                    <li className="flex items-center gap-2 text-sm">
+                      <FiCheckCircle className="text-green-400" />
+                      <span>Practical skill development</span>
+                    </li>
+                    <li className="flex items-center gap-2 text-sm">
+                      <FiCheckCircle className="text-green-400" />
+                      <span>University articulation pathways</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
 
-              {/* Right Side: Career Grid */}
+              {/* Right Column: Career Grid */}
               <div className="lg:col-span-2">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Career Trajectories</h4>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Career Trajectories</h4>
+                    <h3 className="text-xl font-black text-slate-900">Explore Opportunities</h3>
+                  </div>
+                  <div className="text-xs text-slate-500 font-medium">
+                    {data.careerPaths.length} career paths
+                  </div>
+                </div>
+
                 <div className="space-y-4">
-                  {data.careerPaths.map((career, idx) => (
-                    <div key={idx} className="group/item bg-white p-5 md:p-6 rounded-[2rem] border border-slate-100 hover:border-blue-500 transition-all hover:shadow-lg">
-                      <div className="flex gap-5">
-                        <div className="text-2xl font-black text-slate-100 group-hover/item:text-blue-500 transition-colors">0{idx + 1}</div>
-                        <div>
-                          <h5 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-2">{career.title}</h5>
-                          <p className="text-slate-500 text-sm leading-relaxed mb-4 font-medium">{career.description}</p>
-                          <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
-                            <span className="text-[9px] font-black text-blue-600 uppercase">Key Roles:</span>
-                            <span className="text-[10px] font-bold text-slate-500">{career.examples}</span>
+                  {data.careerPaths.map((career, index) => (
+                    <div 
+                      key={index} 
+                      className="group bg-white border border-slate-200 rounded-2xl p-5 transition-all hover:border-blue-400 hover:shadow-lg"
+                    >
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center text-blue-600 font-black text-lg">
+                            {index + 1}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-2">
+                            <h5 className="text-lg font-black text-slate-900 uppercase tracking-tight">
+                              {career.title}
+                            </h5>
+                            <FiArrowRight className="text-slate-400 group-hover:text-blue-600 transition-colors" />
+                          </div>
+                          <p className="text-slate-500 text-sm mb-4 leading-relaxed">
+                            {career.description}
+                          </p>
+                          <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                            <div className="text-[10px] font-black text-blue-600 uppercase tracking-wider mb-1">
+                              Key Roles & Opportunities
+                            </div>
+                            <p className="text-sm text-slate-700 font-medium">
+                              {career.examples}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -307,45 +370,38 @@ const CareerPortalModal = ({ isOpen, onClose, data }) => {
                   ))}
                 </div>
               </div>
-
             </div>
           </div>
 
-  {/* Sticky Footer - Refined Flex Layout */}
-<div className="shrink-0 p-6 md:p-8 border-t border-slate-100 bg-slate-50/80 backdrop-blur-md">
-  <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-    
-    {/* Left: Inquiry Info - Hidden on tiny screens if space is tight, or centered */}
-    <div className="text-center sm:text-left">
-      <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
-        Inquiry Reference
-      </p>
-      <p className="text-xs md:text-sm font-black text-slate-900 uppercase tracking-tight">
-        DEPT-{data.department.substring(0,3)}-2026
-      </p>
-    </div>
-
-    {/* Right: Button Group - Always Flex */}
-    <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
-      {/* Secondary Close Button - Visible only on mobile for better UX */}
-      <button
-        onClick={onClose}
-        className="flex-1 sm:hidden px-6 py-4 bg-slate-200 text-slate-700 rounded-[1.2rem] font-black uppercase tracking-widest text-[10px] transition-all active:scale-95"
-      >
-        Close
-      </button>
-
-      {/* Main Action Button */}
-      <button 
-        onClick={() => router.push('/pages/contact')}
-        className="flex-[2] sm:flex-none px-6 md:px-10 py-4 bg-slate-900 text-white rounded-[1.2rem] md:rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] md:text-[11px] hover:bg-blue-600 transition-all active:scale-95 shadow-xl shadow-blue-900/10 flex items-center justify-center gap-2"
-      >
-        <span>Ask <span className="hidden xs:inline">About Path</span></span>
-        <FiArrowRight className="text-blue-400" />
-      </button>
-    </div>
-  </div>
-</div>
+          {/* Footer Actions - Fixed to bottom */}
+          <div className="border-t border-slate-100 bg-white p-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-center sm:text-left">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
+                  Need Guidance?
+                </p>
+                <p className="text-sm font-bold text-slate-900">
+                  Contact our career counseling team
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <button
+                  onClick={onClose}
+                  className="flex-1 sm:flex-none px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-all active:scale-95"
+                >
+                  Close
+                </button>
+                <button 
+                  onClick={() => router.push('/pages/contact')}
+                  className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-slate-900 to-blue-600 text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <span>Get Career Advice</span>
+                  <FiArrowRight className="text-blue-300" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
