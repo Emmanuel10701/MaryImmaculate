@@ -820,19 +820,28 @@ const ModernFeeCard = ({
         </div>
 
         {/* Footer Download Link */}
-        <div className="mt-10 pt-8 border-t border-white/5">
-          <a 
-            href={pdfPath} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className={`w-full flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all active:scale-95 shadow-xl ${
-              isDark ? 'bg-white text-slate-900' : 'bg-slate-900 text-white'
-            }`}
-          >
-            <IoCloudDownloadOutline size={20} />
-            Download PDF Structure
-          </a>
-        </div>
+   <div className="mt-10 pt-8 border-t border-white/5 flex justify-center md:justify-start">
+  <a 
+    href={pdfPath} 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className={`
+      /* Width Logic: Full on mobile, Auto-width on desktop */
+      w-full md:w-max md:min-w-[240px] 
+      
+      flex items-center justify-center gap-3 
+      px-8 py-4 md:py-5 
+      rounded-xl md:rounded-2xl 
+      font-black text-[10px] md:text-[11px] 
+      uppercase tracking-[0.2em] 
+      transition-all active:scale-95 shadow-xl
+      ${isDark ? 'bg-white text-slate-900 hover:bg-blue-50' : 'bg-slate-900 text-white hover:bg-slate-800'}
+    `}
+  >
+    <IoCloudDownloadOutline size={20} className="shrink-0" />
+    <span className="truncate">Download PDF Structure</span>
+  </a>
+</div>
       </div>
     </div>
   );
