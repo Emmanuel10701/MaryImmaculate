@@ -1929,62 +1929,63 @@ export default function ComprehensiveAdmissions() {
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Modernized Admissions Portal Header with MUI Loader */}
-<header className="relative bg-[#0F172A] rounded-2xl md:rounded-[2rem] p-5 md:p-8 text-white overflow-hidden shadow-2xl border border-white/5 mb-8">
-  {/* Subtle Mesh Accents - scaled down to prevent clutter */}
-  <div className="absolute top-[-20%] right-[-10%] w-[250px] h-[250px] bg-blue-600/20 rounded-full blur-[80px] pointer-events-none" />
+<header className="relative bg-[#0F172A] rounded-2xl md:rounded-[2rem] p-4 sm:p-5 md:p-8 text-white overflow-hidden shadow-2xl border border-white/5 mb-8">
+  {/* Subtle Mesh Accents - Adjusted for mobile position */}
+  <div className="absolute top-[-10%] right-[-5%] w-[180px] md:w-[250px] h-[180px] md:h-[250px] bg-blue-600/20 rounded-full blur-[60px] md:blur-[80px] pointer-events-none" />
   
-  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 md:gap-6">
     
-    {/* Left: Branding & Title - Tighter Spacing */}
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-1 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,99,235,0.5)]" />
-        <div className="flex flex-col">
-          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 leading-none">
-            {schoolData?.name || 'Marry Immculate Girls High School'}
+    {/* Left: Branding & Title */}
+    <div className="flex flex-col gap-2.5 md:gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Adjusted bar height for mobile */}
+        <div className="h-8 md:h-10 w-1 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,99,235,0.5)]" />
+        <div className="flex flex-col min-w-0"> {/* min-w-0 allows truncation/proper flex shrinking */}
+          <h2 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.3em] text-blue-400 leading-tight truncate">
+            {schoolData?.name || 'Mary Immaculate Girls High School'}
           </h2>
-          <p className="text-[9px] font-bold text-white/40 tracking-[0.2em] uppercase mt-1">
-            "Prayer, Discipline and Hardwork "
+          <p className="text-[8px] md:text-[9px] font-bold text-white/40 tracking-[0.1em] sm:tracking-[0.2em] uppercase mt-0.5 sm:mt-1 italic">
+            "Prayer, Discipline and Hardwork"
           </p>
         </div>
       </div>
 
-      <div className="flex items-baseline gap-3">
-        <h1 className="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <h1 className="text-xl sm:text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none">
           Admissions <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-blue-400">Portal</span>
         </h1>
-        <span className="hidden sm:block text-[10px] font-black px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/20 uppercase">
+        {/* Mobile-friendly session badge */}
+        <span className="text-[8px] md:text-[10px] font-black px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/10 uppercase whitespace-nowrap">
           {schoolData?.academicYear || '2026'} Session
         </span>
       </div>
     </div>
 
     {/* Right: Modern Compact Action Hub */}
-    <div className="flex items-center gap-2 p-1.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl self-start md:self-center">
-      
-      {/* Sync Button */}
-<button
-  onClick={refreshData}
-  disabled={loading}
-  title="Refresh latest information"
-  className="flex items-center justify-center gap-2 h-10 px-4 rounded-xl
-             transition-all font-black text-[10px] uppercase tracking-widest
-             bg-white/5 hover:bg-white/10 text-white/70
-             active:scale-100 disabled:opacity-50"
->
-  {loading ? (
-    <>
-      <CircularProgress size={14} thickness={6} sx={{ color: '#3b82f6' }} />
-      Refreshing...
-    </>
-  ) : (
-    <>
-      <FiRefreshCw className="transition-transform duration-300 group-hover:rotate-180" />
-      <span className="hidden sm:inline">Refresh Info</span>
-    </>
-  )}
-</button>
-
+    <div className="flex items-center self-start md:self-center">
+      <div className="p-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl">
+        <button
+          onClick={refreshData}
+          disabled={loading}
+          className="flex items-center justify-center gap-2 h-9 md:h-10 px-3 md:px-4 rounded-lg md:rounded-xl
+                     transition-all font-black text-[9px] md:text-[10px] uppercase tracking-widest
+                     bg-white/5 hover:bg-white/10 text-white/70
+                     active:scale-95 disabled:opacity-50"
+        >
+          {loading ? (
+            <>
+              <CircularProgress size={12} thickness={6} sx={{ color: '#3b82f6' }} />
+              <span>Refreshing...</span>
+            </>
+          ) : (
+            <>
+              <FiRefreshCw className={`text-xs md:text-base ${loading ? 'animate-spin' : ''}`} />
+              {/* Show text on small screens too, but smaller */}
+              <span className="inline">Refresh Info</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   </div>
 </header>
