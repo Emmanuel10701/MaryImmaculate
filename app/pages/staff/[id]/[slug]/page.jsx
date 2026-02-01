@@ -148,17 +148,17 @@ const transformStaffData = (apiData) => {
   const SeoHead = () => {
     if (!staff) return null;
     
-    const profileTitle = `${staff.name} - ${staff.position} at Mary Immculate Girls High School`;
-    const profileDescription = staff.bio || `Meet ${staff.name}, ${staff.position} at Mary Immculate Girls High School. ${schoolDescription}`;
-    const profileUrl = typeof window !== 'undefined' ? window.location.href : `https://katwanyaahighschool.edu.ke/staff/${staff.id}`;
+    const profileTitle = `${staff.name} - ${staff.position} at Mary Immaculate Girls High School`;
+    const profileDescription = staff.bio || `Meet ${staff.name}, ${staff.position} at Mary Immaculate Girls High School. ${schoolDescription}`;
+    const profileUrl = typeof window !== 'undefined' ? window.location.href : `https://maryimmacukategirls.edu.ke/staff/${staff.id}`;
     
     return (
       <>
         <title>{profileTitle}</title>
         <meta name="title" content={profileTitle} />
         <meta name="description" content={profileDescription} />
-        <meta name="keywords" content={`${staff.name}, ${staff.position}, Mary Immculate Girls High School, teacher profile, ${staff.department}`} />
-        <meta name="author" content="Mary Immculate Girls High School" />
+        <meta name="keywords" content={`${staff.name}, ${staff.position}, Mary Immaculate Girls High School, teacher profile, ${staff.department}`} />
+        <meta name="author" content="Mary Immaculate Girls High School" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="profile" />
@@ -166,7 +166,7 @@ const transformStaffData = (apiData) => {
         <meta property="og:title" content={profileTitle} />
         <meta property="og:description" content={profileDescription} />
         <meta property="og:image" content={staff.image} />
-        <meta property="og:site_name" content="Mary Immculate Girls High School" />
+        <meta property="og:site_name" content="Mary Immaculate Girls High School" />
         <meta property="profile:first_name" content={staff.name.split(' ')[0]} />
         <meta property="profile:last_name" content={staff.name.split(' ').slice(1).join(' ')} />
         
@@ -176,7 +176,7 @@ const transformStaffData = (apiData) => {
         <meta property="twitter:title" content={profileTitle} />
         <meta property="twitter:description" content={profileDescription} />
         <meta property="twitter:image" content={staff.image} />
-        <meta property="twitter:site" content="@KatwanyaaHS" />
+        <meta property="twitter:site" content="@MaryImmaculateHS" />
         
         {/* Structured Data for Google */}
         <script
@@ -189,9 +189,9 @@ const transformStaffData = (apiData) => {
               "jobTitle": staff.position,
               "worksFor": {
                 "@type": "EducationalOrganization",
-                "name": "Mary Immculate Girls High School",
+                "name": "Mary Immaculate Girls High School",
                 "description": schoolDescription,
-                "url": "https://katwanyaahighschool.edu.ke"
+                "url": "https://maryimmacukategirls.edu.ke"
               },
               "description": profileDescription,
               "url": profileUrl,
@@ -403,7 +403,7 @@ if (loading) {
               <span className="font-bold text-gray-800 text-xs sm:text-sm hidden xs:block sm:hidden md:block">
                 Mary Immculate Girls HS
               </span>
-              <span className="font-bold text-gray-800 hidden sm:block md:hidden">KHS</span>
+              <span className="font-bold text-gray-800 hidden sm:block md:hidden">MI</span>
               <span className="font-bold text-gray-800 hidden md:block lg:hidden">Mary Immculate</span>
               <span className="font-bold text-gray-800 hidden lg:block">Mary Immculate Girls High School</span>
             </div>
