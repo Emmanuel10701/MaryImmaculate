@@ -434,7 +434,7 @@ ${schoolData.admissionRequirements || '• KCPE: 250+ Marks\n• Age: 13-16 year
   icon: 'dollar',
   content: `💰 FEE STRUCTURE
 **Boarding School Fees (Per Term):** ${schoolData.feesBoarding ? `KES ${schoolData.feesBoarding.toLocaleString()}` : 'KES 25,000 - 30,000'}
-${documentData?.feesBoardingDistributionPdf ? `**Download Boarding Fee Structure:** ${documentData.feesBoardingPdfName || 'Boarding School Fees'}` : ''}
+${documentData?.feesBoardingDistributionPdf ? `Download Boarding Fee Structure: ${documentData.feesBoardingDistributionPdfName || 'Boarding School Fees'}` : ''}
 
 ${documentData?.feesBoardingDistributionJson ? `**Boarding Fee Distribution:**
 ${formatFeeDistribution(documentData.feesBoardingDistributionJson)}` : ''}
@@ -444,7 +444,7 @@ ${formatFeeDistribution(documentData.feesBoardingDistributionJson)}` : ''}
 • Multiple payment options available
 • Contact bursar for payment plans
 
-**Note:** All fees are subject to review as per school policies.`,
+please Note: All fees are subject to review as per school policies.`,
   links: [
     ...(documentData?.feesBoardingDistributionPdf ? [{ 
       label: 'Download Boarding Fees', 
