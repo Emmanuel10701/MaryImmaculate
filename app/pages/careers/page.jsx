@@ -7,6 +7,7 @@ import {
   FiCalendar,
   FiUsers,
   FiGraduationCap,
+  FiInfo,
   FiClock,
   FiArrowUpRight,
   FiMail,
