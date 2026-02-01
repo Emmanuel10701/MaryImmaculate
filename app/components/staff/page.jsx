@@ -19,6 +19,7 @@ import {
   FiCalendar,
   FiBriefcase,
   FiEye,
+  FiRefreshCcw,
   FiStar,
   FiShield,
   FiRotateCw,
