@@ -12,6 +12,7 @@ import {
   FiBook,
   FiChevronLeft,
   FiChevronRight,
+  FiChevronDown, // Added for the new select dropdowns
   FiFilter,
   FiX,
   FiMapPin,
@@ -21,15 +22,19 @@ import {
   FiStar,
   FiShield,
   FiRotateCw,
+  FiRefreshCw, // Added for the Hero Gallery style
   FiUpload,
   FiCheck,
   FiCheckCircle,
   FiInfo,
-  FaChevronRight,
   FiAlertTriangle,
   FiAlertCircle,
-  FiTag
+  FiTag,
+  FiUsers,
+  FiTarget,    // Added for Total Staff stat
+  FiArchive    // Added for Archive stat
 } from 'react-icons/fi';
+
 import { 
   FaEdit, 
   FaUserPlus, 
@@ -65,12 +70,16 @@ import {
   FaCalendar,
   FaTimesCircle,
   FaHandsHelping,
-  FaChalkboardTeacher
+  FaChalkboardTeacher,
+  FaChevronRight // Used in the "Next Step" buttons
 } from 'react-icons/fa';
+
+// IONICONS (Io) - Used for specialized branding and sparkles
 import { 
   IoPeopleCircle,
   IoRocketOutline,
-  IoSchoolOutline
+  IoSchoolOutline,
+  IoSparkles // Used for the "Gallery/New" sparkle effect
 } from 'react-icons/io5';
 import CircularProgress from '@mui/material/CircularProgress';
 
