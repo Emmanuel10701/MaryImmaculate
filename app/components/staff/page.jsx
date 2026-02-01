@@ -47,6 +47,7 @@ import {
   FaQuoteLeft, 
   FaQuoteRight, 
   FaStar, 
+  FaExclamationCircle, 
   FaTrophy, 
   FaClipboardCheck, 
   FaSave,
