@@ -20,6 +20,9 @@ export default function AboutPage() {
     { title: "Innovation", icon: <Sparkles size={16}/> }
   ];
 
+
+  const date = new Date(); // Add this line!
+
   return (
     <div className="bg-white text-slate-900">
       {/* Hero Section */}
