@@ -343,13 +343,21 @@ P.O. Box 363 – 90131 Nyeri, Kenya
 const buildDynamicCategories = (schoolData, documentData) => {
   if (!schoolData) return staticCategories;
 
-  // Format fee distribution for display
-  const formatFeeDistribution = (distribution) => {
-    if (!distribution || typeof distribution !== 'object') return '';
-    return Object.entries(distribution)
-      .map(([key, value]) => `• ${key}: KES ${value.toLocaleString()}`)
-      .join('\n');
-  };
+// Update the formatFeeDistribution function to handle arrays
+const formatFeeDistribution = (distribution) => {
+  if (!distribution || !Array.isArray(distribution)) return '';
+  
+  return distribution
+    .map(item => {
+      // Handle both array items and object properties
+      const feeItem = typeof item === 'object' ? item : null;
+      if (!feeItem || !feeItem.name || feeItem.amount === undefined) return '';
+      
+      return `• ${feeItem.name}: KES ${feeItem.amount.toLocaleString()}`;
+    })
+    .filter(line => line !== '') // Remove empty lines
+    .join('\n');
+};
 
   return {
     general: {
@@ -377,10 +385,10 @@ Quick Facts:
 We provide a supportive learning environment that promotes intellectual growth, moral values, and holistic development through qualified staff and modern facilities.`,
       links: staticCategories.general.links
     },
-    admissions: {
-      name: "Admissions",
-      icon: 'file',
-      content: `📋 ADMISSIONS INFORMATION
+admissions: {
+  name: "Admissions",
+  icon: 'file',
+  content: `📋 ADMISSIONS INFORMATION
 
 **Admission Period:**
 • Opens: ${schoolData.admissionOpenDate ? new Date(schoolData.admissionOpenDate).toLocaleDateString() : 'January'}
@@ -393,6 +401,8 @@ ${documentData?.admissionFeePdf ? `**Download Admission Fee Structure:** ${docum
 
 ${documentData?.admissionFeeDistribution ? `**Admission Fee Distribution:**
 ${formatFeeDistribution(documentData.admissionFeeDistribution)}` : ''}
+
+
 
 **Required Documents:**
 ${schoolData.admissionDocumentsRequired && schoolData.admissionDocumentsRequired.length > 0 
@@ -419,10 +429,10 @@ ${schoolData.admissionRequirements || '• KCPE: 250+ Marks\n• Age: 13-16 year
         }] : [])
       ]
     },
-    fees: {
-      name: "Fees",
-      icon: 'dollar',
-      content: `💰 FEE STRUCTURE
+ fees: {
+  name: "Fees",
+  icon: 'dollar',
+  content: `💰 FEE STRUCTURE
 **Boarding School Fees (Per Term):** ${schoolData.feesBoarding ? `KES ${schoolData.feesBoarding.toLocaleString()}` : 'KES 25,000 - 30,000'}
 ${documentData?.feesBoardingDistributionPdf ? `**Download Boarding Fee Structure:** ${documentData.feesBoardingPdfName || 'Boarding School Fees'}` : ''}
 
@@ -435,15 +445,15 @@ ${formatFeeDistribution(documentData.feesBoardingDistributionJson)}` : ''}
 • Contact bursar for payment plans
 
 **Note:** All fees are subject to review as per school policies.`,
-      links: [
-        ...(documentData?.feesBoardingDistributionPdf ? [{ 
-          label: 'Download Boarding Fees', 
-          action: 'download', 
-          url: documentData.feesBoardingDistributionPdf,
-          icon: 'download' 
-        }] : [])
-      ]
-    },
+  links: [
+    ...(documentData?.feesBoardingDistributionPdf ? [{ 
+      label: 'Download Boarding Fees', 
+      action: 'download', 
+      url: documentData.feesBoardingDistributionPdf,
+      icon: 'download' 
+    }] : [])
+  ]
+},
     academics: {
       name: "Academics",
       icon: 'book',
