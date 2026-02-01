@@ -30,7 +30,7 @@ import {
   IoNewspaper,
   IoSparkles,
   IoSchoolOutline,
-  
+
 
 } from 'react-icons/io5';
 
@@ -703,53 +703,35 @@ const router =useRouter()
     },
   ];
 
-const InstitutionalHeader = () => {
+const CompactSchoolHeader = () => {
   return (
-    <div className="group relative w-full p-8 md:p-12 bg-[#0F172A] rounded-[2.5rem] md:rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 transition-all duration-500 hover:scale-[1.01]">
-      
-      {/* Animated Mesh Background (The "Zoom" Experience) */}
-      <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-blue-600/20 rounded-full blur-[100px] pointer-events-none group-hover:scale-125 transition-transform duration-700" />
-      <div className="absolute bottom-[-20%] left-[-10%] w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-purple-600/10 rounded-full blur-[80px] pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+    <div className="group cursor-default py-4">
+      {/* Container with Zooming Experience */}
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 transition-all duration-500 ease-out group-hover:scale-[1.02] active:scale-95">
+        
+        {/* Left Accent Pillar */}
+        <div className="h-10 w-1 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full shadow-sm group-hover:h-12 transition-all duration-500" />
 
-      <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="space-y-4">
+        <div className="flex flex-col">
+          {/* School Name - Compact & Sharp */}
+          <h1 className="text-lg md:text-xl font-black text-gray-900 tracking-tight leading-none uppercase italic">
+            Mary <span className="text-blue-600 group-hover:text-indigo-600 transition-colors">Immaculate</span>
+          </h1>
           
-          {/* Vertical Branding Accent */}
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-1.5 bg-gradient-to-b from-orange-500 to-red-600 rounded-full shadow-[0_0_20px_rgba(249,115,22,0.4)]" />
-            <div>
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-black tracking-tighter leading-none italic text-white group-hover:tracking-normal transition-all duration-500">
-                MARY <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-white to-gray-400">IMMACULATE</span>
-              </h1>
-              <p className="text-blue-400 text-[10px] md:text-xs font-black uppercase tracking-[0.4em] mt-2">
-                Girls High School
-              </p>
-            </div>
-          </div>
-
-          {/* The Motto with Icon Accent */}
-          <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 w-fit group-hover:bg-white/10 transition-colors">
-            <IoSparkles className="text-yellow-400 text-lg animate-pulse" />
-            <p className="text-xs md:text-sm font-bold text-gray-300 italic tracking-wide">
-              "Prayer, <span className="text-white">Discipline</span> and Hardwork"
+          {/* Motto - Clean & Minimal */}
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">
+              Girls High School
+            </span>
+            <div className="h-[1px] w-4 bg-gray-200" />
+            <p className="text-[10px] md:text-xs font-bold text-gray-500 italic">
+              "Prayer, Discipline and Hardwork"
             </p>
           </div>
         </div>
 
-        {/* Right Side Visual (Optional but adds to the "Zoom" feel) */}
-        <div className="hidden lg:block">
-          <div className="relative">
-            <div className="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-20 animate-pulse" />
-            <IoSchoolOutline className="relative text-7xl text-white/20 group-hover:text-white/40 group-hover:rotate-12 transition-all duration-500" />
-          </div>
-        </div>
-      </div>
-      
-      {/* Bottom Corner Subtle Motto Tag */}
-      <div className="absolute bottom-4 right-8 hidden md:block">
-        <span className="text-[8px] font-black text-white/10 uppercase tracking-[0.5em] select-none">
-          Est. Excellence
-        </span>
+        {/* Dynamic Sparkle - Only appears on zoom/hover */}
+        <IoSparkles className="hidden md:block text-yellow-400 text-sm opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-500" />
       </div>
     </div>
   );
@@ -806,7 +788,7 @@ const InstitutionalHeader = () => {
               {/* Quick Stats - Hidden on small screens */}
 
               <div className="hidden md:flex items-center gap-6">
-                <InstitutionalHeader />
+                <CompactSchoolHeader/>
               </div>
 
               {/* User Menu */}
