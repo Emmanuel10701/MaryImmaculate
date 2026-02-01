@@ -1663,50 +1663,6 @@ const ModernUniformRequirementsSection = ({
 const AcademicResultsSection = ({ documentData }) => {
   const resultsData = [
     {
-      name: 'Form 1 Results',
-      pdf: documentData?.form1ResultsPdf,
-      pdfName: documentData?.form1ResultsPdfName,
-      description: documentData?.form1ResultsDescription,
-      year: documentData?.form1ResultsYear,
-      term: documentData?.form1ResultsTerm,
-      icon: FiBook,
-      accent: 'text-blue-400',
-      bg: 'bg-blue-400/10'
-    },
-    {
-      name: 'Form 2 Results',
-      pdf: documentData?.form2ResultsPdf,
-      pdfName: documentData?.form2ResultsPdfName,
-      description: documentData?.form2ResultsDescription,
-      year: documentData?.form2ResultsYear,
-      term: documentData?.form2ResultsTerm,
-      icon: FiBookOpen,
-      accent: 'text-purple-400',
-      bg: 'bg-purple-400/10'
-    },
-    {
-      name: 'Form 3 Results',
-      pdf: documentData?.form3ResultsPdf,
-      pdfName: documentData?.form3ResultsPdfName,
-      description: documentData?.form3ResultsDescription,
-      year: documentData?.form3ResultsYear,
-      term: documentData?.form3ResultsTerm,
-      icon: FiLayers,
-      accent: 'text-emerald-400',
-      bg: 'bg-emerald-400/10'
-    },
-    {
-      name: 'Form 4 Results',
-      pdf: documentData?.form4ResultsPdf,
-      pdfName: documentData?.form4ResultsPdfName,
-      description: documentData?.form4ResultsDescription,
-      year: documentData?.form4ResultsYear,
-      term: documentData?.form4ResultsTerm,
-      icon: FiAward,
-      accent: 'text-amber-400',
-      bg: 'bg-amber-400/10'
-    },
-    {
       name: 'Mock Exams',
       pdf: documentData?.mockExamsResultsPdf,
       pdfName: documentData?.mockExamsPdfName,
