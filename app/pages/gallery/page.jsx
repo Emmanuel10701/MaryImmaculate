@@ -486,7 +486,7 @@ const ShareModal = ({ isOpen, onClose, gallery }) => {
   if (!isOpen || !gallery) return null;
 
   const shareUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/gallery/${gallery.id}`
+    ? `${window.location.origin}/pages/gallery`
     : '';
 
   const shareTitle = `Check out this school gallery: ${gallery.title}`;
