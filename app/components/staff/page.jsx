@@ -1089,10 +1089,10 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                           <div 
                             key={role.value} 
                             onClick={() => handleChange('role', role.value)}
-                            className={`p-5 rounded-2xl border-3 cursor-pointer transition-all duration-300 ${
+                            className={`p-5 rounded-xl border-2 cursor-pointer ${
                               formData.role === role.value 
-                                ? 'border-blue-600 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-lg shadow-blue-200' 
-                                : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50 hover:shadow-md'
+                                ? 'border-blue-600 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-sm shadow-blue-200' 
+                                : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50 '
                             }`}
                           >
                             <div className="flex items-center gap-4">
