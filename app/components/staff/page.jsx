@@ -1355,9 +1355,8 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
     </div>
 
     {/* Bio and Quote - Flex Row with Education/Experience styling */}
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="bg-white rounded-md">
-        <h4 className="text-xs font-black text-gray-900 mb-4 flex items-center gap-3 uppercase tracking-wider">
+        <h4 className="text-md font-black text-gray-900 mb-4 flex items-center gap-3 uppercase tracking-wider">
           <FaQuoteLeft className="text-blue-600 text-sm" />
           Biography
         </h4>
@@ -1366,12 +1365,12 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
           onChange={(e) => handleChange('bio', e.target.value)}
           placeholder="Professional background..."
           rows="5"
-          className="w-full p-3 text-xs border-2 border-black font-bold rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
+          className="w-full p-3 text-md border-2 border-black font-bold rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
         />
       </div>
 
       <div className="bg-white rounded-md">
-        <h4 className="text-xs font-black text-gray-900 mb-4 flex items-center gap-3 uppercase tracking-wider">
+        <h4 className="text-md font-black text-gray-900 mb-4 flex items-center gap-3 uppercase tracking-wider">
           <FaQuoteRight className="text-purple-600 text-sm" />
           Personal Quote
         </h4>
@@ -1380,16 +1379,17 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
           onChange={(e) => handleChange('quote', e.target.value)}
           placeholder="Motto or favorite quote..."
           rows="5"
-          className="w-full p-3 text-xs border-2 border-black font-bold rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
+          className="w-full p-3 text-md border-2 border-black font-bold rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
         />
       </div>
     </div>
-  </div>
 )}
 
 
 
-{currentStep === 3 && (
+
+
+ {currentStep === 3 && (
               <div className="space-y-8">
                 <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-3xl p-8 border-2 border-orange-300 shadow-sm">
                   <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3">
@@ -1436,84 +1436,95 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                 </div>
 
                 {/* ENHANCED Summary Preview */}
-                <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-3xl p-8 border-2 border-gray-300 shadow-lg">
-                  <h4 className="text-2xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                    <FaClipboardCheck className="text-green-600 text-2xl" />
-                    Staff Summary
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-700">Name:</span>
-                        <span className="text-lg font-black text-gray-900 truncate max-w-[200px]">{formData.name}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-700">Role:</span>
-                        <span className="text-lg font-black text-gray-900">{formData.role}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-700">Department:</span>
-                        <span className="text-lg font-black text-gray-900">{formData.department}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-700">Email:</span>
-                        <span className="text-lg font-black text-gray-900 truncate max-w-[200px]">{formData.email}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-700">Phone:</span>
-                        <span className="text-lg font-black text-gray-900">{formData.phone}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-700">Gender:</span>
-                        <span className="text-lg font-black text-gray-900 capitalize">{formData.gender}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-700">Status:</span>
-                        <span className={`px-4 py-2 rounded-full text-sm font-black ${
-                          formData.status === 'active' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 
-                          formData.status === 'on-leave' ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white' : 
-                          'bg-gradient-to-r from-red-500 to-rose-600 text-white'
-                        }`}>
-                          {formData.status}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-700">Join Date:</span>
-                        <span className="text-lg font-black text-gray-900">{formData.joinDate}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-700">Image:</span>
-                        <span className={`text-lg font-black ${imageFile || imagePreview || staff?.image ? 'text-green-700' : 'text-red-700'}`}>
-                          {imageFile || imagePreview || staff?.image ? '✓ Uploaded' : '✗ Required'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {formData.expertise.length > 0 && (
-                    <div className="mt-8 pt-6 border-t border-gray-200">
-                      <span className="text-base font-black text-gray-800">Expertise: </span>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {formData.expertise.slice(0, 4).map((exp, index) => (
-                          <span 
-                            key={index} 
-                            className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-2.5 rounded-xl text-sm font-black shadow-md"
-                          >
-                            {exp}
-                          </span>
-                        ))}
-                        {formData.expertise.length > 4 && (
-                          <span className="bg-gradient-to-r from-gray-600 to-gray-800 text-white px-4 py-2.5 rounded-xl text-sm font-black shadow-md">
-                            +{formData.expertise.length - 4} more
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
+               <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-3xl p-8 border-2 border-gray-300 shadow-lg">
+                  <div className="bg-white rounded-2xl p-6 border-2 border-gray-100 shadow-sm">
+  <h4 className="text-xs font-black text-gray-900 mb-6 flex items-center gap-2 uppercase tracking-[0.2em]">
+    <FaClipboardCheck className="text-green-600 text-sm" />
+    Staff Summary Preview
+  </h4>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4">
+    {/* Column 1 */}
+    <div className="space-y-3">
+      {[
+        { label: "Full Name", value: formData.name },
+        { label: "Position", value: formData.role },
+        { label: "Dept.", value: formData.department },
+      ].map((item, i) => (
+        <div key={i} className="flex items-center justify-between border-b border-gray-50 pb-2">
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">{item.label}</span>
+          <span className="text-xs font-bold text-gray-900 truncate max-w-[120px]">{item.value || '—'}</span>
+        </div>
+      ))}
+    </div>
+
+    {/* Column 2 */}
+    <div className="space-y-3">
+      {[
+        { label: "Email", value: formData.email },
+        { label: "Phone", value: formData.phone },
+        { label: "Gender", value: formData.gender, className: "capitalize" },
+      ].map((item, i) => (
+        <div key={i} className="flex items-center justify-between border-b border-gray-50 pb-2">
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">{item.label}</span>
+          <span className={`text-xs font-bold text-gray-900 truncate max-w-[120px] ${item.className}`}>{item.value || '—'}</span>
+        </div>
+      ))}
+    </div>
+
+    {/* Column 3 */}
+    <div className="space-y-3">
+      <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">Status</span>
+        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
+          formData.status === 'active' ? 'bg-green-100 text-green-700' : 
+          formData.status === 'on-leave' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+        }`}>
+          {formData.status?.toUpperCase()}
+        </span>
+      </div>
+
+      <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">Join Date</span>
+        <span className="text-xs font-bold text-gray-900">{formData.joinDate || '—'}</span>
+      </div>
+
+      <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">Photo</span>
+        <span className={`text-[10px] font-black flex items-center gap-1 ${imageFile || imagePreview || staff?.image ? 'text-green-600' : 'text-red-500'}`}>
+          {imageFile || imagePreview || staff?.image ? 'ATTACHED' : 'MISSING'}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+               {formData.expertise.length > 0 && (
+  <div className="mt-6 pt-5 border-t border-gray-100">
+    <div className="flex items-center gap-2 mb-3">
+      <div className="w-1 h-3 bg-blue-600 rounded-full" />
+      <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">
+        Expertise Areas
+      </span>
+    </div>
+    
+    <div className="flex flex-wrap gap-1.5">
+      {formData.expertise.slice(0, 5).map((exp, index) => (
+        <span 
+          key={index} 
+          className="bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tight"
+        >
+          {exp}
+        </span>
+      ))}
+      
+      {formData.expertise.length > 5 && (
+        <span className="bg-gray-50 text-gray-500 border border-gray-200 px-2.5 py-1 rounded-md text-[10px] font-black">
+          +{formData.expertise.length - 5} MORE
+        </span>
+      )}
+    </div>
+  </div>
+)}
                 </div>
               </div>
             )}
