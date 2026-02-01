@@ -3349,103 +3349,161 @@ const [feeBreakdowns, setFeeBreakdowns] = useState({
     await handleSubmitAfterReview();
   };
 
-  const handleSubmitAfterReview = async () => {
-    if (!confirmed) {
-      toast.error('Please confirm review before submitting');
-      return;
-    }
+const handleSubmitAfterReview = async () => {
+  if (!confirmed) {
+    toast.error('Please confirm review before submitting');
+    return;
+  }
 
-    try {
-      setActionLoading(true);
-      
-      const data = new FormData();
-      
-      // Add all files and metadata
-      Object.keys(formData).forEach(key => {
-        const fileData = formData[key];
-        
-        if (!fileData) return;
-        
-        if (fileData.markedForDeletion) {
-          // Mark file for deletion
-          data.append(`${key}_delete`, 'true');
-        } else if (fileData.file && fileData.file instanceof File) {
-          // New file upload or replacement
-          data.append(key, fileData.file);
-          
-          // Add metadata
-          if (fileData.year) data.append(`${key}_year`, fileData.year);
-          if (fileData.term) data.append(`${key}_term`, fileData.term);
-          if (fileData.description) data.append(`${key}_description`, fileData.description);
-        } else if (fileData.isExisting && !fileData.markedForDeletion) {
-          // Existing file kept - only update metadata if changed
-          if (fileData.year) data.append(`${key}_year`, fileData.year);
-          if (fileData.term) data.append(`${key}_term`, fileData.term);
-          if (fileData.description) data.append(`${key}_description`, fileData.description);
-        }
-      });
-      
+  try {
+    setActionLoading(true);
     
-      if (feeBreakdowns.feesBoarding && feeBreakdowns.feesBoarding.length > 0) {
-        data.append('feesBoardingDistributionJson', JSON.stringify(feeBreakdowns.feesBoarding));
-      }
-      if (feeBreakdowns.admissionFee && feeBreakdowns.admissionFee.length > 0) {
-        data.append('admissionFeeDistribution', JSON.stringify(feeBreakdowns.admissionFee));
-      }
+    const data = new FormData();
+    
+    // Add all files and metadata
+    Object.keys(formData).forEach(key => {
+      const fileData = formData[key];
       
-      // Add exam metadata for all exam PDFs
-      Object.keys(examMetadata).forEach(key => {
-        if (examMetadata[key] && examMetadata[key].trim() !== '') {
-          data.append(key, examMetadata[key]);
+      if (!fileData) return;
+      
+      if (fileData.markedForDeletion) {
+        // Mark file for deletion
+        data.append(`${key}_delete`, 'true');
+      } else if (fileData.file && fileData.file instanceof File) {
+        // New file upload or replacement
+        data.append(key, fileData.file);
+        
+        // Add metadata - SAFELY convert to strings
+       if (fileData.year !== undefined && fileData.year !== null) {
+  data.append(`${key}_year`, String(fileData.year));
+}
+        if (fileData.term !== undefined && fileData.term !== null) {
+          data.append(`${key}_term`, String(fileData.term));
         }
-      });
-      
-      // Add school ID if exists
-      if (documents?.schoolId) {
-        data.append('schoolId', documents.schoolId);
-      }
-      
-      console.log('=== FORM DATA BEING SENT TO BACKEND ===');
-      for (let [key, value] of data.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}: File - ${value.name} (${value.size} bytes)`);
-        } else {
-          console.log(`${key}: ${value}`);
+        if (fileData.description !== undefined && fileData.description !== null) {
+          data.append(`${key}_description`, String(fileData.description));
+        }
+      } else if (fileData.isExisting && !fileData.markedForDeletion) {
+        // Existing file kept - only update metadata if changed
+   if (fileData.year !== undefined && fileData.year !== null) {
+  data.append(`${key}_year`, String(fileData.year));
+}
+        if (fileData.term !== undefined && fileData.term !== null) {
+          data.append(`${key}_term`, String(fileData.term));
+        }
+        if (fileData.description !== undefined && fileData.description !== null) {
+          data.append(`${key}_description`, String(fileData.description));
         }
       }
-      
-      const response = await fetch('/api/schooldocuments', {
-        method: 'POST',
-        body: data
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server error response:', errorText);
-        throw new Error(`Failed to save documents: ${response.status}`);
+    });
+    
+    // Add fee breakdowns as JSON - ensure clean data
+    if (feeBreakdowns.feesBoarding && feeBreakdowns.feesBoarding.length > 0) {
+      try {
+        const cleanFeesBoarding = feeBreakdowns.feesBoarding.map(item => ({
+          name: String(item.name || ''),
+          amount: Number(item.amount) || 0,
+          description: String(item.description || ''),
+          optional: Boolean(item.optional),
+          boardingOnly: Boolean(item.boardingOnly),
+          order: Number(item.order) || 0
+        }));
+        data.append('feesBoardingDistributionJson', JSON.stringify(cleanFeesBoarding));
+      } catch (e) {
+        console.error('Error processing feesBoardingDistributionJson:', e);
+        toast.error('Error processing boarding fee breakdown');
+        return;
       }
-
-      const result = await response.json();
-      
-      console.log('Save API response:', result);
-      
-      if (result.success) {
-        toast.success(result.message || 'Documents saved successfully!');
-        if (onSave && result.document) {
-          onSave(result.document);
-        }
-        onClose();
-      } else {
-        toast.error(result.error || 'Failed to save documents');
-      }
-      
-    } catch (error) {
-      console.error('Save failed:', error);
-      toast.error(error.message || 'Failed to save documents');
-    } finally {
-      setActionLoading(false);
     }
-  };
+    
+    if (feeBreakdowns.admissionFee && feeBreakdowns.admissionFee.length > 0) {
+      try {
+        const cleanAdmissionFee = feeBreakdowns.admissionFee.map(item => ({
+          name: String(item.name || ''),
+          amount: Number(item.amount) || 0,
+          description: String(item.description || ''),
+          optional: Boolean(item.optional),
+          boardingOnly: false, // Force false for admission
+          order: Number(item.order) || 0
+        }));
+        data.append('admissionFeeDistribution', JSON.stringify(cleanAdmissionFee));
+      } catch (e) {
+        console.error('Error processing admissionFeeDistribution:', e);
+        toast.error('Error processing admission fee breakdown');
+        return;
+      }
+    }
+    
+    // CRITICAL FIX: Add exam metadata safely - NO .trim() on non-strings
+    Object.keys(examMetadata).forEach(key => {
+      const value = examMetadata[key];
+      if (value !== null && value !== undefined && value !== '') {
+        const stringValue = String(value);
+        if (stringValue.trim() !== '') {
+          data.append(key, stringValue);
+        }
+      }
+    });
+    
+    // Add school ID if exists
+    if (documents?.schoolId) {
+      data.append('schoolId', String(documents.schoolId));
+    }
+    
+    // Debug logging
+    console.log('=== FORM DATA BEING SENT TO BACKEND ===');
+    console.log('Total files to upload:', fileSizeManager.fileCount);
+    console.log('Total size:', fileSizeManager.getTotalSizeMB(), 'MB');
+    
+    for (let [key, value] of data.entries()) {
+      if (value instanceof File) {
+        console.log(`${key}: File - ${value.name} (${value.size} bytes)`);
+      } else {
+        console.log(`${key}: ${value} (type: ${typeof value})`);
+      }
+    }
+    
+    // Send request
+    const response = await fetch('/api/schooldocuments', {
+      method: 'POST',
+      body: data
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Server error response:', errorText);
+      
+      try {
+        const errorJson = JSON.parse(errorText);
+        toast.error(errorJson.error || `Server error: ${response.status}`);
+      } catch {
+        toast.error(`Failed to save documents: ${response.status}`);
+      }
+      
+      throw new Error(`Failed to save documents: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    console.log('Save API response:', result);
+    
+    if (result.success) {
+      toast.success(result.message || 'Documents saved successfully!');
+      if (onSave && result.document) {
+        onSave(result.document);
+      }
+      onClose();
+    } else {
+      toast.error(result.error || 'Failed to save documents');
+    }
+    
+  } catch (error) {
+    console.error('Save failed:', error);
+    toast.error(error.message || 'Failed to save documents. Please try again.');
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   // FIXED: Handle file change properly for both new and existing files
   const handleFileChange = (field, file, year, description, term) => {
