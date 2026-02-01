@@ -828,26 +828,20 @@ function getModernEmailTemplate({
             <!-- Contact Details -->
             <div class="contact-details">
                 <a href="mailto:${CONTACT_EMAIL}" class="contact-card email">
-                    <div class="contact-icon email">✉</div>
                     <div class="contact-content">
                         <div class="contact-label">Email</div>
-                        <div class="contact-value">${CONTACT_EMAIL}</div>
                     </div>
                 </a>
                 
                 <a href="tel:${CONTACT_PHONE}" class="contact-card phone">
-                    <div class="contact-icon phone">☎</div>
                     <div class="contact-content">
                         <div class="contact-label">Call Us</div>
-                        <div class="contact-value">${CONTACT_PHONE}</div>
                     </div>
                 </a>
                 
                 <a href="${SCHOOL_WEBSITE}" target="_blank" class="contact-card web">
-                    <div class="contact-icon web">🌐</div>
                     <div class="contact-content">
                         <div class="contact-label">Visit</div>
-                        <div class="contact-value">Our Website</div>
                     </div>
                 </a>
             </div>
