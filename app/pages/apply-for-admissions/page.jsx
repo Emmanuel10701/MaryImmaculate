@@ -661,26 +661,24 @@ const KatwanyaaAdmission = () => {
       </div>
 
       {/* Action Buttons: Responsive sizing and spacing */}
-      <div className="mt-6 md:mt-8 flex flex-row gap-2 md:gap-4 justify-center">
-        <button
-          onClick={() => {
-            setStep(1);
-            setShowSuccess(false);
-          }}
-          className="flex-1 md:flex-none px-3 py-3 md:px-6 md:py-3 bg-blue-600 text-white rounded-xl font-bold text-[10px] md:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
-        >
-          <FiUser className="w-4 h-4" />
-          <span>New App</span>
-        </button>
+         <div className="mt-8 flex flex-row gap-2 sm:gap-4 justify-center">
+          <button
+            onClick={() => { setStep(1); setShowSuccess(false); }}
+            className="flex-1 sm:flex-none px-4 py-3 bg-blue-600 text-white rounded-xl font-bold text-[10px] sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"
+          >
+            <FiUser className="w-4 h-4" />
+            <span className="hidden xs:inline">Submit Another</span>
+            <span className="xs:hidden">New</span>
+          </button>
 
-        <button
-          onClick={shareApplication}
-          className="flex-1 md:flex-none px-3 py-3 md:px-6 md:py-3 bg-emerald-600 text-white rounded-xl font-bold text-[10px] md:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
-        >
-          <FiShare2 className="w-4 h-4" />
-          <span>Share</span>
-        </button>
-      </div>
+          <button
+            onClick={shareApplication}
+            className="flex-1 sm:flex-none px-4 py-3 bg-emerald-600 text-white rounded-xl font-bold text-[10px] sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"
+          >
+            <FiShare2 className="w-4 h-4" />
+            Share
+          </button>
+        </div>
     </div>
   </div>
 ) : (
