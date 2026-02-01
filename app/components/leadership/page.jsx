@@ -293,7 +293,7 @@ Mary Immaculate Girls
           
           <p className="text-gray-500 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed max-w-xl mb-6 sm:mb-8 md:mb-10 lg:mb-12 px-2">
             "Prayer, Discipline and Hardwork ." We are currently updating our directory for the new term. 
-            Please refresh to see the latest updates from Katwanya High.
+            Please refresh to see the latest updates from Mary Immaculate Girls.
           </p>
 
           {/* Full Refresh Button */}
