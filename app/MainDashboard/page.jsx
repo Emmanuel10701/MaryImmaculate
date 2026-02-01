@@ -700,44 +700,57 @@ const router =useRouter()
     },
   ];
 
-  // Header stats component with simple hover effect
-  const HeaderStat = ({ icon: Icon, value, label, color = 'blue', trend = 'up' }) => {
-    const colorClasses = {
-      blue: 'bg-blue-100 text-blue-600',
-      green: 'bg-green-100 text-green-600',
-      red: 'bg-red-100 text-red-600',
-      yellow: 'bg-yellow-100 text-yellow-600',
-      purple: 'bg-purple-100 text-purple-600',
-      pink: 'bg-pink-100 text-pink-600',
-      indigo: 'bg-indigo-100 text-indigo-600',
-      teal: 'bg-teal-100 text-teal-600',
-      orange: 'bg-orange-100 text-orange-600',
-      cyan: 'bg-cyan-100 text-cyan-600',
-      lime: 'bg-lime-100 text-lime-600',
-      gray: 'bg-gray-100 text-gray-600'
-    };
+const InstitutionalHeader = () => {
+  return (
+    <div className="group relative w-full p-8 md:p-12 bg-[#0F172A] rounded-[2.5rem] md:rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 transition-all duration-500 hover:scale-[1.01]">
+      
+      {/* Animated Mesh Background (The "Zoom" Experience) */}
+      <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-blue-600/20 rounded-full blur-[100px] pointer-events-none group-hover:scale-125 transition-transform duration-700" />
+      <div className="absolute bottom-[-20%] left-[-10%] w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-purple-600/10 rounded-full blur-[80px] pointer-events-none group-hover:scale-110 transition-transform duration-700" />
 
-    return (
-      <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors duration-200">
-        <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
-          <Icon className="text-lg" />
-        </div>
-        <div className="text-right">
-          <p className="text-lg font-bold text-gray-900">{value?.toLocaleString() || '0'}</p>
-          <p className="text-xs text-gray-500 capitalize">{label}</p>
-        </div>
-        {trend && (
-          <div className={`p-1 rounded ${trend === 'up' ? 'bg-green-100' : 'bg-red-100'}`}>
-            {trend === 'up' ? (
-              <FiTrendingUp className="text-green-600 text-sm" />
-            ) : (
-              <FiTrendingUp className="text-red-600 text-sm transform rotate-180" />
-            )}
+      <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="space-y-4">
+          
+          {/* Vertical Branding Accent */}
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-1.5 bg-gradient-to-b from-orange-500 to-red-600 rounded-full shadow-[0_0_20px_rgba(249,115,22,0.4)]" />
+            <div>
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-black tracking-tighter leading-none italic text-white group-hover:tracking-normal transition-all duration-500">
+                MARY <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-white to-gray-400">IMMACULATE</span>
+              </h1>
+              <p className="text-blue-400 text-[10px] md:text-xs font-black uppercase tracking-[0.4em] mt-2">
+                Girls High School
+              </p>
+            </div>
           </div>
-        )}
+
+          {/* The Motto with Icon Accent */}
+          <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 w-fit group-hover:bg-white/10 transition-colors">
+            <IoSparkles className="text-yellow-400 text-lg animate-pulse" />
+            <p className="text-xs md:text-sm font-bold text-gray-300 italic tracking-wide">
+              "Prayer, <span className="text-white">Discipline</span> and Hardwork"
+            </p>
+          </div>
+        </div>
+
+        {/* Right Side Visual (Optional but adds to the "Zoom" feel) */}
+        <div className="hidden lg:block">
+          <div className="relative">
+            <div className="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-20 animate-pulse" />
+            <IoSchoolOutline className="relative text-7xl text-white/20 group-hover:text-white/40 group-hover:rotate-12 transition-all duration-500" />
+          </div>
+        </div>
       </div>
-    );
-  };
+      
+      {/* Bottom Corner Subtle Motto Tag */}
+      <div className="absolute bottom-4 right-8 hidden md:block">
+        <span className="text-[8px] font-black text-white/10 uppercase tracking-[0.5em] select-none">
+          Est. Excellence
+        </span>
+      </div>
+    </div>
+  );
+};
 
   // Show loading screen
   if (loading) {
@@ -788,22 +801,9 @@ const router =useRouter()
 
             <div className="flex items-center gap-4">
               {/* Quick Stats - Hidden on small screens */}
-              <div className="hidden xl:flex items-center gap-3">
-                <HeaderStat 
-                  icon={FiUsers} 
-                  value={realStats.totalStudent} 
-                  label="Students" 
-                  color="blue"
-                  trend="up"
-                />
-                <HeaderStat 
-                  icon={IoPeopleCircle} 
-                  value={realStats.totalStaff} 
-                  label="Staff" 
-                  color="green"
-                  trend="up"
-                />
-                               
+
+              <div className="hidden md:flex items-center gap-6">
+                <InstitutionalHeader />
               </div>
 
               {/* User Menu */}

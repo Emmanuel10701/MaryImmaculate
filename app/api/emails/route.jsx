@@ -145,26 +145,22 @@ function getRecipientTypeLabel(type) {
   };
   return labels[type] || type;
 }
-
 function sanitizeContent(content) {
-  // Reduce font-size styles
+  // This might be too aggressive and breaking HTML
   let safeContent = content
-    .replace(/font-size\s*:\s*[^;]+;/gi, '')
-    .replace(/<font[^>]*>/gi, '')
-    .replace(/<\/font>/gi, '')
-    .replace(/size\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/font-size\s*:\s*[^;]+;/gi, '')  // ← Removes font-size
+    .replace(/<font[^>]*>/gi, '')           // ← Removes <font> tags
+    .replace(/<\/font>/gi, '')              // ← Removes closing font tags
+    .replace(/size\s*=\s*["'][^"']*["']/gi, '')  // ← Removes size attributes
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/on\w+="[^"]*"/g, '')
     .replace(/on\w+='[^']*'/g, '')
     .replace(/javascript:/gi, '')
     .replace(/data:/gi, '');
   
-  // Convert newlines to <br> tags
+  // This might break complex HTML
   safeContent = safeContent.replace(/\n/g, '<br>');
   
-  // Remove extra font styles
-  safeContent = safeContent.replace(/style\s*=\s*["'][^"']*font[^"']*["']/gi, '');
-
   return safeContent;
 }
 
@@ -526,33 +522,7 @@ function getModernEmailTemplate({
             color: #94a3b8;
         }
         
-        .social-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .social-btn {
-            width: 88px;
-            height: 88px;
-            border-radius: 12px;
-            border: 2px solid #334155;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 12px;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            color: black;
-        }
-        
-        .social-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
+ 
         
     
   
