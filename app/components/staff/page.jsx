@@ -1257,68 +1257,70 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                 </div>
             )}
 
-        {/* Step 3: Profile & Bio - CLEAN & COMPACT */}
+{/* Step 3: Profile & Bio - CLEAN & ALIGNED */}
 {currentStep === 2 && (
   <div className="space-y-6">
-    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-      <h3 className="text-sm font-black text-gray-900 mb-6 flex items-center gap-2 uppercase tracking-wider">
-        <FaUserCircle className="text-orange-600" />
+    {/* Profile Image & Information Section */}
+    <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border-2 border-orange-200 shadow-sm">
+      <h3 className="text-sm font-black text-gray-900 mb-6 flex items-center gap-3 uppercase tracking-wider">
+        <FaUserCircle className="text-orange-600 text-lg" />
         Profile Image & Information
       </h3>
       
-      {/* Gender Selection - Reduced Padding/Text */}
+      {/* Gender Selection */}
       <div className="mb-6">
-        <p className="text-xs font-black text-gray-500 mb-3 uppercase tracking-widest">Select Gender:</p>
+        <p className="text-xs font-black text-gray-800 mb-3 uppercase tracking-widest">Select Gender:</p>
         <div className="flex gap-4">
           <button
             type="button"
             onClick={() => handleGenderChange('male')}
-            className={`flex-1 flex items-center justify-center gap-3 p-3 rounded-xl border-2 transition-all ${
+            className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
               formData.gender === 'male'
-                ? 'border-blue-600 bg-blue-50' 
-                : 'border-gray-100 bg-white'
+                ? 'border-blue-600 bg-white shadow-md' 
+                : 'border-gray-200 bg-white/50'
             }`}
           >
-            <FaMale className={formData.gender === 'male' ? 'text-blue-600' : 'text-gray-400'} />
-            <span className={`text-xs font-black uppercase ${formData.gender === 'male' ? 'text-blue-800' : 'text-gray-600'}`}>Male</span>
+            <FaMale className={`text-xl ${formData.gender === 'male' ? 'text-blue-600' : 'text-gray-400'}`} />
+            <span className={`text-[10px] font-black uppercase ${formData.gender === 'male' ? 'text-blue-800' : 'text-gray-600'}`}>Male</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleGenderChange('female')}
-            className={`flex-1 flex items-center justify-center gap-3 p-3 rounded-xl border-2 transition-all ${
+            className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
               formData.gender === 'female'
-                ? 'border-pink-600 bg-pink-50' 
-                : 'border-gray-100 bg-white'
+                ? 'border-pink-600 bg-white shadow-md' 
+                : 'border-gray-200 bg-white/50'
             }`}
           >
-            <FaFemale className={formData.gender === 'female' ? 'text-pink-600' : 'text-gray-400'} />
-            <span className={`text-xs font-black uppercase ${formData.gender === 'female' ? 'text-pink-800' : 'text-gray-600'}`}>Female</span>
+            <FaFemale className={`text-xl ${formData.gender === 'female' ? 'text-pink-600' : 'text-gray-400'}`} />
+            <span className={`text-[10px] font-black uppercase ${formData.gender === 'female' ? 'text-pink-800' : 'text-gray-600'}`}>Female</span>
           </button>
         </div>
       </div>
 
-      {/* Image Upload - Compact */}
-      <div className="flex items-start gap-4">
+      {/* Image Upload Area */}
+      <div className="flex items-center gap-6">
         <div className="flex-shrink-0">
           {imagePreview ? (
             <div className="relative">
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="w-20 h-20 rounded-2xl object-cover border-2 border-gray-200"
+                className="w-24 h-24 rounded-2xl object-cover border-2 border-gray-300"
               />
               <button
                 type="button"
                 onClick={handleImageRemove}
-                className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full shadow-md"
+                className="absolute -top-2 -right-2 bg-red-600 text-white p-1.5 rounded-full shadow-lg"
               >
                 <FiX size={12} />
               </button>
             </div>
           ) : (
-            <div className="w-20 h-20 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50">
-              <FiUser className="text-gray-400 text-xl" />
+            <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-gray-400 flex flex-col items-center justify-center bg-white/50">
+              <FiUser className="text-gray-400 text-2xl" />
+              <span className="text-[9px] text-gray-500 mt-1 font-black uppercase">No Image</span>
             </div>
           )}
         </div>
@@ -1332,55 +1334,62 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
               className="hidden"
               id="staff-image-upload"
             />
-            <div className="px-4 py-3 border border-gray-200 rounded-xl cursor-pointer flex items-center justify-between bg-white active:bg-gray-50 transition-colors">
+            <div className="px-4 py-3 border-2 border-gray-300 rounded-xl cursor-pointer flex items-center justify-between bg-white transition-colors">
               <div className="flex items-center gap-3">
                 <FaUpload className="text-orange-600 text-sm" />
                 <span className="text-[11px] font-black text-gray-900 uppercase">
-                  {imagePreview ? 'Change' : 'Upload Image'}
+                  {imagePreview ? 'Change Photo' : 'Upload Staff Photo'}
                 </span>
               </div>
-              <FaFolderOpen className="text-blue-500 text-sm" />
+              <FaFolderOpen className="text-blue-600 text-sm" />
             </div>
           </label>
-          <p className="text-[10px] text-gray-500 font-bold uppercase leading-tight">
-            <span className="text-red-500">* Required:</span> JPEG/PNG max 5MB
-          </p>
+          <div className="bg-white/60 p-2 rounded-lg border border-orange-200">
+            <p className="text-[9px] text-gray-700 font-bold uppercase flex items-center gap-1">
+              <FaExclamationCircle className="text-orange-600" />
+              JPEG/PNG • Max 5MB
+            </p>
+          </div>
         </div>
       </div>
     </div>
 
-    {/* Bio and Quote - FLEX ROW */}
-    <div className="flex flex-col md:flex-row gap-4">
-      <div className="flex-1 bg-white rounded-xl p-5 border border-gray-200">
-        <h4 className="text-[10px] font-black text-gray-400 mb-3 flex items-center gap-2 uppercase tracking-[0.2em]">
-          <FaQuoteLeft className="text-blue-600" /> Biography
+    {/* Bio and Quote - Flex Row with Education/Experience styling */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white rounded-md">
+        <h4 className="text-xs font-black text-gray-900 mb-4 flex items-center gap-3 uppercase tracking-wider">
+          <FaQuoteLeft className="text-blue-600 text-sm" />
+          Biography
         </h4>
         <textarea
           value={formData.bio}
           onChange={(e) => handleChange('bio', e.target.value)}
-          placeholder="Staff biography..."
-          rows="4"
-          className="w-full px-4 py-3 text-xs font-bold border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all"
+          placeholder="Professional background..."
+          rows="5"
+          className="w-full p-3 text-xs border-2 border-black font-bold rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
         />
       </div>
 
-      <div className="flex-1 bg-white rounded-xl p-5 border border-gray-200">
-        <h4 className="text-[10px] font-black text-gray-400 mb-3 flex items-center gap-2 uppercase tracking-[0.2em]">
-          <FaQuoteRight className="text-purple-600" /> Quote
+      <div className="bg-white rounded-md">
+        <h4 className="text-xs font-black text-gray-900 mb-4 flex items-center gap-3 uppercase tracking-wider">
+          <FaQuoteRight className="text-purple-600 text-sm" />
+          Personal Quote
         </h4>
         <textarea
           value={formData.quote}
           onChange={(e) => handleChange('quote', e.target.value)}
-          placeholder="Motto..."
-          rows="4"
-          className="w-full px-4 py-3 text-xs font-bold border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all"
+          placeholder="Motto or favorite quote..."
+          rows="5"
+          className="w-full p-3 text-xs border-2 border-black font-bold rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
         />
       </div>
     </div>
   </div>
 )}
-            {/* Step 4: Additional Details - ENHANCED */}
-            {currentStep === 3 && (
+
+
+
+{currentStep === 3 && (
               <div className="space-y-8">
                 <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-3xl p-8 border-2 border-orange-300 shadow-sm">
                   <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3">
