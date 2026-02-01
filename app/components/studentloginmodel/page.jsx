@@ -140,7 +140,7 @@ const nameFormats = [
               </figure>
               <div>
                 <h1 id="login-modal-title" className="text-lg sm:text-xl font-bold">Student Login Portal</h1>
-                <p id="login-modal-description" className="text-blue-100/90 text-xs mt-0.5">Access Marry Immculate Girls Portal learning resources</p>
+                <p id="login-modal-description" className="text-blue-100/90 text-xs mt-0.5">Access Mary Immculate Girls Portal learning resources</p>
               </div>
             </div>
             <button 
@@ -243,7 +243,7 @@ const nameFormats = [
 
               <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg p-2.5 sm:p-3 border border-blue-200">
                 <p className="text-blue-700 text-xs">
-                  <strong>Note:</strong> Use official admission number. Names in any format to access Marry Immculate Girls Portal.
+                  <strong>Note:</strong> Use official admission number. Names in any format to access Mary Immculate Girls Portal.
                 </p>
               </div>
             </div>
@@ -450,7 +450,7 @@ const nameFormats = [
                     active:scale-[0.98]
                     transform hover:-translate-y-0.5
                   "
-                  aria-label="Login to Marry Immculate Girls Portal"
+                  aria-label="Login to Mary Immculate Girls Portal"
                 >
                   {isLoading ? (
                     <span className="flex items-center gap-2">
@@ -469,7 +469,7 @@ const nameFormats = [
 
             {/* Features - Compact */}
             <section className="mt-3 sm:mt-4 pt-3 border-t border-gray-200">
-              <h3 className="sr-only">Marry Immculate Girls Portal Features</h3>
+              <h3 className="sr-only">Mary Immculate Girls Portal Features</h3>
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <div className="text-center p-1.5 sm:p-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
                   <FiBook className="text-blue-600 text-xs sm:text-sm mx-auto mb-1" aria-hidden="true" />
@@ -491,7 +491,7 @@ const nameFormats = [
         {/* Footer - Compact */}
         <footer className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 flex-shrink-0">
           <p className="text-center text-gray-600 text-[10px] sm:text-xs">
-            For assistance with Marry Immculate Girls Portal: Contact class teacher or school office
+            For assistance with Mary Immculate Girls Portal: Contact class teacher or school office
           </p>
         </footer>
       </main>

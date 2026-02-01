@@ -56,28 +56,28 @@ export default function SubscriberManager() {
   const emailTemplates = {
     admission: {
       name: 'Admission Tips & Updates',
-      subject: '🎓 Important Admission Updates & Tips for {schoolYear} - Marry Immculate Girls High  School',
+      subject: '🎓 Important Admission Updates & Tips for {schoolYear} - Mary Immculate Girls High  School',
       description: 'Send admission tips, deadlines, and important updates',
       color: 'bg-blue-50 border-blue-200',
       icon: '🎯'
     },
     newsletter: {
       name: 'Monthly Newsletter',
-      subject: '📰 {month} Newsletter - Marry Immculate Girls High SchoolUpdates',
+      subject: '📰 {month} Newsletter - Mary Immculate Girls High SchoolUpdates',
       description: 'Share monthly news, achievements, and announcements',
       color: 'bg-purple-50 border-purple-200',
       icon: '📬'
     },
     event: {
       name: 'Event Announcement',
-      subject: '🎉 Event Invitation: {eventName} - Marry Immculate Girls High  School',
+      subject: '🎉 Event Invitation: {eventName} - Mary Immculate Girls High  School',
       description: 'Announce school events and activities',
       color: 'bg-green-50 border-green-200',
       icon: '📅'
     },
     reminder: {
       name: 'Important Reminder',
-      subject: '⏰ Important Reminder - Marry Immculate Girls High  School',
+      subject: '⏰ Important Reminder - Mary Immculate Girls High  School',
       description: 'Send important reminders and notifications',
       color: 'bg-amber-50 border-amber-200',
       icon: '🔔'

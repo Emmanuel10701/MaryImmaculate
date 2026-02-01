@@ -12,13 +12,13 @@ import {
 import { IoRocketOutline } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
 
-// Enhanced Hero Slides with Modern Design - Updated with accurate Marry Immculate Girls High Scvhool in Mweiga, Nyeri  information
+// Enhanced Hero Slides with Modern Design - Updated with accurate Mary Immculate Girls High Scvhool in Mweiga, Nyeri  information
 const heroSlides = [
   {
-    title: "Marry Immculate Girls High School",
+    title: "Mary Immculate Girls High School",
     subtitle: "Mweiga, Nyeri  County",
     gradient: "from-blue-500 via-cyan-400 to-purple-600",
-    description: "Marry Immculate Girls High School is a private secondary school located in Mweiga, Nyeri county, Kenya. The school is committed to providing quality education and holistic development to students from the region.",
+    description: "Mary Immculate Girls High School is a private secondary school located in Mweiga, Nyeri county, Kenya. The school is committed to providing quality education and holistic development to students from the region.",
     background: "bg-gradient-to-br from-blue-900/90 via-indigo-900/80 to-purple-900/70",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1000",
     stats: { 
@@ -56,7 +56,7 @@ const heroSlides = [
     title: "Community Partnership",
     subtitle: "Local Engagement",
     gradient: "from-cyan-500 via-blue-400 to-indigo-600",
-    description: "As a community-based institution in Mweiga, Nyeri, Marry Immculate Girls High School works closely with parents and local stakeholders to provide relevant education that addresses community needs.",
+    description: "As a community-based institution in Mweiga, Nyeri, Mary Immculate Girls High School works closely with parents and local stakeholders to provide relevant education that addresses community needs.",
     background: "bg-gradient-to-br from-cyan-900/90 via-blue-900/80 to-indigo-900/70",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop",
     stats: { 
@@ -316,7 +316,7 @@ const ModernHero = () => {
           {/* Text - Reduced size */}
           <span className="text-white text-xs sm:text-sm md:text-base 
             font-semibold italic tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-            Welcome to <span className="font-bold hidden sm:inline">Marry Immculate Girls High School</span>
+            Welcome to <span className="font-bold hidden sm:inline">Mary Immculate Girls High School</span>
             <span className="font-bold inline sm:hidden">KHS</span>
           </span>
 
@@ -597,9 +597,9 @@ const ModernHero = () => {
                   <Play className="text-white w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
                 <div className="overflow-hidden">
-                  <h4 className="text-white font-bold text-xs sm:text-sm md:text-base truncate">Marry Immculate Girls High School Tour</h4>
+                  <h4 className="text-white font-bold text-xs sm:text-sm md:text-base truncate">Mary Immculate Girls High School Tour</h4>
                   <p className="text-white/60 text-[10px] sm:text-xs md:text-sm truncate">
-                    {schoolData?.name || 'Marry Immculate Girls High School - Mweiga, Nyeri'}
+                    {schoolData?.name || 'Mary Immculate Girls High School - Mweiga, Nyeri'}
                   </p>
                 </div>
               </div>
@@ -686,7 +686,7 @@ const ModernHero = () => {
             <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-r from-transparent to-black/80 p-2 sm:p-3 md:p-4">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                 <div className="text-white/80 text-xs sm:text-sm hidden sm:block truncate">
-                  {schoolData?.description?.substring(0, isMobile ? 50 : 100) + '...' || 'Experience Marry Immculate Girls High School from anywhere in the world'}
+                  {schoolData?.description?.substring(0, isMobile ? 50 : 100) + '...' || 'Experience Mary Immculate Girls High School from anywhere in the world'}
                 </div>
                 <button
                   onClick={handleContactClick}

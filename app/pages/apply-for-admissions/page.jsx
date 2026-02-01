@@ -290,8 +290,8 @@ const KatwanyaaAdmission = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Marry Immculate Girls High SchoolAdmission - ${applicationNumber}`,
-          text: `I've submitted my admission application to Marry Immculate Girls High  School. Application Number: ${applicationNumber}`,
+          title: `Mary Immculate Girls High SchoolAdmission - ${applicationNumber}`,
+          text: `I've submitted my admission application to Mary Immculate Girls High  School. Application Number: ${applicationNumber}`,
           url: window.location.href,
         });
       } catch (error) {
@@ -1550,7 +1550,7 @@ const KatwanyaaAdmission = () => {
                 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 rounded focus:ring-blue-500 mt-0.5 sm:mt-1"
               />
               <span className="text-xs sm:text-sm md:text-base text-gray-800 font-semibold">
-                I agree to the terms and conditions of Marry Immculate Girls High School's admission process.
+                I agree to the terms and conditions of Mary Immculate Girls High School's admission process.
               </span>
             </label>
             <label className="flex items-start space-x-2 sm:space-x-3 cursor-pointer">

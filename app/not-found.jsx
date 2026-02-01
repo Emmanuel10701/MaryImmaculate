@@ -297,12 +297,12 @@ const Modern404 = () => {
           {/* Footer */}
           <footer className="mt-8 md:mt-12 lg:mt-16 text-center">
             <p className="text-slate-500 text-sm font-medium">
-              &copy; {new Date().getFullYear()} Marry Immculate Girls High in Mweiga, Nyeri   
+              &copy; {new Date().getFullYear()} Mary  Immculate Girls High in Mweiga, Nyeri   
               <span className="mx-2 text-slate-300">•</span>
                Prayer, Discipline and Hardwork  
               <span className="mx-2 text-slate-300">•</span>
               <a href="/" className="text-rose-600 hover:text-rose-800 transition-colors font-medium">
-                Site Map
+                Site Map homepage
               </a>
             </p>
           </footer>

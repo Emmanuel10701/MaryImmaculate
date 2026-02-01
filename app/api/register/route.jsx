@@ -4,7 +4,7 @@ import { hashPassword, generateToken, sanitizeUser } from '../../../libs/auth';
 import nodemailer from 'nodemailer';
 
 // Constants
-const SCHOOL_NAME = 'Marry Immaculate Girls High School';
+const SCHOOL_NAME = 'Mary Immaculate Girls High School';
 const SCHOOL_LOCATION = 'Mweiga, Nyeri  County';
 const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork ';
 const CONTACT_PHONE = '+254720123456';

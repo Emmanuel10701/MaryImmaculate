@@ -19,7 +19,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 
 // --- FILE MANAGER CLASS ---
 
-const BUCKET_NAME = 'Marry Immculate Girls High';
+const BUCKET_NAME = 'Mary Immculate Girls High';
 
 export class FileManager {
   /**

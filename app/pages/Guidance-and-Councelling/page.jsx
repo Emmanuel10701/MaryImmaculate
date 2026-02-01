@@ -1391,7 +1391,7 @@ const DEFAULT_SESSIONS = [
     priority: 'high',
     image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
     featured: true,
-    location: 'Marry Immculate Girls Church'
+    location: 'Mary Immculate Girls Church'
   }
 ];
 

@@ -539,7 +539,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, sidebarOpen, set
             {/* Version Info */}
             <div className="text-center mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-gray-200">
               <p className="text-gray-400 text-[10px] lg:text-xs">
-                v2.1.0 • Marry Immculate Girls High  School
+                v2.1.0 • Mary Immculate Girls High  School
               </p>
             </div>
           </div>

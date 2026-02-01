@@ -777,7 +777,7 @@ export default function ChatBot() {
       role: 'assistant',
       content: `🎓 WELCOME TO ${schoolName.toUpperCase()}!${motto}
 
-Hello! I'm Marry Immmaculate virtual support, your assistant.
+Hello! I'm Mary Immmaculate virtual support, your assistant.
 
 About Our School:
 • Private County School (Girls Boarding)

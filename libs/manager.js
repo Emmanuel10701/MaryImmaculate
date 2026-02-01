@@ -13,7 +13,7 @@ class SupabaseFileManager {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
     
-    this.bucketName = 'Marry Immculate Girls High';
+    this.bucketName = 'Mary Immculate Girls High';
   }
 
   // Upload single file

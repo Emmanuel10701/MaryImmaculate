@@ -31,7 +31,7 @@ const Circle = dynamic(
   { ssr: false }
 );
 
-// School location - Marry Immaculate Girls Secondary School in Mweiga, Nyeri
+// School location - Mary Immaculate Girls Secondary School in Mweiga, Nyeri
 const schoolLocation = [-0.4181, 36.8708];
 
 const nearbyLandmarks = [
@@ -122,7 +122,7 @@ export default function MapComponent() {
       <div className="relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-gradient-to-r from-orange-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mb-4"></div>
-          <p className="text-gray-600">Loading map of Marry Immaculate Girls Secondary School...</p>
+          <p className="text-gray-600">Loading map of Mary Immaculate Girls Secondary School...</p>
         </div>
       </div>
     );
@@ -169,7 +169,7 @@ export default function MapComponent() {
           <Popup>
             <div className="p-3 min-w-[200px] sm:min-w-[240px]">
               <h3 className="font-bold text-gray-800 text-base sm:text-lg">
-                🏫 Marry Immaculate Girls Secondary School
+                🏫 Mary Immaculate Girls Secondary School
               </h3>
               <p className="text-xs sm:text-sm text-gray-600 mb-3">
                 Mweiga, Nyeri County
@@ -178,7 +178,7 @@ export default function MapComponent() {
                 Off Nyeri-Nyahururu Highway, Mweiga Town
               </p>
               <a
-                href="https://maps.google.com/?q=Marry+Immaculate+Girls+Secondary+School+Mweiga+Nyeri"
+                href="https://maps.google.com/?q=Mary+Immaculate+Girls+Secondary+School+Mweiga+Nyeri"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:opacity-90 transition"

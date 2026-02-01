@@ -884,7 +884,7 @@ if (!student || !token) {
             <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
               <Image
                 src="/ll.png"
-                alt="Marry Immculate Girls High School Logo"
+                alt="Mary Immculate Girls High School Logo"
                 width={32}
                 height={32}
                 className="rounded-md w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12"
@@ -936,7 +936,7 @@ if (!student || !token) {
 </h1>
               <p className="text-sm xs:text-base sm:text-lg md:text-xl text-slate-500 font-medium 
                 max-w-full xs:max-w-xs sm:max-w-md leading-relaxed xs:leading-snug">
-                Welcome to the Marry Immculate Girls High School Digital Student Portal. Your unified hub for academics, finance, and communication.
+                Welcome to the Mary Immculate Girls High School Digital Student Portal. Your unified hub for academics, finance, and communication.
               </p>
               
               {/* Login Button - Enhanced Mobile */}
@@ -1079,10 +1079,10 @@ if (!student || !token) {
                   flex items-center justify-center">
                   <FaBrain className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                 </div>
-                <span className="text-sm xs:text-base font-bold tracking-tight">Marry Immculate Girls Technical Lab</span>
+                <span className="text-sm xs:text-base font-bold tracking-tight">Mary Immculate Girls Technical Lab</span>
               </div>
               <p className="text-[9px] xs:text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                ©2024 Marry Immculate Girls High School. All Rights Reserved.
+                ©2024 Mary Immculate Girls High School. All Rights Reserved.
               </p>
             </div>
             
@@ -1243,7 +1243,7 @@ if (!student || !token) {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
                 <div className="text-center md:text-left">
                   <p className="text-gray-700 text-sm font-bold">
-                    © {new Date().getFullYear()} Marry Immculate Girls High  School
+                    © {new Date().getFullYear()} MaryImmculate Girls High  School
                   </p>
                   <p className="text-gray-500 text-xs mt-1 sm:mt-2">
                     Student Portal v3.0 • Prayer, Discipline and Hardwork 

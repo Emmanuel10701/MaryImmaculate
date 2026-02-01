@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // School Information
-const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Marry Immculate Girls High School';
+const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Mary Immculate Girls High School';
 const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Mweiga, Nyeri  County';
 const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Prayer, Discipline and Hardwork ';
 const CONTACT_PHONE = process.env.CONTACT_PHONE || '+254720123456';
