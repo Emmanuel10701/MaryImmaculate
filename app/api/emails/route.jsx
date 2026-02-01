@@ -772,6 +772,69 @@ function getModernEmailTemplate({
             .footer {
                 padding: 24px 18px;
             }
+                .social-media {
+    margin-top: 20px;
+}
+
+.social-title {
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #64748b; /* slate-500 */
+    margin-bottom: 12px;
+}
+
+.social-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;  /* Fixed size for circles */
+    height: 40px;
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 12px; /* Smooth squircle shape */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Brand Colors */
+.facebook { background: #1877F2; }
+.youtube  { background: #FF0000; font-size: 14px; }
+.linkedin { background: #0077B5; font-family: serif; }
+.twitter  { background: #000000; font-size: 18px; }
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+    .social-buttons {
+        gap: 15px; /* More space for fingers */
+    }
+    
+    .social-btn {
+        width: 45px; /* Slightly larger on mobile for better accessibility */
+        height: 45px;
+        border-radius: 50%; /* Perfect circles on mobile */
+    }
+}
+
+/* Interaction Effects */
+.social-btn:hover {
+    transform: translateY(-3px) scale(1.1);
+    filter: brightness(1.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+}
+
+.social-btn:active {
+    transform: scale(0.95);
+}
         }
     </style>
 </head>
@@ -846,16 +909,15 @@ function getModernEmailTemplate({
                 </a>
             </div>
             
-            <!-- Social Media Buttons -->
-            <div class="social-media">
-                <div class="social-title">Follow Us</div>
-                <div class="social-buttons">
-                    <a href="${SOCIAL_MEDIA.facebook.url}" target="_blank" class="social-btn facebook" title="Facebook">f</a>
-                    <a href="${SOCIAL_MEDIA.youtube.url}" target="_blank" class="social-btn youtube" title="YouTube">▶</a>
-                    <a href="${SOCIAL_MEDIA.linkedin.url}" target="_blank" class="social-btn linkedin" title="LinkedIn">in</a>
-                    <a href="${SOCIAL_MEDIA.twitter.url}" target="_blank" class="social-btn twitter" title="Twitter">𝕏</a>
-                </div>
-            </div>
+    <div class="social-media">
+    <div class="social-title">Connect With Us</div>
+    <div class="social-buttons">
+        <a href="${SOCIAL_MEDIA.facebook.url}" target="_blank" class="social-btn facebook" title="Facebook">f</a>
+        <a href="${SOCIAL_MEDIA.youtube.url}" target="_blank" class="social-btn youtube" title="YouTube">▶</a>
+        <a href="${SOCIAL_MEDIA.linkedin.url}" target="_blank" class="social-btn linkedin" title="LinkedIn">in</a>
+        <a href="${SOCIAL_MEDIA.twitter.url}" target="_blank" class="social-btn twitter" title="Twitter">𝕏</a>
+    </div>
+</div>
             
             <!-- Sender Information -->
             <div class="sender-info">
