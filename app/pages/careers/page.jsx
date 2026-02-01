@@ -637,11 +637,11 @@ const ModernEmptyState = ({ onClearFilters }) => {
         <FiBriefcase className="text-slate-300 text-2xl md:text-4xl group-hover:text-blue-400 transition-colors" />
       </div>
 
-      <h3 className="text-lg md:text-2xl font-black text-slate-900 mb-2 md:mb-3 tracking-tight italic uppercase">
+      <h3 className="text-md md:text-xl font-black text-slate-900 mb-2 md:mb-3 tracking-tight italic uppercase">
         No Openings
       </h3>
       
-      <p className="text-slate-500 text-[10px] md:text-lg mb-6 md:mb-8 max-w-[240px] md:max-w-md mx-auto leading-relaxed">
+      <p className="text-slate-500 text-[9px] md:text-lg mb-6 md:mb-8 max-w-[240px] md:max-w-md mx-auto leading-relaxed">
         Currently no opportunities available at <span className="text-slate-900 font-bold">Mary Immaculate</span>.
       </p>
 
