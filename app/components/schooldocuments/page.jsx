@@ -1244,7 +1244,7 @@ function AdmissionFeeBreakdownModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition duration-200 font-bold w-full sm:w-auto"
+                className=" border-2 border-gray-300 text-gray-700 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition duration-200 font-bold w-full sm:w-auto"
               >
                 Cancel
               </button>
@@ -1252,7 +1252,7 @@ function AdmissionFeeBreakdownModal({
                 type="button"
                 onClick={handleSave}
                 disabled={categories.length === 0}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition duration-200 font-bold shadow disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                className=" bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition duration-200 font-bold shadow disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
                 {isEditMode ? 'Update Fees' : 'Save Fees'}
               </button>
