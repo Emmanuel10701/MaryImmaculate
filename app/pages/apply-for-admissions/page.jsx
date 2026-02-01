@@ -1631,34 +1631,74 @@ const KatwanyaaAdmission = () => {
 </form>
           )}
         </div>
+{/* --- ULTRA-MODERN MOBILE RESPONSIVE FOOTER --- */}
+<div className="mt-16 text-center relative z-10 px-4">
+  <div className="max-w-4xl mx-auto bg-white/60 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-10 border border-white shadow-xl shadow-blue-900/5 mb-8">
+    
+    {/* Header Section */}
+    <div className="flex flex-col items-center mb-8">
+      <div className="bg-blue-600 text-white p-3 rounded-2xl shadow-lg shadow-blue-200 mb-4 animate-bounce-slow">
+        <FiPhone className="text-xl" />
+      </div>
+      <h3 className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter italic">
+        NEED <span className="text-blue-600">ASSISTANCE?</span>
+      </h3>
+      <div className="w-12 h-1 bg-gray-100 rounded-full mt-2" />
+    </div>
 
-        {/* Modern Footer */}
-        <div className="mt-12 text-center relative z-10">
-          <div className="bg-gradient-to-r from-blue-50/80 to-emerald-50/80 backdrop-blur-sm rounded-2xl p-8 border border-blue-100 mb-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-800 mb-3">📞 Need Assistance?</h3>
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-700 font-bold">
-              <div className="flex items-center">
-                <FiPhone className="mr-2 text-blue-600" />
-                <span>Admissions: <strong className="text-gray-900">0712 345 678</strong></span>
-              </div>
-              <div className="flex items-center">
-                <FiMail className="mr-2 text-green-600" />
-                <span>Email: <strong className="text-gray-900">admissions@Katwanyaa.ac.ke</strong></span>
-              </div>
-              <div className="flex items-center">
-                <FiHome className="mr-2 text-purple-600" />
-                <span>Office Hours: <strong className="text-gray-900">Mon-Fri, 8:00 AM - 5:00 PM</strong></span>
-              </div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 text-sm font-semibold">
-            © {new Date().getFullYear()} Marry Immculate Girls High  School. Excellence Through Discipline and Diligence.
-          </p>
-          <p className="text-gray-500 text-xs mt-2 font-bold">
-            All applications are processed in accordance with our privacy policy and data protection regulations.
-          </p>
+    {/* Contact Grid - Perfectly aligned for Mobile */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 text-left">
+      
+      {/* Phone Item */}
+      <div className="group flex items-center md:flex-col md:text-center gap-4 p-4 rounded-2xl bg-white/50 border border-transparent hover:border-blue-100 transition-all duration-300">
+        <div className="bg-blue-50 p-3 rounded-xl text-blue-600 group-hover:scale-110 transition-transform">
+          <FiPhone />
         </div>
+        <div className="flex flex-col">
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Admissions</span>
+          <strong className="text-sm text-gray-900">0712 345 678</strong>
+        </div>
+      </div>
+
+      {/* Email Item */}
+      <div className="group flex items-center md:flex-col md:text-center gap-4 p-4 rounded-2xl bg-white/50 border border-transparent hover:border-green-100 transition-all duration-300">
+        <div className="bg-green-50 p-3 rounded-xl text-green-600 group-hover:scale-110 transition-transform">
+          <FiMail />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Official Email</span>
+          <strong className="text-sm text-gray-900 break-all">admissions@Katwanyaa.ac.ke</strong>
+        </div>
+      </div>
+
+      {/* Hours Item */}
+      <div className="group flex items-center md:flex-col md:text-center gap-4 p-4 rounded-2xl bg-white/50 border border-transparent hover:border-purple-100 transition-all duration-300">
+        <div className="bg-purple-50 p-3 rounded-xl text-purple-600 group-hover:scale-110 transition-transform">
+          <FiHome />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Office Hours</span>
+          <strong className="text-sm text-gray-900">Mon-Fri, 8AM - 5PM</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  {/* Copyright Section */}
+  <div className="space-y-3 px-4">
+    <p className="text-gray-900 text-[11px] md:text-xs font-black uppercase tracking-[0.2em] leading-relaxed">
+      © {new Date().getFullYear()} Mary Immaculate Girls High School. 
+      <span className="text-blue-600 italic block md:inline md:ml-2">Excellence Through Discipline and Diligence.</span>
+    </p>
+    
+    <div className="flex items-center justify-center gap-2 text-gray-400 text-[9px] font-bold uppercase tracking-widest">
+      <FiShield className="text-blue-500" />
+      <span>Data Protection Compliant</span>
+      <div className="w-1 h-1 bg-gray-300 rounded-full" />
+      <span>Privacy Policy</span>
+    </div>
+  </div>
+</div>
       </div>
     </div>
   );
