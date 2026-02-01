@@ -1243,7 +1243,7 @@ export default function ModernGallery() {
             },
             { 
               icon: FiCalendar, 
-              number: '2024', 
+              number: new Date().getFullYear().toString(),
               label: 'Latest', 
               sublabel: 'This year',
               gradient: 'from-amber-500 to-orange-500'
