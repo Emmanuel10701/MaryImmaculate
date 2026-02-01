@@ -1414,211 +1414,262 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
 
 
 
-
- {currentStep === 3 && (
-              <div className="space-y-8">
-                <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-3xl p-8 border-2 border-orange-300 shadow-sm">
-                  <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                    <FaStar className="text-orange-600 text-2xl" />
-                    Expertise & Achievements
-                  </h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div>
-                      <ItemInput
-                        label="Expertise"
-                        value={formData.expertise}
-                        onChange={(items) => handleArrayChange('expertise', items)}
-                        placeholder="Add expertise area..."
-                        icon={FiStar}
-                        disabled={loading}
-                        boldMode={true} // Added prop for bolder styling
-                      />
-                    </div>
-
-                    <div>
-                      <ItemInput
-                        label="Responsibilities"
-                        value={formData.responsibilities}
-                        onChange={(items) => handleArrayChange('responsibilities', items)}
-                        placeholder="Add responsibility..."
-                        icon={FiBriefcase}
-                        disabled={loading}
-                        boldMode={true} // Added prop for bolder styling
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-sm">
-                  <ItemInput
-                    label="Achievements"
-                    value={formData.achievements}
-                    onChange={(items) => handleArrayChange('achievements', items)}
-                    placeholder="Add achievement..."
-                    icon={FaTrophy}
-                    disabled={loading}
-                    boldMode={true} // Added prop for bolder styling
-                  />
-                </div>
-
-                {/* ENHANCED Summary Preview */}
-               <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-3xl p-8 border-2 border-gray-300 shadow-lg">
-                  <div className="bg-white rounded-2xl p-6 border-2 border-gray-100 shadow-sm">
-  <h4 className="text-xs font-black text-gray-900 mb-6 flex items-center gap-2 uppercase tracking-[0.2em]">
-    <FaClipboardCheck className="text-green-600 text-sm" />
-    Staff Summary Preview
-  </h4>
-
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4">
-    {/* Column 1 */}
-    <div className="space-y-3">
-      {[
-        { label: "Full Name", value: formData.name },
-        { label: "Position", value: formData.role },
-        { label: "Dept.", value: formData.department },
-      ].map((item, i) => (
-        <div key={i} className="flex items-center justify-between border-b border-gray-50 pb-2">
-          <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">{item.label}</span>
-          <span className="text-xs font-bold text-gray-900 truncate max-w-[120px]">{item.value || '—'}</span>
-        </div>
-      ))}
-    </div>
-
-    {/* Column 2 */}
-    <div className="space-y-3">
-      {[
-        { label: "Email", value: formData.email },
-        { label: "Phone", value: formData.phone },
-        { label: "Gender", value: formData.gender, className: "capitalize" },
-      ].map((item, i) => (
-        <div key={i} className="flex items-center justify-between border-b border-gray-50 pb-2">
-          <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">{item.label}</span>
-          <span className={`text-xs font-bold text-gray-900 truncate max-w-[120px] ${item.className}`}>{item.value || '—'}</span>
-        </div>
-      ))}
-    </div>
-
-    {/* Column 3 */}
-    <div className="space-y-3">
-      <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">Status</span>
-        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
-          formData.status === 'active' ? 'bg-green-100 text-green-700' : 
-          formData.status === 'on-leave' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
-        }`}>
-          {formData.status?.toUpperCase()}
-        </span>
-      </div>
-
-      <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">Join Date</span>
-        <span className="text-xs font-bold text-gray-900">{formData.joinDate || '—'}</span>
-      </div>
-
-      <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tight">Photo</span>
-        <span className={`text-[10px] font-black flex items-center gap-1 ${imageFile || imagePreview || staff?.image ? 'text-green-600' : 'text-red-500'}`}>
-          {imageFile || imagePreview || staff?.image ? 'ATTACHED' : 'MISSING'}
-        </span>
-      </div>
-    </div>
-  </div>
-</div>
-               {formData.expertise.length > 0 && (
-  <div className="mt-6 pt-5 border-t border-gray-100">
-    <div className="flex items-center gap-2 mb-3">
-      <div className="w-1 h-3 bg-blue-600 rounded-full" />
-      <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">
-        Expertise Areas
-      </span>
-    </div>
+{currentStep === 3 && (
+  <div className="space-y-8 animate-in fade-in duration-500">
     
-    <div className="flex flex-wrap gap-1.5">
-      {formData.expertise.slice(0, 5).map((exp, index) => (
-        <span 
-          key={index} 
-          className="bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tight"
-        >
-          {exp}
-        </span>
-      ))}
-      
-      {formData.expertise.length > 5 && (
-        <span className="bg-gray-50 text-gray-500 border border-gray-200 px-2.5 py-1 rounded-md text-[10px] font-black">
-          +{formData.expertise.length - 5} MORE
-        </span>
-      )}
+    {/* SECTION 1: EXPERTISE & DUTIES INPUT */}
+    <div className="bg-white rounded-[2.5rem] p-8 border-2 border-gray-100 shadow-sm">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="p-2.5 bg-orange-100 rounded-2xl">
+          <FaStar className="text-orange-600 text-lg" />
+        </div>
+        <div>
+          <h3 className="text-xs font-black text-gray-900 uppercase tracking-[0.2em]">Professional Scope</h3>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Define skills and daily roles</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <ItemInput
+          label="Expertise Areas"
+          value={formData.expertise}
+          onChange={(items) => handleArrayChange('expertise', items)}
+          placeholder="e.g. Data Analysis..."
+          icon={FiStar}
+          disabled={loading}
+          boldMode={true}
+        />
+        <ItemInput
+          label="Core Responsibilities"
+          value={formData.responsibilities}
+          onChange={(items) => handleArrayChange('responsibilities', items)}
+          placeholder="e.g. Team Lead..."
+          icon={FiBriefcase}
+          disabled={loading}
+          boldMode={true}
+        />
+      </div>
+    </div>
+
+    {/* SECTION 2: ACHIEVEMENTS INPUT */}
+    <div className="bg-white rounded-[2.5rem] p-8 border-2 border-gray-100 shadow-sm">
+      <ItemInput
+        label="Key Achievements"
+        value={formData.achievements}
+        onChange={(items) => handleArrayChange('achievements', items)}
+        placeholder="Add professional milestones..."
+        icon={FaTrophy}
+        disabled={loading}
+        boldMode={true}
+      />
+    </div>
+
+    {/* SECTION 3: THE MODERN SUMMARY PREVIEW */}
+    <div className="bg-gradient-to-br from-gray-100 to-blue-50/50 rounded-[3rem] p-1.5 border-2 border-gray-200 shadow-xl">
+      <div className="bg-white rounded-[2.8rem] p-10">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10 pb-6 border-b border-gray-50">
+          <div className="flex items-center gap-4">
+            <div className="bg-green-100 p-3 rounded-2xl">
+              <FaClipboardCheck className="text-green-600 text-xl" />
+            </div>
+            <div>
+              <h4 className="text-sm font-black text-gray-900 uppercase tracking-[0.3em]">Final Staff Summary</h4>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Review all details before submission</p>
+            </div>
+          </div>
+          <div className="hidden sm:block">
+            <span className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em]">Ready to Sync</span>
+          </div>
+        </div>
+
+        {/* Columnar Data Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-16 gap-y-8 mb-12">
+          {/* Identity */}
+          <div className="space-y-5">
+            {[
+              { label: "Staff Name", value: formData.name },
+              { label: "Assigned Role", value: formData.role },
+              { label: "Department", value: formData.department },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col gap-1.5 border-l-4 border-blue-500/20 pl-5">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.label}</span>
+                <span className="text-sm font-black text-gray-900 truncate">{item.value || 'Not Set'}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Contact & Gender */}
+          <div className="space-y-5">
+            {[
+              { label: "Email Address", value: formData.email },
+              { label: "Phone Contact", value: formData.phone },
+              { label: "Gender Identification", value: formData.gender, className: "capitalize" },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col gap-1.5 border-l-4 border-orange-500/20 pl-5">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.label}</span>
+                <span className={`text-sm font-black text-gray-900 truncate ${item.className}`}>{item.value || 'Not Set'}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Status & Media */}
+          <div className="space-y-5">
+            <div className="flex flex-col gap-2 border-l-4 border-green-500/20 pl-5">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Employment Status</span>
+              <div>
+                <span className={`inline-flex items-center gap-2 text-[10px] font-black px-4 py-1.5 rounded-xl ${
+                  formData.status === 'active' ? 'bg-green-50 text-green-700 border border-green-100' : 
+                  formData.status === 'on-leave' ? 'bg-amber-50 text-amber-700 border border-amber-100' : 'bg-red-50 text-red-700 border border-red-100'
+                }`}>
+                  <div className={`w-2 h-2 rounded-full ${formData.status === 'active' ? 'bg-green-500 animate-pulse' : 'bg-current'}`} />
+                  {formData.status?.toUpperCase()}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5 border-l-4 border-purple-500/20 pl-5">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Media Verification</span>
+              <span className={`text-[11px] font-black flex items-center gap-2 ${imageFile || imagePreview ? 'text-green-600' : 'text-red-500'}`}>
+                {imageFile || imagePreview ? '✓ PROFILE PHOTO ATTACHED' : '✗ PHOTO MISSING'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* VISIBLE MAPPED ITEMS AREA */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 pt-10 border-t border-gray-100">
+          
+          {/* Expertise Map */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Verified Expertise</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {formData.expertise.map((exp, index) => (
+                <span key={index} className="flex items-center gap-2 bg-blue-50 text-blue-700 border border-blue-100 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-tight">
+                  <FiStar className="text-[11px]" />
+                  {exp}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Responsibilities Map */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Mapped Responsibilities</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {formData.responsibilities.map((res, index) => (
+                <span key={index} className="flex items-center gap-2 bg-orange-50 text-orange-700 border border-orange-100 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-tight">
+                  <FiBriefcase className="text-[11px]" />
+                  {res}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Achievements Map (Full Width List) */}
+        {formData.achievements.length > 0 && (
+          <div className="mt-10 pt-10 border-t border-gray-100">
+            <span className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">Staff Achievements & Milestones</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {formData.achievements.map((ach, index) => (
+                <div key={index} className="flex items-start gap-4 bg-gray-50/50 p-4 rounded-[1.5rem] border border-gray-100 group hover:bg-white hover:shadow-md transition-all">
+                  <div className="bg-white p-2 rounded-lg shadow-sm">
+                    <FaTrophy className="text-yellow-500 text-xs" />
+                  </div>
+                  <p className="text-xs font-bold text-gray-700 leading-relaxed">{ach}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   </div>
 )}
-                </div>
-              </div>
-            )}
 
             {/* ENHANCED Navigation Buttons */}
-            <div className="flex items-center justify-between pt-8 border-t-2 border-gray-300">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3 bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 rounded-2xl border-2 border-gray-300">
-                  <div className={`w-3 h-3 rounded-full ${
-                    formData.status === 'active' ? 'bg-gradient-to-br from-green-500 to-emerald-600' : 
-                    formData.status === 'on-leave' ? 'bg-gradient-to-br from-yellow-500 to-amber-600' : 
-                    'bg-gradient-to-br from-red-500 to-rose-600'
-                  }`}></div>
-                  <span className="text-base font-black text-gray-900 capitalize">{formData.status}</span>
-                </div>
-                {currentStep === steps.length - 1 && (
-                  <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl border-2 text-base font-black ${
-                    (imageFile || staff?.image || imagePreview) 
-                      ? 'bg-gradient-to-r from-green-50 to-emerald-100 border-green-400 text-green-800' 
-                      : 'bg-gradient-to-r from-red-50 to-rose-100 border-red-400 text-red-800'
-                  }`}>
-                    {(imageFile || staff?.image || imagePreview) ? <FaCheck className="text-lg" /> : <FaTimes className="text-lg" />}
-                    {(imageFile || staff?.image || imagePreview) ? 'Ready to Save' : 'Image Required'}
-                  </div>
-                )}
-              </div>
+       {/* Modernized Navigation Bar */}
+<div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 pt-8 border-t border-gray-100">
+  
+  {/* Left Side: Status Indicators (Hidden on small mobile if too crowded, or stacked) */}
+  <div className="flex flex-wrap items-center gap-3">
+    {/* Deployment Status Pill */}
+    <div className="flex items-center gap-2.5 bg-gray-50 px-4 py-2 rounded-xl border border-gray-200">
+      <div className={`w-2 h-2 rounded-full animate-pulse ${
+        formData.status === 'active' ? 'bg-green-500' : 
+        formData.status === 'on-leave' ? 'bg-amber-500' : 'bg-red-500'
+      }`}></div>
+      <span className="text-[10px] font-black text-gray-700 uppercase tracking-widest">
+        {formData.status}
+      </span>
+    </div>
 
-              <div className="flex items-center gap-4">
-                {currentStep > 0 && (
-                  <button 
-                    type="button"
-                    onClick={handlePrevStep}
-                    className="px-8 py-4 border-3 border-gray-400 text-gray-900 rounded-2xl hover:border-gray-600 hover:bg-gray-50 transition-all duration-300 font-black text-base shadow-sm"
-                  >
-                    ← Previous
-                  </button>
-                )}
-                
-                {currentStep < steps.length - 1 ? (
-                  <button 
-                    type="button"
-                    onClick={handleNextStep}
-                    disabled={!isStepValid()}
-                    className="px-10 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-2xl hover:from-orange-700 hover:to-red-700 transition-all duration-300 font-black text-base shadow-lg shadow-orange-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
-                  >
-                    Continue →
-                  </button>
-                ) : (
-                  <button 
-                    type="submit"
-                    disabled={loading || !isStepValid()}
-                    className="px-10 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 font-black text-base shadow-lg shadow-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
-                  >
-                    {loading ? (
-                      <>
-                        <Spinner size={20} color="white" />
-                        <span className="text-base">{staff ? 'Updating...' : 'Saving...'}</span>
-                      </>
-                    ) : (
-                      <>
-                        <FaSave className="text-xl" />
-                        <span className="text-base">{staff ? 'Update Staff' : 'Save Staff'}</span>
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
+    {/* Validation Pill (Only on Final Step) */}
+    {currentStep === steps.length - 1 && (
+      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all duration-500 ${
+        (imageFile || staff?.image || imagePreview) 
+          ? 'bg-green-50 border-green-200 text-green-700' 
+          : 'bg-red-50 border-red-200 text-red-600'
+      }`}>
+        {(imageFile || staff?.image || imagePreview) 
+          ? <FaCheck className="text-[10px]" /> 
+          : <FaTimes className="text-[10px]" />
+        }
+        <span className="text-[10px] font-black uppercase tracking-widest">
+          {(imageFile || staff?.image || imagePreview) ? 'Assets Verified' : 'Photo Required'}
+        </span>
+      </div>
+    )}
+  </div>
+
+  {/* Right Side: Action Buttons */}
+  <div className="flex items-center gap-3">
+    {currentStep > 0 && (
+      <button 
+        type="button"
+        onClick={handlePrevStep}
+        className="flex-1 md:flex-none px-6 py-3 border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all font-black text-[11px] uppercase tracking-[0.2em]"
+      >
+        Back
+      </button>
+    )}
+    
+    {currentStep < steps.length - 1 ? (
+      <button 
+        type="button"
+        onClick={handleNextStep}
+        disabled={!isStepValid()}
+        className="flex-1 md:flex-none px-8 py-3 bg-gray-900 text-white rounded-xl hover:bg-black transition-all font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-gray-200 disabled:opacity-30 flex items-center justify-center gap-2"
+      >
+        Next Step <FaChevronRight className="text-[9px]" />
+      </button>
+    ) : (
+      <button 
+        type="submit"
+        disabled={loading || !isStepValid()}
+        className="flex-1 md:flex-none px-10 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-blue-200 disabled:opacity-30 flex items-center justify-center gap-2"
+      >
+        {loading ? (
+          <>
+            <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span>Processing</span>
+          </>
+        ) : (
+          <>
+            <FaSave className="text-xs" />
+            <span>{staff ? 'Sync Updates' : 'Publish Staff'}</span>
+          </>
+        )}
+      </button>
+    )}
+  </div>
+</div>
           </form>
         </div>
       </div>
