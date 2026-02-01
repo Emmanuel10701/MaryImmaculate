@@ -205,7 +205,9 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-1.5 h-8 sm:h-10 bg-amber-600 rounded-full"></div>
             <div>
-              <div className="text-lg sm:text-2xl font-black text-slate-900 leading-none">2026</div>
+<div className="text-lg sm:text-2xl font-black text-slate-900 leading-none">
+  {date.getFullYear()}
+</div>
               <div className="text-[8px] sm:text-[10px] uppercase font-black text-slate-500 tracking-widest mt-1">Vision Target</div>
             </div>
           </div>
