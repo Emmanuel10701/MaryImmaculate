@@ -29,7 +29,7 @@ const PortalHeader = ({ stats = { today: 45 }, refreshing = false, fetchEvents =
     <div className="w-full font-sans">
       {/* Main Header Container - Updated to orange gradient */}
       <div className="relative overflow-hidden 
-        bg-gradient-to-br from-amber-600 via-orange-600 to-red-600 p-3 xs:p-4 sm:p-6 md:p-8 lg:p-12 shadow-2xl">
+        bg-gradient-to-br from-amber-900 via-orange-900 to-red-800 p-3 xs:p-4 sm:p-6 md:p-8 lg:p-12 shadow-2xl">
         
         {/* Enhanced Background Pattern */}
         <div className="absolute inset-0 opacity-[0.08] sm:opacity-[0.1] pointer-events-none">
@@ -99,45 +99,47 @@ const PortalHeader = ({ stats = { today: 45 }, refreshing = false, fetchEvents =
                     </div>
                   </div>
 
-                  {/* Social Proof Section */}
-                  <div className="flex items-center gap-2 xs:gap-3 mt-4 xs:mt-5 animate-in fade-in slide-in-from-left-4 duration-700">
-                    {/* Avatar Group */}
-                    <div className="flex -space-x-2 xs:-space-x-2.5 sm:-space-x-3">
-                      {[
-                        { color: 'bg-orange-500', icon: User },
-                        { color: 'bg-emerald-500', icon: UserCheck },
-                        { color: 'bg-rose-500', icon: Smile },
-                        { color: 'bg-amber-500', icon: UserPlus },
-                        { color: 'bg-red-500', icon: Users }
-                      ].map((avatar, i) => (
-                        <div key={i} 
-                          className={`w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 
-                            rounded-full border-2 border-orange-800 ${avatar.color} 
-                            flex items-center justify-center shadow-lg 
-                            transform hover:-translate-y-0.5 xs:hover:-translate-y-1 transition-transform cursor-pointer`}>
-                          <avatar.icon size={12} className="xs:size-[14px] sm:size-[16px] text-white" />
-                        </div>
-                      ))}
-                      <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 
-                        rounded-full border-2 border-orange-800 bg-white/25 backdrop-blur-sm 
-                        flex items-center justify-center text-[10px] xs:text-xs font-black text-white">
-                        500+
-                      </div>
-                    </div>
-                    
-                    {/* Social Proof Text */}
-                    <div className="flex flex-col min-w-0">
-                      <div className="flex items-center gap-1 xs:gap-1.5">
-                        <span className="text-xs xs:text-sm font-black text-white tracking-tight truncate">
-                          Join 500+ Successful students
-                        </span>
-                        <TrendingUp size={12} className="xs:size-4 text-emerald-400 flex-shrink-0" />
-                      </div>
-                      <p className="text-[9px] xs:text-[10px] font-bold text-amber-200/70 uppercase tracking-widest truncate">
-                        Your Journey Starts Here
-                      </p>
-                    </div>
-                  </div>
+             {/* Social Proof Section */}
+<div className="flex items-center gap-2 xs:gap-3 mt-4 xs:mt-5 animate-in fade-in slide-in-from-left-4 duration-700">
+  {/* Avatar Group */}
+  <div className="flex -space-x-2 xs:-space-x-2.5 sm:-space-x-3">
+    {[1, 2, 3, 4, 5].map((num) => (
+      <div 
+        key={num} 
+        className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 
+                   rounded-full border-2 border-orange-800 bg-slate-200
+                   overflow-hidden shadow-lg transform hover:-translate-y-1 
+                   transition-transform cursor-pointer relative z-[10]"
+      >
+        <img 
+          src={`demo/${num}.jpg`} 
+          alt={`Student ${num}`}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    ))}
+    
+    {/* The Counter Badge */}
+    <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 
+                    rounded-full border-2 border-orange-800 bg-white/25 backdrop-blur-sm 
+                    flex items-center justify-center text-[10px] xs:text-xs font-black text-white z-[11]">
+      500+
+    </div>
+  </div>
+  
+  {/* Social Proof Text */}
+  <div className="flex flex-col min-w-0">
+    <div className="flex items-center gap-1 xs:gap-1.5">
+      <span className="text-[11px] xs:text-sm font-black text-white tracking-tight truncate uppercase">
+        Join 500+ Successful students
+      </span>
+      <TrendingUp size={12} className="xs:size-4 text-emerald-400 flex-shrink-0" />
+    </div>
+    <p className="text-[8px] xs:text-[9px] font-bold text-amber-200/70 uppercase tracking-widest truncate leading-none mt-0.5">
+      Your Journey Starts Here
+    </p>
+  </div>
+</div>
                 </div>
               </div>
             </div>
