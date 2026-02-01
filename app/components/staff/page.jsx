@@ -2096,7 +2096,7 @@ const handleSubmit = async (formData, id) => {
         <div className="p-3 bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 shadow-inner w-fit">
           <FiUsers className="text-3xl text-orange-400" />
         </div>
-        <h1 className="text-2xl md:text-4xl lg:text-5xl font-black tracking-tighter leading-none italic">
+        <h1 className="text-lg md:text-2xl lg:text-3xl font-black tracking-tighter leading-none italic">
           STAFF <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-white to-gray-500 text-shadow-sm">DIRECTORY</span>
         </h1>
       </div>
@@ -2150,7 +2150,7 @@ const handleSubmit = async (formData, id) => {
           placeholder="Search by name, department or expertise..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-16 pr-8 py-6 bg-gray-50 border-2 border-transparent rounded-[1.8rem] text-base font-bold placeholder:text-gray-400 focus:bg-white focus:border-orange-500/20 focus:ring-4 focus:ring-orange-500/5 transition-all outline-none"
+          className="w-full pl-16 pr-8 py-6 border-black bg-gray-50 border-2 border-transparent rounded-[1.8rem] text-base font-bold placeholder:text-gray-400 focus:bg-white focus:border-orange-500/20 focus:ring-4 focus:ring-orange-500/5 transition-all outline-none"
         />
       </div>
 
@@ -2181,6 +2181,23 @@ const handleSubmit = async (formData, id) => {
         </select>
         <FiChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
       </div>
+<div className="lg:col-span-12">
+  <div className="border-t border-gray-100 pt-4">
+    <div 
+      onClick={() => {
+        setSearchTerm('');
+        setSelectedDepartment('all');
+        setSelectedRole('all');
+      }}
+      className="inline-flex items-center gap-2 text-xs font-black text-gray-500 uppercase tracking-widest cursor-pointer hover:text-orange-500 transition-colors"
+    >
+      <FiRefreshCcw className="text-sm" />
+      RESET FILTERS
+    </div>
+  </div>
+</div>
+
+      
     </div>
   </div>
 </div>
