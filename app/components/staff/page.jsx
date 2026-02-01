@@ -1155,7 +1155,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                         value={formData.department}
                         onChange={(e) => handleChange('department', e.target.value)}
                         required
-                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-2xl border focus:ring-4 focus:ring-orange-500/20 focus:border-2 bg-white shadow-sm transition-all"
+                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-2xl border focus:ring-4 focus:ring-orange-500/20  bg-white shadow-sm "
                       >
                         {DEPARTMENTS.map(dept => (
                           <option key={dept} value={dept}>{dept}</option>
