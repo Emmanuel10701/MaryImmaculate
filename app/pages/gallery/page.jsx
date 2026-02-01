@@ -493,6 +493,7 @@ const ShareModal = ({ isOpen, onClose, gallery }) => {
   const shareText = `${gallery.title} - ${gallery.description?.substring(0, 100)}...`;
 
   const shareOptions = [
+    // ... (Your existing shareOptions logic remains identical)
     {
       name: 'Copy Link',
       icon: FiCopy,
@@ -560,108 +561,110 @@ const ShareModal = ({ isOpen, onClose, gallery }) => {
   ];
 
   return (
-    <>
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
+      {/* Backdrop: Semi-transparent and blur */}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] transition-opacity duration-300"
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
       
-      {/* Modal */}
-      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-        <div 
-          className="bg-white rounded-[40px] w-full max-w-md max-h-[90vh] overflow-hidden border border-slate-200 shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="p-6 border-b border-slate-100">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xl font-bold text-slate-900">Share Gallery</h3>
-              <button
-                onClick={onClose}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
-              >
-                <FiX size={20} />
-              </button>
-            </div>
-            <p className="text-slate-500 text-sm">
-              Share "{gallery.title}" with others
+      {/* Modal Container: Handles the zooming/overflow responsiveness */}
+      <div 
+        className="relative bg-white rounded-3xl w-full max-w-md max-h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 shadow-2xl animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Fixed Header */}
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white z-10">
+          <div>
+            <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Share Gallery</h3>
+            <p className="text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+               Spread the word
             </p>
           </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-red-500 rounded-full hover:bg-red-50 transition-colors"
+          >
+            <FiX size={20} />
+          </button>
+        </div>
 
-          {/* Content */}
-          <div className="p-6">
-            {/* Item Preview */}
-            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl mb-6">
-              <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                {gallery.files && gallery.files[0] ? (
-                  <img src={gallery.files[0]} alt={gallery.title} className="w-full h-full object-cover" />
-                ) : (
-                  <FiImage className="text-white" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-slate-900 truncate">{gallery.title}</h4>
-                <p className="text-xs text-slate-500 truncate">{gallery.files?.length || 0} files</p>
-              </div>
+        {/* Scrollable Content Area: The fix for zooming/small screens */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-thin scrollbar-thumb-slate-200">
+          
+          {/* Item Preview */}
+          <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-200 shrink-0">
+              {gallery.files?.[0] ? (
+                <img src={gallery.files[0]} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
+                  <FiImage size={24} />
+                </div>
+              )}
             </div>
-
-            {/* Share Options Grid */}
-            <div className="grid grid-cols-3 gap-3">
-              {shareOptions.map((option, index) => (
-                <button
-                  key={index}
-                  onClick={option.action}
-                  className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 hover:bg-slate-50 transition-colors"
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 ${option.color}`}>
-                    <option.icon className={`text-lg ${option.iconColor}`} />
-                  </div>
-                  <span className="text-xs font-medium text-slate-700">{option.name}</span>
-                  {option.name === 'Copy Link' && copied && (
-                    <span className="text-[10px] text-emerald-600 font-bold mt-1">Copied!</span>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {/* URL Preview */}
-            <div className="mt-6">
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                Gallery Link
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={shareUrl}
-                  readOnly
-                  className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 truncate"
-                />
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(shareUrl);
-                    toast.success('Link copied!');
-                  }}
-                  className="px-4 py-3 bg-slate-900 text-white rounded-xl font-medium text-sm hover:bg-slate-800 transition-colors"
-                >
-                  Copy
-                </button>
-              </div>
+            <div className="min-w-0">
+              <h4 className="font-black text-slate-900 text-sm truncate uppercase">{gallery.title}</h4>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                {gallery.files?.length || 0} Assets • Link Ready
+              </p>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="p-6 border-t border-slate-100">
-            <button
-              onClick={onClose}
-              className="w-full py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors"
-            >
-              Done
-            </button>
+          {/* Share Options Grid */}
+          <div className="grid grid-cols-3 gap-2">
+            {shareOptions.map((option, index) => (
+              <button
+                key={index}
+                onClick={option.action}
+                className="group flex flex-col items-center justify-center p-3 rounded-2xl border border-transparent hover:border-slate-200 hover:bg-slate-50 transition-all active:scale-95"
+              >
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 shadow-sm transition-transform group-hover:scale-110 ${option.color}`}>
+                  <option.icon className={`text-xl ${option.iconColor}`} />
+                </div>
+                <span className="text-[10px] font-black text-slate-600 uppercase tracking-tighter">{option.name}</span>
+                {option.name === 'Copy Link' && copied && (
+                  <span className="text-[9px] text-emerald-600 font-black mt-1 animate-pulse">COPIED!</span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* URL Box */}
+          <div className="space-y-2">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Direct Link</span>
+            <div className="flex gap-2 p-1.5 bg-slate-50 border border-slate-200 rounded-2xl">
+              <input
+                type="text"
+                value={shareUrl}
+                readOnly
+                className="flex-1 px-3 bg-transparent text-xs font-bold text-slate-500 outline-none truncate"
+              />
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(shareUrl);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-colors"
+              >
+                Copy
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Fixed Footer */}
+        <div className="p-5 border-t border-slate-100 bg-slate-50/50 shrink-0">
+          <button
+            onClick={onClose}
+            className="w-full py-3 bg-white border-2 border-slate-200 text-slate-900 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all"
+          >
+            Done
+          </button>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
