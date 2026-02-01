@@ -274,7 +274,7 @@ const ModernStaffLeadership = () => {
           {/* Branding Badge */}
           <div className="mb-4 sm:mb-6 md:mb-8">
             <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-yellow-600 mb-1.5 sm:mb-2">
-Mary Immaculate Girls
+        Mary Immaculate Girls
             </p>
             <div className="h-1 w-8 sm:w-10 md:w-12 bg-yellow-400 mx-auto rounded-full" />
           </div>
