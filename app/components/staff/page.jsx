@@ -2060,153 +2060,109 @@ const handleSubmit = async (formData, id) => {
         loading={bulkDeleting}
       />
 
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl shadow-lg border border-orange-200 p-6">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Staff & BOM Management</h1>
-            <p className="text-gray-600 text-sm lg:text-base">Manage teaching staff, administration, and board members</p>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-<button 
-  onClick={() => fetchStaff(true)} 
-  disabled={refreshing}
-  className="flex items-center gap-2 bg-gray-600 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-bold shadow-lg disabled:opacity-70 cursor-pointer text-sm"
->
-  {refreshing ? (
-    <>
-      <div className="w-4 h-4">
-        <CircularProgress size={16} color="inherit" />
+{/* Modernized Dashboard Header */}
+<div className="flex flex-col gap-8 mb-10">
+  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-8 h-1 bg-orange-500 rounded-full" />
+        <span className="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em]">Institutional Control</span>
       </div>
-      Refreshing...
-    </>
-  ) : (
-    <>
-      <FiRotateCw className="text-xs" /> Refresh
-    </>
+      <h1 className="text-3xl lg:text-4xl font-black text-gray-900 tracking-tighter italic">
+        STAFF <span className="text-gray-400 font-light">&</span> DIRECTORY
+      </h1>
+      <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">
+        Manage 1,240 Academic & Administrative Profiles
+      </p>
+    </div>
+
+    <div className="flex items-center gap-3 w-full lg:w-auto">
+      <button 
+        onClick={() => fetchStaff(true)} 
+        disabled={refreshing}
+        className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-white text-gray-900 px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest border-2 border-gray-100 hover:border-gray-300 transition-all shadow-sm active:scale-95"
+      >
+        {refreshing ? <div className="w-3 h-3 border-2 border-gray-900/20 border-t-gray-900 rounded-full animate-spin" /> : <FiRotateCw className="text-xs" />}
+        Refresh
+      </button>
+      
+      <button 
+        onClick={handleCreate} 
+        className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-gray-900 text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-gray-200 active:scale-95"
+      >
+        <FiPlus className="text-sm" /> Add New Staff
+      </button>
+    </div>
+  </div>
+
+  {/* Stats Overview - Refined Grid */}
+  {stats && (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {[
+        { label: "Total Staff", val: stats.total, icon: FiUser, color: "orange" },
+        { label: "Teaching", val: stats.teaching, icon: FiBook, color: "blue" },
+        { label: "Admin", val: stats.administration, icon: FiAward, color: "green" },
+        { label: "BOM Hub", val: stats.bom, icon: FiShield, color: "purple" },
+        { label: "Active", val: stats.active, icon: FiCheckCircle, color: "emerald" },
+        { label: "On Leave", val: stats.onLeave, icon: FiCalendar, color: "amber" },
+      ].map((item, i) => (
+        <div key={i} className="group bg-white p-5 rounded-[2rem] border-2 border-gray-50 hover:border-gray-200 transition-all duration-300">
+          <div className="flex flex-col gap-4">
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${
+              item.color === 'orange' ? 'bg-orange-50 text-orange-600' :
+              item.color === 'blue' ? 'bg-blue-50 text-blue-600' :
+              item.color === 'green' ? 'bg-green-50 text-green-600' :
+              item.color === 'purple' ? 'bg-purple-50 text-purple-600' :
+              item.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+            }`}>
+              <item.icon className="text-lg" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter mb-0.5">{item.label}</p>
+              <p className="text-2xl font-black text-gray-900">{item.val}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   )}
-</button>
-            <button onClick={handleCreate} className="flex items-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-bold shadow-lg cursor-pointer text-sm">
-              <FiPlus className="text-xs" /> Add Staff
-            </button>
-          </div>
-        </div>
+
+  {/* Filters - Modern Glass Search */}
+  <div className="bg-gray-100/50 p-2 rounded-[2.5rem] border border-gray-200/50">
+    <div className="flex flex-col lg:flex-row items-center gap-2">
+      <div className="relative w-full lg:flex-1">
+        <FiSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+        <input
+          type="text"
+          placeholder="Search by name, department or position..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-14 pr-6 py-4 bg-white border-none rounded-[2rem] text-sm font-bold placeholder:text-gray-400 focus:ring-4 focus:ring-gray-900/5 transition-all shadow-sm"
+        />
       </div>
 
-      {/* Stats Overview */}
-      {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs lg:text-sm font-bold text-gray-600 mb-1">Total Staff</p>
-                <p className="text-xl lg:text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="p-3 bg-orange-100 text-orange-600 rounded-2xl">
-                <FiUser className="text-lg" />
-              </div>
-            </div>
-          </div>
+      <div className="flex items-center gap-2 w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0 px-2 lg:px-0">
+        <select
+          value={selectedDepartment}
+          onChange={(e) => setSelectedDepartment(e.target.value)}
+          className="h-14 px-6 bg-white border-none rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest cursor-pointer shadow-sm focus:ring-4 focus:ring-gray-900/5"
+        >
+          <option value="all">Departments</option>
+          {departments.map(dept => <option key={dept} value={dept}>{dept}</option>)}
+        </select>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs lg:text-sm font-bold text-gray-600 mb-1">Teaching Staff</p>
-                <p className="text-xl lg:text-2xl font-bold text-gray-900">{stats.teaching}</p>
-              </div>
-              <div className="p-3 bg-blue-100 text-blue-600 rounded-2xl">
-                <FiBook className="text-lg" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs lg:text-sm font-bold text-gray-600 mb-1">Administration</p>
-                <p className="text-xl lg:text-2xl font-bold text-gray-900">{stats.administration}</p>
-              </div>
-              <div className="p-3 bg-green-100 text-green-600 rounded-2xl">
-                <FiAward className="text-lg" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs lg:text-sm font-bold text-gray-600 mb-1">BOM Members</p>
-                <p className="text-xl lg:text-2xl font-bold text-gray-900">{stats.bom}</p>
-              </div>
-              <div className="p-3 bg-purple-100 text-purple-600 rounded-2xl">
-                <FiShield className="text-lg" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs lg:text-sm font-bold text-gray-600 mb-1">Active</p>
-                <p className="text-xl lg:text-2xl font-bold text-gray-900">{stats.active}</p>
-              </div>
-              <div className="p-3 bg-green-100 text-green-600 rounded-2xl">
-                <FiCheckCircle className="text-lg" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs lg:text-sm font-bold text-gray-600 mb-1">On Leave</p>
-                <p className="text-xl lg:text-2xl font-bold text-gray-900">{stats.onLeave}</p>
-              </div>
-              <div className="p-3 bg-yellow-100 text-yellow-600 rounded-2xl">
-                <FiCalendar className="text-lg" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Filters */}
-      <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-lg border border-gray-200">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          <div className="lg:col-span-2 relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search staff members by name, email, or department..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm bg-gray-50"
-            />
-          </div>
-
-          <select
-            value={selectedDepartment}
-            onChange={(e) => setSelectedDepartment(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 cursor-pointer text-sm"
-          >
-            <option value="all">All Departments</option>
-            {departments.map(dept => (
-              <option key={dept} value={dept}>{dept}</option>
-            ))}
-          </select>
-
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 cursor-pointer text-sm"
-          >
-            <option value="all">All Roles</option>
-            {roles.map(role => (
-              <option key={role} value={role}>{role}</option>
-            ))}
-          </select>
-        </div>
+        <select
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
+          className="h-14 px-6 bg-white border-none rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest cursor-pointer shadow-sm focus:ring-4 focus:ring-gray-900/5"
+        >
+          <option value="all">All Roles</option>
+          {roles.map(role => <option key={role} value={role}>{role}</option>)}
+        </select>
       </div>
+    </div>
+  </div>
+</div>
 
       {/* Bulk Actions */}
       {selectedPosts.size > 0 && (
