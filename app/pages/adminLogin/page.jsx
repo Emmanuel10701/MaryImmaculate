@@ -288,7 +288,7 @@ export default function AdminLoginPage() {
 
             <div className="relative z-10">
               {/* Title - School name updated */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-6 sm:mb-8 tracking-tighter leading-[0.95]">
+              <h1 className="text-2xl sm:text-2xl lg:text-2xl font-black text-white mb-6 sm:mb-8 tracking-tighter leading-[0.95]">
                 MIGSS  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-white">Admin Portal</span>
               </h1>
 
