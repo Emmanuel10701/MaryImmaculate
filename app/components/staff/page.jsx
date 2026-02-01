@@ -1228,7 +1228,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
 
                 {/* ENHANCED Education and Experience */}
                   <div className="bg-white rounded-md ">
-                    <h4 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
+                    <h4 className="text-md font-black text-gray-900 mb-6 flex items-center gap-3">
                       <FaGraduationCap className="text-purple-600 text-xl" />
                       Education
                     </h4>
@@ -1237,12 +1237,12 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                       onChange={(e) => handleChange('education', e.target.value)}
                       placeholder="Educational background, degrees, certifications..."
                       rows="5"
-                      className="w-full p-5 text-md  font-bold border-3 border-black rounded-xl focus:ring-4 focus:ring-orange-500/20"
+                      className="w-full p-1 text-md border-2 border-black  font-bold border-3 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
                     />
                   </div>
 
-                  <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-sm">
-                    <h4 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
+                  <div className="bg-white rounded-md ">
+                    <h4 className="text-md font-black text-gray-900 mb-6 flex items-center gap-3">
                       <FaBriefcase className="text-green-600 text-2xl" />
                       Experience
                     </h4>
@@ -1251,7 +1251,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                       onChange={(e) => handleChange('experience', e.target.value)}
                       placeholder="Previous experience, years of service, special achievements..."
                       rows="5"
-                      className="w-full p-5 text-md  font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
+                      className="w-full p-1 text-md border-2 border-black  font-bold border-3 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
                     />
                   </div>
                 </div>
@@ -1260,9 +1260,9 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
             {/* Step 3: Profile & Bio - ENHANCED */}
             {currentStep === 2 && (
               <div className="space-y-8">
-                <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-lg">
-                  <h3 className="text-2xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                    <FaUserCircle className="text-orange-600 text-2xl" />
+                <div className="bg-white rounded-md p-8 border-2 border-gray-200 shadow-lg">
+                  <h3 className="text-lg font-black text-gray-900 mb-8 flex items-center gap-3">
+                    <FaUserCircle className="text-orange-600 text-md" />
                     Profile Image & Information
                   </h3>
                   
