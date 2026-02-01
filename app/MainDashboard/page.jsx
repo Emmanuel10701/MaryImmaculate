@@ -28,7 +28,10 @@ import {
   IoStatsChart,
   IoPeopleCircle,
   IoNewspaper,
-  IoSparkles
+  IoSparkles,
+  IoSchoolOutline,
+  
+
 } from 'react-icons/io5';
 
 import { useRouter } from 'next/navigation';
