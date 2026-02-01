@@ -51,7 +51,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
           </div>
 
           {/* Refined Title - Significantly Smaller & Tighter */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white mb-6 tracking-tighter leading-none">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-6 tracking-tighter leading-none">
             Mary Immaculate <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-300 to-white/70">Girls Secondary.</span>
           </h1>
 
@@ -430,7 +430,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
 
           <div className="relative z-10 w-full">
             {/* Title - Reduced to Original Proportions */}
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 md:mb-10 tracking-tighter leading-[1.1] md:leading-[0.95] max-w-4xl mx-auto">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-black text-white mb-6 md:mb-10 tracking-tighter leading-[1.1] md:leading-[0.95] max-w-4xl mx-auto">
               Integrity & <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-300 to-white/70">Wellbeing.</span>
             </h2>
             
