@@ -1262,96 +1262,122 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
   <div className="space-y-6">
     {/* Profile Image & Information Section */}
     <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border-2 border-orange-200 shadow-sm">
-      <h3 className="text-sm font-black text-gray-900 mb-6 flex items-center gap-3 uppercase tracking-wider">
+      <h3 className="text-md font-black text-gray-900 mb-6 flex items-center gap-3 uppercase tracking-wider">
         <FaUserCircle className="text-orange-600 text-lg" />
         Profile Image & Information
       </h3>
       
-      {/* Gender Selection */}
-      <div className="mb-6">
-        <p className="text-xs font-black text-gray-800 mb-3 uppercase tracking-widest">Select Gender:</p>
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={() => handleGenderChange('male')}
-            className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
-              formData.gender === 'male'
-                ? 'border-blue-600 bg-white shadow-md' 
-                : 'border-gray-200 bg-white/50'
-            }`}
-          >
-            <FaMale className={`text-xl ${formData.gender === 'male' ? 'text-blue-600' : 'text-gray-400'}`} />
-            <span className={`text-[10px] font-black uppercase ${formData.gender === 'male' ? 'text-blue-800' : 'text-gray-600'}`}>Male</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleGenderChange('female')}
-            className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
-              formData.gender === 'female'
-                ? 'border-pink-600 bg-white shadow-md' 
-                : 'border-gray-200 bg-white/50'
-            }`}
-          >
-            <FaFemale className={`text-xl ${formData.gender === 'female' ? 'text-pink-600' : 'text-gray-400'}`} />
-            <span className={`text-[10px] font-black uppercase ${formData.gender === 'female' ? 'text-pink-800' : 'text-gray-600'}`}>Female</span>
-          </button>
-        </div>
+{/* Modernized Gender Selection - Wide Layout */}
+<div className="mb-8">
+  <div className="flex items-center gap-2 mb-4">
+    <div className="w-1 h-3 bg-orange-500 rounded-full" />
+    <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Select Gender</p>
+  </div>
+  
+  <div className="flex flex-col sm:flex-row gap-4">
+    <button
+      type="button"
+      onClick={() => handleGenderChange('male')}
+      className={`flex-1 flex items-center justify-center gap-4 px-12 py-4 rounded-2xl border-2 transition-all duration-300 ${
+        formData.gender === 'male'
+          ? 'border-blue-500 bg-blue-50/50 shadow-sm ring-4 ring-blue-500/5' 
+          : 'border-gray-100 bg-white text-gray-400 hover:border-gray-300'
+      }`}
+    >
+      <div className={`p-2 rounded-lg ${formData.gender === 'male' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+        <FaMale className="text-xl" />
       </div>
+      <span className={`text-xs font-black uppercase tracking-widest ${formData.gender === 'male' ? 'text-blue-900' : 'text-gray-500'}`}>
+        Male
+      </span>
+    </button>
 
-      {/* Image Upload Area */}
-      <div className="flex items-center gap-6">
-        <div className="flex-shrink-0">
-          {imagePreview ? (
-            <div className="relative">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="w-24 h-24 rounded-2xl object-cover border-2 border-gray-300"
-              />
-              <button
-                type="button"
-                onClick={handleImageRemove}
-                className="absolute -top-2 -right-2 bg-red-600 text-white p-1.5 rounded-full shadow-lg"
-              >
-                <FiX size={12} />
-              </button>
-            </div>
-          ) : (
-            <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-gray-400 flex flex-col items-center justify-center bg-white/50">
-              <FiUser className="text-gray-400 text-2xl" />
-              <span className="text-[9px] text-gray-500 mt-1 font-black uppercase">No Image</span>
-            </div>
-          )}
+    <button
+      type="button"
+      onClick={() => handleGenderChange('female')}
+      className={`flex-1 flex items-center justify-center gap-4 px-12 py-4 rounded-2xl border-2 transition-all duration-300 ${
+        formData.gender === 'female'
+          ? 'border-pink-500 bg-pink-50/50 shadow-sm ring-4 ring-pink-500/5' 
+          : 'border-gray-100 bg-white text-gray-400 hover:border-gray-300'
+      }`}
+    >
+      <div className={`p-2 rounded-lg ${formData.gender === 'female' ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+        <FaFemale className="text-xl" />
+      </div>
+      <span className={`text-xs font-black uppercase tracking-widest ${formData.gender === 'female' ? 'text-pink-900' : 'text-gray-500'}`}>
+        Female
+      </span>
+    </button>
+  </div>
+</div>
+
+     {/* Modernized Image Upload Area */}
+<div className="flex flex-col sm:flex-row items-center gap-8 p-4 bg-white/40 rounded-3xl border border-gray-100">
+  <div className="flex-shrink-0">
+    {imagePreview ? (
+      <div className="relative group">
+        <div className="absolute -inset-1 bg-gradient-to-tr from-orange-500 to-blue-500 rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+        <img
+          src={imagePreview}
+          alt="Preview"
+          className="relative w-32 h-32 rounded-[1.8rem] object-cover border-4 border-white shadow-xl"
+        />
+        <button
+          type="button"
+          onClick={handleImageRemove}
+          className="absolute -top-2 -right-2 bg-white text-red-600 p-2 rounded-full shadow-lg border border-red-50 hover:bg-red-50 transition-colors"
+        >
+          <FiX size={14} />
+        </button>
+      </div>
+    ) : (
+      <div className="w-32 h-32 rounded-[1.8rem] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center bg-white shadow-inner">
+        <div className="bg-gray-50 p-3 rounded-2xl mb-2">
+          <FiUser className="text-gray-300 text-3xl" />
         </div>
-        
-        <div className="flex-1 space-y-3">
-          <label className="block">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleImageChange(e.target.files[0])}
-              className="hidden"
-              id="staff-image-upload"
-            />
-            <div className="px-4 py-3 border-2 border-gray-300 rounded-xl cursor-pointer flex items-center justify-between bg-white transition-colors">
-              <div className="flex items-center gap-3">
-                <FaUpload className="text-orange-600 text-sm" />
-                <span className="text-[11px] font-black text-gray-900 uppercase">
-                  {imagePreview ? 'Change Photo' : 'Upload Staff Photo'}
-                </span>
-              </div>
-              <FaFolderOpen className="text-blue-600 text-sm" />
-            </div>
-          </label>
-          <div className="bg-white/60 p-2 rounded-lg border border-orange-200">
-            <p className="text-[9px] text-gray-700 font-bold uppercase flex items-center gap-1">
-              <FaExclamationCircle className="text-orange-600" />
-              JPEG/PNG • Max 5MB
-            </p>
+        <span className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">No Profile</span>
+      </div>
+    )}
+  </div>
+  
+  <div className="flex-1 w-full space-y-4">
+    <div className="space-y-1">
+      <h4 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">Profile Media</h4>
+      <p className="text-[10px] text-gray-500 font-medium">Add a professional photo for the staff directory.</p>
+    </div>
+
+    <label className="block group cursor-pointer">
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleImageChange(e.target.files[0])}
+        className="hidden"
+        id="staff-image-upload"
+      />
+      <div className="px-5 py-4 border-2 border-gray-200 rounded-2xl flex items-center justify-between bg-white hover:border-orange-400 hover:bg-orange-50/30 transition-all duration-300">
+        <div className="flex items-center gap-4">
+          <div className="p-2 bg-orange-100 rounded-lg">
+            <FaUpload className="text-orange-600 text-sm" />
+          </div>
+          <div>
+            <span className="block text-[11px] font-black text-gray-900 uppercase">
+              {imagePreview ? 'Replace Image' : 'Select File'}
+            </span>
+            <span className="text-[9px] text-gray-400 font-bold">JPG, PNG or WEBP</span>
           </div>
         </div>
+        <FaFolderOpen className="text-blue-500 text-lg opacity-40 group-hover:opacity-100 transition-opacity" />
       </div>
+    </label>
+
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50/50 rounded-lg border border-blue-100">
+      <FaExclamationCircle className="text-blue-500 text-[10px]" />
+      <p className="text-[9px] text-blue-700 font-black uppercase tracking-tight">
+        Maximum file size: 5MB
+      </p>
+    </div>
+  </div>
+</div>
     </div>
 
     {/* Bio and Quote - Flex Row with Education/Experience styling */}
