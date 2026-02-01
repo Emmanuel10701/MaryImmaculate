@@ -522,12 +522,12 @@ ${documentData?.kcseResultsPdf ? `**KCSE Examination Results:**
 • Year: ${documentData.kcseYear || 'Latest'}
 • Description: ${documentData.kcseDescription || 'National Examination Results'}` : '**Examination Results:** Available upon request'}
 
-**Additional Exam Results:**
-${documentData?.form1ResultsPdf ? `• Form 1 Results: ${documentData.form1ResultsPdfName}` : ''}
-${documentData?.form2ResultsPdf ? `• Form 2 Results: ${documentData.form2ResultsPdfName}` : ''}
-${documentData?.form3ResultsPdf ? `• Form 3 Results: ${documentData.form3ResultsPdfName}` : ''}
-${documentData?.form4ResultsPdf ? `• Form 4 Results: ${documentData.form4ResultsPdfName}` : ''}
-${documentData?.mockExamsResultsPdf ? `• Mock Exams: ${documentData.mockExamsPdfName}` : ''}
+
+**Sports Achievements:**
+• County and regional championships
+• Athletics medals
+• Sportsmanship awards 
+
 
 **Student Success:**
 • Holistic development focus
