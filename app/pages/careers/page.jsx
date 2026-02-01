@@ -630,41 +630,50 @@ return (
 // Modern Empty State Component
 const ModernEmptyState = ({ onClearFilters }) => {
   return (
-    <div className="bg-white rounded-[32px] border-2 border-dashed border-slate-200 py-16 px-8 text-center">
-      <div className="w-24 h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-        <FiBriefcase className="text-slate-300 text-4xl" />
+    <div className="group bg-white rounded-[24px] md:rounded-[32px] border-2 border-dashed border-slate-200 py-8 md:py-16 px-4 md:px-8 text-center transition-all duration-500 hover:border-blue-200">
+      
+      {/* Icon with Zooming Experience */}
+      <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 shadow-sm transition-transform duration-500 group-hover:scale-110 active:scale-90">
+        <FiBriefcase className="text-slate-300 text-2xl md:text-4xl group-hover:text-blue-400 transition-colors" />
       </div>
-      <h3 className="text-2xl font-bold text-slate-900 mb-3">No Current Openings</h3>
-      <p className="text-slate-500 text-lg mb-8 max-w-md mx-auto">
-        There are currently no job opportunities available. Check back soon for new positions or submit your CV for future consideration.
+
+      <h3 className="text-lg md:text-2xl font-black text-slate-900 mb-2 md:mb-3 tracking-tight italic uppercase">
+        No Openings
+      </h3>
+      
+      <p className="text-slate-500 text-[10px] md:text-lg mb-6 md:mb-8 max-w-[240px] md:max-w-md mx-auto leading-relaxed">
+        Currently no opportunities available at <span className="text-slate-900 font-bold">Mary Immaculate</span>.
       </p>
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+      <div className="flex justify-center mb-8">
         <button 
           onClick={onClearFilters}
-          className="px-8 py-3 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-bold hover:bg-slate-50 transition-all text-sm"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-900 text-white rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all"
         >
-          Check All Categories
+          Reset Filters
         </button>
-
       </div>
       
-      {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-2xl mx-auto">
-        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-          <FiBell className="text-blue-500 text-xl mb-2" />
-          <h4 className="font-bold text-slate-900 mb-1">Get Notified</h4>
-          <p className="text-sm text-slate-600">We'll notify you when new positions open</p>
-        </div>
-        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-          <FiBookmark className="text-emerald-500 text-xl mb-2" />
-          <h4 className="font-bold text-slate-900 mb-1">Save Your Search</h4>
-          <p className="text-sm text-slate-600">Save this page and check back regularly</p>
-        </div>
-        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-          <FiMail className="text-purple-500 text-xl mb-2" />
-          <h4 className="font-bold text-slate-900 mb-1">Contact HR</h4>
-          <p className="text-sm text-slate-600">Inquire about upcoming opportunities</p>
-        </div>
+      {/* Features Grid - Grid of 2 on Mobile */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-6 max-w-2xl mx-auto">
+        {[
+          { icon: FiBell, color: "text-blue-500", title: "Notify", desc: "Get alerts" },
+          { icon: FiBookmark, color: "text-emerald-500", title: "Save", desc: "Check back" },
+          { icon: FiMail, color: "text-purple-500", title: "Contact", desc: "Email HR" },
+          { icon: FiInfo, color: "text-orange-500", title: "FAQ", desc: "View help" } // Added a 4th to balance the 2x2 grid on mobile
+        ].map((feature, i) => (
+          <div key={i} className="p-3 md:p-4 bg-slate-50/50 rounded-xl md:rounded-2xl border border-slate-100 flex flex-col items-center text-center transition-all hover:bg-white hover:shadow-md">
+            <feature.icon className={`${feature.color} text-base md:text-xl mb-1 md:mb-2 flex-shrink-0`} />
+            <div>
+              <h4 className="font-black text-slate-900 text-[9px] md:text-xs uppercase tracking-tighter">
+                {feature.title}
+              </h4>
+              <p className="hidden xs:block text-[8px] md:text-xs text-slate-500 leading-tight">
+                {feature.desc}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
