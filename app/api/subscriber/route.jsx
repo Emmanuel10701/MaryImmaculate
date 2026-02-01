@@ -334,7 +334,7 @@ const emailTemplates = {
               <p class="info-text">
                 <strong>${SCHOOL_NAME}</strong><br>
                 ${SCHOOL_LOCATION}<br>
-                Public Mixed Day and Boarding School | 1200+ Students | 8-4-4 Curriculum
+                Private Girl's Boarding School | 1200+ Students | 8-4-4 Curriculum and CBC System
               </p>
             </div>
           </div>
