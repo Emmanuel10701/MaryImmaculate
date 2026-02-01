@@ -991,7 +991,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                 {staff ? <FaEdit className="text-2xl" /> : <FaUserPlus className="text-2xl" />}
               </div>
               <div>
-                <h2 className="text-3xl font-black tracking-tight">{staff ? 'Edit Staff Member' : 'Add New Staff Member'}</h2>
+                <h2 className="text-2xl font-black tracking-tight">{staff ? 'Edit Staff Member' : 'Add New Staff Member'}</h2>
                 <p className="text-orange-100/90 text-base font-medium mt-2">
                   Step {currentStep + 1} of {steps.length}: {steps[currentStep].description}
                 </p>
@@ -1190,13 +1190,13 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
             {currentStep === 1 && (
               <div className="space-y-8">
                 <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-3xl p-8 border-2 border-blue-300 shadow-sm">
-                  <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
+                  <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
                     <FaPhoneAlt className="text-blue-600 text-2xl" />
                     Contact Information
                   </h3>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div>
-                      <label className="block text-lg font-black text-gray-800 mb-4">
+                      <label className="block text-md font-black text-gray-800 mb-4">
                         Email Address <span className="text-red-600">*</span>
                       </label>
                       <input
@@ -1205,12 +1205,12 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                         onChange={(e) => handleChange('email', e.target.value)}
                         placeholder="staff@school.edu"
                         required
-                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-2xl border focus:ring-4 focus:ring-orange-500/20 focus:border-2 bg-white shadow-sm transition-all"
+                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-xl border focus:ring-4 focus:ring-orange-500/20 focus:border-2 bg-white shadow-sm transition-all"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-lg font-black text-gray-800 mb-4">
+                      <label className="block text-md font-black text-gray-800 mb-4">
                         Phone Number <span className="text-red-600">*</span>
                       </label>
                       <input
@@ -1226,10 +1226,9 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                 </div>
 
                 {/* ENHANCED Education and Experience */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-sm">
+                  <div className="bg-white rounded-md ">
                     <h4 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
-                      <FaGraduationCap className="text-purple-600 text-2xl" />
+                      <FaGraduationCap className="text-purple-600 text-xl" />
                       Education
                     </h4>
                     <textarea
@@ -1237,7 +1236,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                       onChange={(e) => handleChange('education', e.target.value)}
                       placeholder="Educational background, degrees, certifications..."
                       rows="5"
-                      className="w-full p-5 text-md  font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
+                      className="w-full p-5 text-md  font-bold border-3 border-black rounded-xl focus:ring-4 focus:ring-orange-500/20"
                     />
                   </div>
 
@@ -1255,7 +1254,6 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                     />
                   </div>
                 </div>
-              </div>
             )}
 
             {/* Step 3: Profile & Bio - ENHANCED */}
