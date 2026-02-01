@@ -1456,7 +1456,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
             {currentStep === 3 && (
               <div className="space-y-8">
                 <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-3xl p-8 border-2 border-orange-300 shadow-sm">
-                  <h3 className="text-2xl font-black text-gray-900 mb-8 flex items-center gap-3">
+                  <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3">
                     <FaStar className="text-orange-600 text-2xl" />
                     Expertise & Achievements
                   </h3>
