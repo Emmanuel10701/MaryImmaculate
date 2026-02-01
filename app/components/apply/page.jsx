@@ -112,7 +112,7 @@ const PortalHeader = ({ stats = { today: 45 }, refreshing = false, fetchEvents =
                    transition-transform cursor-pointer relative z-[10]"
       >
         <img 
-          src={`demo/${num}.jpg`} 
+          src={`/demo/${num}.jpg`} 
           alt={`Student ${num}`}
           className="w-full h-full object-cover"
         />
