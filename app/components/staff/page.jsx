@@ -984,28 +984,63 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
       {/* WIDER MODAL: max-w-5xl (was max-w-4xl) */}
       <div className="w-full max-w-5xl max-h-[95vh] bg-white rounded-3xl shadow-2xl shadow-black/30 overflow-hidden border border-gray-100">
         {/* Enhanced Header */}
-        <div className="bg-gradient-to-r from-orange-600 via-red-600 to-pink-700 p-7 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32" />
-          <div className="relative z-10 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30">
-                {staff ? <FaEdit className="text-2xl" /> : <FaUserPlus className="text-2xl" />}
-              </div>
-              <div>
-                <h2 className="text-2xl font-black tracking-tight">{staff ? 'Edit Staff Member' : 'Add New Staff Member'}</h2>
-                <p className="text-orange-100/90 text-base font-medium mt-2">
-                  Step {currentStep + 1} of {steps.length}: {steps[currentStep].description}
-                </p>
-              </div>
-            </div>
-            <button 
-              onClick={onClose} 
-              className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 cursor-pointer border border-white/20"
-            >
-              <FaTimes className="text-2xl" />
-            </button>
+     {/* Modernized Header with Integrated Progress */}
+<div className="bg-[#0f172a] p-8 text-white relative overflow-hidden border-b border-white/5">
+  {/* Modern Ambient Glow */}
+  <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[120px] -mr-48 -mt-48" />
+  <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] -ml-32 -mb-32" />
+
+  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="flex items-center gap-5">
+      {/* Icon with Glass effect */}
+      <div className="p-4 bg-white/5 backdrop-blur-xl rounded-[1.5rem] border border-white/10 shadow-2xl">
+        {staff ? (
+          <FaEdit className="text-blue-400 text-xl" />
+        ) : (
+          <FaUserPlus className="text-blue-400 text-xl" />
+        )}
+      </div>
+      
+      <div className="space-y-1.5">
+        <h2 className="text-xl font-black tracking-[0.05em] uppercase italic">
+          {staff ? 'Modification Portal' : 'Staff Onboarding'}
+        </h2>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-blue-500/20 rounded-md border border-blue-500/30">
+             <span className="text-[9px] font-black text-blue-300 uppercase tracking-widest">
+                Step 0{currentStep + 1}
+             </span>
           </div>
+          <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
+            {steps[currentStep].description}
+          </p>
         </div>
+      </div>
+    </div>
+
+    {/* Right Side: Step Progress Indicators */}
+    <div className="flex items-center gap-6">
+      <div className="hidden lg:flex items-center gap-2">
+        {steps.map((_, index) => (
+          <div 
+            key={index}
+            className={`h-1 rounded-full transition-all duration-500 ${
+              index <= currentStep ? 'w-8 bg-blue-500' : 'w-4 bg-white/10'
+            }`}
+          />
+        ))}
+      </div>
+
+      <button 
+        onClick={onClose} 
+        className="group p-3 bg-white/5 hover:bg-red-500/20 rounded-2xl transition-all duration-300 border border-white/10 hover:border-red-500/50"
+      >
+        <FaTimes className="text-gray-400 group-hover:text-red-400 transition-colors text-lg" />
+      </button>
+    </div>
+  </div>
+</div>
 
         {/* Enhanced Progress Steps - BOLDER */}
         <div className="bg-gradient-to-r from-white to-orange-50 border-b border-gray-200 p-5">
