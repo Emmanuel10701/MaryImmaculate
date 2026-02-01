@@ -493,7 +493,8 @@ const ShareModal = ({ isOpen, onClose, gallery }) => {
   const shareText = `${gallery.title} - ${gallery.description?.substring(0, 100)}...`;
 
   const shareOptions = [
-    // ... (Your existing shareOptions logic remains identical)
+
+
     {
       name: 'Copy Link',
       icon: FiCopy,
@@ -506,6 +507,7 @@ const ShareModal = ({ isOpen, onClose, gallery }) => {
         setTimeout(() => setCopied(false), 2000);
       }
     },
+
     {
       name: 'WhatsApp',
       icon: FaWhatsapp,
