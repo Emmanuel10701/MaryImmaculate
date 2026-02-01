@@ -447,138 +447,122 @@ function Notification({
 // Modern Staff Detail Modal
 function ModernStaffDetailModal({ staff, onClose, onEdit }) {
   if (!staff) return null;
-const getImageUrl = (imagePath) => {
-  if (!imagePath || typeof imagePath !== 'string') {
-    return staff?.gender === 'female' ? '/female.png' : '/male.png';
-  }
-  
-  // Handle different image path formats
-  if (imagePath.startsWith('http') || imagePath.startsWith('/')) {
-    return imagePath;
-  }
-  
-  if (imagePath.startsWith('data:image')) {
-    return imagePath;
-  }
-  
-  // Assume it's a relative path without leading slash
-  return `/${imagePath}`;
-};
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath || typeof imagePath !== 'string') {
+      return staff?.gender === 'female' ? '/female.png' : '/male.png';
+    }
+    if (imagePath.startsWith('http') || imagePath.startsWith('/') || imagePath.startsWith('data:image')) {
+      return imagePath;
+    }
+    return `/${imagePath}`;
+  };
+
   const imageUrl = getImageUrl(staff.image);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div className="w-full max-w-4xl max-h-[95vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-orange-600 via-red-600 to-pink-700 p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-white bg-opacity-20 rounded-2xl">
-                <FiEye className="text-xl" />
-              </div>
-              <div className="px-4 py-2 sm:px-0"> 
-                <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">
-                  Staff Details
-                </h2>
-                <p className="text-xs md:text-sm text-orange-100 opacity-90 mt-0.5 md:mt-1 leading-tight">
-                  Complete overview of staff member
-                </p>
-              </div>
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-2 md:p-4">
+      {/* Animated Backdrop */}
+      <div 
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300"
+        onClick={onClose}
+      />
+      
+      {/* Main Modal Container */}
+      <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 border border-white/20">
+        
+        {/* Sticky Header: Profile Summary */}
+        <div className="relative bg-slate-900 p-5 md:p-8 shrink-0 overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/20 blur-[80px] rounded-full -mr-20 -mt-20" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-orange-600 to-pink-600 rounded-[2rem] blur-md opacity-50 group-hover:opacity-100 transition-opacity" />
+              <img
+                src={imageUrl}
+                alt={staff.name}
+                className="relative w-24 h-24 md:w-32 md:h-32 rounded-[1.8rem] object-cover border-2 border-white/10 shadow-2xl"
+                onError={(e) => { e.target.src = '/male.png'; }}
+              />
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-           
-              <button 
-                onClick={onClose} 
-                className="p-2 bg-white/10 text-white rounded-full cursor-pointer flex-shrink-0"
-              >
-                <FiX className="text-lg sm:text-xl" />
-              </button>
+
+            <div className="flex-1 space-y-2">
+              <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-2">
+                <span className="bg-orange-600 text-[10px] font-black uppercase tracking-widest text-white px-3 py-1 rounded-full">
+                  {staff.role}
+                </span>
+                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                  staff.status === 'active' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400'
+                }`}>
+                  {staff.status || 'active'}
+                </span>
+              </div>
+              <h1 className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none italic">
+                {staff.name}
+              </h1>
+              <p className="text-slate-400 font-bold text-sm md:text-base uppercase tracking-tight">
+                {staff.position} <span className="mx-2 opacity-30 text-white">|</span> <span className="text-orange-500">{staff.department}</span>
+              </p>
             </div>
+
+            <button 
+              onClick={onClose} 
+              className="absolute top-0 right-0 p-2 bg-white/5 hover:bg-white/10 text-white rounded-full transition-colors"
+            >
+              <FiX size={24} />
+            </button>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(95vh-200px)]">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <div className="flex items-center gap-4">
-                <img
-                  src={imageUrl}
-                  alt={staff.name}
-                  className="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl object-cover shadow-lg"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = '/male.png';
-                  }}
-                />
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{staff.name}</h1>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      staff.status === 'active' ? 'bg-green-100 text-green-800' :
-                      staff.status === 'on-leave' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {staff.status || 'active'}
-                    </span>
-                    <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-3 py-1 rounded-full text-xs font-bold">
-                      {staff.role}
-                    </span>
-                  </div>
-                  <p className="text-gray-600 font-medium">{staff.position}</p>
-                </div>
+        {/* Scrollable Content: Bento Grid Style */}
+        <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-8 scrollbar-hide">
+          
+          {/* Quick Contact Bar */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-orange-600">
+                <FiMail size={20} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Official Email</p>
+                <p className="text-sm font-bold text-slate-700 truncate">{staff.email}</p>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-gray-50 to-orange-50 rounded-2xl p-5 border border-gray-200 w-full lg:max-w-md shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900 mb-5 flex items-center gap-2 border-b border-orange-100 pb-2">
-                <FiBriefcase className="text-orange-600 text-xs" />
-                Contact Information
-              </h3>
-
-              <div className="grid grid-cols-1 gap-4 text-[13px]">
-                <div className="flex flex-col">
-                  <span className="text-gray-400 text-[10px] uppercase tracking-wide">Department</span>
-                  <span className="text-gray-700 font-medium">{staff.department}</span>
-                </div>
-
-                <div className="flex flex-col">
-                  <span className="text-gray-400 text-[10px] uppercase tracking-wide">Email Address</span>
-                  <span className="text-gray-700 font-medium break-all leading-tight">{staff.email}</span>
-                </div>
-
-                <div className="flex flex-col">
-                  <span className="text-gray-400 text-[10px] uppercase tracking-wide">Phone Number</span>
-                  <span className="text-gray-700 font-medium">{staff.phone}</span>
-                </div>
+            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-blue-600">
+                <FiPhone size={20} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone Line</p>
+                <p className="text-sm font-bold text-slate-700 truncate">{staff.phone}</p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Bio Section */}
             {staff.bio && (
-              <div>
-                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <FiUser className="text-blue-600" />
-                  Bio
+              <div className="space-y-3">
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <span className="w-6 h-[2px] bg-orange-600" /> Professional Bio
                 </h3>
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-200">
-                  <p className="text-gray-700 leading-relaxed">{staff.bio}</p>
+                <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 shadow-sm">
+                  <p className="text-slate-600 text-sm md:text-base leading-relaxed font-medium italic">
+                    "{staff.bio}"
+                  </p>
                 </div>
               </div>
             )}
 
-            {staff.expertise && staff.expertise.length > 0 && (
-              <div>
-                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <FiStar className="text-purple-600" />
-                  Expertise
+            {/* Expertise Section */}
+            {staff.expertise?.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <span className="w-6 h-[2px] bg-purple-600" /> Core Expertise
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {staff.expertise.map((exp, index) => (
-                    <span 
-                      key={index} 
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-2 rounded-xl text-sm font-bold"
-                    >
+                  {staff.expertise.map((exp, i) => (
+                    <span key={i} className="bg-slate-900 text-white px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-tight">
                       {exp}
                     </span>
                   ))}
@@ -587,63 +571,58 @@ const getImageUrl = (imagePath) => {
             )}
           </div>
 
-          {staff.responsibilities && staff.responsibilities.length > 0 && (
-            <div>
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <FiBriefcase className="text-green-600" />
-                Key Responsibilities
-              </h3>
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                <ul className="space-y-2">
-                  {staff.responsibilities.map((resp, index) => (
-                    <li key={index} className="flex items-start gap-2 text-gray-700">
-                      <FiCheck className="text-green-600 mt-1 flex-shrink-0" />
-                      <span>{resp}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {staff.achievements && staff.achievements.length > 0 && (
-            <div>
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <FiAward className="text-yellow-600" />
-                Achievements
-              </h3>
-              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
+          {/* Responsibilities & Achievements */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {staff.responsibilities?.length > 0 && (
+              <div className="p-6 bg-emerald-50/50 rounded-[2rem] border border-emerald-100">
+                <h3 className="font-black text-emerald-900 text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <FiCheckCircle className="text-emerald-600" /> Key Roles
+                </h3>
                 <ul className="space-y-3">
-                  {staff.achievements.map((achievement, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-2 rounded-xl">
-                        <FiAward className="text-sm" />
-                      </div>
-                      <span className="text-gray-700">{achievement}</span>
+                  {staff.responsibilities.map((resp, i) => (
+                    <li key={i} className="text-xs font-bold text-emerald-800 flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shrink-0" />
+                      {resp}
                     </li>
                   ))}
                 </ul>
               </div>
-            </div>
-          )}
+            )}
+
+            {staff.achievements?.length > 0 && (
+              <div className="p-6 bg-orange-50/50 rounded-[2rem] border border-orange-100">
+                <h3 className="font-black text-orange-900 text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <FiAward className="text-orange-600" /> Milestones
+                </h3>
+                <ul className="space-y-3">
+                  {staff.achievements.map((ach, i) => (
+                    <li key={i} className="text-xs font-bold text-orange-800 flex items-start gap-2">
+                      <FiStar className="text-orange-400 shrink-0 mt-0.5" />
+                      {ach}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
-<div className="p-6 border-t border-gray-200 flex justify-between items-center">
-  <button 
-    onClick={onClose} 
-    className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-8 py-3 rounded-2xl font-bold shadow-lg cursor-pointer"
-  >
-    Close
-  </button>
-  <button 
-    onClick={() => {
-      onClose(); 
-      onEdit(staff); // Then call edit function
-    }} 
-    className="flex items-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg cursor-pointer"
-  >
-    <FiEdit /> Edit Staff
-  </button>
-</div>
+
+        {/* Sticky Footer Actions */}
+        <div className="p-5 md:p-8 bg-white border-t border-slate-100 flex gap-3 shrink-0">
+          <button 
+            onClick={onClose} 
+            className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
+          >
+            Return
+          </button>
+          <button 
+            onClick={() => { onClose(); onEdit(staff); }} 
+            className="flex-[2] py-4 bg-slate-900 hover:bg-orange-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 transition-all group"
+          >
+            <FiEdit className="group-hover:rotate-12 transition-transform" /> 
+            Modify Records
+          </button>
+        </div>
       </div>
     </div>
   );
