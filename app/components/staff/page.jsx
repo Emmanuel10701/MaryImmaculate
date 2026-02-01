@@ -1064,9 +1064,9 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                   <div className="space-y-6">
                     {/* BOLDER LABEL and LARGER INPUT */}
                     <div>
-                      <label className="block text-lg font-black text-gray-900 mb-4 flex items-center gap-3 bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-2xl border-2 border-orange-300">
-                        <FaUser className="text-orange-600 text-xl" /> 
-                        <span>Full Name <span className="text-red-600">*</span></span>
+                      <label className="flex text-md font-black text-gray-900 mb-4  items-center gap-3 ">
+                        <FaUser className="text-orange-600 text-lg" /> 
+                        <span>Full Name <span className="text-red-900">*</span></span>
                       </label>
                       <input
                         type="text"
@@ -1074,7 +1074,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                         onChange={(e) => handleChange('name', e.target.value)}
                         placeholder="Enter full name..."
                         required
-                        className="w-full px-5 py-4 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 bg-white shadow-sm transition-all"
+                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-2xl border focus:ring-4 focus:ring-orange-500/20 focus:border-2 bg-white shadow-sm transition-all"
                       />
                     </div>
 
