@@ -32,7 +32,7 @@ export default function AboutPage() {
             src="/ii.jpg"
             alt="Campus"
             fill
-            className="object-cover opacity-50 transition-transform duration-[10s] ease-out group-hover:scale-110"
+            className="object-cover opacity-50 transition-transform duration-[10s] ease-out group-hover:scale-101"
             priority
           />
           {/* Animated Radial Glow */}
@@ -175,7 +175,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
           { title: "Infrastructure", icon: <Globe size={18} />, desc: "Smart classrooms and collaborative labs.", color: "orange" }
         ].map((item, i) => (
           <div key={i} className="group flex gap-4 p-4 sm:p-6 rounded-2xl bg-slate-50 border border-transparent transition-all hover:bg-white hover:shadow-xl hover:shadow-orange-900/5 hover:border-slate-100">
-            <div className={`shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${i % 2 === 0 ? 'bg-orange-600' : 'bg-amber-600'} text-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110`}>
+            <div className={`shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${i % 2 === 0 ? 'bg-orange-600' : 'bg-amber-600'} text-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-101`}>
               {item.icon}
             </div>
             <div>
@@ -195,7 +195,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
         <div className="overflow-hidden rounded-[1.6rem] sm:rounded-[1.8rem]">
           <img 
             src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=1000" 
-            className="w-full aspect-square object-cover transition-transform duration-[1.5s] group-hover:scale-110" 
+            className="w-full aspect-square object-cover transition-transform duration-[1.5s] group-hover:scale-100" 
             alt="Innovative Learning"
           />
         </div>
@@ -321,7 +321,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
       <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border-[4px] sm:border-[8px] border-white">
         <img 
           src="https://images.unsplash.com/photo-1511629091441-ee46146481b6?auto=format&fit=crop&q=80&w=1000" 
-          className="w-full aspect-square sm:aspect-[4/5] object-cover transition-transform duration-1000 group-hover:scale-110" 
+          className="w-full aspect-square sm:aspect-[4/5] object-cover transition-transform duration-1000 group-hover:scale-100" 
           alt="Culture and community"
         />
         
@@ -344,7 +344,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
       <div className="lg:col-span-4 group relative overflow-hidden bg-gradient-to-br from-orange-600 to-amber-600 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl shadow-orange-200/50 flex flex-col justify-between transition-all duration-500 hover:-translate-y-2">
         
         {/* Decorative background circle - scaled for mobile */}
-        <div className="absolute -top-10 -right-10 w-40 h-40 sm:w-64 sm:h-64 bg-orange-500 rounded-full opacity-40 transition-transform duration-700 group-hover:scale-150"></div>
+        <div className="absolute -top-10 -right-10 w-40 h-40 sm:w-64 sm:h-64 bg-orange-500 rounded-full opacity-40 transition-transform duration-700 group-hover:scale-100"></div>
         
         <div className="relative z-10">
           <span className="inline-block px-3 py-1 mb-4 sm:mb-6 text-[9px] sm:text-[10px] font-black tracking-widest text-orange-100 uppercase bg-orange-700/50 rounded-full border border-orange-400/30">
@@ -403,7 +403,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
         </div>
         
         <div className="relative h-[280px] sm:h-[400px] lg:h-full min-h-[280px] sm:min-h-[400px] rounded-[1.5rem] sm:rounded-[1.8rem] overflow-hidden border border-slate-100 shadow-inner">
-          <div className="absolute inset-0 transition-transform duration-[2000ms] group-hover:scale-110">
+          <div className="absolute inset-0 transition-transform duration-[2000ms] group-hover:scale-100">
             <MapComponent />
           </div>
           
