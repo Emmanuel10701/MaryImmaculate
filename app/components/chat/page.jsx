@@ -100,7 +100,7 @@ Hours:
 Learn more by selecting other categories!`,
     links: [
       { label: 'About', path: '/pages/AboutUs', icon: 'info' },
-      { label: 'Overview', path: '/pages/overview', icon: 'grid' }
+      { label: 'Overview', path: '/pages/admissions', icon: 'grid' }
     ]
   },
   admissions: {
@@ -172,7 +172,12 @@ Steps:
 
 **Affordable quality education with flexible payment options!**`,
     links: [
-      { label: 'Student Portal', path: '/pages/StudentPortal', icon: 'book' }
+      { label: 'Student Portal', path: '/pages/StudentPortal', icon: 'book' },
+     { label: 'Events & News', path: '/pages/eventsandnews', icon: 'users' },
+     { label: 'School Gallery', path: '/pages/gallery', icon: 'users' }
+
+
+
     ]
   },
   academics: {
@@ -218,7 +223,7 @@ Steps:
     icon: 'users',
     content: studentPortalContent,
     links: [
-      { label: 'Gallery', path: '/pages/gallery', icon: 'image' },
+      { label: 'Guidance & Counselling', path: '/pages/Guidance-and-Councelling', icon: 'image' },
       { label: 'Student Portal', path: '/pages/StudentPortal', icon: 'grid' }
     ]
   },
