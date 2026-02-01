@@ -1080,9 +1080,9 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
 
                     {/* ENHANCED ROLE SELECTION */}
                     <div>
-                      <label className="block text-lg font-black text-gray-900 mb-4 flex items-center gap-3 bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-2xl border-2 border-purple-300">
-                        <FaUserTie className="text-purple-600 text-xl" /> 
-                        <span>Role <span className="text-red-600">*</span></span>
+                      <label className="flex text-md font-black text-gray-900 mb-4  items-center gap-3 ">
+                        <FaUserTie className="text-purple-600 text-lg" /> 
+                        <span>Role <span className="text-red-900">*</span></span>
                       </label>
                       <div className="grid grid-cols-2 gap-4">
                         {ROLES.map((role) => (
@@ -1108,14 +1108,14 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
 
                     {/* ENHANCED POSITION SELECT */}
                     <div>
-                      <label className="text-lg font-black text-gray-900 mb-4 flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-2xl border-2 border-green-300">
-                        <FaBriefcase className="text-green-600 text-xl" /> 
+                      <label className="flex text-md font-black text-gray-900 mb-4  items-center gap-3 ">
+                        <FaBriefcase className="text-green-600 text-lg" /> 
                         <span>Position</span>
                       </label>
                       <select
                         value={formData.position}
                         onChange={(e) => handleChange('position', e.target.value)}
-                        className="w-full px-5 py-4 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 bg-white shadow-sm appearance-none cursor-pointer"
+                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-2xl border focus:ring-4 focus:ring-orange-500/20 focus:border-2 bg-white shadow-sm transition-all"
                       >
                         <option value="">Select a position...</option>
                         <optgroup label="Administration" className="font-black text-green-800 bg-green-50">
@@ -1147,15 +1147,15 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                   <div className="space-y-6">
                     {/* ENHANCED DEPARTMENT SELECT */}
                     <div>
-                      <label className="text-lg font-black text-gray-900 mb-4 flex items-center gap-3 bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-2xl border-2 border-blue-300">
-                        <FaBuilding className="text-blue-600 text-xl" /> 
-                        <span>Department <span className="text-red-600">*</span></span>
+                      <label className="flex text-md font-black text-gray-900 mb-4  items-center gap-3 ">
+                        <FaBuilding className="text-blue-600 text-lg" /> 
+                        <span>Department <span className="text-red-900">*</span></span>
                       </label>
                       <select
                         value={formData.department}
                         onChange={(e) => handleChange('department', e.target.value)}
                         required
-                        className="w-full px-5 py-4 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 bg-white shadow-sm cursor-pointer"
+                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-2xl border focus:ring-4 focus:ring-orange-500/20 focus:border-2 bg-white shadow-sm transition-all"
                       >
                         {DEPARTMENTS.map(dept => (
                           <option key={dept} value={dept}>{dept}</option>
@@ -1165,22 +1165,22 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
 
                     {/* ENHANCED JOIN DATE */}
                     <div>
-                      <label className="block text-lg font-black text-gray-900 mb-4 flex items-center gap-3 bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-2xl border-2 border-yellow-300">
-                        <FaCalendarAlt className="text-yellow-600 text-xl" /> 
+                      <label className="flex text-md font-black text-gray-900 mb-4  items-center gap-3 ">
+                        <FaCalendarAlt className="text-yellow-600 text-lg" /> 
                         <span>Join Date</span>
                       </label>
                       <input
                         type="date"
                         value={formData.joinDate}
                         onChange={(e) => handleChange('joinDate', e.target.value)}
-                        className="w-full px-5 py-4 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 bg-white shadow-sm"
+                          className="w-full px-5 py-4 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 bg-white shadow-sm"
                       />
                     </div>
 
                     {/* ENHANCED STATUS */}
                     <div>
-                      <label className="block text-lg font-black text-gray-900 mb-4 flex items-center gap-3 bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-2xl border-2 border-pink-300">
-                        <FaUserCheck className="text-pink-600 text-xl" /> 
+                      <label className="flex text-md font-black text-gray-900 mb-4  items-center gap-3 ">
+                        <FaUserCheck className="text-pink-600 text-lg" /> 
                         <span>Status</span>
                       </label>
                       <div className="grid grid-cols-3 gap-3">
@@ -1226,7 +1226,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                         onChange={(e) => handleChange('email', e.target.value)}
                         placeholder="staff@school.edu"
                         required
-                        className="w-full px-5 py-4 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 bg-white shadow-sm"
+                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-2xl border focus:ring-4 focus:ring-orange-500/20 focus:border-2 bg-white shadow-sm transition-all"
                       />
                     </div>
 
@@ -1240,7 +1240,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                         onChange={(e) => handleChange('phone', e.target.value)}
                         placeholder="+254 700 000 000"
                         required
-                        className="w-full px-5 py-4 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 bg-white shadow-sm"
+                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-2xl border focus:ring-4 focus:ring-orange-500/20 focus:border-2 bg-white shadow-sm transition-all"
                       />
                     </div>
                   </div>
@@ -1258,7 +1258,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                       onChange={(e) => handleChange('education', e.target.value)}
                       placeholder="Educational background, degrees, certifications..."
                       rows="5"
-                      className="w-full p-5 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm"
+                      className="w-full p-5 text-md  font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
                     />
                   </div>
 
@@ -1272,7 +1272,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                       onChange={(e) => handleChange('experience', e.target.value)}
                       placeholder="Previous experience, years of service, special achievements..."
                       rows="5"
-                      className="w-full p-5 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm"
+                      className="w-full p-5 text-md  font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
                     />
                   </div>
                 </div>
@@ -1431,7 +1431,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                       onChange={(e) => handleChange('bio', e.target.value)}
                       placeholder="Write a brief biography about the staff member..."
                       rows="7"
-                      className="w-full p-5 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm"
+                        className="w-full px-5 py-4 text-md  font-bold border-3 border-gray-300 rounded-2xl border focus:ring-4 focus:ring-orange-500/20 focus:border-2 bg-white shadow-sm transition-all"
                     />
                   </div>
 
@@ -1445,7 +1445,7 @@ function ModernStaffModal({ onClose, onSave, staff, loading }) {
                       onChange={(e) => handleChange('quote', e.target.value)}
                       placeholder="Inspirational quote or motto..."
                       rows="4"
-                      className="w-full p-5 text-base font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm"
+                      className="w-full p-5 text-md  font-bold border-3 border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 resize-none bg-white shadow-sm transition-all"
                     />
                   </div>
                 </div>
