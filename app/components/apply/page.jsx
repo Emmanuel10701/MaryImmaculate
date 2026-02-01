@@ -123,7 +123,7 @@ const PortalHeader = ({ stats = { today: 45 }, refreshing = false, fetchEvents =
     <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 
                     rounded-full border-2 border-orange-800 bg-white/25 backdrop-blur-sm 
                     flex items-center justify-center text-[10px] xs:text-xs font-black text-white z-[11]">
-      500+
+      1k+
     </div>
   </div>
   
