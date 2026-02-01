@@ -1260,8 +1260,6 @@ function AdmissionFeeBreakdownModal({
           </div>
         </div>
         </div>
-
-        {/* Footer Actions */}
    
       </Box>
     </Modal>
