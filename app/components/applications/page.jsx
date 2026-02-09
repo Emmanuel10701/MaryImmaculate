@@ -936,166 +936,307 @@ export default function ModernApplicationsDashboard() {
     setShowDeleteModal(true)
   }
   
-  // Update single application status
-  const updateApplicationStatus = async () => {
-    if (!selectedApplication || !decisionType) return
+const updateApplicationStatus = async () => {
+  if (!selectedApplication || !decisionType) {
+    toast.error('Please select an application and decision type');
+    return;
+  }
+  
+  try {
+    setLoadingStates(prev => ({ ...prev, decision: true }));
     
-    try {
-      setLoadingStates(prev => ({ ...prev, decision: true }))
+    // Get authentication tokens from localStorage
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+    
+    // Prepare request body
+    const requestBody = {
+      status: decisionType,
+      notes: decisionData.notes,
+      admissionOfficer: decisionData.admissionOfficer,
+      decisionDate: new Date().toISOString()
+    };
+    
+    // Add decision-specific data
+    if (decisionType === 'ACCEPTED') {
+      requestBody.assignedStream = decisionData.assignedStream;
+      requestBody.admissionClass = decisionData.admissionClass;
+      requestBody.reportingDate = decisionData.reportingDate;
+      requestBody.admissionDate = new Date().toISOString();
+    } else if (decisionType === 'REJECTED') {
+      requestBody.rejectionReason = decisionData.rejectionReason;
+      requestBody.alternativeSuggestions = decisionData.alternativeSuggestions;
+      requestBody.rejectionDate = new Date().toISOString();
+    } else if (decisionType === 'WAITLISTED') {
+      requestBody.waitlistPosition = decisionData.waitlistPosition;
+      requestBody.waitlistNotes = decisionData.waitlistNotes;
+    } else if (decisionType === 'CONDITIONAL_ACCEPTANCE') {
+      requestBody.conditions = decisionData.conditions;
+      requestBody.conditionDeadline = decisionData.conditionDeadline;
+    }
+    
+    // Make the API call with authentication headers
+    const response = await fetch(`/api/applyadmission/${selectedApplication.id}`, {
+      method: 'PATCH',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+      body: JSON.stringify(requestBody)
+    });
+    
+    // Handle response
+    if (!response.ok) {
+      const errorData = await response.json();
       
-      const requestBody = {
-        status: decisionType,
-        notes: decisionData.notes,
-        admissionOfficer: decisionData.admissionOfficer,
-        decisionDate: new Date().toISOString()
+      // Handle specific HTTP errors
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
       }
       
-      // Add decision-specific data
-      if (decisionType === 'ACCEPTED') {
-        requestBody.assignedStream = decisionData.assignedStream
-        requestBody.admissionClass = decisionData.admissionClass
-        requestBody.reportingDate = decisionData.reportingDate
-        requestBody.admissionDate = new Date().toISOString()
-      } else if (decisionType === 'REJECTED') {
-        requestBody.rejectionReason = decisionData.rejectionReason
-        requestBody.alternativeSuggestions = decisionData.alternativeSuggestions
-        requestBody.rejectionDate = new Date().toISOString()
-      } else if (decisionType === 'WAITLISTED') {
-        requestBody.waitlistPosition = decisionData.waitlistPosition
-        requestBody.waitlistNotes = decisionData.waitlistNotes
-      } else if (decisionType === 'CONDITIONAL_ACCEPTANCE') {
-        requestBody.conditions = decisionData.conditions
-        requestBody.conditionDeadline = decisionData.conditionDeadline
+      if (response.status === 403) {
+        throw new Error('You do not have permission to update applications.');
       }
       
-      const response = await fetch(`/api/applyadmission/${selectedApplication.id}`, {
+      throw new Error(errorData.error || errorData.message || 'Failed to update application');
+    }
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      toast.success(`Application ${decisionType.toLowerCase()} successfully!`);
+      
+      // Update local state
+      const updatedApplications = applications.map(app => 
+        app.id === selectedApplication.id ? { 
+          ...app, 
+          ...requestBody,
+          status: decisionType
+        } : app
+      );
+      
+      setApplications(updatedApplications);
+      updateStats(updatedApplications);
+      setShowDecisionModal(false);
+      setSelectedApplication(null);
+    } else {
+      throw new Error(result.error || 'Failed to update application');
+    }
+    
+  } catch (error) {
+    console.error('Update application error:', error);
+    
+    // Handle specific error cases
+    if (error.message.includes('Session expired') || 
+        error.message.includes('Authentication required') ||
+        error.message.includes('Device verification')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1500);
+      
+    } else if (error.message.includes('permission')) {
+      toast.error('Access denied: ' + error.message);
+    } else {
+      toast.error(error.message || 'Failed to update application. Please try again.');
+    }
+    
+  } finally {
+    setLoadingStates(prev => ({ ...prev, decision: false }));
+  }
+};
+  
+const updateBulkApplicationStatus = async () => {
+  if (selectedApplications.size === 0 || !bulkDecisionType) {
+    toast.error('Please select applications and a decision type');
+    return;
+  }
+  
+  try {
+    setLoadingStates(prev => ({ ...prev, bulk: true }));
+    
+    // Get authentication tokens from localStorage
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+    
+    // Prepare common request body
+    const commonRequestBody = {
+      status: bulkDecisionType,
+      notes: bulkDecisionData.notes,
+      decisionDate: new Date().toISOString(),
+      admissionOfficer: 'Admissions Committee'
+    };
+    
+    // Create all update requests
+    const updates = Array.from(selectedApplications).map(async (applicationId) => {
+      const response = await fetch(`/api/applyadmission/${applicationId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`,
+          'x-device-token': deviceToken
+        },
+        body: JSON.stringify(commonRequestBody)
+      });
       
-      const data = await response.json()
-      
-      if (data.success) {
-        toast.success(`Application ${decisionType.toLowerCase()} successfully`)
-        
-        // Update local state
-        const updatedApplications = applications.map(app => 
-          app.id === selectedApplication.id ? { 
-            ...app, 
-            ...requestBody,
-            status: decisionType
-          } : app
-        )
-        
-        setApplications(updatedApplications)
-        updateStats(updatedApplications)
-        setShowDecisionModal(false)
-        setSelectedApplication(null)
-      } else {
-        toast.error(data.error || 'Failed to update application')
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Application ${applicationId}: ${errorData.error || 'Update failed'}`);
       }
-    } catch (error) {
-      console.error('Error:', error)
-      toast.error('Network error. Please try again.')
-    } finally {
-      setLoadingStates(prev => ({ ...prev, decision: false }))
-    }
-  }
-  
-  // Bulk update application status
-  const updateBulkApplicationStatus = async () => {
-    if (selectedApplications.size === 0 || !bulkDecisionType) {
-      toast.error('Please select applications and a decision type')
-      return
+      
+      return response.json();
+    });
+    
+    // Execute all updates
+    const results = await Promise.allSettled(updates);
+    
+    const successfulUpdates = results.filter(result => 
+      result.status === 'fulfilled' && result.value.success
+    ).length;
+    
+    if (successfulUpdates > 0) {
+      toast.success(`Updated ${successfulUpdates} of ${selectedApplications.size} applications`);
+      
+      // Update local state for successful updates
+      const updatedApplications = applications.map(app => 
+        selectedApplications.has(app.id) ? { 
+          ...app, 
+          status: bulkDecisionType,
+          notes: bulkDecisionData.notes
+        } : app
+      );
+      
+      setApplications(updatedApplications);
+      updateStats(updatedApplications);
+      setShowBulkModal(false);
+      setSelectedApplications(new Set());
     }
     
-    try {
-      setLoadingStates(prev => ({ ...prev, bulk: true }))
+    // Check for failures
+    if (successfulUpdates < selectedApplications.size) {
+      const failedCount = selectedApplications.size - successfulUpdates;
+      toast.warning(`${failedCount} update${failedCount === 1 ? '' : 's'} failed`);
+    }
+    
+  } catch (error) {
+    console.error('Bulk update error:', error);
+    
+    // Handle authentication errors
+    if (error.message.includes('Authentication required') || 
+        error.message.includes('Device verification')) {
       
-      const updates = Array.from(selectedApplications).map(async (applicationId) => {
-        const requestBody = {
-          status: bulkDecisionType,
-          notes: bulkDecisionData.notes,
-          decisionDate: new Date().toISOString(),
-          admissionOfficer: 'Admissions Committee'
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1500);
+      
+    } else {
+      toast.error('Update failed: ' + error.message);
+    }
+    
+  } finally {
+    setLoadingStates(prev => ({ ...prev, bulk: false }));
+  }
+};
+  
+const deleteApplications = async () => {
+  try {
+    setLoadingStates(prev => ({ ...prev, delete: true }));
+    
+    // Get authentication tokens from localStorage
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+    
+    // Create DELETE requests for all selected applications
+    const deletes = Array.from(selectedApplications).map(async (applicationId) => {
+      const response = await fetch(`/api/applyadmission/${applicationId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`,
+          'x-device-token': deviceToken
         }
-        
-        return fetch(`/api/applyadmission/${applicationId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody)
-        })
-      })
+      });
       
-      const responses = await Promise.all(updates)
-      const results = await Promise.all(responses.map(res => res.json()))
-      
-      const allSuccess = results.every(result => result.success)
-      
-      if (allSuccess) {
-        toast.success(`Updated ${selectedApplications.size} applications to ${bulkDecisionType}`)
-        
-        // Update local state
-        const updatedApplications = applications.map(app => 
-          selectedApplications.has(app.id) ? { 
-            ...app, 
-            status: bulkDecisionType,
-            notes: bulkDecisionData.notes
-          } : app
-        )
-        
-        setApplications(updatedApplications)
-        updateStats(updatedApplications)
-        setShowBulkModal(false)
-        setSelectedApplications(new Set())
-      } else {
-        toast.error('Some updates failed')
+      // Handle response
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete application');
       }
-    } catch (error) {
-      console.error('Error:', error)
-      toast.error('Network error. Please try again.')
-    } finally {
-      setLoadingStates(prev => ({ ...prev, bulk: false }))
+      
+      return response.json();
+    });
+    
+    // Execute all DELETE requests
+    const results = await Promise.all(deletes);
+    const allSuccess = results.every(result => result.success);
+    
+    if (allSuccess) {
+      toast.success(`Successfully deleted ${selectedApplications.size} application${selectedApplications.size === 1 ? '' : 's'}`);
+      
+      // Update local state
+      const updatedApplications = applications.filter(app => !selectedApplications.has(app.id));
+      setApplications(updatedApplications);
+      updateStats(updatedApplications);
+      setSelectedApplications(new Set());
+      setShowDeleteModal(false);
+    } else {
+      toast.error('Some deletions failed. Please try again.');
     }
-  }
-  
-  // Delete applications
-  const deleteApplications = async () => {
-    try {
-      setLoadingStates(prev => ({ ...prev, delete: true }))
+    
+  } catch (error) {
+    console.error('Delete applications error:', error);
+    
+    // Handle specific error cases
+    if (error.message.includes('Authentication required') || 
+        error.message.includes('Device verification')) {
       
-      const deletes = Array.from(selectedApplications).map(async (applicationId) => {
-        return fetch(`/api/applyadmission/${applicationId}`, {
-          method: 'DELETE'
-        })
-      })
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1500);
       
-      const responses = await Promise.all(deletes)
-      const results = await Promise.all(responses.map(res => res.json()))
-      
-      const allSuccess = results.every(result => result.success)
-      
-      if (allSuccess) {
-        toast.success(`Deleted ${selectedApplications.size} application${selectedApplications.size === 1 ? '' : 's'}`)
-        
-        // Update local state
-        const updatedApplications = applications.filter(app => !selectedApplications.has(app.id))
-        setApplications(updatedApplications)
-        updateStats(updatedApplications)
-        setSelectedApplications(new Set())
-        setShowDeleteModal(false)
-      } else {
-        toast.error('Some deletions failed')
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      toast.error('Network error. Please try again.')
-    } finally {
-      setLoadingStates(prev => ({ ...prev, delete: false }))
+    } else if (error.message.includes('Failed to delete application')) {
+      toast.error(error.message);
+    } else {
+      toast.error('Network error. Please check your connection and try again.');
     }
+    
+  } finally {
+    setLoadingStates(prev => ({ ...prev, delete: false }));
   }
-  
+};
   // Export applications
   const exportApplications = () => {
     const dataToExport = filteredApplications.map(app => ({
