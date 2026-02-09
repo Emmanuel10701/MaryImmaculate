@@ -899,67 +899,109 @@ const [memberDetailModal, setMemberDetailModal] = useState({
     setIsCategoryOpen(false);
   };
 
-  const handleSave = async () => {
-    if (!formData.counselor.trim()) {
-      toast.error('Please enter counselor name');
-      return;
-    }
-    if (!formData.description.trim()) {
-      toast.error('Please enter session description');
-      return;
-    }
 
-    setIsSaving(true);
+ const handleSave = async () => {
+  if (!formData.counselor.trim()) {
+    toast.error('Please enter counselor name');
+    return;
+  }
+  if (!formData.description.trim()) {
+    toast.error('Please enter session description');
+    return;
+  }
+
+  setIsSaving(true);
+  const loadingToast = toast.loading('Saving session...');
+  
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
     
-    const loadingToast = toast.loading('Saving session...');
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
     
-    try {
-      const submitData = new FormData();
-      
-      submitData.append('counselor', formData.counselor);
-      submitData.append('category', formData.category);
-      submitData.append('description', formData.description);
-      submitData.append('notes', formData.notes);
-      submitData.append('date', formData.date);
-      submitData.append('time', formData.time);
-      submitData.append('type', formData.type);
-      submitData.append('priority', formData.priority);
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
 
-      // Only append image if uploaded
-      if (uploadedFile) {
-        submitData.append('image', uploadedFile);
+    const submitData = new FormData();
+    submitData.append('counselor', formData.counselor);
+    submitData.append('category', formData.category);
+    submitData.append('description', formData.description);
+    submitData.append('notes', formData.notes);
+    submitData.append('date', formData.date);
+    submitData.append('time', formData.time);
+    submitData.append('type', formData.type);
+    submitData.append('priority', formData.priority);
+
+    // Only append image if uploaded
+    if (uploadedFile) {
+      submitData.append('image', uploadedFile);
+    }
+
+    let url = '/api/guidance';
+    let method = 'POST';
+
+    if (event?.id) {
+      url = `/api/guidance/${event.id}`;
+      method = 'PUT';
+    }
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+      body: submitData,
+    });
+
+    const result = await response.json();
+    
+    toast.dismiss(loadingToast);
+    
+    if (result.success) {
+      toast.success(event ? 'Session updated successfully!' : 'Session created successfully!');
+      onSave();
+    } else {
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
       }
-
-      let url = '/api/guidance';
-      let method = 'POST';
-
-      if (event?.id) {
-        url = `/api/guidance/${event.id}`;
-        method = 'PUT';
-      }
-
-      const response = await fetch(url, {
-        method: method,
-        body: submitData,
-      });
-
-      const result = await response.json();
       
-      toast.dismiss(loadingToast);
-      
-      if (result.success) {
-        toast.success(event ? 'Session updated successfully!' : 'Session created successfully!');
-        onSave();
-      } else {
-        throw new Error(result.error || 'An error occurred');
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to manage counseling sessions.');
       }
-    } catch (error) {
-      toast.dismiss(loadingToast);
+      
+      throw new Error(result.error || 'An error occurred');
+    }
+  } catch (error) {
+    toast.dismiss(loadingToast);
+    
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
       toast.error(error.message);
-    } finally {
-      setIsSaving(false);
     }
-  };
+  } finally {
+    setIsSaving(false);
+  }
+};
+
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -1651,69 +1693,111 @@ const ModernMemberModal = ({
     toast.info('Image removed');
   };
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Validate form
-    if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
-      return;
-    }
-    
-    setIsLoading(true);
-    const loadingToast = toast.loading(isEditMode ? 'Updating team member...' : 'Creating team member...');
-    
-    try {
-      const submitData = new FormData();
-      submitData.append('name', formData.name.trim());
-      submitData.append('role', formData.role);
-      submitData.append('title', formData.title.trim());
-      submitData.append('phone', formData.phone.trim());
-      submitData.append('email', formData.email.trim());
-      submitData.append('bio', formData.bio.trim());
-      
-      // Only append image if a new one is uploaded
-      if (formData.image) {
-        submitData.append('image', formData.image);
-      }
-      
-      // If editing and image was removed (imagePreview empty but member had image)
-      if (isEditMode && member?.image && !formData.imagePreview) {
-        submitData.append('removeImage', 'true');
-      }
-      
-      let url = '/api/guidanceteam';
-      let method = 'POST';
-      
-      if (isEditMode && member?.id) {
-        url = `/api/guidanceteam/${member.id}`;
-        method = 'PUT';
-      }
-      
-      const response = await fetch(url, {
-        method,
-        body: submitData,
-      });
-      
-      const result = await response.json();
-      
-      toast.dismiss(loadingToast);
-      
-      if (result.success) {
-        toast.success(isEditMode ? 'Member updated successfully!' : 'Member created successfully!');
-        onSave();
-        onClose();
-      } else {
-        throw new Error(result.error || 'An error occurred');
-      }
-    } catch (error) {
-      toast.dismiss(loadingToast);
-      toast.error(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
   
+  // Validate form
+  if (!validateForm()) {
+    toast.error('Please fix the errors in the form');
+    return;
+  }
+  
+  setIsLoading(true);
+  const loadingToast = toast.loading(isEditMode ? 'Updating team member...' : 'Creating team member...');
+  
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+
+    const submitData = new FormData();
+    submitData.append('name', formData.name.trim());
+    submitData.append('role', formData.role);
+    submitData.append('title', formData.title.trim());
+    submitData.append('phone', formData.phone.trim());
+    submitData.append('email', formData.email.trim());
+    submitData.append('bio', formData.bio.trim());
+    
+    // Only append image if a new one is uploaded
+    if (formData.image) {
+      submitData.append('image', formData.image);
+    }
+    
+    // If editing and image was removed (imagePreview empty but member had image)
+    if (isEditMode && member?.image && !formData.imagePreview) {
+      submitData.append('removeImage', 'true');
+    }
+    
+    let url = '/api/guidanceteam';
+    let method = 'POST';
+    
+    if (isEditMode && member?.id) {
+      url = `/api/guidanceteam/${member.id}`;
+      method = 'PUT';
+    }
+    
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+      body: submitData,
+    });
+    
+    const result = await response.json();
+    
+    toast.dismiss(loadingToast);
+    
+    if (result.success) {
+      toast.success(isEditMode ? 'Member updated successfully!' : 'Member created successfully!');
+      onSave();
+      onClose();
+    } else {
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to manage team members.');
+      }
+      
+      throw new Error(result.error || 'An error occurred');
+    }
+  } catch (error) {
+    toast.dismiss(loadingToast);
+    
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message);
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   // Handle modal close with confirmation if form has changes
   const handleClose = () => {
     if (isFormTouched && !isLoading) {
@@ -2222,51 +2306,87 @@ const GuidanceTeamModal = ({
     }
   }, [team]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
 
-    try {
-      const submitData = {
-        patron: formData.patron,
-        matron: formData.matron,
-        teacher: formData.teacher
-      };
-
-      let url = '/api/guidanceteam';
-      let method = 'POST';
-
-      if (mode === 'edit' && team?.id) {
-        url = `/api/guidanceteam/${team.id}`;
-        method = 'PUT';
-      }
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submitData),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast.success(mode === 'edit' ? 'Team updated successfully!' : 'Team created successfully!');
-        onSave();
-        onClose();
-      } else {
-        throw new Error(result.error || 'An error occurred');
-      }
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setIsLoading(false);
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
     }
-  };
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
 
+    const submitData = {
+      patron: formData.patron,
+      matron: formData.matron,
+      teacher: formData.teacher
+    };
 
+    let url = '/api/guidanceteam';
+    let method = 'POST';
 
+    if (mode === 'edit' && team?.id) {
+      url = `/api/guidanceteam/${team.id}`;
+      method = 'PUT';
+    }
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+      body: JSON.stringify(submitData),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      toast.success(mode === 'edit' ? 'Team updated successfully!' : 'Team created successfully!');
+      onSave();
+      onClose();
+    } else {
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to manage guidance teams.');
+      }
+      
+      throw new Error(result.error || 'An error occurred');
+    }
+  } catch (error) {
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message);
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
 
 
   const updateMemberField = (memberType, field, value, isAssistant = false) => {
@@ -2975,28 +3095,70 @@ const handleViewMember = (member) => {
     });
   };
 
-  const confirmDeleteMember = async () => {
-    setDeleteMemberModal(prev => ({ ...prev, loading: true }));
+const confirmDeleteMember = async () => {
+  setDeleteMemberModal(prev => ({ ...prev, loading: true }));
 
-    try {
-      const response = await fetch(`/api/guidanceteam/${deleteMemberModal.memberId}`, {
-        method: 'DELETE',
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        await fetchTeamMembers();
-        toast.success('Team member deleted successfully!');
-        setDeleteMemberModal({ open: false, memberId: null, memberName: '', loading: false });
-      } else {
-        throw new Error(result.error || 'Error deleting member');
-      }
-    } catch (error) {
-      toast.error(error.message || 'Error deleting member');
-      setDeleteMemberModal(prev => ({ ...prev, loading: false }));
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
     }
-  };
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+
+    const response = await fetch(`/api/guidanceteam/${deleteMemberModal.memberId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      }
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      await fetchTeamMembers();
+      toast.success('Team member deleted successfully!');
+      setDeleteMemberModal({ open: false, memberId: null, memberName: '', loading: false });
+    } else {
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to delete team members.');
+      }
+      
+      throw new Error(result.error || 'Error deleting member');
+    }
+  } catch (error) {
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message || 'Error deleting member');
+    }
+    setDeleteMemberModal(prev => ({ ...prev, loading: false }));
+  }
+};
 
   useEffect(() => {
     fetchEvents();
@@ -3029,27 +3191,70 @@ const handleViewMember = (member) => {
     });
   };
 
-  const confirmDelete = async () => {
-    setDeleteModal(prev => ({ ...prev, loading: true }));
+const confirmDelete = async () => {
+  setDeleteModal(prev => ({ ...prev, loading: true }));
 
-    try {
-      const response = await fetch(`/api/guidance/${deleteModal.eventId}`, {
-        method: 'DELETE' 
-      });
-      const result = await response.json();
-      
-      if (result.success) {
-        await fetchEvents();
-        toast.success('Counseling session deleted successfully!');
-        setDeleteModal({ open: false, eventId: null, eventName: '', loading: false });
-      } else {
-        throw new Error(result.error || 'Error deleting session');
-      }
-    } catch (error) {
-      toast.error(error.message || 'Error deleting session');
-      setDeleteModal(prev => ({ ...prev, loading: false }));
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
     }
-  };
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+
+    const response = await fetch(`/api/guidance/${deleteModal.eventId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      }
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      await fetchEvents();
+      toast.success('Counseling session deleted successfully!');
+      setDeleteModal({ open: false, eventId: null, eventName: '', loading: false });
+    } else {
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to delete counseling sessions.');
+      }
+      
+      throw new Error(result.error || 'Error deleting session');
+    }
+  } catch (error) {
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message || 'Error deleting session');
+    }
+    setDeleteModal(prev => ({ ...prev, loading: false }));
+  }
+};
+
 
   // Team handlers
   const handleCreateTeam = () => {
@@ -3084,27 +3289,71 @@ const handleViewMember = (member) => {
     });
   };
 
-  const confirmDeleteTeam = async () => {
-    setTeamDeleteModal(prev => ({ ...prev, loading: true }));
+const confirmDeleteTeam = async () => {
+  setTeamDeleteModal(prev => ({ ...prev, loading: true }));
 
-    try {
-      const response = await fetch(`/api/guidanceteam/${teamDeleteModal.teamId}`, {
-        method: 'DELETE',
-      });
-      const result = await response.json();
-      
-      if (result.success) {
-        await fetchTeams();
-        toast.success('Guidance team deleted successfully!');
-        setTeamDeleteModal({ open: false, teamId: null, loading: false });
-      } else {
-        throw new Error(result.error || 'Error deleting team');
-      }
-    } catch (error) {
-      toast.error(error.message || 'Error deleting team');
-      setTeamDeleteModal(prev => ({ ...prev, loading: false }));
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
     }
-  };
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+
+    const response = await fetch(`/api/guidanceteam/${teamDeleteModal.teamId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      await fetchTeams();
+      toast.success('Guidance team deleted successfully!');
+      setTeamDeleteModal({ open: false, teamId: null, loading: false });
+    } else {
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to delete guidance teams.');
+      }
+      
+      throw new Error(result.error || 'Error deleting team');
+    }
+  } catch (error) {
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message || 'Error deleting team');
+    }
+    setTeamDeleteModal(prev => ({ ...prev, loading: false }));
+  }
+};
+
 
   // Filter events
   const filteredEvents = useMemo(() => {
