@@ -74,32 +74,32 @@ const GlassCard = ({ children, className = '', hover = true }) => (
 // Modern Hero Banner Component
 const ModernHeroBanner = ({ stats, onRefresh }) => {
   return (
-    <div className="relative bg-[#0F172A] rounded-2xl md:rounded-[2.5rem] p-6 md:p-10 text-white overflow-hidden shadow-2xl border border-white/5 mb-8">
+    <div className="relative bg-[#0F172A] rounded-2xl md:rounded-[2.5rem] p-4 sm:p-6 md:p-10 text-white overflow-hidden shadow-2xl border border-white/5 mb-8">
       {/* Abstract Mesh Gradient Background */}
       <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-blue-600/30 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-20%] left-[-10%] w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
       
       <div className="relative z-10">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div>
             {/* Institutional Branding */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <div className="h-6 sm:h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
               <div>
-                <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
-                  Mary Immculate Girls High School
+                <h2 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.3em] text-blue-400">
+                 Mary Immaculate Girls High School
                 </h2>
-                <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
-                  "Prayer, Discipline and Hardwork "
+                <p className="text-[8px] sm:text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
+                  "Prayer, Dipsline and Hardwork "               
                 </p>
               </div>
             </div>
             
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-2">
-              <div className="p-2 sm:p-3 bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/10 w-fit">
-                <IoSparkles className="text-2xl sm:text-3xl text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.6)]" />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-1 sm:mb-2">
+              <div className="p-1.5 sm:p-2 md:p-3 bg-white/10 backdrop-blur-md rounded-lg sm:rounded-xl md:rounded-2xl border border-white/10 w-fit">
+                <IoSparkles className="text-xl sm:text-2xl md:text-3xl text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.6)]" />
               </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+              <h1 className="text-lg sm:text-xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
                 School <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-white to-blue-200">Gallery</span>
               </h1>
             </div>
@@ -108,19 +108,19 @@ const ModernHeroBanner = ({ stats, onRefresh }) => {
           {/* Modern Glass Refresh Button */}
           <button
             onClick={onRefresh}
-            className="flex items-center justify-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm tracking-wide transition-all hover:bg-white/20 w-full sm:w-fit"
+            className="flex items-center justify-center gap-2 sm:gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 rounded-lg sm:rounded-xl md:rounded-2xl font-bold text-xs sm:text-sm tracking-wide transition-all hover:bg-white/20 w-full sm:w-fit"
           >
-            <FiRefreshCw className="text-lg" />
+            <FiRefreshCw className="text-base sm:text-lg" />
             <span>REFRESH GALLERY</span>
           </button>
         </div>
         
         {/* Summary Text */}
-        <div className="mb-8">
-          <p className="text-blue-100/80 text-base sm:text-md font-medium leading-relaxed">
+        <div className="mb-6 sm:mb-8">
+          <p className="text-blue-100/80 text-sm sm:text-base md:text-md font-medium leading-relaxed">
             Explore <span className="text-white font-bold underline decoration-blue-500/50 decoration-2 underline-offset-4">{stats.totalFiles} media files</span> 
-            across <span className="text-white font-bold underline decoration-purple-500/50 decoration-2 underline-offset-4 mx-2">{stats.totalCategories} categories</span> 
-            capturing our school's journey. This month: <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-lg bg-yellow-400/20 text-yellow-300 border border-yellow-400/20 mx-1">{stats.thisMonth} new galleries</span>.
+            across <span className="text-white font-bold underline decoration-purple-500/50 decoration-2 underline-offset-4 mx-1 sm:mx-2">{stats.totalCategories} categories</span> 
+            capturing our school's journey. This month: <span className="inline-flex items-center px-1.5 py-0.5 sm:px-2 sm:py-0.5 md:px-2.5 md:py-0.5 rounded-md sm:rounded-lg bg-yellow-400/20 text-yellow-300 border border-yellow-400/20 mx-1">{stats.thisMonth} new galleries</span>.
           </p>
         </div>
       </div>
@@ -327,12 +327,19 @@ const ModernGalleryCard = ({ gallery, onView, onFavorite, viewMode = 'grid', onS
                 Published
               </div>
             </div>
-
-            {/* 5. Final Action Button */}
-            <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform hover:shadow-lg">
-              View Gallery
-              <FiArrowRight size={18} />
-            </button>
+{/* 5. Final Action Button */}
+<button className="
+   sm:w-full 
+  py-2 sm:py-4 px-2 
+  bg-slate-900 text-white 
+  rounded-xl sm:rounded-2xl 
+  font-normal sm:font-bold 
+  text-xs sm:text-sm 
+  flex items-center justify-center gap-2 
+  active:scale-[0.98] transition-transform hover:shadow-lg
+">
+  View Gallery
+</button>
           </div>
         </div>
       </div>
@@ -1150,7 +1157,7 @@ const ModernGalleryDetailModal = ({ gallery, onClose, onDownload, onShare }) => 
 };
 
 export default function ModernGallery() {
-  const [activeCategory, setActiveCategory] = useState('GENERAL');
+  const [activeCategory, setActiveCategory] = useState('all'); // This is already correct
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGallery, setSelectedGallery] = useState(null);
   const [favorites, setFavorites] = useState(new Set());
@@ -1342,70 +1349,57 @@ export default function ModernGallery() {
     }, 1000);
   };
 
-  if (loading) {
-    return (
-      <Box 
-        className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6"
+if (loading) {
+  return (
+    <Box 
+      className="min-h-[70vh] flex items-center justify-center p-4 bg-transparent"
+    >
+      <Stack 
+        spacing={2} 
+        alignItems="center"
+        className="w-full transition-all duration-500"
       >
-        <Stack 
-          spacing={3} 
-          alignItems="center"
-          className="bg-white p-10 rounded-[32px] shadow-sm border border-gray-100"
-        >
-          {/* Modern Layered Loader */}
-          <Box className="relative flex items-center justify-center">
-            {/* Background Ring */}
-            <CircularProgress
-              variant="determinate"
-              value={100}
-              size={64}
-              thickness={4}
-              sx={{ color: '#f1f5f9' }}
-            />
-            {/* Actual Animated Loader */}
-            <CircularProgress
-              variant="indeterminate"
-              disableShrink
-              size={64}
-              thickness={4}
-              sx={{
-                color: '#2563eb',
-                animationDuration: '800ms',
-                position: 'absolute',
-                left: 0,
-                [`& .MuiCircularProgress-circle`]: {
-                  strokeLinecap: 'round',
-                },
-              }}
-            />
-            {/* Center Icon */}
-            <Box className="absolute">
-              <IoSparkles className="text-blue-500 text-xl animate-pulse" />
-            </Box>
+        {/* Modern Layered Loader - Responsive sizing */}
+        <Box className="relative flex items-center justify-center scale-90 sm:scale-110">
+          <CircularProgress
+            variant="determinate"
+            value={100}
+            size={48} 
+            thickness={4.5}
+            sx={{ color: '#f1f5f9' }} 
+          />
+          <CircularProgress
+            variant="indeterminate"
+            disableShrink
+            size={48}
+            thickness={4.5}
+            sx={{
+              color: '#0f172a', // Matches your dark slate theme
+              animationDuration: '1000ms',
+              position: 'absolute',
+              [`& .MuiCircularProgress-circle`]: {
+                strokeLinecap: 'round',
+              },
+            }}
+          />
+          <Box className="absolute">
+            <IoSparkles className="text-blue-600 text-sm animate-pulse" />
           </Box>
+        </Box>
 
-          {/* Clean Typography */}
-          <Stack spacing={0.5} alignItems="center">
-            <Typography 
-              variant="body1" 
-              fontWeight="600" 
-              color="text.primary"
-              sx={{ letterSpacing: '-0.01em' }}
-            >
-              Loading School Gallery...
-            </Typography>
-            <Typography 
-              variant="caption" 
-              color="text.secondary"
-              className="flex items-center gap-1"
-            >
-              Fetching memories and moments
-            </Typography>
-          </Stack>
-        </Stack>
-      </Box>
-    );
-  }
+        {/* Minimalist Typography */}
+        <div className="text-center px-4">
+          <p className="text-slate-900 font-medium text-sm sm:text-base tracking-tight italic">
+            Loading school galleries...
+          </p>
+          <p className="text-slate-400 text-[10px] sm:text-xs uppercase tracking-widest mt-1 font-bold">
+            Mary Immaculate Girls High School
+          </p>
+        </div>
+      </Stack>
+    </Box>
+  );
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 p-4 md:p-6">
@@ -1434,100 +1428,106 @@ export default function ModernGallery() {
           {/* Left Column: Galleries */}
           <div className="flex-1 min-w-0 space-y-8">
             
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-purple-900 rounded-2xl shadow-lg">
-                  <FiImage className="text-white text-2xl" />
-                </div>
-                <div>
-                  <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">School Galleries</h2>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                    {filteredGalleries.length} Galleries Available
-                  </p>
-                </div>
-              </div>
-            </div>
+       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1">
+  <div className="flex items-center gap-3">
+    <div className="p-2 sm:p-3 bg-purple-900 rounded-xl sm:rounded-2xl shadow-lg">
+      <FiImage className="text-white text-lg sm:text-xl md:text-2xl" />
+    </div>
+    <div>
+      <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">School Galleries</h2>
+      <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider sm:tracking-widest">
+        {filteredGalleries.length} Galleries
+      </p>
+    </div>
+  </div>
+</div>
 
-            {/* Modern Search & Filter Section */}
-            <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 p-3 rounded-[28px] shadow-sm">
-              <div className="flex flex-col md:flex-row items-center gap-3">
-                {/* Search */}
-                <div className="relative w-full flex-1 group">
-                  <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl shadow-sm transition-all focus-within:border-slate-900 focus-within:ring-4 focus-within:ring-slate-900/5">
-                    <div className="pl-5 pr-3 flex items-center justify-center pointer-events-none">
-                      <FiSearch className="text-slate-400 group-focus-within:text-slate-900 transition-colors" size={18} />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search galleries, categories, or years..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full py-4 bg-transparent text-slate-900 placeholder:text-slate-400 font-semibold text-sm focus:outline-none"
-                    />
-                    {searchTerm && (
-                      <button
-                        onClick={() => setSearchTerm('')}
-                        className="pr-4 text-slate-400 hover:text-slate-600"
-                      >
-                        <FiX size={18} />
-                      </button>
-                    )}
-                  </div>
-                </div>
+{/* Modern Search & Filter Section - Optimized for Mobile */}
+<div className="bg-white/80 backdrop-blur-md border border-slate-200/60 p-3 sm:p-4 rounded-[20px] sm:rounded-[24px] md:rounded-[28px] shadow-sm">
+  <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+    {/* Search - Full width on mobile */}
+    <div className="relative w-full group">
+      <div className="relative flex items-center bg-white border border-slate-200 rounded-xl sm:rounded-2xl shadow-sm transition-all focus-within:border-slate-900 focus-within:ring-2 focus-within:ring-slate-900/5">
+        <div className="pl-4 pr-2 sm:pl-5 sm:pr-3 flex items-center justify-center pointer-events-none">
+          <FiSearch className="text-slate-400 group-focus-within:text-slate-900 transition-colors" size={16} />
+        </div>
+        <input
+          type="text"
+          placeholder="Search galleries..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full py-3 sm:py-4 bg-transparent text-slate-900 placeholder:text-slate-400 font-medium text-sm focus:outline-none"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm('')}
+            className="pr-3 sm:pr-4 text-slate-400 hover:text-slate-600"
+          >
+            <FiX size={16} />
+          </button>
+        )}
+      </div>
+    </div>
 
-                {/* Category Selector */}
-                <div className="relative w-full md:w-auto">
-                  <select 
-                    value={activeCategory}
-                    onChange={(e) => setActiveCategory(e.target.value)}
-                    className="w-full md:w-48 appearance-none px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-semibold text-slate-600 text-sm cursor-pointer focus:ring-2 focus:ring-purple-500/20 transition-all"
-                  >
-                    {categoryOptions.map((category) => {
-                      const Icon = category.icon;
-                      return (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      );
-                    })}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                  </div>
-                </div>
+    {/* Filter Row - Compact on mobile */}
+    <div className="grid grid-cols-2 gap-3 w-full md:flex md:items-center md:gap-2">
+      {/* Category Selector */}
+      <div className="relative w-full">
+        <select 
+          value={activeCategory}
+          onChange={(e) => setActiveCategory(e.target.value)}
+          className="w-full appearance-none px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-50 border-none rounded-lg sm:rounded-xl font-medium text-slate-600 text-xs sm:text-sm cursor-pointer focus:ring-2 focus:ring-purple-500/20 transition-all"
+        >
+          {categoryOptions.map((category) => {
+            const Icon = category.icon;
+            return (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            );
+          })}
+        </select>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
 
-                {/* Year Selector */}
-                <div className="relative w-full md:w-auto">
-                  <select 
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(e.target.value)}
-                    className="w-full md:w-36 appearance-none px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-semibold text-slate-600 text-sm cursor-pointer focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  >
-                    <option value="all">All Years</option>
-                    {years.map(year => (
-                      <option key={year} value={year}>{year}</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                  </div>
-                </div>
+      {/* Year Selector */}
+      <div className="relative w-full">
+        <select 
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(e.target.value)}
+          className="w-full appearance-none px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-50 border-none rounded-lg sm:rounded-xl font-medium text-slate-600 text-xs sm:text-sm cursor-pointer focus:ring-2 focus:ring-blue-500/20 transition-all"
+        >
+          <option value="all">All Years</option>
+          {years.map(year => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
 
-                {/* Reset Button */}
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setActiveCategory('all');
-                    setSelectedYear('all');
-                  }}
-                  className="px-6 py-3.5 bg-purple-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-purple-200 hover:bg-purple-700 active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                  <FiFilter size={16} />
-                  Reset
-                </button>
-              </div>
-            </div>
+      {/* Reset Button */}
+      <button
+        onClick={() => {
+          setSearchTerm('');
+          setActiveCategory('all');
+          setSelectedYear('all');
+        }}
+        className="col-span-2 md:col-span-1 px-4 sm:px-5 py-2.5 sm:py-3 bg-purple-600 text-white rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm shadow-md shadow-purple-200 hover:bg-purple-700 active:scale-95 transition-all flex items-center justify-center gap-1.5 sm:gap-2"
+      >
+        <FiFilter size={14} className="sm:size-[16px]" />
+        Reset
+      </button>
+    </div>
+  </div>
+</div>
 
             {/* Modern Category Pills */}
             <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
