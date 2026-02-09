@@ -3,6 +3,150 @@ import { parse } from 'papaparse';
 import * as XLSX from 'xlsx';
 import { prisma } from '../../../libs/prisma';
 
+// ==================== AUTHENTICATION UTILITIES ====================
+
+// Device Token Manager
+class DeviceTokenManager {
+  static validateTokensFromHeaders(headers, options = {}) {
+    try {
+      // Extract tokens from headers
+      const adminToken = headers.get('x-admin-token') || headers.get('authorization')?.replace('Bearer ', '');
+      const deviceToken = headers.get('x-device-token');
+
+      if (!adminToken) {
+        return { valid: false, reason: 'no_admin_token', message: 'Admin token is required' };
+      }
+
+      if (!deviceToken) {
+        return { valid: false, reason: 'no_device_token', message: 'Device token is required' };
+      }
+
+      // Validate admin token format (basic check)
+      const adminParts = adminToken.split('.');
+      if (adminParts.length !== 3) {
+        return { valid: false, reason: 'invalid_admin_token_format', message: 'Invalid admin token format' };
+      }
+
+      // Validate device token
+      const deviceValid = this.validateDeviceToken(deviceToken);
+      if (!deviceValid.valid) {
+        return { 
+          valid: false, 
+          reason: `device_${deviceValid.reason}`,
+          message: `Device token ${deviceValid.reason}: ${deviceValid.error || ''}`
+        };
+      }
+
+      // Parse admin token payload
+      let adminPayload;
+      try {
+        adminPayload = JSON.parse(atob(adminParts[1]));
+        
+        // Check expiration
+        const currentTime = Date.now() / 1000;
+        if (adminPayload.exp < currentTime) {
+          return { valid: false, reason: 'admin_token_expired', message: 'Admin token has expired' };
+        }
+        
+        // Check user role - only admins/staff can manage results
+        const userRole = adminPayload.role || adminPayload.userRole;
+        const validRoles = ['ADMIN', 'SUPER_ADMIN', 'administrator', 'PRINCIPAL', 'STAFF', 'HR_MANAGER', 'TEACHER'];
+        
+        if (!userRole || !validRoles.includes(userRole.toUpperCase())) {
+          return { 
+            valid: false, 
+            reason: 'invalid_role', 
+            message: 'User does not have permission to manage student results' 
+          };
+        }
+        
+      } catch (error) {
+        return { valid: false, reason: 'invalid_admin_token', message: 'Invalid admin token' };
+      }
+
+      console.log('✅ Results management authentication successful for user:', adminPayload.name || 'Unknown');
+      
+      return { 
+        valid: true, 
+        user: {
+          id: adminPayload.userId || adminPayload.id,
+          name: adminPayload.name,
+          email: adminPayload.email,
+          role: adminPayload.role || adminPayload.userRole
+        },
+        deviceInfo: deviceValid.payload
+      };
+
+    } catch (error) {
+      console.error('❌ Token validation error:', error);
+      return { 
+        valid: false, 
+        reason: 'validation_error', 
+        message: 'Authentication validation failed',
+        error: error.message 
+      };
+    }
+  }
+
+  // Validate device token
+  static validateDeviceToken(token) {
+    try {
+      // Handle base64 decoding safely
+      const payloadStr = Buffer.from(token, 'base64').toString('utf-8');
+      const payload = JSON.parse(payloadStr);
+      
+      // Check expiration
+      if (payload.exp && payload.exp * 1000 <= Date.now()) {
+        return { valid: false, reason: 'expired', payload, error: 'Device token has expired' };
+      }
+      
+      // Check age (30 days max)
+      const createdAt = new Date(payload.createdAt || payload.iat * 1000);
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      
+      if (createdAt < thirtyDaysAgo) {
+        return { valid: false, reason: 'age_expired', payload, error: 'Device token is too old' };
+      }
+      
+      return { valid: true, payload };
+    } catch (error) {
+      return { valid: false, reason: 'invalid_format', error: error.message };
+    }
+  }
+}
+
+
+
+
+// Authentication middleware for protected requests
+const authenticateRequest = (req) => {
+  const headers = req.headers;
+  
+  // Validate tokens
+  const validationResult = DeviceTokenManager.validateTokensFromHeaders(headers);
+  
+  if (!validationResult.valid) {
+    return {
+      authenticated: false,
+      response: NextResponse.json(
+        { 
+          success: false, 
+          error: "Access Denied",
+          message: "Authentication required to manage student results.",
+          details: validationResult.message
+        },
+        { status: 401 }
+      )
+    };
+  }
+
+  return {
+    authenticated: true,
+    user: validationResult.user,
+    deviceInfo: validationResult.deviceInfo
+  };
+};
+
 // ========== HELPER FUNCTIONS ==========
 
 const parseScore = (value) => {
@@ -619,7 +763,9 @@ const checkDuplicateResults = async (results, targetForm = null, term = null, ac
       admissionNumber: true,
       form: true,
       term: true,
-      academicYear: true
+      academicYear: true,
+      id: true,
+      subjects: true
     }
   });
   
@@ -771,7 +917,7 @@ const validateResult = (result, index) => {
 };
 
 // ========== PROCESSING FUNCTIONS ==========
-const processNewResultsUpload = async (results, uploadBatchId, selectedForms, duplicateAction = 'skip') => {
+const processNewResultsUpload = async (results, uploadBatchId, selectedForms, duplicateAction = 'skip', uploaderInfo) => {
   const stats = {
     totalRows: results.length,
     validRows: 0,
@@ -904,7 +1050,8 @@ const processNewResultsUpload = async (results, uploadBatchId, selectedForms, du
             data: {
               subjects: result.subjects,
               updatedAt: new Date(),
-              uploadBatchId: uploadBatchId
+              uploadBatchId: uploadBatchId,
+              
             }
           });
           stats.updatedRecords++;
@@ -923,7 +1070,7 @@ const processNewResultsUpload = async (results, uploadBatchId, selectedForms, du
         term: normalizeTerm(result.term),
         academicYear: normalizeAcademicYear(result.academicYear),
         subjects: result.subjects,
-        uploadBatchId: uploadBatchId
+        uploadBatchId: uploadBatchId,
       });
       stats.newRecords++;
     }
@@ -963,7 +1110,7 @@ const processNewResultsUpload = async (results, uploadBatchId, selectedForms, du
   return stats;
 };
 
-const processUpdateResultsUpload = async (results, uploadBatchId, targetForm, term, academicYear) => {
+const processUpdateResultsUpload = async (results, uploadBatchId, targetForm, term, academicYear, uploaderInfo) => {
   const stats = {
     totalRows: results.length,
     validRows: 0,
@@ -1087,7 +1234,8 @@ const processUpdateResultsUpload = async (results, uploadBatchId, targetForm, te
           data: {
             subjects: result.subjects,
             updatedAt: new Date(),
-            uploadBatchId: uploadBatchId
+            uploadBatchId: uploadBatchId,
+            
           }
         });
         stats.updatedRecords++;
@@ -1105,7 +1253,7 @@ const processUpdateResultsUpload = async (results, uploadBatchId, targetForm, te
         term: normalizeTerm(term),
         academicYear: normalizeAcademicYear(academicYear),
         subjects: result.subjects,
-        uploadBatchId: uploadBatchId
+        uploadBatchId: uploadBatchId,
       });
       stats.newRecords++;
     }
@@ -1488,251 +1636,7 @@ const parseResultsExcel = async (file) => {
 
 // ========== API ENDPOINTS ==========
 
-// POST - Bulk upload with new strategy
-export async function POST(request) {
-  try {
-    const formData = await request.formData();
-    const file = formData.get('file');
-    const uploadType = formData.get('uploadType'); // 'new' or 'update'
-    const formsInput = formData.get('forms'); // JSON string for forms
-    const targetForm = formData.get('targetForm'); // Single form for updates
-    const term = formData.get('term') || '';
-    const academicYear = formData.get('academicYear') || '';
-    const checkDuplicates = formData.get('checkDuplicates') === 'true';
-    const duplicateAction = formData.get('duplicateAction') || 'skip'; // 'skip' or 'replace'
-    
-    if (!file) {
-      return NextResponse.json(
-        { success: false, error: 'No file provided' },
-        { status: 400 }
-      );
-    }
-    
-    if (!uploadType) {
-      return NextResponse.json(
-        { success: false, error: 'Upload type is required (new or update)' },
-        { status: 400 }
-      );
-    }
-    
-    // Validate form selection based on upload type
-    let selectedForms = [];
-    if (uploadType === 'new') {
-      if (!formsInput) {
-        return NextResponse.json(
-          { success: false, error: 'Please select at least one form for new upload' },
-          { status: 400 }
-        );
-      }
-      try {
-        const forms = JSON.parse(formsInput);
-        selectedForms = validateFormSelection(forms);
-      } catch (error) {
-        return NextResponse.json(
-          { success: false, error: 'Invalid form selection' },
-          { status: 400 }
-        );
-      }
-    } else if (uploadType === 'update') {
-      if (!targetForm) {
-        return NextResponse.json(
-          { success: false, error: 'Target form is required for update upload' },
-          { status: 400 }
-        );
-      }
-      if (!term || !academicYear) {
-        return NextResponse.json(
-          { success: false, error: 'Term and academic year are required for update upload' },
-          { status: 400 }
-        );
-      }
-      selectedForms = validateFormSelection([targetForm]);
-    } else {
-      return NextResponse.json(
-        { success: false, error: 'Invalid upload type. Must be "new" or "update"' },
-        { status: 400 }
-      );
-    }
-    
-    const fileName = file.name.toLowerCase();
-    const fileExtension = fileName.split('.').pop();
-    
-    const validExtensions = ['csv', 'xlsx', 'xls'];
-    if (!validExtensions.includes(fileExtension)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid file type. Please upload CSV or Excel (xlsx/xls) files.' 
-        },
-        { status: 400 }
-      );
-    }
-    
-    // Create batch record
-    const batchId = `RESULT_BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    const uploadBatch = await prisma.resultUpload.create({
-      data: {
-        id: batchId,
-        fileName: file.name,
-        fileType: fileExtension,
-        uploadedBy: 'System Upload',
-        status: 'processing',
-        term: term || null,
-        academicYear: academicYear || null,
-        uploadMode: uploadType,
-        totalRows: 0,
-        validRows: 0,
-        skippedRows: 0,
-        errorRows: 0
-      }
-    });
-    
-    try {
-      // Parse file
-      let rawData = [];
-      
-      if (fileExtension === 'csv') {
-        rawData = await parseResultsCSV(file);
-      } else {
-        rawData = await parseResultsExcel(file);
-      }
-      
-      if (rawData.length === 0) {
-        throw new Error(`No valid result data found.`);
-      }
-      
-      // If just checking for duplicates
-      if (checkDuplicates) {
-        let duplicates = [];
-        
-        if (uploadType === 'new') {
-          // Check for duplicates across all forms
-          duplicates = await checkDuplicateResults(rawData);
-        } else if (uploadType === 'update') {
-          // Check for duplicates in the target form/term/year
-          duplicates = await checkDuplicateResults(rawData, targetForm, term, academicYear);
-        }
-        
-        return NextResponse.json({
-          success: true,
-          hasDuplicates: duplicates.length > 0,
-          duplicates: duplicates,
-          totalRows: rawData.length,
-          message: duplicates.length > 0 
-            ? `Found ${duplicates.length} duplicate result combinations` 
-            : 'No duplicates found'
-        });
-      }
-      
-      let processingStats;
-      
-      // Use transaction for consistency
-      await prisma.$transaction(async (tx) => {
-        if (uploadType === 'new') {
-          // Process new upload
-          processingStats = await processNewResultsUpload(rawData, batchId, selectedForms, duplicateAction);
-          
-          // Update batch with new upload stats
-          await tx.resultUpload.update({
-            where: { id: batchId },
-            data: {
-              status: 'completed',
-              processedDate: new Date(),
-              totalRows: processingStats.totalRows,
-              validRows: processingStats.validRows,
-              skippedRows: processingStats.skippedRows,
-              errorRows: processingStats.errorRows,
-              newRecords: processingStats.newRecords,
-              updatedRecords: processingStats.updatedRecords,
-              duplicateRecords: processingStats.duplicateRecords,
-              errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined,
-              warningLog: processingStats.warnings.length > 0 ? processingStats.warnings.slice(0, 50) : undefined
-            }
-          });
-          
-        } else if (uploadType === 'update') {
-          // Process update upload
-          processingStats = await processUpdateResultsUpload(rawData, batchId, targetForm, term, academicYear);
-          
-          // Update batch with update stats
-          await tx.resultUpload.update({
-            where: { id: batchId },
-            data: {
-              status: 'completed',
-              processedDate: new Date(),
-              totalRows: processingStats.totalRows,
-              validRows: processingStats.validRows,
-              skippedRows: processingStats.skippedRows,
-              errorRows: processingStats.errorRows,
-              newRecords: processingStats.newRecords,
-              updatedRecords: processingStats.updatedRecords,
-              duplicateRecords: processingStats.unchangedRecords,
-              errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined,
-              warningLog: processingStats.warnings.length > 0 ? processingStats.warnings.slice(0, 50) : undefined
-            }
-          });
-        }
-        
-        // Update statistics
-        const finalStats = await calculateStatistics({});
-        await updateCachedStats(finalStats.stats);
-      });
-      
-      // Recalculate to ensure consistency
-      const finalStats = await calculateStatistics({});
-      
-      return NextResponse.json({
-        success: true,
-        message: uploadType === 'new' 
-          ? `Successfully processed ${processingStats.validRows} result records (${processingStats.newRecords} new, ${processingStats.updatedRecords} updated, ${processingStats.duplicateRecords} duplicates)` 
-          : `Successfully updated form ${targetForm} - ${term} ${academicYear}: ${processingStats.updatedRecords} updated, ${processingStats.newRecords} created, ${processingStats.unchangedRecords} unchanged`,
-        batch: {
-          id: batchId,
-          fileName: uploadBatch.fileName,
-          status: 'completed',
-          uploadType,
-          selectedForms,
-          targetForm: uploadType === 'update' ? targetForm : null
-        },
-        stats: finalStats.stats,
-        validation: finalStats.validation,
-        processingStats: processingStats,
-        errors: processingStats.errors.slice(0, 20),
-        warnings: processingStats.warnings.slice(0, 20)
-      });
-      
-    } catch (error) {
-      console.error('Processing error:', error);
-      
-      // Update batch as failed
-      await prisma.resultUpload.update({
-        where: { id: batchId },
-        data: {
-          status: 'failed',
-          processedDate: new Date(),
-          errorRows: 1,
-          errorLog: [error.message]
-        }
-      });
-      
-      throw error;
-    }
-    
-  } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error.message || 'Upload failed',
-        suggestion: 'Please ensure your file has columns for admission number (3000-3500), term, academic year, and subject scores. Comments are automatically generated.'
-      },
-      { status: 500 }
-    );
-  }
-}
-
-// GET - Main endpoint with consistent statistics
+// GET - Main endpoint with consistent statistics (PUBLIC - no authentication required)
 export async function GET(request) {
   try {
     const url = new URL(request.url);
@@ -1753,94 +1657,94 @@ export async function GET(request) {
     const limit = parseInt(url.searchParams.get('limit') || '20');
 
     if (action === 'uploads') {
-      const uploads = await prisma.resultUpload.findMany({
-        orderBy: { uploadDate: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
-        select: {
-          id: true,
-          fileName: true,
-          fileType: true,
-          status: true,
-          uploadedBy: true,
-          uploadDate: true,
-          processedDate: true,
-          term: true,
-          academicYear: true,
-          totalRows: true,
-          uploadMode: true,
-          validRows: true,
-          skippedRows: true,
-          errorRows: true,
-          newRecords: true,
-          updatedRecords: true,
-          duplicateRecords: true,
-          errorLog: true,
-          warningLog: true
-        }
-      });
-
-      const total = await prisma.resultUpload.count();
-
-      return NextResponse.json({
-        success: true,
-        uploads,
-        pagination: { 
-          page, 
-          limit, 
-          total, 
-          pages: Math.ceil(total / limit) 
-        }
-      });
+  const uploads = await prisma.resultUpload.findMany({
+    orderBy: { uploadDate: 'desc' },
+    skip: (page - 1) * limit,
+    take: limit,
+    select: {
+      id: true,
+      fileName: true,
+      fileType: true,
+      status: true,
+      uploadedBy: true,
+      uploadDate: true,
+      processedDate: true,
+      term: true,
+      academicYear: true,
+      totalRows: true,
+      uploadMode: true,
+      validRows: true,
+      skippedRows: true,
+      errorRows: true,
+      newRecords: true,
+      updatedRecords: true,
+      duplicateRecords: true,
+      errorLog: true,
+      warningLog: true
     }
+  });
 
-if (action === 'stats') {
-  try {
-    // Build filters for stats
-    const where = {};
-    if (form) where.form = form;
-    if (term) where.term = term;
-    if (academicYear) where.academicYear = academicYear;
-    if (search) {
-      where.OR = [
-        { admissionNumber: { contains: search, mode: 'insensitive' } }
-      ];
+  const total = await prisma.resultUpload.count();
+
+  return NextResponse.json({
+    success: true,
+    uploads,
+    pagination: { 
+      page, 
+      limit, 
+      total, 
+      pages: Math.ceil(total / limit) 
     }
-    
-    console.log('Stats API called with filters:', { form, term, academicYear, search });
-    
-    // Calculate fresh statistics with filters
-    const statsResult = await calculateStatistics(where);
-    
-    // Update cache for consistency (only if no filters)
-    if (Object.keys(where).length === 0) {
-      try {
-        await updateCachedStats(statsResult.stats);
-      } catch (cacheError) {
-        console.warn('Failed to update cache:', cacheError);
-        // Don't fail the request if cache update fails
-      }
-    }
-    
-    return NextResponse.json({
-      success: true,
-      data: {
-        stats: statsResult.stats,
-        filters: { form, term, academicYear, search },
-        validation: statsResult.validation,
-        timestamp: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    console.error('Stats endpoint error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to load statistics',
-      message: error.message,
-      timestamp: new Date().toISOString()
-    }, { status: 500 });
-  }
+  });
 }
+
+    if (action === 'stats') {
+      try {
+        // Build filters for stats
+        const where = {};
+        if (form) where.form = form;
+        if (term) where.term = term;
+        if (academicYear) where.academicYear = academicYear;
+        if (search) {
+          where.OR = [
+            { admissionNumber: { contains: search, mode: 'insensitive' } }
+          ];
+        }
+        
+        console.log('Stats API called with filters:', { form, term, academicYear, search });
+        
+        // Calculate fresh statistics with filters
+        const statsResult = await calculateStatistics(where);
+        
+        // Update cache for consistency (only if no filters)
+        if (Object.keys(where).length === 0) {
+          try {
+            await updateCachedStats(statsResult.stats);
+          } catch (cacheError) {
+            console.warn('Failed to update cache:', cacheError);
+            // Don't fail the request if cache update fails
+          }
+        }
+        
+        return NextResponse.json({
+          success: true,
+          data: {
+            stats: statsResult.stats,
+            filters: { form, term, academicYear, search },
+            validation: statsResult.validation,
+            timestamp: new Date().toISOString()
+          }
+        });
+      } catch (error) {
+        console.error('Stats endpoint error:', error);
+        return NextResponse.json({
+          success: false,
+          error: 'Failed to load statistics',
+          message: error.message,
+          timestamp: new Date().toISOString()
+        }, { status: 500 });
+      }
+    }
 
     if (action === 'student-report' && admissionNumber) {
       const results = await prisma.studentResult.findMany({
@@ -2091,15 +1995,326 @@ if (action === 'stats') {
   }
 }
 
-// PUT - Update result with transaction
+// POST - Bulk upload with new strategy (PROTECTED - authentication required)
+export async function POST(request) {
+  try {
+    // Step 1: Authenticate the POST request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`📝 Results bulk upload request from: ${auth.user.name} (${auth.user.role})`);
+
+    const formData = await request.formData();
+    const file = formData.get('file');
+    const uploadType = formData.get('uploadType'); // 'new' or 'update'
+    const formsInput = formData.get('forms'); // JSON string for forms
+    const targetForm = formData.get('targetForm'); // Single form for updates
+    const term = formData.get('term') || '';
+    const academicYear = formData.get('academicYear') || '';
+    const checkDuplicates = formData.get('checkDuplicates') === 'true';
+    const duplicateAction = formData.get('duplicateAction') || 'skip'; // 'skip' or 'replace'
+    
+    if (!file) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'No file provided',
+          authenticated: true 
+        },
+        { status: 400 }
+      );
+    }
+    
+    if (!uploadType) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Upload type is required (new or update)',
+          authenticated: true 
+        },
+        { status: 400 }
+      );
+    }
+    
+    // Validate form selection based on upload type
+    let selectedForms = [];
+    if (uploadType === 'new') {
+      if (!formsInput) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Please select at least one form for new upload',
+            authenticated: true 
+          },
+          { status: 400 }
+        );
+      }
+      try {
+        const forms = JSON.parse(formsInput);
+        selectedForms = validateFormSelection(forms);
+      } catch (error) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Invalid form selection',
+            authenticated: true 
+          },
+          { status: 400 }
+        );
+      }
+    } else if (uploadType === 'update') {
+      if (!targetForm) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Target form is required for update upload',
+            authenticated: true 
+          },
+          { status: 400 }
+        );
+      }
+      if (!term || !academicYear) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Term and academic year are required for update upload',
+            authenticated: true 
+          },
+          { status: 400 }
+        );
+      }
+      selectedForms = validateFormSelection([targetForm]);
+    } else {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid upload type. Must be "new" or "update"',
+          authenticated: true 
+        },
+        { status: 400 }
+      );
+    }
+    
+    const fileName = file.name.toLowerCase();
+    const fileExtension = fileName.split('.').pop();
+    
+    const validExtensions = ['csv', 'xlsx', 'xls'];
+    if (!validExtensions.includes(fileExtension)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid file type. Please upload CSV or Excel (xlsx/xls) files.',
+          authenticated: true 
+        },
+        { status: 400 }
+      );
+    }
+    
+    // Create batch record with uploader info
+    const batchId = `RESULT_BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const uploadBatch = await prisma.resultUpload.create({
+      data: {
+        id: batchId,
+        fileName: file.name,
+        fileType: fileExtension,
+        uploadedBy: auth.user.name,
+        status: 'processing',
+        term: term || null,
+        academicYear: academicYear || null,
+        uploadMode: uploadType,
+        totalRows: 0,
+        validRows: 0,
+        skippedRows: 0,
+        errorRows: 0
+      }
+    });
+    
+    try {
+      // Parse file
+      let rawData = [];
+      
+      if (fileExtension === 'csv') {
+        rawData = await parseResultsCSV(file);
+      } else {
+        rawData = await parseResultsExcel(file);
+      }
+      
+      if (rawData.length === 0) {
+        throw new Error(`No valid result data found.`);
+      }
+      
+      // If just checking for duplicates
+      if (checkDuplicates) {
+        let duplicates = [];
+        
+        if (uploadType === 'new') {
+          // Check for duplicates across all forms
+          duplicates = await checkDuplicateResults(rawData);
+        } else if (uploadType === 'update') {
+          // Check for duplicates in the target form/term/year
+          duplicates = await checkDuplicateResults(rawData, targetForm, term, academicYear);
+        }
+        
+        return NextResponse.json({
+          success: true,
+          hasDuplicates: duplicates.length > 0,
+          duplicates: duplicates,
+          totalRows: rawData.length,
+          authenticated: true,
+          message: duplicates.length > 0 
+            ? `Found ${duplicates.length} duplicate result combinations` 
+            : 'No duplicates found'
+        });
+      }
+      
+      let processingStats;
+      
+      // Use transaction for consistency
+      await prisma.$transaction(async (tx) => {
+        if (uploadType === 'new') {
+          // Process new upload
+          processingStats = await processNewResultsUpload(rawData, batchId, selectedForms, duplicateAction, {
+            id: auth.user.id,
+            name: auth.user.name,
+            role: auth.user.role
+          });
+          
+          // Update batch with new upload stats
+          await tx.resultUpload.update({
+            where: { id: batchId },
+            data: {
+              status: 'completed',
+              processedDate: new Date(),
+              totalRows: processingStats.totalRows,
+              validRows: processingStats.validRows,
+              skippedRows: processingStats.skippedRows,
+              errorRows: processingStats.errorRows,
+              newRecords: processingStats.newRecords,
+              updatedRecords: processingStats.updatedRecords,
+              duplicateRecords: processingStats.duplicateRecords,
+              errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined,
+              warningLog: processingStats.warnings.length > 0 ? processingStats.warnings.slice(0, 50) : undefined
+            }
+          });
+          
+        } else if (uploadType === 'update') {
+          // Process update upload
+          processingStats = await processUpdateResultsUpload(rawData, batchId, targetForm, term, academicYear, {
+            id: auth.user.id,
+            name: auth.user.name,
+            role: auth.user.role
+          });
+          
+          // Update batch with update stats
+          await tx.resultUpload.update({
+            where: { id: batchId },
+            data: {
+              status: 'completed',
+              processedDate: new Date(),
+              totalRows: processingStats.totalRows,
+              validRows: processingStats.validRows,
+              skippedRows: processingStats.skippedRows,
+              errorRows: processingStats.errorRows,
+              newRecords: processingStats.newRecords,
+              updatedRecords: processingStats.updatedRecords,
+              duplicateRecords: processingStats.unchangedRecords,
+              errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined,
+              warningLog: processingStats.warnings.length > 0 ? processingStats.warnings.slice(0, 50) : undefined
+            }
+          });
+        }
+        
+        // Update statistics
+        const finalStats = await calculateStatistics({});
+        await updateCachedStats(finalStats.stats);
+      });
+      
+      // Recalculate to ensure consistency
+      const finalStats = await calculateStatistics({});
+      
+      console.log(`✅ Results bulk upload completed by ${auth.user.name}: ${processingStats.validRows} results processed`);
+
+      return NextResponse.json({
+        success: true,
+        message: uploadType === 'new' 
+          ? `Successfully processed ${processingStats.validRows} result records (${processingStats.newRecords} new, ${processingStats.updatedRecords} updated, ${processingStats.duplicateRecords} duplicates)` 
+          : `Successfully updated form ${targetForm} - ${term} ${academicYear}: ${processingStats.updatedRecords} updated, ${processingStats.newRecords} created, ${processingStats.unchangedRecords} unchanged`,
+        batch: {
+          id: batchId,
+          fileName: uploadBatch.fileName,
+          status: 'completed',
+          uploadType,
+          selectedForms,
+          targetForm: uploadType === 'update' ? targetForm : null
+        },
+        stats: finalStats.stats,
+        validation: finalStats.validation,
+        processingStats: processingStats,
+        authenticated: true,
+        uploadedBy: auth.user.name,
+        errors: processingStats.errors.slice(0, 20),
+        warnings: processingStats.warnings.slice(0, 20)
+      });
+      
+    } catch (error) {
+      console.error('Processing error:', error);
+      
+      // Update batch as failed
+      await prisma.resultUpload.update({
+        where: { id: batchId },
+        data: {
+          status: 'failed',
+          processedDate: new Date(),
+          errorRows: 1,
+          errorLog: [error.message]
+        }
+      });
+
+      console.error(`❌ Results bulk upload failed by ${auth.user.name}: ${error.message}`);
+      
+      throw error;
+    }
+    
+  } catch (error) {
+    console.error('Upload error:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: error.message || 'Upload failed',
+        authenticated: true,
+        suggestion: 'Please ensure your file has columns for admission number (3000-3500), term, academic year, and subject scores. Comments are automatically generated.'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - Update result with transaction (PROTECTED - authentication required)
 export async function PUT(request) {
   try {
+    // Step 1: Authenticate the PUT request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`📝 Result update request from: ${auth.user.name} (${auth.user.role})`);
+
     const body = await request.json();
     const { id, subjects, ...updateData } = body;
 
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'Result ID is required' },
+        { 
+          success: false, 
+          error: 'Result ID is required',
+          authenticated: true 
+        },
         { status: 400 }
       );
     }
@@ -2107,7 +2322,11 @@ export async function PUT(request) {
     if (subjects) {
       if (!Array.isArray(subjects)) {
         return NextResponse.json(
-          { success: false, error: 'Subjects must be an array' },
+          { 
+            success: false, 
+            error: 'Subjects must be an array',
+            authenticated: true 
+          },
           { status: 400 }
         );
       }
@@ -2115,7 +2334,11 @@ export async function PUT(request) {
       for (const subject of subjects) {
         if (subject.score < 0 || subject.score > 100) {
           return NextResponse.json(
-            { success: false, error: `Score for ${subject.subject} must be between 0-100` },
+            { 
+              success: false, 
+              error: `Score for ${subject.subject} must be between 0-100`,
+              authenticated: true 
+            },
             { status: 400 }
           );
         }
@@ -2141,13 +2364,14 @@ export async function PUT(request) {
         throw new Error('Result not found');
       }
 
-      // Update result
+      // Update result with audit info
       const updatedResult = await tx.studentResult.update({
         where: { id },
         data: {
           ...(subjects && { subjects }),
           ...updateData,
-          updatedAt: new Date()
+          updatedAt: new Date(),
+        
         },
         include: {
           student: {
@@ -2170,6 +2394,8 @@ export async function PUT(request) {
     // Recalculate to ensure consistency
     const finalStats = await calculateStatistics({});
 
+    console.log(`✅ Result updated by ${auth.user.name}: Student ${result.student?.firstName} ${result.student?.lastName} (${result.admissionNumber})`);
+
     return NextResponse.json({
       success: true,
       message: 'Result updated successfully',
@@ -2177,29 +2403,44 @@ export async function PUT(request) {
         result: result,
         stats: finalStats.stats,
         validation: finalStats.validation
-      }
+      },
+      authenticated: true,
     });
 
   } catch (error) {
     if (error.code === 'P2025') {
       return NextResponse.json(
-        { success: false, error: 'Result not found' },
+        { 
+          success: false, 
+          error: 'Result not found',
+          authenticated: true 
+        },
         { status: 404 }
       );
     }
     return NextResponse.json(
       { 
         success: false, 
-        error: error.message || 'Update failed'
+        error: error.message || 'Update failed',
+        authenticated: true 
       },
       { status: 500 }
     );
   }
 }
 
-// DELETE - Result or batch with transaction
+// DELETE - Result or batch with transaction (PROTECTED - authentication required)
 export async function DELETE(request) {
   try {
+    // Step 1: Authenticate the DELETE request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`🗑️ Result delete request from: ${auth.user.name} (${auth.user.role})`);
+
     const url = new URL(request.url);
     const batchId = url.searchParams.get('batchId');
     const resultId = url.searchParams.get('resultId');
@@ -2239,13 +2480,16 @@ export async function DELETE(request) {
       const finalStats = await calculateStatistics({});
       await updateCachedStats(finalStats.stats);
 
+      console.log(`✅ Batch deleted by ${auth.user.name}: ${result.batch.fileName} (${result.deletedCount} results)`);
+
       return NextResponse.json({
         success: true,
         message: `Deleted batch ${result.batch.fileName} and ${result.deletedCount} results`,
         data: {
           stats: finalStats.stats,
           validation: finalStats.validation
-        }
+        },
+        authenticated: true,
       });
     }
 
@@ -2279,25 +2523,36 @@ export async function DELETE(request) {
       const finalStats = await calculateStatistics({});
       await updateCachedStats(finalStats.stats);
 
+      console.log(`✅ Result deleted by ${auth.user.name}: Student ${result.student?.firstName} ${result.student?.lastName} (${result.admissionNumber})`);
+
       return NextResponse.json({
         success: true,
         message: `Deleted result for ${result.student?.firstName} ${result.student?.lastName} (${result.admissionNumber})`,
         data: {
           stats: finalStats.stats,
           validation: finalStats.validation
-        }
+        },
+        authenticated: true,
       });
     }
 
     return NextResponse.json(
-      { success: false, error: 'Provide batchId or resultId' },
+      { 
+        success: false, 
+        error: 'Provide batchId or resultId',
+        authenticated: true 
+      },
       { status: 400 }
     );
 
   } catch (error) {
     console.error('Delete error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Delete failed' },
+      { 
+        success: false, 
+        error: error.message || 'Delete failed',
+        authenticated: true 
+      },
       { status: 500 }
     );
   }
