@@ -984,79 +984,235 @@ export default function ModernCareersPage() {
     }
   };
 
-  const handleCreateJob = async (formData) => {
-    try {
-      setActionLoading(true);
-      const response = await fetch('/api/career', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+
+const handleCreateJob = async (formData) => {
+  try {
+    setActionLoading(true);
+    
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+    
+    const response = await fetch('/api/career', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+      body: JSON.stringify(formData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create job');
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
       }
       
-      toast.success('🎉 Job created successfully!');
-      setShowJobModal(false);
-      loadJobs();
-    } catch (error) {
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to create jobs.');
+      }
+      
+      throw new Error(errorData.error || errorData.message || 'Failed to create job');
+    }
+    
+    const result = await response.json();
+    
+    toast.success('🎉 Job created successfully!');
+    setShowJobModal(false);
+    loadJobs();
+    
+    return result;
+    
+  } catch (error) {
+    console.error('Create job error:', error);
+    
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
       toast.error(error.message || 'Failed to create job');
-      throw error;
-    } finally {
-      setActionLoading(false);
     }
-  };
+    
+    throw error;
+  } finally {
+    setActionLoading(false);
+  }
+};
 
-  const handleUpdateJob = async (formData) => {
-    try {
-      setActionLoading(true);
-      const response = await fetch(`/api/career/${selectedJob.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+const handleUpdateJob = async (formData) => {
+  try {
+    setActionLoading(true);
+    
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+    
+    const response = await fetch(`/api/career/${selectedJob.id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+      body: JSON.stringify(formData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update job');
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
       }
       
-      toast.success('✨ Job updated successfully!');
-      setShowJobModal(false);
-      setSelectedJob(null);
-      loadJobs();
-    } catch (error) {
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to update jobs.');
+      }
+      
+      throw new Error(errorData.error || errorData.message || 'Failed to update job');
+    }
+    
+    const result = await response.json();
+    
+    toast.success('✨ Job updated successfully!');
+    setShowJobModal(false);
+    setSelectedJob(null);
+    loadJobs();
+    
+    return result;
+    
+  } catch (error) {
+    console.error('Update job error:', error);
+    
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
       toast.error(error.message || 'Failed to update job');
-      throw error;
-    } finally {
-      setActionLoading(false);
     }
-  };
+    
+    throw error;
+  } finally {
+    setActionLoading(false);
+  }
+};
 
-  const handleDeleteJob = async () => {
-    try {
-      setActionLoading(true);
-      const response = await fetch(`/api/career/${selectedJob.id}`, {
-        method: 'DELETE',
-      });
+const handleDeleteJob = async () => {
+  try {
+    setActionLoading(true);
+    
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+    
+    const response = await fetch(`/api/career/${selectedJob.id}`, {
+      method: 'DELETE',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete job');
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
       }
       
-      toast.success('🗑️ Job deleted successfully!');
-      setShowDeleteModal(false);
-      setSelectedJob(null);
-      loadJobs();
-    } catch (error) {
-      toast.error(error.message || 'Failed to delete job');
-    } finally {
-      setActionLoading(false);
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to delete jobs.');
+      }
+      
+      throw new Error(errorData.error || errorData.message || 'Failed to delete job');
     }
-  };
+    
+    const result = await response.json();
+    
+    toast.success('🗑️ Job deleted successfully!');
+    setShowDeleteModal(false);
+    setSelectedJob(null);
+    loadJobs();
+    
+    return result;
+    
+  } catch (error) {
+    console.error('Delete job error:', error);
+    
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message || 'Failed to delete job');
+    }
+    
+    throw error;
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   const handleEditJob = (job) => {
     setSelectedJob(job);
