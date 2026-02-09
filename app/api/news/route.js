@@ -226,18 +226,15 @@ export async function POST(req) {
     const category = formData.get("category")?.trim() || "General";
     const author = formData.get("author")?.trim() || auth.user.name;
 
-    // Validate required fields
-    if (!title || !excerpt || !fullContent || !dateStr) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: "Validation Error",
-          message: "Title, excerpt, content and date are required",
-          authenticated: true
-        },
-        { status: 400 }
-      );
-    }
+ // News validates these fields:
+if (!title || !excerpt || !fullContent || !dateStr) {
+  return NextResponse.json({ 
+    success: false, 
+    error: "Validation Error",
+    message: "Title, excerpt, content and date are required",
+    authenticated: true
+  }, { status: 400 });
+}
 
     // Parse date
     const date = new Date(dateStr);

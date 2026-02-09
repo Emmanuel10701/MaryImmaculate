@@ -738,28 +738,28 @@ function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
 // Modern Item Modal Component
 function ModernItemModal({ onClose, onSave, item, type, loading }) {
   // Initialize state with ALL possible fields
-  const [formData, setFormData] = useState({
-    // Common fields
-    title: '',
-    date: new Date().toISOString().split('T')[0],
-    category: type === 'news' ? 'achievement' : 'academic',
-    image: '',
-    featured: false,
-    status: 'published',
-    
-    // News fields (using proper API field names)
-    excerpt: '',
-    fullContent: '',
-    author: '',
-    
-    // Event fields
-    description: '',
-    time: '',
-    location: '',
-    speaker: '',
-    attendees: 'students',
-    type: 'internal'
-  });
+const [formData, setFormData] = useState({
+  // Common fields
+  title: '',
+  date: new Date().toISOString().split('T')[0],
+  category: type === 'news' ? 'achievement' : 'academic',
+  image: '',
+  featured: false,
+  status: 'published',
+  
+  // News fields (using proper API field names)
+  excerpt: '',
+  fullContent: '', // 🚨 MAKE SURE THIS IS INCLUDED!
+  author: '',
+  
+  // Event fields
+  description: '',
+  time: '',
+  location: '',
+  speaker: '',
+  attendees: 'students',
+  type: 'internal'
+});
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -1119,8 +1119,8 @@ const handleSubmit = async (e) => {
                     </label>
                     <textarea
                       rows="8"
-                      value={type === 'news' ? formData.excerpt : formData.description}
-                      onChange={(e) => handleChange(type === 'news' ? 'excerpt' : 'description', e.target.value)}
+ value={type === 'news' ? formData.excerpt : formData.description}
+  onChange={(e) => handleChange(type === 'news' ? 'excerpt' : 'description', e.target.value)}                     
                       className="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-bold text-slate-700 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all placeholder:text-slate-300"
                       placeholder={type === 'news' ? 'Write a brief summary of this news article...' : 'Write a brief description...'}
                     />
