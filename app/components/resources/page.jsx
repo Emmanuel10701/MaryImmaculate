@@ -1,5 +1,9 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
+import { Modal, Box, CircularProgress } from '@mui/material';
+
+// Consolidated Feather Icons (Fi) - All Duplicates Removed
 import {
   FiPlus,
   FiSearch,
@@ -14,6 +18,8 @@ import {
   FiTrendingUp,
   FiAward,
   FiEdit,
+  FiEdit2,
+  FiEdit3,
   FiTrash2,
   FiEye,
   FiCheck,
@@ -46,9 +52,25 @@ import {
   FiGrid,
   FiSliders,
   FiSortAlphaDown,
-  FiSortAlphaUp
+  FiSortAlphaUp,
+  FiLock,
+  FiUnlock,
+  FiExternalLink,
+  FiMoreVertical,
+  FiCopy,
+  FiShare2,
+  FiHeart
 } from 'react-icons/fi';
 
+// Consolidated Heroicons (Hi)
+import {
+  HiOutlineDocumentText,
+  HiOutlinePhotograph,
+  HiOutlinePresentationChartBar,
+  HiOutlineSparkles
+} from 'react-icons/hi';
+
+// Consolidated Ionicons (Io5)
 import {
   IoDocumentTextOutline,
   IoCalendarOutline,
@@ -59,7 +81,7 @@ import {
   IoChevronForwardOutline,
   IoCheckmarkCircleOutline
 } from 'react-icons/io5';
-import { Modal, Box, CircularProgress } from '@mui/material';
+// Rest of your component logic goes here...
 
 // Modern Loading Spinner Component
 const Spinner = ({ size = 40, color = 'inherit', thickness = 3.6, variant = 'indeterminate', value = 0 }) => {
@@ -180,7 +202,7 @@ function DeleteConfirmationModal({
           <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
             <div className="flex items-start gap-2">
               <FiAlertCircle className="text-red-600 mt-0.5 flex-shrink-0" />
-              <p className="text-red-700 text-sm">
+              <p className="text-red-700 text-md ">
                 <span className="font-bold">Warning:</span> This action cannot be undone. All files will be permanently deleted.
               </p>
             </div>
@@ -324,7 +346,7 @@ function Notification({
             </div>
             <div className="flex-1">
               <h4 className={`font-bold ${styles.title} mb-1`}>{title}</h4>
-              <p className="text-gray-700 text-sm">{message}</p>
+              <p className="text-gray-700 text-md ">{message}</p>
             </div>
             <button 
               onClick={onClose}
@@ -340,470 +362,206 @@ function Notification({
   )
 }
 
-// Modern Resource Detail Modal
 function ModernResourceDetailModal({ resource, onClose, onEdit }) {
   if (!resource) return null;
 
-  // File type colors
+  // Modern Color Palette
   const getFileTypeColor = (type) => {
     switch (type?.toLowerCase()) {
-      case 'pdf': return { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' };
-      case 'document': return { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' };
-      case 'video': return { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-200' };
-      case 'presentation': return { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-200' };
-      case 'image': return { bg: 'bg-pink-100', text: 'text-pink-800', border: 'border-pink-200' };
-      case 'audio': return { bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-200' };
-      case 'spreadsheet': return { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' };
-      default: return { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-200' };
-    }
-  };
-
-  // Access level colors
-  const getAccessColor = (access) => {
-    switch (access?.toLowerCase()) {
-      case 'student': return { bg: 'bg-blue-100', text: 'text-blue-800' };
-      case 'teacher': return { bg: 'bg-green-100', text: 'text-green-800' };
-      case 'admin': return { bg: 'bg-purple-100', text: 'text-purple-800' };
-      default: return { bg: 'bg-gray-100', text: 'text-gray-800' };
+      case 'pdf': return { bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-100', icon: 'bg-rose-500' };
+      case 'video': return { bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100', icon: 'bg-indigo-500' };
+      default: return { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-100', icon: 'bg-slate-500' };
     }
   };
 
   const typeColor = getFileTypeColor(resource.type);
-  const accessColor = getAccessColor(resource.accessLevel);
 
-  // Get file icon based on type
-  const getFileIcon = () => {
-    switch (resource.type?.toLowerCase()) {
-      case 'pdf': return <FiFileText className="text-red-600 text-2xl" />;
-      case 'document': return <FiFileText className="text-blue-600 text-2xl" />;
-      case 'video': return <FiVideo className="text-purple-600 text-2xl" />;
-      case 'presentation': return <FiBarChart className="text-orange-600 text-2xl" />;
-      case 'image': return <FiImage className="text-pink-600 text-2xl" />;
-      case 'audio': return <FiMusic className="text-indigo-600 text-2xl" />;
-      case 'spreadsheet': return <FiGrid className="text-green-600 text-2xl" />;
-      default: return <FiFile className="text-gray-600 text-2xl" />;
+  const getFileIcon = (type) => {
+    switch (type?.toLowerCase()) {
+      case 'pdf': return <FiFileText />;
+      case 'video': return <FiVideo />;
+      case 'image': return <FiImage />;
+      case 'presentation': return <FiBarChart />;
+      default: return <FiFile />;
     }
   };
 
-  const formatFileSize = (bytes) => {
-    if (!bytes || bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
   return (
-    <Modal open={true} onClose={onClose}>
+    <Modal open={true} onClose={onClose} className="flex items-center justify-center p-4 backdrop-blur-sm">
       <Box sx={{
-        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '95%',
-        maxWidth: '900px',
-        maxHeight: '95vh', bgcolor: 'background.paper',
-        borderRadius: 3, boxShadow: 24, overflow: 'hidden',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f8ff 100%)'
+        width: '100%',
+        maxWidth: '1000px',
+        maxHeight: '90vh',
+        bgcolor: 'white',
+        borderRadius: '32px',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        outline: 'none'
       }}>
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 p-6 md:p-8 text-white">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-start sm:items-center gap-3 sm:gap-4">
-              <div className="p-3 bg-white bg-opacity-20 rounded-2xl">
-                <FiFolder className="text-xl sm:text-2xl" />
+        {/* Modern Header - Clean & Minimal */}
+        <div className="relative p-8 pb-4">
+          <div className="flex justify-between items-start">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="bg-blue-600 text-white p-1.5 rounded-lg">
+                  <FiFolder size={16} />
+                </span>
+                <span className="text-xs font-black uppercase tracking-widest text-blue-600/70">Educational Resource</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-2xl sm:text-3xl font-bold truncate">Resource Details</h2>
-                <p className="text-white/90 opacity-90 mt-1 text-sm sm:text-lg">
-                  Complete educational resource information
-                </p>
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+                {resource.title}
+              </h1>
+            </div>
+            <button 
+              onClick={onClose} 
+              className="group p-2 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-2xl transition-all duration-300"
+            >
+              <FiX size={24} />
+            </button>
+          </div>
+
+          {/* Tags Bar */}
+          <div className="flex flex-wrap gap-2 mt-6">
+            <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold ${typeColor.bg} ${typeColor.text} border ${typeColor.border}`}>
+              <span className={`w-2 h-2 rounded-full ${typeColor.icon}`}></span>
+              {resource.type || 'Resource'}
+            </div>
+            {resource.category && (
+              <div className="px-4 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-600 border border-purple-100">
+                #{resource.category}
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-             
-              <button 
-                onClick={onClose} 
-                className="p-2 sm:p-3 bg-white/10 text-white rounded-full cursor-pointer"
-              >
-                <FiX className="text-xl sm:text-2xl" />
-              </button>
-            </div>
+            )}
+            {resource.className && (
+              <div className="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white">
+                {resource.className}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="max-h-[calc(95vh-140px)] overflow-y-auto">
-          <div className="p-4 sm:p-6 md:p-8 space-y-8">
-            {/* Resource Title and Status */}
-            <div className="space-y-4">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 break-words">
-                {resource.title}
-              </h1>
-              <div className="flex flex-wrap gap-2">
-                <span className={`px-3 py-1.5 rounded-full text-sm font-bold ${typeColor.bg} ${typeColor.text} border ${typeColor.border}`}>
-                  {resource.type?.charAt(0).toUpperCase() + resource.type?.slice(1) || 'Document'}
-                </span>
-                {resource.accessLevel && (
-                  <span className={`px-3 py-1.5 rounded-full text-sm font-bold ${accessColor.bg} ${accessColor.text}`}>
-                    {resource.accessLevel} Access
-                  </span>
-                )}
-                {resource.category && (
-                  <span className="px-3 py-1.5 rounded-full text-sm font-bold bg-purple-100 text-purple-800 border border-purple-200">
-                    {resource.category}
-                  </span>
-                )}
-                {resource.className && (
-                  <span className="px-3 py-1.5 rounded-full text-sm font-bold bg-gradient-to-r from-cyan-100 to-blue-100 text-blue-800 border border-blue-200">
-                    Class: {resource.className}
-                  </span>
-                )}
-              </div>
+        {/* Content Body */}
+        <div className="flex-1 overflow-y-auto p-8 pt-4 custom-scrollbar">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* Left Column: Description & Files */}
+            <div className="lg:col-span-8 space-y-10">
+              
+              {/* Description Section */}
+              <section className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                    <IoDocumentTextOutline />
+                  </div>
+                  <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Overview</h3>
+                </div>
+                <div className="bg-slate-50/50 p-6 rounded-[24px] border border-slate-100">
+                  <p className="text-slate-600 leading-relaxed text-base">
+                    {resource.description || "No detailed description provided."}
+                  </p>
+                </div>
+              </section>
+
+              {/* Files Grid - Modernized */}
+              {resource.files?.length > 0 && (
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+                      <FiPaperclip />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Attachments ({resource.files.length})</h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {resource.files.map((file, idx) => (
+                      <div key={idx} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 group">
+                        <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-50 text-slate-500 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                          {getFileIcon(file.extension)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-900 truncate">
+                            {file.name.replace(/^[\d-]+/, "")}
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">
+                            {file.extension} • {new Date(file.uploadedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - Description and Files */}
-              <div className="lg:col-span-2 space-y-8">
-                {/* Description - Full Width */}
-                <div className="w-full">
-                  <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <IoDocumentTextOutline className="text-blue-600" />
-                    Description
-                  </h3>
-                  <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-200">
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
-                      {resource.description || 'No description available.'}
-                    </p>
+            {/* Right Column: Metadata Cards */}
+            <div className="lg:col-span-4">
+              <div className="sticky top-0 space-y-4">
+                <div className="bg-slate-900 rounded-[32px] p-6 text-white shadow-xl">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-6">Metadata</h3>
+                  
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
+                        <FiUserCheck className="text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-white/40 uppercase">Instructor</p>
+                        <p className="text-sm font-bold">{resource.teacher || 'Unassigned'}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
+                        <FiUsers className="text-emerald-400" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-white/40 uppercase">Publisher</p>
+                        <p className="text-sm font-bold">{resource.uploadedBy || 'System'}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
+                        <FiClock className="text-amber-400" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-white/40 uppercase">Last Updated</p>
+                        <p className="text-sm font-bold">Today</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Files Section - Full Width */}
-                {Array.isArray(resource.files) && resource.files.length > 0 && (
-                  <div className="w-full space-y-4">
-                    <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                      <FiPaperclip className="text-orange-600" />
-                      Files ({resource.files.length})
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      {resource.files.slice(0, 4).map((file, index) => (
-                        <div key={index} className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-orange-200">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
-                                {getFileIcon()}
-                              </div>
-                              <div className="min-w-0">
-                          <h4 className="text-sm sm:text-base font-bold text-gray-900 truncate">
-  {file.name.replace(/^[\d-]+/, "")}
-</h4>
-                            
-                              </div>
-                            </div>
-                          
-                          </div>
-                          <div className="flex items-center justify-between text-xs">
-                            {file.extension && (
-                              <span className="font-medium text-gray-700">
-                                {file.extension.toUpperCase()}
-                              </span>
-                            )}
-                            {file.uploadedAt && (
-                              <span className="text-gray-500">
-                                {new Date(file.uploadedAt).toLocaleDateString()}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <div className="p-6 bg-blue-50 rounded-[32px] border border-blue-100">
+                   <p className="text-[10px] font-black text-blue-600 uppercase mb-2">Security</p>
+                   <p className="text-xs font-bold text-blue-900/70 leading-relaxed">
+                     This resource is restricted to <span className="text-blue-600 underline font-black">{resource.accessLevel}</span> roles only.
+                   </p>
+                </div>
               </div>
-
-              {/* Right Column - Information Panel */}
-<div className="space-y-6">
-  {/* Modernized Resource Information Card */}
-  <div className="bg-white rounded-[24px] p-5 border border-slate-100 shadow-sm transition-all hover:shadow-md">
-    <div className="flex items-center gap-2 mb-6 px-1">
-      <div className="p-2 bg-blue-50 rounded-lg">
-        <FiBriefcase className="text-blue-600" size={18} />
-      </div>
-      <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">
-        Resource Metadata
-      </h3>
-    </div>
-
-    {/* Information Grid */}
-    <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-      {/* Teacher Row - Full width if needed or half */}
-      {resource.teacher && (
-        <div className="col-span-2 flex flex-col p-3 bg-slate-50/50 rounded-2xl border border-slate-50">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 px-1">Lead Teacher</span>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-100 shrink-0">
-               <FiUserCheck className="text-white" size={16} />
             </div>
-            <span className="text-slate-700 font-bold text-sm sm:text-base truncate">
-              {resource.teacher}
-            </span>
+
           </div>
         </div>
-      )}
 
-      {/* Uploaded By */}
-      <div className="flex flex-col px-1">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Publisher</span>
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 shrink-0">
-            <FiUsers className="text-emerald-500" size={14} />
-          </div>
-          <span className="text-slate-700 font-bold text-xs sm:text-sm truncate">
-            {resource.uploadedBy || 'System'}
-          </span>
-        </div>
-      </div>
-
-      {/* Files Count */}
-      <div className="flex flex-col px-1">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Total Assets</span>
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center border border-purple-100 shrink-0">
-            <FiFile className="text-purple-500" size={14} />
-          </div>
-          <span className="text-slate-700 font-bold text-xs sm:text-sm">
-            {resource.files?.length || 0} items
-          </span>
-        </div>
-      </div>
-
-      {/* Downloads Stats */}
-      <div className="flex flex-col px-1">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Popularity</span>
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center border border-red-100 shrink-0">
-            <FiDownload className="text-red-500" size={14} />
-          </div>
-        
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="p-4 sm:p-6 border-t border-gray-200 bg-white">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <button 
-                onClick={onClose} 
-                className="w-full sm:w-auto bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl sm:rounded-2xl font-bold shadow-lg cursor-pointer text-sm sm:text-base"
-              >
-                Close
-              </button>
-              <button 
-                onClick={() => onEdit(resource)} 
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl sm:rounded-2xl font-bold shadow-lg cursor-pointer text-sm sm:text-base"
-              >
-                <FiEdit size={16} /> Edit Resource
-              </button>
-            </div>
-          </div>
+        {/* Action Footer */}
+        <div className="p-6 bg-white border-t border-slate-50 flex flex-col sm:flex-row justify-end gap-4">
+          <button 
+            onClick={onClose}
+            className="px-8 py-3 rounded-2xl font-black text-slate-400 hover:text-slate-900 transition-colors"
+          >
+            Dismiss
+          </button>
+          <button 
+            onClick={() => onEdit(resource)}
+            className="flex items-center justify-center gap-3 bg-slate-900 hover:bg-blue-600 text-white px-10 py-4 rounded-2xl font-black transition-all duration-300 shadow-lg shadow-slate-200"
+          >
+            <FiEdit size={18} /> Edit Resource
+          </button>
         </div>
       </Box>
     </Modal>
   );
-}
-
-// Modern Resource Card Component - UPDATED WITH SELECTION CHECKBOX
-function ModernResourceCard({ resource, onEdit, onDelete, onView, selected, onSelect, actionLoading }) {
-  // File type colors
-  const getFileTypeColor = (type) => {
-    switch (type?.toLowerCase()) {
-      case 'pdf': return { bg: 'bg-red-100', text: 'text-red-800', dot: 'bg-red-500' };
-      case 'document': return { bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500' };
-      case 'video': return { bg: 'bg-purple-100', text: 'text-purple-800', dot: 'bg-purple-500' };
-      case 'presentation': return { bg: 'bg-orange-100', text: 'text-orange-800', dot: 'bg-orange-500' };
-      case 'image': return { bg: 'bg-pink-100', text: 'text-pink-800', dot: 'bg-pink-500' };
-      case 'audio': return { bg: 'bg-indigo-100', text: 'text-indigo-800', dot: 'bg-indigo-500' };
-      case 'spreadsheet': return { bg: 'bg-green-100', text: 'text-green-800', dot: 'bg-green-500' };
-      default: return { bg: 'bg-gray-100', text: 'text-gray-800', dot: 'bg-gray-500' };
-    }
-  };
-
-  // Access level colors
-  const getAccessColor = (access) => {
-    switch (access?.toLowerCase()) {
-      case 'student': return 'text-blue-500';
-      case 'teacher': return 'text-green-500';
-      case 'admin': return 'text-purple-500';
-      default: return 'text-gray-500';
-    }
-  };
-
-  const typeColor = getFileTypeColor(resource.type);
-  const accessColor = getAccessColor(resource.accessLevel);
-
-  // Get file icon based on type
-  const getFileIcon = () => {
-    switch (resource.type?.toLowerCase()) {
-      case 'pdf': return <FiFileText className="text-red-500" />;
-      case 'document': return <FiFileText className="text-blue-500" />;
-      case 'video': return <FiVideo className="text-purple-500" />;
-      case 'presentation': return <FiBarChart className="text-orange-500" />;
-      case 'image': return <FiImage className="text-pink-500" />;
-      case 'audio': return <FiMusic className="text-indigo-500" />;
-      case 'spreadsheet': return <FiGrid className="text-green-500" />;
-      default: return <FiFile className="text-gray-500" />;
-    }
-  };
-
-  const formatFileSize = (bytes) => {
-    if (!bytes || bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  // Calculate total size
-  const totalSize = Array.isArray(resource.files) 
-    ? resource.files.reduce((acc, file) => acc + (file.size || 0), 0)
-    : resource.size || 0;
-
-  return (
-    <div className={`bg-white rounded-[2rem] shadow-xl border ${
-      selected ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-gray-100'
-    } w-full max-w-md overflow-hidden transition-none hover:shadow-2xl  cursor-pointer`} onClick={() => onView(resource)}>
-      
-      {/* Header with Type and Selection Checkbox */}
-      <div className={`p-6 ${typeColor.bg} border-b ${typeColor.text} border-opacity-20 relative`}>
-        {/* Selection Checkbox */}
-        <div className="absolute top-4 left-4 z-10">
-          <input 
-            type="checkbox" 
-            checked={selected} 
-            onChange={(e) => {
-              e.stopPropagation();
-              onSelect(resource.id, e.target.checked);
-            }}
-            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-        
-        <div className="flex items-center justify-between mb-4 pl-6">
-          <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${typeColor.dot}`}></div>
-            <span className={`text-xs font-bold ${typeColor.text} uppercase tracking-wider`}>
-              {resource.type || 'Document'}
-            </span>
-          </div>
-          {resource.accessLevel && (
-            <div className="flex items-center gap-1">
-              <FiShield className={`text-xs ${accessColor}`} />
-              <span className={`text-xs font-bold ${accessColor}`}>
-                {resource.accessLevel}
-              </span>
-            </div>
-          )}
-        </div>
-        
-        <h3 className="text-2xl font-black text-slate-900 leading-tight line-clamp-2">
-          {resource.title}
-        </h3>
-        
-        <p className="text-sm font-medium text-slate-400 mt-2 line-clamp-2">
-          {resource.description || 'No description available.'}
-        </p>
-      </div>
-
-      {/* Information Section */}
-      <div className="p-6">
-        {/* Grid Info Mapping */}
-        <div className="grid grid-cols-2 gap-y-6 gap-x-4 mb-8">
-          {/* Subject */}
-          <div className="space-y-1">
-            <span className="block text-[9px] text-slate-400 font-black uppercase tracking-[0.1em]">Subject</span>
-            <div className="flex items-center gap-2">
-              <IoBookOutline className="text-blue-400 text-sm" />
-              <span className="text-xs font-bold text-slate-700 truncate">
-                {resource.subject || 'No Subject'}
-              </span>
-            </div>
-          </div>
-          
-          {/* Class */}
-          <div className="space-y-1">
-            <span className="block text-[9px] text-slate-400 font-black uppercase tracking-[0.1em]">Class</span>
-            <div className="flex items-center gap-2">
-              <FiUsers className="text-purple-400 text-sm" />
-              <span className="text-xs font-bold text-slate-700">
-                {resource.className}
-              </span>
-            </div>
-          </div>
-
-          {/* Teacher */}
-          {resource.teacher && (
-            <div className="col-span-2 p-3 bg-blue-50 rounded-2xl flex items-center justify-between border border-blue-100/50">
-              <div className="flex flex-col min-w-0">
-                <span className="text-[9px] text-blue-400 font-black uppercase tracking-[0.1em]">Teacher</span>
-                <span className="text-xs font-bold text-blue-800 truncate">{resource.teacher}</span>
-              </div>
-              <FiUserCheck className="text-blue-300 text-lg shrink-0 ml-2" />
-            </div>
-          )}
-
-          {/* Files */}
-          <div className="col-span-2 p-3 bg-emerald-50 rounded-2xl flex items-center justify-between border border-emerald-100/50">
-            <div className="flex flex-col min-w-0">
-              <span className="text-[9px] text-emerald-400 font-black uppercase tracking-[0.1em]">Files</span>
-              <span className="text-xs font-bold text-emerald-800 truncate">
-                {Array.isArray(resource.files) ? `${resource.files.length} file(s)` : '1 file'} • {formatFileSize(totalSize)}
-              </span>
-            </div>
-            <FiPaperclip className="text-emerald-300 text-lg shrink-0 ml-2" />
-          </div>
-        </div>
-
-
-
-        {/* Modern Action Bar */}
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onView(resource);
-            }}
-            className="px-5 py-3 bg-slate-100 text-slate-600 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-none active:bg-slate-200 cursor-pointer"
-          >
-            View
-          </button>
-          
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(resource);
-            }}
-            disabled={actionLoading}
-            className="flex-1 bg-slate-900 text-white py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest disabled:opacity-50 transition-none active:scale-[0.98] cursor-pointer"
-          >
-            Edit
-          </button>
-          
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(resource);
-            }}
-            disabled={actionLoading}
-            className="p-3 bg-red-50 text-red-500 rounded-2xl border border-red-100 disabled:opacity-50 transition-none active:bg-red-100 cursor-pointer"
-          >
-            <FiTrash2 size={18} />
-          </button>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 
@@ -827,7 +585,16 @@ function ModernResourceModal({ onClose, onSave, resource, loading }) {
   const [totalSizeMB, setTotalSizeMB] = useState(0); // Total file size in MB
   const [fileSizeError, setFileSizeError] = useState(''); // Size error message
 
-// ✅ THIS IS ALREADY IN ModernResourceModal (lines 1139-1163):
+
+  // Add this function inside ResourcesManager component
+
+
+
+
+
+
+
+// In ModernResourceModal component, replace the useEffect with:
 useEffect(() => {
   if (resource?.files) {
     try {
@@ -853,7 +620,20 @@ useEffect(() => {
       setExistingFiles([]);
     }
   }
-}, [resource]);
+  
+  // Optional: Check auth but don't call fetchResources
+  const checkAuth = () => {
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    console.log('Resource Modal Auth check:', {
+      hasAdminToken: !!adminToken,
+      hasDeviceToken: !!deviceToken
+    });
+  };
+  
+  checkAuth();
+}, [resource]); // Only depend on resource
   // Disable submit button based on conditions
   const isSubmitDisabled = 
     loading || 
@@ -1015,6 +795,10 @@ useEffect(() => {
     }
   };
 
+
+
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -1128,7 +912,7 @@ useEffect(() => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">{resource ? 'Edit' : 'Create'} Resource</h2>
-                <p className="text-white/90 opacity-90 mt-1 text-sm">
+                <p className="text-white/90 opacity-90 mt-1 text-md ">
                   Upload educational materials and resources
                 </p>
               </div>
@@ -1149,7 +933,7 @@ useEffect(() => {
                 <div className="flex items-start gap-3">
                   <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-red-700 text-sm font-bold">
+                    <p className="text-red-700 text-md  font-bold">
                       File Size Limit Exceeded!
                     </p>
                     <p className="text-red-600 text-xs mt-1">
@@ -1333,7 +1117,7 @@ useEffect(() => {
                     <div className="flex items-start gap-3">
                       <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
-                        <p className="text-red-700 text-sm font-bold">
+                        <p className="text-red-700 text-md  font-bold">
                           Vercel Size Limit Exceeded!
                         </p>
                         <p className="text-red-600 text-xs mt-1">
@@ -1408,7 +1192,7 @@ useEffect(() => {
                       }`}>
                         {totalSizeMB > 4.5 ? 'Storage Full' : 'Drag & drop files or browse'}
                       </p>
-                      <p className="text-slate-500 text-sm max-w-xs mb-3">
+                      <p className="text-slate-800  text-md  max-w-xs mb-3">
                         {totalSizeMB > 4.5 
                           ? 'Remove files to free up space' 
                           : 'PDF, DOC, PPT, XLS, Images, Videos, or Audio'
@@ -1437,7 +1221,7 @@ useEffect(() => {
                   {(files.length > 0 || existingFiles.length > 0) && (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
+                        <h4 className="text-md  font-black uppercase tracking-widest text-slate-400">
                           Selected Assets ({files.length + existingFiles.length - filesToRemove.length})
                         </h4>
                         {totalSizeMB > 4.5 && (
@@ -1475,7 +1259,7 @@ useEffect(() => {
                                   <FiFileText className="text-lg" />
                                 </div>
                                 <div className="min-w-0">
-                                  <p className="text-sm font-bold text-slate-700 truncate">
+                                  <p className="text-md  font-bold text-slate-800 truncate">
                                     {fileObj.name}
                                   </p>
                                   <div className="flex items-center gap-2 mt-1">
@@ -1521,7 +1305,7 @@ useEffect(() => {
                                   <FiFileText className="text-lg" />
                                 </div>
                                 <div className="min-w-0">
-                                  <p className="text-sm font-bold text-slate-700 truncate">
+                                  <p className="text-md  font-bold text-slate-700 truncate">
                                     {file.name || 'Cloud Resource'}
                                   </p>
                                   <div className="flex items-center gap-2 mt-1">
@@ -1556,7 +1340,7 @@ useEffect(() => {
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg disabled:opacity-50 cursor-pointer text-sm"
+                className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg disabled:opacity-50 cursor-pointer text-md "
               >
                 Cancel
               </button>
@@ -1564,7 +1348,7 @@ useEffect(() => {
               <button 
                 type="submit"
                 disabled={isSubmitDisabled}
-                className="px-6 py-3 text-white rounded-xl font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-sm hover:from-blue-700 hover:to-cyan-700 transition-all"
+                className="px-6 py-3 text-white rounded-xl font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-md  hover:from-blue-700 hover:to-cyan-700 transition-all"
               >
                 {loading ? (
                   <>
@@ -1742,6 +1526,27 @@ export default function ResourcesManager() {
       return newSet; 
     });
   };
+
+
+
+  const getAuthHeaders = () => {
+  const adminToken = localStorage.getItem('admin_token');
+  const deviceToken = localStorage.getItem('device_token');
+  
+  console.log('🔐 Getting auth headers:', {
+    hasAdminToken: !!adminToken,
+    hasDeviceToken: !!deviceToken
+  });
+  
+  if (!adminToken || !deviceToken) {
+    throw new Error('Authentication required. Please login to perform this action.');
+  }
+  
+  return {
+    'x-admin-token': adminToken,
+    'x-device-token': deviceToken
+  };
+};
 
   // NEW: Bulk delete function
   const handleBulkDelete = () => {
@@ -1924,104 +1729,158 @@ export default function ResourcesManager() {
   };
 
   // Confirm delete - handles both single and bulk
-  const confirmDelete = async () => {
-    if (deleteType === 'single' && !resourceToDelete) return;
+const confirmDelete = async () => {
+  if (deleteType === 'single' && !resourceToDelete) return;
+  
+  setDeleting(true);
+  setBulkDeleting(true);
+  
+  try {
+    // Get authentication headers
+    const headers = getAuthHeaders();
     
-    setDeleting(true);
-    setBulkDeleting(true);
-    
-    try {
-      if (deleteType === 'single' && resourceToDelete) {
-        // Single delete
-        const response = await fetch(`/api/resources/${resourceToDelete.id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          setResources(prev => prev.filter(r => r.id !== resourceToDelete.id));
-          setFilteredResources(prev => prev.filter(r => r.id !== resourceToDelete.id));
-          showNotification('success', 'Deleted', 'Resource deleted successfully!');
-        } else {
-          throw new Error(result.error);
-        }
-      } else if (deleteType === 'bulk') {
-        // Bulk delete
-        const deletedIds = [];
-        const failedIds = [];
-        
-        // Delete each selected resource
-        for (const resourceId of selectedResources) {
-          try {
-            const response = await fetch(`/api/resources/${resourceId}`, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-              deletedIds.push(resourceId);
-            } else {
-              console.error(`Failed to delete resource ${resourceId}:`, result.error);
-              failedIds.push(resourceId);
-            }
-          } catch (error) {
-            console.error(`Error deleting resource ${resourceId}:`, error);
+    if (deleteType === 'single' && resourceToDelete) {
+      // Single delete
+      console.log(`🗑️ Deleting resource ${resourceToDelete.id} with headers:`, headers);
+      const response = await fetch(`/api/resources/${resourceToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      // Handle authentication errors
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('device_token');
+        localStorage.removeItem('device_fingerprint');
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setResources(prev => prev.filter(r => r.id !== resourceToDelete.id));
+        setFilteredResources(prev => prev.filter(r => r.id !== resourceToDelete.id));
+        showNotification('success', 'Deleted', 'Resource deleted successfully!');
+      } else {
+        throw new Error(result.error);
+      }
+    } else if (deleteType === 'bulk') {
+      // Bulk delete
+      console.log(`🗑️ Bulk deleting ${selectedResources.size} resources with headers:`, headers);
+      const deletedIds = [];
+      const failedIds = [];
+      
+      // Delete each selected resource
+      for (const resourceId of selectedResources) {
+        try {
+          const response = await fetch(`/api/resources/${resourceId}`, {
+            method: 'DELETE',
+            headers: {
+              ...headers,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          // Handle authentication errors
+          if (response.status === 401) {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_user');
+            localStorage.removeItem('device_token');
+            localStorage.removeItem('device_fingerprint');
+            throw new Error('Session expired. Please login again.');
+          }
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            deletedIds.push(resourceId);
+          } else {
+            console.error(`Failed to delete resource ${resourceId}:`, result.error);
             failedIds.push(resourceId);
           }
-        }
-        
-        // Refresh the list
-        await fetchResources();
-        setSelectedResources(new Set());
-        
-        if (deletedIds.length > 0 && failedIds.length === 0) {
-          showNotification('success', 'Bulk Delete Successful', `Successfully deleted ${deletedIds.length} resource(s)`);
-        } else if (deletedIds.length > 0 && failedIds.length > 0) {
-          showNotification('warning', 'Partial Success', `Deleted ${deletedIds.length} resource(s), failed to delete ${failedIds.length}`);
-        } else {
-          showNotification('error', 'Delete Failed', 'Failed to delete selected resources');
+        } catch (error) {
+          console.error(`Error deleting resource ${resourceId}:`, error);
+          failedIds.push(resourceId);
         }
       }
-    } catch (error) {
-      console.error('Error deleting resource:', error);
-      showNotification('error', 'Delete Failed', 'Failed to delete resource');
-    } finally {
-      setDeleting(false);
-      setBulkDeleting(false);
-      setShowDeleteModal(false);
-      setResourceToDelete(null);
+      
+      // Refresh the list
+      await fetchResources();
+      setSelectedResources(new Set());
+      
+      if (deletedIds.length > 0 && failedIds.length === 0) {
+        showNotification('success', 'Bulk Delete Successful', `Successfully deleted ${deletedIds.length} resource(s)`);
+      } else if (deletedIds.length > 0 && failedIds.length > 0) {
+        showNotification('warning', 'Partial Success', `Deleted ${deletedIds.length} resource(s), failed to delete ${failedIds.length}`);
+      } else {
+        showNotification('error', 'Delete Failed', 'Failed to delete selected resources');
+      }
     }
-  };
+  } catch (error) {
+    console.error('❌ Error deleting resource:', error);
+    
+    // Handle authentication errors
+    if (error.message.includes('Authentication required') || 
+        error.message.includes('Session expired')) {
+      showNotification('error', 'Authentication Required', 'Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 2000);
+    } else {
+      showNotification('error', 'Delete Failed', error.message || 'Failed to delete resource');
+    }
+  } finally {
+    setDeleting(false);
+    setBulkDeleting(false);
+    setShowDeleteModal(false);
+    setResourceToDelete(null);
+  }
+};
 
 const handleSubmit = async (formData, id) => {
   setSaving(true);
   try {
+    // Get authentication headers
+    const headers = getAuthHeaders();
+    
     let response;
     
     if (id) {
       // Update existing resource
+      console.log(`🔄 Updating resource ${id} with headers:`, headers);
       response = await fetch(`/api/resources/${id}`, {
         method: 'PUT',
+        headers: headers, // ✅ Add auth headers
         body: formData,
         // Don't set Content-Type for FormData
       });
     } else {
       // Create new resource
+      console.log(`🆕 Creating resource with headers:`, headers);
       response = await fetch('/api/resources', {
         method: 'POST',
+        headers: headers, // ✅ Add auth headers
         body: formData,
         // Don't set Content-Type for FormData
       });
     }
     
+    console.log('📥 Response status:', response.status);
+    
+    // Handle authentication errors
+    if (response.status === 401) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('device_token');
+      localStorage.removeItem('device_fingerprint');
+      
+      throw new Error('Session expired. Please login again.');
+    }
+
     const result = await response.json();
 
     if (result.success) {
@@ -2037,8 +1896,18 @@ const handleSubmit = async (formData, id) => {
       throw new Error(result.error);
     }
   } catch (error) {
-    console.error('Error saving resource:', error);
-    showNotification('error', 'Save Failed', error.message || `Failed to ${id ? 'update' : 'create'} resource`);
+    console.error('❌ Error saving resource:', error);
+    
+    // Handle authentication errors
+    if (error.message.includes('Authentication required') || 
+        error.message.includes('Session expired')) {
+      showNotification('error', 'Authentication Required', 'Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 2000);
+    } else {
+      showNotification('error', 'Save Failed', error.message || `Failed to ${id ? 'update' : 'create'} resource`);
+    }
   } finally {
     setSaving(false);
   }
@@ -2052,7 +1921,7 @@ const handleSubmit = async (formData, id) => {
   // Pagination Component
   const Pagination = () => (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-      <p className="text-sm text-gray-700 font-medium">
+      <p className="text-md  text-gray-700 font-medium">
         Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredResources.length)} of {filteredResources.length} resources
       </p>
       <div className="flex items-center gap-2">
@@ -2109,7 +1978,7 @@ const handleSubmit = async (formData, id) => {
           <p className="text-gray-700 text-lg mt-4 font-medium">
             Loading Resources
           </p>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-gray-400 text-md  mt-1">
             Please wait while we fetch educational resources.
           </p>
         </div>
@@ -2181,7 +2050,7 @@ const handleSubmit = async (formData, id) => {
             </h1>
             
             {/* Description - Responsive sizing and line clamping */}
-            <p className="text-amber-100/90 mt-2 sm:mt-3 text-sm xs:text-base sm:text-lg font-medium max-w-2xl leading-relaxed line-clamp-2 sm:line-clamp-none">
+            <p className="text-amber-100/90 mt-2 sm:mt-3 text-md  xs:text-base sm:text-lg font-medium max-w-2xl leading-relaxed line-clamp-2 sm:line-clamp-none">
   Centralized hub for uploading, organizing, and securely managing learning resources and documents.
 </p>
 
@@ -2216,12 +2085,12 @@ const handleSubmit = async (formData, id) => {
           {refreshing ? (
             <>
               <CircularProgress size={16} color="inherit" />
-              <span className="text-xs sm:text-sm">Refreshing...</span>
+              <span className="text-xs sm:text-md ">Refreshing...</span>
             </>
           ) : (
             <>
               <FiRotateCw className="w-4 h-4" />
-              <span className="text-xs sm:text-sm">Refresh</span>
+              <span className="text-xs sm:text-md ">Refresh</span>
             </>
           )}
         </button>
@@ -2238,7 +2107,7 @@ const handleSubmit = async (formData, id) => {
           <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="relative flex items-center justify-center gap-2">
             <FiPlus className="w-4 h-4" />
-            <span className="text-xs sm:text-sm whitespace-nowrap">
+            <span className="text-xs sm:text-md  whitespace-nowrap">
               Upload Resource
             </span>
           </div>
@@ -2259,7 +2128,7 @@ const handleSubmit = async (formData, id) => {
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-5 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 transform-gpu">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 truncate">Total</p>
+                <p className="text-xs sm:text-md  font-semibold text-gray-600 mb-1 truncate">Total</p>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">{stats.total}</p>
               </div>
               <div className="flex-shrink-0 ml-3 p-2.5 sm:p-3 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 rounded-2xl">
@@ -2272,7 +2141,7 @@ const handleSubmit = async (formData, id) => {
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-5 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 transform-gpu">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 truncate">Total Files</p>
+                <p className="text-xs sm:text-md  font-semibold text-gray-600 mb-1 truncate">Total Files</p>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">{stats.totalFiles}</p>
               </div>
               <div className="flex-shrink-0 ml-3 p-2.5 sm:p-3 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 rounded-2xl">
@@ -2285,7 +2154,7 @@ const handleSubmit = async (formData, id) => {
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-5 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 transform-gpu">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 truncate">Form 1</p>
+                <p className="text-xs sm:text-md  font-semibold text-gray-600 mb-1 truncate">Form 1</p>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">{stats.form1 || 0}</p>
               </div>
               <div className="flex-shrink-0 ml-3 p-2.5 sm:p-3 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 rounded-2xl">
@@ -2298,7 +2167,7 @@ const handleSubmit = async (formData, id) => {
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-5 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 transform-gpu">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 truncate">Form 2</p>
+                <p className="text-xs sm:text-md  font-semibold text-gray-600 mb-1 truncate">Form 2</p>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">{stats.form2 || 0}</p>
               </div>
               <div className="flex-shrink-0 ml-3 p-2.5 sm:p-3 bg-gradient-to-br from-green-50 to-green-100 text-green-600 rounded-2xl">
@@ -2311,7 +2180,7 @@ const handleSubmit = async (formData, id) => {
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-5 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 transform-gpu">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 truncate">Form 3</p>
+                <p className="text-xs sm:text-md  font-semibold text-gray-600 mb-1 truncate">Form 3</p>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">{stats.form3 || 0}</p>
               </div>
               <div className="flex-shrink-0 ml-3 p-2.5 sm:p-3 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 rounded-2xl">
@@ -2324,7 +2193,7 @@ const handleSubmit = async (formData, id) => {
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 sm:p-5 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 transform-gpu">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 truncate">Form 4</p>
+                <p className="text-xs sm:text-md  font-semibold text-gray-600 mb-1 truncate">Form 4</p>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">{stats.form4 || 0}</p>
               </div>
               <div className="flex-shrink-0 ml-3 p-2.5 sm:p-3 bg-gradient-to-br from-cyan-50 to-cyan-100 text-cyan-600 rounded-2xl">
@@ -2347,7 +2216,7 @@ const handleSubmit = async (formData, id) => {
                 <h3 className="font-bold text-red-900 text-lg">
                   {selectedResources.size} resource{selectedResources.size === 1 ? '' : 's'} selected
                 </h3>
-                <p className="text-red-700 text-sm">
+                <p className="text-red-700 text-md ">
                   You can perform bulk actions on selected items
                 </p>
               </div>
@@ -2355,14 +2224,14 @@ const handleSubmit = async (formData, id) => {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => setSelectedResources(new Set())}
-                className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg cursor-pointer text-sm"
+                className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg cursor-pointer text-md "
               >
                 Clear Selection
               </button>
               <button 
                 onClick={handleBulkDelete}
                 disabled={bulkDeleting}
-                className="bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2 text-sm"
+                className="bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2 text-md "
               >
                 {bulkDeleting ? (
                   <>
@@ -2391,14 +2260,14 @@ const handleSubmit = async (formData, id) => {
               placeholder="Search resources by title, description, or subject..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10    font-bold pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-50"
+              className="w-full pl-10    font-bold pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-md  bg-gray-50"
             />
           </div>
 
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 cursor-pointer text-sm"
+            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 cursor-pointer text-md "
           >
             <option value="all">All Types</option>
             {typeOptions.filter(opt => opt.value !== 'all').map(option => (
@@ -2411,7 +2280,7 @@ const handleSubmit = async (formData, id) => {
           <select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50 cursor-pointer text-sm"
+            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50 cursor-pointer text-md "
           >
             {subjectOptions.map(subject => (
               <option key={subject} value={subject}>
@@ -2423,7 +2292,7 @@ const handleSubmit = async (formData, id) => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 cursor-pointer text-sm"
+            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 cursor-pointer text-md "
           >
             {categoryOptions.map(category => (
               <option key={category} value={category}>
@@ -2435,7 +2304,7 @@ const handleSubmit = async (formData, id) => {
           <select
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-gray-50 cursor-pointer text-sm"
+            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-gray-50 cursor-pointer text-md "
           >
             {classOptions.map(className => (
               <option key={className} value={className}>
@@ -2450,7 +2319,7 @@ const handleSubmit = async (formData, id) => {
           <select
             value={selectedAccessLevel}
             onChange={(e) => setSelectedAccessLevel(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 cursor-pointer text-sm"
+            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 cursor-pointer text-md "
           >
             <option value="all">All Access Levels</option>
             {accessOptions.filter(opt => opt.value !== 'all').map(option => (
@@ -2463,7 +2332,7 @@ const handleSubmit = async (formData, id) => {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-gray-50 cursor-pointer text-sm"
+            className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-gray-50 cursor-pointer text-md "
           >
             {statusOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -2485,7 +2354,7 @@ const handleSubmit = async (formData, id) => {
                 setSelectedStatus('all');
                 setSearchTerm('');
               }}
-              className="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 cursor-pointer"
+              className="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold text-md  hover:bg-gray-50 cursor-pointer"
             >
               Clear All Filters
             </button>
@@ -2493,51 +2362,375 @@ const handleSubmit = async (formData, id) => {
         </div>
       </div>
 
-      {/* Resources Grid */}
+
       {filteredResources.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-            {currentItems.map((resource) => (
-              <ModernResourceCard 
-                key={resource.id} 
-                resource={resource}
-                onEdit={handleEdit} 
-                onDelete={handleDeleteClick} 
-                onView={handleView}
-                selected={selectedResources.has(resource.id)} 
-                onSelect={handleResourceSelect} 
-                actionLoading={saving}
-              />
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {filteredResources.length > itemsPerPage && (
-            <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-lg border border-gray-200">
-              <Pagination />
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/5 border border-slate-200/50 overflow-hidden relative">
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none"></div>
+            
+            {/* Enhanced Table Header */}
+            <div className="border-b border-slate-200/50">
+              <div className="flex items-center justify-between px-8 py-5">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={selectedResources.size === currentItems.length && currentItems.length > 0}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          const newSelection = new Set(selectedResources);
+                          currentItems.forEach(resource => newSelection.add(resource.id));
+                          setSelectedResources(newSelection);
+                        } else {
+                          const newSelection = new Set(selectedResources);
+                          currentItems.forEach(resource => newSelection.delete(resource.id));
+                          setSelectedResources(newSelection);
+                        }
+                      }}
+                      className="w-5 h-5 rounded-xl border-2 border-slate-300 bg-white checked:bg-gradient-to-r checked:from-blue-500 checked:to-purple-600 checked:border-0 focus:ring-0 focus:ring-offset-0 cursor-pointer transition-all duration-200"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">
+                      Digital Resources
+                      <span className="ml-2 px-2.5 py-0.5 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 text-xs font-semibold rounded-full">
+                        {filteredResources.length} items
+                      </span>
+                    </h3>
+                    <p className="text-md  text-slate-800  mt-1 flex items-center gap-2">
+                      <FiClock className="w-3 h-3" />
+                      Updated  
+                    </p>
+                  </div>
+                </div>
+                
+              </div>
             </div>
-          )}
+
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1000px]">
+                <thead>
+                  <tr className="bg-gradient-to-r from-slate-50/80 to-white/80 backdrop-blur-sm">
+                    <th className="py-5 px-8 text-left text-xs font-bold text-slate-800  uppercase tracking-[0.2em] w-16">
+                      Select
+                    </th>
+                    <th className="py-5 px-8 text-left text-xs font-bold text-slate-800  uppercase tracking-[0.2em] min-w-[300px]">
+                      <div className="flex items-center gap-2">
+                        <HiOutlineSparkles className="w-4 h-4 text-blue-500" />
+                        Resource
+                      </div>
+                    </th>
+                    <th className="py-5 px-8 text-left text-xs font-bold text-slate-800  uppercase tracking-[0.2em]">
+                      <div className="flex items-center gap-2">
+                        <FiUsers className="w-4 h-4 text-emerald-500" />
+                        Class & Subject
+                      </div>
+                    </th>
+                    <th className="py-5 px-8 text-left text-xs font-bold text-slate-800  uppercase tracking-[0.2em]">
+                      <div className="flex items-center gap-2">
+                        <FiLock className="w-4 h-4 text-amber-500" />
+                        Access 
+                      </div>
+                    </th>
+                    <th className="py-5 px-8 text-left text-xs font-bold text-slate-800  uppercase tracking-[0.2em]">
+                      <div className="flex items-center gap-2">
+                        <FiUserCheck className="w-4 h-4 text-purple-500" />
+                        Teacher
+                      </div>
+                    </th>
+                    <th className="py-5 px-8 text-left text-xs font-bold text-slate-800  uppercase tracking-[0.2em]">
+                      Status
+                    </th>
+                    <th className="py-5 px-8 text-left text-xs font-bold text-slate-800  uppercase tracking-[0.2em]">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100/50">
+                  {currentItems.map((resource) => (
+                    <tr 
+                      key={resource.id} 
+                      className={`group hover:bg-gradient-to-r hover:from-blue-50/30 hover:to-purple-50/20 transition-all duration-300  ${
+                        selectedResources.has(resource.id) ? 'bg-gradient-to-r from-blue-50/50 to-purple-50/30' : ''
+                      }`}
+                    >
+                      {/* Checkbox Column */}
+                      <td className="py-5 px-8" onClick={(e) => e.stopPropagation()}>
+<div className="flex items-center">
+  <input
+    type="checkbox"
+    checked={selectedResources.has(resource.id)}
+    onChange={(e) => handleResourceSelect(resource.id, e.target.checked)}
+    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer transition-colors"
+  />
+</div>
+                      </td>
+
+                      {/* Resource Details Column */}
+                      <td className="py-5 px-8 cursor-pointer"  onClick={() => handleView(resource)}
+>
+                        <div className="flex items-start gap-4">
+                          <div className={`relative p-3.5 rounded-2xl transition-all duration-300 group-hover:scale-105 ${
+                            resource.type?.toLowerCase() === 'pdf' 
+                              ? 'bg-gradient-to-br from-red-50 to-pink-50 border border-red-100 shadow-sm shadow-red-500/10' 
+                              : resource.type?.toLowerCase() === 'video' 
+                              ? 'bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 shadow-sm shadow-blue-500/10'
+                              : resource.type?.toLowerCase() === 'image' 
+                              ? 'bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100 shadow-sm shadow-purple-500/10'
+                              : resource.type?.toLowerCase() === 'document' 
+                              ? 'bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 shadow-sm shadow-emerald-500/10'
+                              : 'bg-gradient-to-br from-slate-50 to-gray-50 border border-slate-100 shadow-sm shadow-slate-500/10'
+                          }`}>
+                            {resource.type?.toLowerCase() === 'pdf' ? (
+                              <HiOutlineDocumentText className="text-xl text-red-600" />
+                            ) : resource.type?.toLowerCase() === 'video' ? (
+                              <FiVideo className="text-xl text-blue-600" />
+                            ) : resource.type?.toLowerCase() === 'image' ? (
+                              <HiOutlinePhotograph className="text-xl text-purple-600" />
+                            ) : resource.type?.toLowerCase() === 'presentation' ? (
+                              <HiOutlinePresentationChartBar className="text-xl text-amber-600" />
+                            ) : (
+                              <FiFileText className="text-xl text-emerald-600" />
+                            )}
+                            {resource.isFeatured && (
+                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
+                                <FiStar className="w-2.5 h-2.5 text-white" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <h4 className="font-bold text-slate-900 text-md  leading-tight group-hover:text-blue-600 transition-colors">
+                                {resource.title || 'Untitled Resource'}
+                              </h4>
+              
+                            </div>
+                            <p className="text-slate-900 text-xs line-clamp-2 mb-3">
+                              {resource.description || 'No description provided'}
+                            </p>
+                            <div className="flex items-center gap-4 text-xs text-slate-800 ">
+                              <span className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 rounded-lg">
+                                <FiFile className="w-3 h-3" />
+                                {resource.files?.length || 0} files
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Subject & Class Column */}
+                      <td className="py-5 px-8">
+                        <div className="space-y-3">
+                          <div className="inline-flex flex-col gap-1.5">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 text-xs font-bold rounded-xl border border-blue-100">
+                              <FiUsers className="w-3 h-3" />
+                              {resource.className || 'All Classes'}
+                            </span>
+                            <span className="inline-block px-3 py-1.5 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-100">
+                              {resource.subject || 'General Studies'}
+                            </span>
+                          </div>
+                          {resource.students && (
+                            <p className="text-xs text-slate-800  font-medium">
+                              {resource.students} students enrolled
+                            </p>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Type & Access Column */}
+                      <td className="py-5 px-8">
+                        <div className="space-y-3">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2.5 h-2.5 rounded-full animate-pulse ${
+                                resource.type?.toLowerCase() === 'pdf' ? 'bg-gradient-to-r from-red-500 to-pink-500' :
+                                resource.type?.toLowerCase() === 'video' ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
+                                resource.type?.toLowerCase() === 'image' ? 'bg-gradient-to-r from-purple-500 to-violet-500' :
+                                resource.type?.toLowerCase() === 'document' ? 'bg-gradient-to-r from-emerald-500 to-teal-500' :
+                                'bg-gradient-to-r from-slate-500 to-gray-500'
+                              }`} />
+                              <span className="text-xs font-bold text-slate-900 capitalize">
+                                {resource.type || 'File'}
+                              </span>
+                            </div>
+                            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold ${
+                              resource.accessLevel === 'student' 
+                                ? 'bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 border-blue-100' 
+                                : resource.accessLevel === 'teacher' 
+                                ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-100'
+                                : resource.accessLevel === 'admin' 
+                                ? 'bg-gradient-to-r from-purple-50 to-violet-50 text-purple-700 border-purple-100'
+                                : 'bg-gradient-to-r from-slate-50 to-gray-50 text-slate-700 border-slate-100'
+                            }`}>
+                              {resource.accessLevel === 'admin' ? <FiLock className="w-3 h-3" /> : <FiUnlock className="w-3 h-3" />}
+                              {resource.accessLevel || 'student'} access
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Teacher Column */}
+                      <td className="py-5 px-8">
+                        <div className="flex items-center gap-3 group/author">
+                          <div className="relative">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-md  shadow-md shadow-blue-500/25">
+                              {resource.teacher?.split(' ').map(n => n[0]).join('') || 'A'}
+                            </div>
+                            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/0 to-purple-600/0 group-hover/author:from-blue-500/20 group-hover/author:to-purple-600/20 transition-all duration-300"></div>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-md  font-bold text-slate-900 group-hover/author:text-blue-600 transition-colors">
+                              {resource.teacher || 'System Admin'}
+                            </span>
+                            <span className="text-xs text-slate-800  font-medium">
+                              {resource.role || 'Teacher'}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Status Column */}
+                      <td className="py-5 px-8">
+                        <div className="relative">
+                          <span className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all duration-300 ${
+                            resource.isActive === true
+                              ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200 group-hover:shadow-lg group-hover:shadow-emerald-500/20'
+                              : 'bg-gradient-to-r from-slate-50 to-gray-50 text-slate-600 border-slate-200'
+                          }`}>
+                            <div className={`w-1.5 h-1.5 rounded-full ${
+                              resource.isActive === true 
+                                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 animate-pulse' 
+                                : 'bg-slate-400'
+                            }`}></div>
+                            {resource.isActive === true ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                      </td>
+
+            <td className="py-5 px-8 text-right">
+  <div className="flex items-center justify-end gap-4">
+    <button
+      onClick={() => handleView(resource)}
+      className="flex items-center gap-1.5 text-blue-600 font-bold text-sm cursor-pointer"
+    >
+      <FiEye className="w-4 h-4" />
+      <span>View</span>
+    </button>
+    
+    <button
+      onClick={() => handleEdit(resource)}
+      className="flex items-center gap-1.5 text-slate-600 font-bold text-sm cursor-pointer"
+    >
+      <FiEdit2 className="w-4 h-4" />
+      <span>Edit</span>
+    </button>
+  </div>
+</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Modern Table Footer */}
+            <div className="px-8 py-6 border-t border-slate-200/50 bg-gradient-to-r from-white to-slate-50/50 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <div className="text-md  text-slate-600 font-medium">
+                  <span className="font-bold text-slate-900">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredResources.length)}</span> 
+                  of <span className="font-bold text-slate-900">{filteredResources.length}</span> resources
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2.5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-white hover:shadow-md disabled:opacity-30 transition-all duration-200 group"
+                  >
+                    <FiChevronLeft className="w-5 h-5 text-slate-800  group-hover:text-blue-600" />
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1))
+                    .map((page, index, array) => (
+                      <div key={page} className="flex items-center">
+                        {index > 0 && array[index - 1] !== page - 1 && (
+                          <span className="px-2 text-slate-400">...</span>
+                        )}
+                        <button
+                          onClick={() => paginate(page)}
+                          className={`px-4 py-2 rounded-xl font-medium text-md  transition-all duration-200 ${
+                            currentPage === page 
+                              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25' 
+                              : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      </div>
+                    ))}
+                  
+                  <button
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2.5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-white hover:shadow-md disabled:opacity-30 transition-all duration-200 group"
+                  >
+                    <FiChevronRight className="w-5 h-5 text-slate-800  group-hover:text-blue-600" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </>
       ) : (
-        /* Empty State */
-        <div className="text-center py-12 bg-white rounded-2xl shadow-lg border border-gray-200">
-          <FiFolder className="text-4xl lg:text-5xl text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl lg:text-2xl font-bold text-gray-900 mb-3">
-            {searchTerm || selectedType !== 'all' || selectedSubject !== 'All Subjects' ? 'No resources found' : 'No resources available'}
-          </h3>
-          <p className="text-gray-600 text-sm lg:text-base mb-6 max-w-md mx-auto">
-            {searchTerm || selectedType !== 'all' || selectedSubject !== 'All Subjects' ? 
-              'Try adjusting your search criteria' : 
-              'Start by uploading your first resource'}
-          </p>
-          <button 
-            onClick={handleCreate} 
-            className="text-white px-6 lg:px-8 py-3 lg:py-4 rounded-2xl font-bold shadow-lg flex items-center gap-2 mx-auto text-sm lg:text-base cursor-pointer bg-gradient-to-r from-blue-600 to-cyan-600"
-          >
-            <FiUpload /> Upload Resource
-          </button>
+        /* Modern Empty State */
+        <div className="relative bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/5 border border-blue-100/50 text-center py-16 px-8 overflow-hidden">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-400"></div>
+          </div>
+          
+          <div className="relative">
+            <div className="w-24 h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/10">
+              <FiFolder className="text-4xl text-gradient-to-r from-blue-500 to-purple-500" />
+            </div>
+            
+            <h3 className="text-2xl font-bold text-slate-900 mb-3">
+              {searchTerm || selectedType !== 'all' || selectedSubject !== 'All Subjects' 
+                ? 'No resources match your search' 
+                : 'Your resource library is empty'}
+            </h3>
+            
+            <p className="text-slate-600 text-base mb-8 max-w-md mx-auto">
+              {searchTerm || selectedType !== 'all' || selectedSubject !== 'All Subjects' 
+                ? 'Try adjusting your filters or search keywords to find what you need.' 
+                : 'Start building your digital classroom by uploading your first resource.'}
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button 
+                onClick={handleCreate} 
+                className="group relative bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-8 py-3.5 rounded-2xl font-bold shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/30 flex items-center gap-2 mx-auto transition-all duration-300 hover:-translate-y-0.5"
+              >
+                <FiUpload className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                Upload Resource
+              </button>
+              
+              <button 
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedType('all');
+                  setSelectedSubject('All Subjects');
+                }}
+                className="px-6 py-3.5 rounded-2xl font-semibold border-2 border-slate-200 text-slate-700 hover:border-blue-300 hover:text-blue-600 hover:bg-white transition-all duration-300"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
         </div>
       )}
+   
 
       {/* Create/Edit Modal */}
       {showModal && (
