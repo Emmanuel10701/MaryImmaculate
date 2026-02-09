@@ -3,6 +3,147 @@ import { parse } from 'papaparse';
 import * as XLSX from 'xlsx';
 import { prisma } from '../../../libs/prisma';
 
+// ==================== AUTHENTICATION UTILITIES ====================
+
+// Device Token Manager
+class DeviceTokenManager {
+  static validateTokensFromHeaders(headers, options = {}) {
+    try {
+      // Extract tokens from headers
+      const adminToken = headers.get('x-admin-token') || headers.get('authorization')?.replace('Bearer ', '');
+      const deviceToken = headers.get('x-device-token');
+
+      if (!adminToken) {
+        return { valid: false, reason: 'no_admin_token', message: 'Admin token is required' };
+      }
+
+      if (!deviceToken) {
+        return { valid: false, reason: 'no_device_token', message: 'Device token is required' };
+      }
+
+      // Validate admin token format (basic check)
+      const adminParts = adminToken.split('.');
+      if (adminParts.length !== 3) {
+        return { valid: false, reason: 'invalid_admin_token_format', message: 'Invalid admin token format' };
+      }
+
+      // Validate device token
+      const deviceValid = this.validateDeviceToken(deviceToken);
+      if (!deviceValid.valid) {
+        return { 
+          valid: false, 
+          reason: `device_${deviceValid.reason}`,
+          message: `Device token ${deviceValid.reason}: ${deviceValid.error || ''}`
+        };
+      }
+
+      // Parse admin token payload
+      let adminPayload;
+      try {
+        adminPayload = JSON.parse(atob(adminParts[1]));
+        
+        // Check expiration
+        const currentTime = Date.now() / 1000;
+        if (adminPayload.exp < currentTime) {
+          return { valid: false, reason: 'admin_token_expired', message: 'Admin token has expired' };
+        }
+        
+        // Check user role - only admins/staff can manage students
+        const userRole = adminPayload.role || adminPayload.userRole;
+        const validRoles = ['ADMIN', 'SUPER_ADMIN', 'administrator', 'PRINCIPAL', 'STAFF', 'HR_MANAGER', 'TEACHER'];
+        
+        if (!userRole || !validRoles.includes(userRole.toUpperCase())) {
+          return { 
+            valid: false, 
+            reason: 'invalid_role', 
+            message: 'User does not have permission to manage students' 
+          };
+        }
+        
+      } catch (error) {
+        return { valid: false, reason: 'invalid_admin_token', message: 'Invalid admin token' };
+      }
+
+      console.log('✅ Student management authentication successful for user:', adminPayload.name || 'Unknown');
+      
+      return { 
+        valid: true, 
+        user: {
+          id: adminPayload.userId || adminPayload.id,
+          name: adminPayload.name,
+          email: adminPayload.email,
+          role: adminPayload.role || adminPayload.userRole
+        },
+        deviceInfo: deviceValid.payload
+      };
+
+    } catch (error) {
+      console.error('❌ Token validation error:', error);
+      return { 
+        valid: false, 
+        reason: 'validation_error', 
+        message: 'Authentication validation failed',
+        error: error.message 
+      };
+    }
+  }
+
+  // Validate device token
+  static validateDeviceToken(token) {
+    try {
+      // Handle base64 decoding safely
+      const payloadStr = Buffer.from(token, 'base64').toString('utf-8');
+      const payload = JSON.parse(payloadStr);
+      
+      // Check expiration
+      if (payload.exp && payload.exp * 1000 <= Date.now()) {
+        return { valid: false, reason: 'expired', payload, error: 'Device token has expired' };
+      }
+      
+      // Check age (30 days max)
+      const createdAt = new Date(payload.createdAt || payload.iat * 1000);
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      
+      if (createdAt < thirtyDaysAgo) {
+        return { valid: false, reason: 'age_expired', payload, error: 'Device token is too old' };
+      }
+      
+      return { valid: true, payload };
+    } catch (error) {
+      return { valid: false, reason: 'invalid_format', error: error.message };
+    }
+  }
+}
+
+// Authentication middleware for protected requests
+const authenticateRequest = (req) => {
+  const headers = req.headers;
+  
+  // Validate tokens
+  const validationResult = DeviceTokenManager.validateTokensFromHeaders(headers);
+  
+  if (!validationResult.valid) {
+    return {
+      authenticated: false,
+      response: NextResponse.json(
+        { 
+          success: false, 
+          error: "Access Denied",
+          message: "Authentication required to manage student data.",
+          details: validationResult.message
+        },
+        { status: 401 }
+      )
+    };
+  }
+
+  return {
+    authenticated: true,
+    user: validationResult.user,
+    deviceInfo: validationResult.deviceInfo
+  };
+};
+
 // ========== HELPER FUNCTIONS ==========
 
 // Helper to parse dates consistently
@@ -954,296 +1095,7 @@ const validateStudent = (student, index) => {
 
 // ========== API ENDPOINTS ==========
 
-// POST - Bulk upload with new strategy
-export async function POST(request) {
-  try {
-    const formData = await request.formData();
-    const file = formData.get('file');
-    const uploadType = formData.get('uploadType'); // 'new' or 'update'
-    const formsInput = formData.get('forms'); // JSON string for forms
-    const targetForm = formData.get('targetForm'); // Single form for updates
-    const checkDuplicates = formData.get('checkDuplicates') === 'true';
-    const duplicateAction = formData.get('duplicateAction') || 'skip'; // 'skip' or 'replace'
-    
-    if (!file) {
-      return NextResponse.json(
-        { success: false, error: 'No file provided' },
-        { status: 400 }
-      );
-    }
-    
-    if (!uploadType) {
-      return NextResponse.json(
-        { success: false, error: 'Upload type is required (new or update)' },
-        { status: 400 }
-      );
-    }
-    
-    // Validate form selection based on upload type
-    let selectedForms = [];
-    if (uploadType === 'new') {
-      if (!formsInput) {
-        return NextResponse.json(
-          { success: false, error: 'Please select at least one form for new upload' },
-          { status: 400 }
-        );
-      }
-      try {
-        const forms = JSON.parse(formsInput);
-        selectedForms = validateFormSelection(forms);
-      } catch (error) {
-        return NextResponse.json(
-          { success: false, error: 'Invalid form selection' },
-          { status: 400 }
-        );
-      }
-    } else if (uploadType === 'update') {
-      if (!targetForm) {
-        return NextResponse.json(
-          { success: false, error: 'Target form is required for update upload' },
-          { status: 400 }
-        );
-      }
-      selectedForms = validateFormSelection([targetForm]);
-    } else {
-      return NextResponse.json(
-        { success: false, error: 'Invalid upload type. Must be "new" or "update"' },
-        { status: 400 }
-      );
-    }
-    
-    const fileName = file.name.toLowerCase();
-    const fileExtension = fileName.split('.').pop();
-    
-    const validExtensions = ['csv', 'xlsx', 'xls'];
-    if (!validExtensions.includes(fileExtension)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid file type. Please upload CSV or Excel (xlsx/xls) files.' 
-        },
-        { status: 400 }
-      );
-    }
-    
-    // Create batch record
-    const batchId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    const uploadBatch = await prisma.studentBulkUpload.create({
-      data: {
-        id: batchId,
-        fileName: file.name,
-        fileType: fileExtension,
-        uploadedBy: 'System Upload',
-        status: 'processing',
-        metadata: {
-          uploadType,
-          selectedForms,
-          targetForm: uploadType === 'update' ? targetForm : null
-        }
-      }
-    });
-    
-    try {
-      // Parse file
-      let rawData = [];
-      
-      if (fileExtension === 'csv') {
-        rawData = await parseCSV(file);
-      } else {
-        rawData = await parseExcel(file);
-      }
-      
-      if (rawData.length === 0) {
-        throw new Error(`No valid student data found.`);
-      }
-      
-      // If just checking for duplicates
-      if (checkDuplicates) {
-        let duplicates = [];
-        
-        if (uploadType === 'new') {
-          // Check for duplicates across all forms
-          duplicates = await checkDuplicateAdmissionNumbers(rawData);
-        } else if (uploadType === 'update') {
-          // Check for duplicates in the target form
-          duplicates = await checkDuplicateAdmissionNumbers(rawData, targetForm);
-        }
-        
-        return NextResponse.json({
-          success: true,
-          hasDuplicates: duplicates.length > 0,
-          duplicates: duplicates,
-          totalRows: rawData.length,
-          message: duplicates.length > 0 
-            ? `Found ${duplicates.length} duplicate admission numbers` 
-            : 'No duplicates found'
-        });
-      }
-      
-      let processingStats;
-      
-      // Use transaction for consistency
-      await prisma.$transaction(async (tx) => {
-        if (uploadType === 'new') {
-          // Process new upload
-          processingStats = await processNewUpload(rawData, batchId, selectedForms, duplicateAction);
-          
-          // Update batch with new upload stats
-          await tx.studentBulkUpload.update({
-            where: { id: batchId },
-            data: {
-              status: 'completed',
-              processedDate: new Date(),
-              totalRows: processingStats.totalRows,
-              validRows: processingStats.validRows,
-              skippedRows: processingStats.skippedRows,
-              errorRows: processingStats.errorRows,
-              errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined
-            }
-          });
-          
-          // Update statistics
-          if (processingStats.createdStudents.length > 0) {
-            const formCounts = processingStats.createdStudents.reduce((acc, student) => {
-              acc[student.form] = (acc[student.form] || 0) + 1;
-              return acc;
-            }, {});
-            
-            await tx.studentStats.upsert({
-              where: { id: 'global_stats' },
-              update: {
-                totalStudents: { increment: processingStats.createdStudents.length },
-                form1: { increment: formCounts['Form 1'] || 0 },
-                form2: { increment: formCounts['Form 2'] || 0 },
-                form3: { increment: formCounts['Form 3'] || 0 },
-                form4: { increment: formCounts['Form 4'] || 0 },
-                updatedAt: new Date()
-              },
-              create: {
-                id: 'global_stats',
-                totalStudents: processingStats.createdStudents.length,
-                form1: formCounts['Form 1'] || 0,
-                form2: formCounts['Form 2'] || 0,
-                form3: formCounts['Form 3'] || 0,
-                form4: formCounts['Form 4'] || 0
-              }
-            });
-          }
-          
-        } else if (uploadType === 'update') {
-          // Process update upload
-          processingStats = await processUpdateUpload(rawData, batchId, targetForm);
-          
-          // Update batch with update stats
-          await tx.studentBulkUpload.update({
-            where: { id: batchId },
-            data: {
-              status: 'completed',
-              processedDate: new Date(),
-              totalRows: processingStats.totalRows,
-              validRows: processingStats.validRows,
-              skippedRows: processingStats.errorRows,
-              errorRows: processingStats.errorRows,
-              errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined,
-              metadata: {
-                ...uploadBatch.metadata,
-                updatedRows: processingStats.updatedRows,
-                createdRows: processingStats.createdRows,
-                deactivatedRows: processingStats.deactivatedRows
-              }
-            }
-          });
-          
-          // Recalculate statistics after update
-          const formStats = await tx.databaseStudent.groupBy({
-            by: ['form'],
-            where: { status: 'active' },
-            _count: { id: true }
-          });
-          
-          const totalStudents = await tx.databaseStudent.count({
-            where: { status: 'active' }
-          });
-          
-          const formStatsObj = formStats.reduce((acc, stat) => ({
-            ...acc,
-            [stat.form]: stat._count.id
-          }), {});
-          
-          await tx.studentStats.upsert({
-            where: { id: 'global_stats' },
-            update: {
-              totalStudents,
-              form1: formStatsObj['Form 1'] || 0,
-              form2: formStatsObj['Form 2'] || 0,
-              form3: formStatsObj['Form 3'] || 0,
-              form4: formStatsObj['Form 4'] || 0,
-              updatedAt: new Date()
-            },
-            create: {
-              id: 'global_stats',
-              totalStudents,
-              form1: formStatsObj['Form 1'] || 0,
-              form2: formStatsObj['Form 2'] || 0,
-              form3: formStatsObj['Form 3'] || 0,
-              form4: formStatsObj['Form 4'] || 0
-            }
-          });
-        }
-      });
-      
-      // Recalculate to ensure consistency
-      const finalStats = await calculateStatistics({});
-      
-      return NextResponse.json({
-        success: true,
-        message: uploadType === 'new' 
-          ? `Successfully processed ${processingStats.validRows} new students` 
-          : `Successfully updated form ${targetForm}: ${processingStats.updatedRows} updated, ${processingStats.createdRows} created, ${processingStats.deactivatedRows} deactivated`,
-        batch: {
-          id: batchId,
-          fileName: uploadBatch.fileName,
-          status: 'completed',
-          uploadType,
-          selectedForms
-        },
-        stats: finalStats.stats,
-        validation: finalStats.validation,
-        processingStats: processingStats,
-        errors: processingStats.errors.slice(0, 20)
-      });
-      
-    } catch (error) {
-      console.error('Processing error:', error);
-      
-      // Update batch as failed
-      await prisma.studentBulkUpload.update({
-        where: { id: batchId },
-        data: {
-          status: 'failed',
-          processedDate: new Date(),
-          errorRows: 1,
-          errorLog: [error.message]
-        }
-      });
-      
-      throw error;
-    }
-    
-  } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error.message || 'Upload failed'
-      },
-      { status: 500 }
-    );
-  }
-}
-
-// GET - Main endpoint with consistent statistics
+// GET - Main endpoint with consistent statistics (PUBLIC - no authentication required)
 export async function GET(request) {
   try {
     const url = new URL(request.url);
@@ -1263,41 +1115,40 @@ export async function GET(request) {
     const filters = { form, stream, gender, status, search };
     const where = buildWhereClause(filters);
 
-    if (action === 'uploads') {
-      const uploads = await prisma.studentBulkUpload.findMany({
-        orderBy: { uploadDate: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
-        select: {
-          id: true,
-          fileName: true,
-          fileType: true,
-          status: true,
-          uploadedBy: true,
-          uploadDate: true,
-          processedDate: true,
-          totalRows: true,
-          validRows: true,
-          skippedRows: true,
-          errorRows: true,
-          errorLog: true
-        }
-      });
-
-      const total = await prisma.studentBulkUpload.count();
-      
-      return NextResponse.json({
-        success: true,
-        uploads,
-        pagination: { 
-          page, 
-          limit, 
-          total, 
-          pages: Math.ceil(total / limit) 
-        }
-      });
+if (action === 'uploads') {
+  const uploads = await prisma.studentBulkUpload.findMany({
+    orderBy: { uploadDate: 'desc' },
+    skip: (page - 1) * limit,
+    take: limit,
+    select: {
+      id: true,
+      fileName: true,
+      fileType: true,
+      status: true,
+      uploadDate: true,
+      uploadedBy: true,
+      processedDate: true,
+      totalRows: true,
+      validRows: true,
+      skippedRows: true,
+      errorRows: true,
+      errorLog: true
     }
+  });
 
+  const total = await prisma.studentBulkUpload.count();
+  
+  return NextResponse.json({
+    success: true,
+    uploads,
+    pagination: { 
+      page, 
+      limit, 
+      total, 
+      pages: Math.ceil(total / limit) 
+    }
+  });
+}
     if (action === 'stats') {
       // Calculate fresh statistics with filters
       const statsResult = await calculateStatistics(where);
@@ -1397,15 +1248,377 @@ export async function GET(request) {
   }
 }
 
-// PUT - Update student with transaction
+// POST - Bulk upload with new strategy (with authentication)
+export async function POST(request) {
+  try {
+    // Step 1: Authenticate the POST request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`📝 Student bulk upload request from: ${auth.user.name} (${auth.user.role})`);
+
+    const formData = await request.formData();
+    const file = formData.get('file');
+    const uploadType = formData.get('uploadType'); // 'new' or 'update'
+    const formsInput = formData.get('forms'); // JSON string for forms
+    const targetForm = formData.get('targetForm'); // Single form for updates
+    const checkDuplicates = formData.get('checkDuplicates') === 'true';
+    const duplicateAction = formData.get('duplicateAction') || 'skip'; // 'skip' or 'replace'
+    
+    if (!file) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'No file provided',
+          authenticated: true 
+        },
+        { status: 400 }
+      );
+    }
+    
+    if (!uploadType) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Upload type is required (new or update)',
+          authenticated: true 
+        },
+        { status: 400 }
+      );
+    }
+    
+    // Validate form selection based on upload type
+    let selectedForms = [];
+    if (uploadType === 'new') {
+      if (!formsInput) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Please select at least one form for new upload',
+            authenticated: true 
+          },
+          { status: 400 }
+        );
+      }
+      try {
+        const forms = JSON.parse(formsInput);
+        selectedForms = validateFormSelection(forms);
+      } catch (error) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Invalid form selection',
+            authenticated: true 
+          },
+          { status: 400 }
+        );
+      }
+    } else if (uploadType === 'update') {
+      if (!targetForm) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Target form is required for update upload',
+            authenticated: true 
+          },
+          { status: 400 }
+        );
+      }
+      selectedForms = validateFormSelection([targetForm]);
+    } else {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid upload type. Must be "new" or "update"',
+          authenticated: true 
+        },
+        { status: 400 }
+      );
+    }
+    
+    const fileName = file.name.toLowerCase();
+    const fileExtension = fileName.split('.').pop();
+    
+    const validExtensions = ['csv', 'xlsx', 'xls'];
+    if (!validExtensions.includes(fileExtension)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid file type. Please upload CSV or Excel (xlsx/xls) files.',
+          authenticated: true 
+        },
+        { status: 400 }
+      );
+    }
+    
+    // Create batch record with uploader info from authentication
+    const batchId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const uploadBatch = await prisma.studentBulkUpload.create({
+      data: {
+        id: batchId,
+        fileName: file.name,
+        fileType: fileExtension,
+        uploadedBy: auth.user.name, // Use authenticated user's name
+        status: 'processing',
+        metadata: {
+          uploadType,
+          selectedForms,
+          targetForm: uploadType === 'update' ? targetForm : null,
+          uploadedBy: auth.user.name,
+          userRole: auth.user.role,
+          timestamp: new Date()
+        }
+      }
+    });
+    
+    try {
+      // Parse file
+      let rawData = [];
+      
+      if (fileExtension === 'csv') {
+        rawData = await parseCSV(file);
+      } else {
+        rawData = await parseExcel(file);
+      }
+      
+      if (rawData.length === 0) {
+        throw new Error(`No valid student data found.`);
+      }
+      
+      // If just checking for duplicates
+      if (checkDuplicates) {
+        let duplicates = [];
+        
+        if (uploadType === 'new') {
+          // Check for duplicates across all forms
+          duplicates = await checkDuplicateAdmissionNumbers(rawData);
+        } else if (uploadType === 'update') {
+          // Check for duplicates in the target form
+          duplicates = await checkDuplicateAdmissionNumbers(rawData, targetForm);
+        }
+        
+        return NextResponse.json({
+          success: true,
+          hasDuplicates: duplicates.length > 0,
+          duplicates: duplicates,
+          totalRows: rawData.length,
+          authenticated: true,
+          uploadedBy: auth.user.name,
+          message: duplicates.length > 0 
+            ? `Found ${duplicates.length} duplicate admission numbers` 
+            : 'No duplicates found'
+        });
+      }
+      
+      let processingStats;
+      
+// Use transaction for consistency with increased timeout
+await prisma.$transaction(async (tx) => {
+  if (uploadType === 'new') {
+    // Process new upload
+    processingStats = await processNewUpload(rawData, batchId, selectedForms, duplicateAction);
+    
+    // Update batch with new upload stats
+    await tx.studentBulkUpload.update({
+      where: { id: batchId },
+      data: {
+        status: 'completed',
+        processedDate: new Date(),
+        totalRows: processingStats.totalRows,
+        validRows: processingStats.validRows,
+        skippedRows: processingStats.skippedRows,
+        errorRows: processingStats.errorRows,
+        errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined
+      }
+    });
+    
+    // Update statistics - OPTIMIZED VERSION
+    if (processingStats.createdStudents.length > 0) {
+      const formCounts = {};
+      processingStats.createdStudents.forEach(student => {
+        formCounts[student.form] = (formCounts[student.form] || 0) + 1;
+      });
+      
+      // Update stats in bulk without recalculating everything
+      await tx.studentStats.upsert({
+        where: { id: 'global_stats' },
+        update: {
+          totalStudents: { increment: processingStats.createdStudents.length },
+          ...(formCounts['Form 1'] && { form1: { increment: formCounts['Form 1'] } }),
+          ...(formCounts['Form 2'] && { form2: { increment: formCounts['Form 2'] } }),
+          ...(formCounts['Form 3'] && { form3: { increment: formCounts['Form 3'] } }),
+          ...(formCounts['Form 4'] && { form4: { increment: formCounts['Form 4'] } }),
+          updatedAt: new Date()
+        },
+        create: {
+          id: 'global_stats',
+          totalStudents: processingStats.createdStudents.length,
+          form1: formCounts['Form 1'] || 0,
+          form2: formCounts['Form 2'] || 0,
+          form3: formCounts['Form 3'] || 0,
+          form4: formCounts['Form 4'] || 0
+        }
+      });
+    }
+    
+  } else if (uploadType === 'update') {
+    // Process update upload
+    processingStats = await processUpdateUpload(rawData, batchId, targetForm);
+    
+    // Update batch with update stats
+    await tx.studentBulkUpload.update({
+      where: { id: batchId },
+      data: {
+        status: 'completed',
+        processedDate: new Date(),
+        totalRows: processingStats.totalRows,
+        validRows: processingStats.validRows,
+        skippedRows: processingStats.errorRows,
+        errorRows: processingStats.errorRows,
+        errorLog: processingStats.errors.length > 0 ? processingStats.errors.slice(0, 50) : undefined,
+        metadata: {
+          ...uploadBatch.metadata,
+          updatedRows: processingStats.updatedRows,
+          createdRows: processingStats.createdRows,
+          deactivatedRows: processingStats.deactivatedRows
+        }
+      }
+    });
+    
+    // OPTIMIZED: Only recalculate statistics if needed
+    // Skip full recalculation if no deactivations
+    if (processingStats.deactivatedRows > 0) {
+      const formStats = await tx.databaseStudent.groupBy({
+        by: ['form'],
+        where: { status: 'active' },
+        _count: { id: true }
+      });
+      
+      const formStatsObj = {};
+      formStats.forEach(stat => {
+        formStatsObj[stat.form] = stat._count.id;
+      });
+      
+      await tx.studentStats.upsert({
+        where: { id: 'global_stats' },
+        update: {
+          totalStudents: formStats.reduce((sum, stat) => sum + stat._count.id, 0),
+          form1: formStatsObj['Form 1'] || 0,
+          form2: formStatsObj['Form 2'] || 0,
+          form3: formStatsObj['Form 3'] || 0,
+          form4: formStatsObj['Form 4'] || 0,
+          updatedAt: new Date()
+        },
+        create: {
+          id: 'global_stats',
+          totalStudents: formStats.reduce((sum, stat) => sum + stat._count.id, 0),
+          form1: formStatsObj['Form 1'] || 0,
+          form2: formStatsObj['Form 2'] || 0,
+          form3: formStatsObj['Form 3'] || 0,
+          form4: formStatsObj['Form 4'] || 0
+        }
+      });
+    } else {
+      // Simple increment/decrement for update operations
+      const netChange = processingStats.createdRows - processingStats.updatedRows;
+      await tx.studentStats.update({
+        where: { id: 'global_stats' },
+        data: {
+          totalStudents: { increment: netChange },
+          ...(targetForm === 'Form 1' && { form1: { increment: netChange } }),
+          ...(targetForm === 'Form 2' && { form2: { increment: netChange } }),
+          ...(targetForm === 'Form 3' && { form3: { increment: netChange } }),
+          ...(targetForm === 'Form 4' && { form4: { increment: netChange } }),
+          updatedAt: new Date()
+        }
+      });
+    }
+  }
+}, {
+  maxWait: 15000,    // Increased from default
+  timeout: 30000     // 30 seconds timeout
+});
+      
+      // Recalculate to ensure consistency
+      const finalStats = await calculateStatistics({});
+      
+      console.log(`✅ Student upload completed by ${auth.user.name}: ${processingStats.validRows} students processed`);
+      
+      return NextResponse.json({
+        success: true,
+        message: uploadType === 'new' 
+          ? `Successfully processed ${processingStats.validRows} new students` 
+          : `Successfully updated form ${targetForm}: ${processingStats.updatedRows} updated, ${processingStats.createdRows} created, ${processingStats.deactivatedRows} deactivated`,
+        batch: {
+          id: batchId,
+          fileName: uploadBatch.fileName,
+          status: 'completed',
+          uploadType,
+          selectedForms
+        },
+        stats: finalStats.stats,
+        validation: finalStats.validation,
+        processingStats: processingStats,
+        authenticated: true,
+        uploadedBy: auth.user.name, 
+        errors: processingStats.errors.slice(0, 20),
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Processing error:', error);
+      
+      // Update batch as failed
+      await prisma.studentBulkUpload.update({
+        where: { id: batchId },
+        data: {
+          status: 'failed',
+          processedDate: new Date(),
+          errorRows: 1,
+          errorLog: [error.message]
+        }
+      });
+      
+      throw error;
+    }
+    
+  } catch (error) {
+    console.error('Upload error:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: error.message || 'Upload failed',
+        authenticated: true,
+        suggestion: 'Check that your file has the required columns: admissionNumber, firstName, lastName, form'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+
+// PUT - Update student with transaction (PROTECTED - authentication required)
 export async function PUT(request) {
   try {
+    // Step 1: Authenticate the PUT request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`📝 Student update request from: ${auth.user.name} (${auth.user.role})`);
+
     const body = await request.json();
     const { id, ...updateData } = body;
 
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'Student ID is required' },
+        { success: false, error: 'Student ID is required', authenticated: true },
         { status: 400 }
       );
     }
@@ -1447,12 +1660,13 @@ export async function PUT(request) {
         }
       }
 
-      // Update student
+      // Update student with audit info
       const updatedStudent = await tx.databaseStudent.update({
         where: { id },
         data: {
           ...updateData,
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          
         }
       });
 
@@ -1487,6 +1701,8 @@ export async function PUT(request) {
     // Recalculate to ensure consistency
     const finalStats = await calculateStatistics({});
 
+    console.log(`✅ Student updated by ${auth.user.name}: ${result.firstName} ${result.lastName}`);
+
     return NextResponse.json({
       success: true,
       message: 'Student updated successfully',
@@ -1494,30 +1710,42 @@ export async function PUT(request) {
         student: result,
         stats: finalStats.stats,
         validation: finalStats.validation
-      }
+      },
+      authenticated: true,
+
     });
 
   } catch (error) {
     console.error('PUT error:', error);
     if (error.code === 'P2025') {
       return NextResponse.json(
-        { success: false, error: 'Student not found' },
+        { success: false, error: 'Student not found', authenticated: true },
         { status: 404 }
       );
     }
     return NextResponse.json(
       { 
         success: false, 
-        error: error.message || 'Update failed'
+        error: error.message || 'Update failed',
+        authenticated: true
       },
       { status: 500 }
     );
   }
 }
 
-// DELETE - Student or batch with transaction
+// DELETE - Student or batch with transaction (PROTECTED - authentication required)
 export async function DELETE(request) {
   try {
+    // Step 1: Authenticate the DELETE request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`🗑️ Student delete request from: ${auth.user.name} (${auth.user.role})`);
+
     const url = new URL(request.url);
     const batchId = url.searchParams.get('batchId');
     const studentId = url.searchParams.get('studentId');
@@ -1556,7 +1784,8 @@ export async function DELETE(request) {
             where: { uploadBatchId: batchId },
             data: {
               status: 'inactive',
-              updatedAt: new Date()
+              updatedAt: new Date(),
+              
             }
           });
         }
@@ -1590,13 +1819,16 @@ export async function DELETE(request) {
       // Recalculate to ensure consistency
       const finalStats = await calculateStatistics({});
 
+      console.log(`✅ Batch deleted by ${auth.user.name}: ${result.batch.fileName} (${result.deletedCount} students)`);
+
       return NextResponse.json({
         success: true,
         message: `${result.deletionType === 'hard' ? 'Hard deleted' : 'Soft deleted'} batch ${result.batch.fileName} and ${result.deletedCount} students`,
         data: {
           stats: finalStats.stats,
           validation: finalStats.validation
-        }
+        },
+        authenticated: true,
       });
     }
 
@@ -1633,7 +1865,8 @@ export async function DELETE(request) {
             where: { id: studentId },
             data: {
               status: 'inactive',
-              updatedAt: new Date()
+              updatedAt: new Date(),
+             
             }
           });
         }
@@ -1644,33 +1877,45 @@ export async function DELETE(request) {
       // Recalculate to ensure consistency
       const finalStats = await calculateStatistics({});
 
+      console.log(`✅ Student deleted by ${auth.user.name}: ${result.student.firstName} ${result.student.lastName}`);
+
       return NextResponse.json({
         success: true,
         message: `${result.deletionType === 'hard' ? 'Hard deleted' : 'Soft deleted'} student ${result.student.firstName} ${result.student.lastName}`,
         data: {
           stats: finalStats.stats,
           validation: finalStats.validation
-        }
+        },
+        authenticated: true,
       });
     }
 
     return NextResponse.json(
-      { success: false, error: 'Provide batchId or studentId' },
+      { success: false, error: 'Provide batchId or studentId', authenticated: true },
       { status: 400 }
     );
 
   } catch (error) {
     console.error('Delete error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Delete failed' },
+      { success: false, error: error.message || 'Delete failed', authenticated: true },
       { status: 500 }
     );
   }
 }
 
-// PATCH - Reactivate inactive students
+// PATCH - Reactivate inactive students (PROTECTED - authentication required)
 export async function PATCH(request) {
   try {
+    // Step 1: Authenticate the PATCH request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`📝 Student reactivate request from: ${auth.user.name} (${auth.user.role})`);
+
     const url = new URL(request.url);
     const studentId = url.searchParams.get('studentId');
     const batchId = url.searchParams.get('batchId');
@@ -1682,14 +1927,19 @@ export async function PATCH(request) {
         where: { id: studentId },
         data: {
           status: 'active',
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          
         }
       });
+
+      console.log(`✅ Student reactivated by ${auth.user.name}: ${student.firstName} ${student.lastName}`);
 
       return NextResponse.json({
         success: true,
         message: `Student ${student.firstName} ${student.lastName} reactivated`,
-        data: { student }
+        data: { student },
+        authenticated: true,
+        reactivatedBy: auth.user.name
       });
     }
 
@@ -1703,7 +1953,8 @@ export async function PATCH(request) {
           },
           data: {
             status: 'active',
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            
           }
         });
 
@@ -1732,10 +1983,14 @@ export async function PATCH(request) {
         return { count: updated.count };
       });
 
+      console.log(`✅ Batch reactivated by ${auth.user.name}: ${result.count} students`);
+
       return NextResponse.json({
         success: true,
         message: `Reactivated ${result.count} students from batch`,
-        data: result
+        data: result,
+        authenticated: true,
+        reactivatedBy: auth.user.name
       });
     }
 
@@ -1749,7 +2004,8 @@ export async function PATCH(request) {
           },
           data: {
             status: 'active',
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            
           }
         });
 
@@ -1768,22 +2024,26 @@ export async function PATCH(request) {
         return { count: updated.count };
       });
 
+      console.log(`✅ Form reactivated by ${auth.user.name}: ${result.count} students in ${form}`);
+
       return NextResponse.json({
         success: true,
         message: `Reactivated ${result.count} students in ${form}`,
-        data: result
+        data: result,
+        authenticated: true,
+        reactivatedBy: auth.user.name
       });
     }
 
     return NextResponse.json(
-      { success: false, error: 'Provide studentId, batchId, or form' },
+      { success: false, error: 'Provide studentId, batchId, or form', authenticated: true },
       { status: 400 }
     );
 
   } catch (error) {
     console.error('PATCH error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Reactivate failed' },
+      { success: false, error: error.message || 'Reactivate failed', authenticated: true },
       { status: 500 }
     );
   }
