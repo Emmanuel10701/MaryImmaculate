@@ -3,6 +3,147 @@ import { parse } from 'papaparse';
 import * as XLSX from 'xlsx';
 import { prisma } from '../../../libs/prisma';
 
+// ==================== AUTHENTICATION UTILITIES ====================
+
+// Device Token Manager (SAME AS STUDENT API)
+class DeviceTokenManager {
+  static validateTokensFromHeaders(headers, options = {}) {
+    try {
+      // Extract tokens from headers
+      const adminToken = headers.get('x-admin-token') || headers.get('authorization')?.replace('Bearer ', '');
+      const deviceToken = headers.get('x-device-token');
+
+      if (!adminToken) {
+        return { valid: false, reason: 'no_admin_token', message: 'Admin token is required' };
+      }
+
+      if (!deviceToken) {
+        return { valid: false, reason: 'no_device_token', message: 'Device token is required' };
+      }
+
+      // Validate admin token format (basic check)
+      const adminParts = adminToken.split('.');
+      if (adminParts.length !== 3) {
+        return { valid: false, reason: 'invalid_admin_token_format', message: 'Invalid admin token format' };
+      }
+
+      // Validate device token
+      const deviceValid = this.validateDeviceToken(deviceToken);
+      if (!deviceValid.valid) {
+        return { 
+          valid: false, 
+          reason: `device_${deviceValid.reason}`,
+          message: `Device token ${deviceValid.reason}: ${deviceValid.error || ''}`
+        };
+      }
+
+      // Parse admin token payload
+      let adminPayload;
+      try {
+        adminPayload = JSON.parse(atob(adminParts[1]));
+        
+        // Check expiration
+        const currentTime = Date.now() / 1000;
+        if (adminPayload.exp < currentTime) {
+          return { valid: false, reason: 'admin_token_expired', message: 'Admin token has expired' };
+        }
+        
+        // Check user role - only admins/staff can manage fees
+        const userRole = adminPayload.role || adminPayload.userRole;
+        const validRoles = ['ADMIN', 'SUPER_ADMIN', 'administrator', 'PRINCIPAL', 'STAFF', 'HR_MANAGER', 'TEACHER', 'FINANCE'];
+        
+        if (!userRole || !validRoles.includes(userRole.toUpperCase())) {
+          return { 
+            valid: false, 
+            reason: 'invalid_role', 
+            message: 'User does not have permission to manage fees' 
+          };
+        }
+        
+      } catch (error) {
+        return { valid: false, reason: 'invalid_admin_token', message: 'Invalid admin token' };
+      }
+
+      console.log('✅ Fees management authentication successful for user:', adminPayload.name || 'Unknown');
+      
+      return { 
+        valid: true, 
+        user: {
+          id: adminPayload.userId || adminPayload.id,
+          name: adminPayload.name,
+          email: adminPayload.email,
+          role: adminPayload.role || adminPayload.userRole
+        },
+        deviceInfo: deviceValid.payload
+      };
+
+    } catch (error) {
+      console.error('❌ Token validation error:', error);
+      return { 
+        valid: false, 
+        reason: 'validation_error', 
+        message: 'Authentication validation failed',
+        error: error.message 
+      };
+    }
+  }
+
+  // Validate device token
+  static validateDeviceToken(token) {
+    try {
+      // Handle base64 decoding safely
+      const payloadStr = Buffer.from(token, 'base64').toString('utf-8');
+      const payload = JSON.parse(payloadStr);
+      
+      // Check expiration
+      if (payload.exp && payload.exp * 1000 <= Date.now()) {
+        return { valid: false, reason: 'expired', payload, error: 'Device token has expired' };
+      }
+      
+      // Check age (30 days max)
+      const createdAt = new Date(payload.createdAt || payload.iat * 1000);
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      
+      if (createdAt < thirtyDaysAgo) {
+        return { valid: false, reason: 'age_expired', payload, error: 'Device token is too old' };
+      }
+      
+      return { valid: true, payload };
+    } catch (error) {
+      return { valid: false, reason: 'invalid_format', error: error.message };
+    }
+  }
+}
+
+// Authentication middleware for protected requests
+const authenticateRequest = (req) => {
+  const headers = req.headers;
+  
+  // Validate tokens
+  const validationResult = DeviceTokenManager.validateTokensFromHeaders(headers);
+  
+  if (!validationResult.valid) {
+    return {
+      authenticated: false,
+      response: NextResponse.json(
+        { 
+          success: false, 
+          error: "Access Denied",
+          message: "Authentication required to manage fee data.",
+          details: validationResult.message
+        },
+        { status: 401 }
+      )
+    };
+  }
+
+  return {
+    authenticated: true,
+    user: validationResult.user,
+    deviceInfo: validationResult.deviceInfo
+  };
+};
+
 // ========== HELPER FUNCTIONS ==========
 
 // Enhanced date parsing
@@ -147,7 +288,6 @@ const normalizeTerm = (termValue) => {
   return normalized;
 };
 
-// Normalize academic year with validation
 // Normalize academic year with validation
 const normalizeAcademicYear = (yearValue) => {
   if (!yearValue) {
@@ -515,19 +655,6 @@ const checkStudentsExist = async (admissionNumbers, targetForm = null, tx = pris
 
 // ========== FILE PARSING FUNCTIONS ==========
 
-// ========== UNIFIED PARSING STRATEGY ==========
-
-const parseFeeFile = async (file, uploadStrategy = null) => {
-  const fileName = file.name.toLowerCase();
-  const fileExtension = fileName.split('.').pop();
-  
-  if (fileExtension === 'csv') {
-    return await parseFeeCSV(file, uploadStrategy);
-  } else {
-    return await parseFeeExcel(file, uploadStrategy);
-  }
-};
-
 const parseFeeCSV = async (file, uploadStrategy) => {
   try {
     const text = await file.text();
@@ -748,8 +875,8 @@ const parseFeeExcel = async (file, uploadStrategy) => {
     throw new Error(`Excel parsing failed: ${error.message}`);
   }
 };
-// ========== TRUE OVERWRITE UPDATE STRATEGY ==========
-// ========== COMPLETE REPLACE STRATEGY ==========
+
+// ========== PROCESSING FUNCTIONS ==========
 
 const processUpdateFeeUpload = async (fees, uploadBatchId, uploadStrategy) => {
   console.log(`\n🔄 PROCESSING UPDATE UPLOAD (Complete Replace):`);
@@ -971,8 +1098,6 @@ const processUpdateFeeUpload = async (fees, uploadBatchId, uploadStrategy) => {
   }
 };
 
-// ========== NEW UPLOAD STRATEGY ==========
-
 const processNewFeeUpload = async (fees, uploadBatchId, uploadStrategy) => {
   console.log(`\n📤 PROCESSING NEW UPLOAD:`);
   console.log('Strategy:', uploadStrategy);
@@ -1119,8 +1244,18 @@ const processNewFeeUpload = async (fees, uploadBatchId, uploadStrategy) => {
 
 // ========== API ENDPOINTS ==========
 
+// POST - Bulk upload (PROTECTED - authentication required)
 export async function POST(request) {
   try {
+    // Step 1: Authenticate the POST request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`📝 Fees bulk upload request from: ${auth.user.name} (${auth.user.role})`);
+
     const formData = await request.formData();
     const file = formData.get('file');
     const uploadType = formData.get('uploadType'); // 'new' or 'update'
@@ -1136,19 +1271,22 @@ export async function POST(request) {
     console.log('Term:', term);
     console.log('Academic Year:', academicYear);
     console.log('Check Duplicates:', checkDuplicates);
+    console.log('Uploaded By:', auth.user.name);
     
     // Validate required fields
     if (!file) {
       return NextResponse.json({ 
         success: false, 
-        error: 'No file provided' 
+        error: 'No file provided',
+        authenticated: true 
       }, { status: 400 });
     }
     
     if (!uploadType || !selectedForm) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Upload type and form selection are required' 
+        error: 'Upload type and form selection are required',
+        authenticated: true 
       }, { status: 400 });
     }
     
@@ -1157,7 +1295,8 @@ export async function POST(request) {
     if (!normalizedForm) {
       return NextResponse.json({ 
         success: false, 
-        error: `Invalid form: ${selectedForm}. Must be one of: Form 1, Form 2, Form 3, Form 4`
+        error: `Invalid form: ${selectedForm}. Must be one of: Form 1, Form 2, Form 3, Form 4`,
+        authenticated: true 
       }, { status: 400 });
     }
     
@@ -1165,7 +1304,8 @@ export async function POST(request) {
     if (uploadType === 'update' && (!term || !academicYear)) {
       return NextResponse.json({
         success: false, 
-        error: 'For update uploads, term and academic year are required'
+        error: 'For update uploads, term and academic year are required',
+        authenticated: true 
       }, { status: 400 });
     }
     
@@ -1193,7 +1333,8 @@ export async function POST(request) {
     if (!parsedData || parsedData.length === 0) {
       return NextResponse.json({ 
         success: false, 
-        error: 'No valid fee data found in file'
+        error: 'No valid fee data found in file',
+        authenticated: true 
       }, { status: 400 });
     }
     
@@ -1233,13 +1374,15 @@ export async function POST(request) {
         term: uploadType === 'update' ? term : parsedData[0]?.term,
         academicYear: uploadType === 'update' ? academicYear : parsedData[0]?.academicYear,
         uploadType: uploadType,
+        authenticated: true,
+        uploadedBy: auth.user.name,
         message: duplicates.length > 0 
           ? `Found ${duplicates.length} existing fees` 
           : 'No duplicates found'
       });
     }
     
-    // Create batch record
+    // Create batch record with uploader info
     const batchId = `FEE_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     await prisma.feeBalanceUpload.create({
@@ -1247,7 +1390,7 @@ export async function POST(request) {
         id: batchId,
         fileName: file.name,
         fileType: fileExtension,
-        uploadedBy: 'System Upload',
+        uploadedBy: auth.user.name, // Use authenticated user's name
         status: 'processing',
         targetForm: normalizedForm,
         term: uploadType === 'update' ? term : parsedData[0]?.term,
@@ -1257,7 +1400,12 @@ export async function POST(request) {
         skippedRows: 0,
         errorRows: 0,
         uploadType: uploadType,
-        uploadDate: new Date()
+        uploadDate: new Date(),
+        metadata: {
+          uploadedBy: auth.user.name,
+          userRole: auth.user.role,
+          uploadTimestamp: new Date().toISOString()
+        }
       }
     });
     
@@ -1278,10 +1426,13 @@ export async function POST(request) {
         validRows: processingStats.validRows,
         skippedRows: processingStats.skippedRows,
         errorRows: processingStats.errorRows,
-        errorLog: processingStats.errors.length > 0 
-          ? processingStats.errors.join('\n') 
-          : null,
+       errorLog: processingStats.errors.length > 0 
+            ? processingStats.errors.join('\n').substring(0, 4000)  // Truncate to 4000 chars
+            : null,
         metadata: {
+          uploadedBy: auth.user.name,
+          userRole: auth.user.role,
+          uploadTimestamp: new Date().toISOString(),
           created: processingStats.created || 0,
           updated: processingStats.updated || 0,
           replaced: processingStats.replaced || 0,
@@ -1299,7 +1450,8 @@ export async function POST(request) {
       updated: processingStats.updated,
       replaced: processingStats.replaced,
       skipped: processingStats.skippedRows,
-      errors: processingStats.errorRows
+      errors: processingStats.errorRows,
+      uploadedBy: auth.user.name
     });
     
     return NextResponse.json({
@@ -1319,6 +1471,8 @@ export async function POST(request) {
         term: uploadType === 'update' ? term : parsedData[0]?.term,
         academicYear: uploadType === 'update' ? academicYear : parsedData[0]?.academicYear
       },
+      authenticated: true,
+      uploadedBy: auth.user.name,
       timestamp: new Date().toISOString()
     });
     
@@ -1328,13 +1482,15 @@ export async function POST(request) {
       { 
         success: false, 
         error: error.message || 'Upload failed',
+        authenticated: true,
         suggestion: 'Check that your file has the required columns and data format matches the template.'
       },
       { status: 500 }
     );
   }
 }
-// GET - Fetch fee balances, uploads, or statistics
+
+// GET - Fetch fee balances, uploads, or statistics (PUBLIC - no authentication required)
 export async function GET(request) {
   try {
     const url = new URL(request.url);
@@ -1414,149 +1570,149 @@ export async function GET(request) {
     };
 
     // ========== ACTION HANDLERS ==========
-
-    if (action === 'uploads') {
-      // Fetch upload history with optional filtering
-      const uploadWhere = {};
-      if (form) uploadWhere.targetForm = form;
-      if (uploadType) uploadWhere.uploadType = uploadType;
-      
-      const [uploads, total] = await Promise.all([
-        prisma.feeBalanceUpload.findMany({
-          where: uploadWhere,
-          orderBy: { uploadDate: 'desc' },
-          skip: (page - 1) * limit,
-          take: limit,
-          select: {
-            id: true,
-            fileName: true,
-            fileType: true,
-            status: true,
-            uploadedBy: true,
-            uploadDate: true,
-            processedDate: true,
-            term: true,
-            academicYear: true,
-            targetForm: true,
-            totalRows: true,
-            validRows: true,
-            skippedRows: true,
-            errorRows: true,
-            errorLog: true,
-            uploadType: true,
-            metadata: true
-          }
-        }),
-        prisma.feeBalanceUpload.count({ where: uploadWhere })
-      ]);
-      
-      return NextResponse.json({
-        success: true,
-        uploads,
-        pagination: { 
-          page, 
-          limit, 
-          total, 
-          pages: Math.ceil(total / limit) 
-        }
-      });
-    }
-if (action === 'stats') {
-  // Get current academic year
-  const currentYear = new Date().getFullYear();
-  const currentAcademicYear = `${currentYear}/${currentYear + 1}`;
+if (action === 'uploads') {
+  // Fetch upload history with optional filtering
+  const uploadWhere = {};
+  if (form) uploadWhere.targetForm = form;
+  if (uploadType) uploadWhere.uploadType = uploadType;
   
-  // Build WHERE clause for active records only
-  const statsWhere = {
-    isActive: true,
-    ...(form && { form }),
-    ...(term && { term }),
-    ...(academicYear && { academicYear }),
-    ...(paymentStatus && { paymentStatus })
-  };
-  
-  // Get ALL active fees (for accurate statistics)
-  const allActiveFees = await prisma.feeBalance.findMany({
-    where: statsWhere,
-    include: {
-      student: {
-        select: {
-          firstName: true,
-          lastName: true,
-          form: true
-        }
+  const [uploads, total] = await Promise.all([
+    prisma.feeBalanceUpload.findMany({
+      where: uploadWhere,
+      orderBy: { uploadDate: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        fileName: true,
+        fileType: true,
+        status: true,
+        uploadedBy: true,
+        uploadDate: true,
+        processedDate: true,
+        term: true,
+        academicYear: true,
+        targetForm: true,
+        totalRows: true,
+        validRows: true,
+        skippedRows: true,
+        errorRows: true,
+        errorLog: true,
+        uploadType: true,
+        metadata: true
       }
-    }
-  });
-  
-  // Calculate comprehensive statistics
-  const forms = ['Form 1', 'Form 2', 'Form 3', 'Form 4'];
-  const statsByForm = {};
-  
-  forms.forEach(formName => {
-    const formFees = allActiveFees.filter(fee => fee.form === formName);
-    const totalAmount = formFees.reduce((sum, fee) => sum + (fee.amount || 0), 0);
-    const totalPaid = formFees.reduce((sum, fee) => sum + (fee.amountPaid || 0), 0);
-    const totalBalance = formFees.reduce((sum, fee) => sum + (fee.balance || 0), 0);
-    
-    statsByForm[formName] = {
-      count: formFees.length,
-      totalAmount,
-      totalPaid,
-      totalBalance,
-      paidCount: formFees.filter(f => f.paymentStatus === 'paid').length,
-      partialCount: formFees.filter(f => f.paymentStatus === 'partial').length,
-      pendingCount: formFees.filter(f => f.paymentStatus === 'pending').length,
-      collectionRate: totalAmount > 0 ? (totalPaid / totalAmount) * 100 : 0,
-      averageFee: formFees.length > 0 ? totalAmount / formFees.length : 0
-    };
-  });
-  
-  // Overall statistics
-  const totalRecords = allActiveFees.length;
-  const totalAmount = allActiveFees.reduce((sum, fee) => sum + (fee.amount || 0), 0);
-  const totalPaid = allActiveFees.reduce((sum, fee) => sum + (fee.amountPaid || 0), 0);
-  const totalBalance = allActiveFees.reduce((sum, fee) => sum + (fee.balance || 0), 0);
-  
-  const overallStats = {
-    totalRecords,
-    totalAmount,
-    totalPaid,
-    totalBalance,
-    paidCount: allActiveFees.filter(f => f.paymentStatus === 'paid').length,
-    partialCount: allActiveFees.filter(f => f.paymentStatus === 'partial').length,
-    pendingCount: allActiveFees.filter(f => f.paymentStatus === 'pending').length,
-    collectionRate: totalAmount > 0 ? (totalPaid / totalAmount) * 100 : 0,
-    averageFeePerStudent: totalRecords > 0 ? totalAmount / totalRecords : 0,
-    forms: statsByForm,
-    
-    // Active/Inactive counts
-    activeCount: await prisma.feeBalance.count({ where: { isActive: true } }),
-    inactiveCount: await prisma.feeBalance.count({ where: { isActive: false } }),
-    
-    // Current academic year focus
-    currentAcademicYear: {
-      year: currentAcademicYear,
-      count: allActiveFees.filter(f => f.academicYear === currentAcademicYear).length,
-      amount: allActiveFees
-        .filter(f => f.academicYear === currentAcademicYear)
-        .reduce((sum, fee) => sum + (fee.amount || 0), 0),
-      paid: allActiveFees
-        .filter(f => f.academicYear === currentAcademicYear)
-        .reduce((sum, fee) => sum + (fee.amountPaid || 0), 0)
-    }
-  };
+    }),
+    prisma.feeBalanceUpload.count({ where: uploadWhere })
+  ]);
   
   return NextResponse.json({
     success: true,
-    data: {
-      stats: overallStats,
-      filters: { form, term, academicYear, paymentStatus },
-      generatedAt: new Date().toISOString(),
-      note: 'Statistics reflect only active fee records (isActive: true)'
+    uploads,
+    pagination: { 
+      page, 
+      limit, 
+      total, 
+      pages: Math.ceil(total / limit) 
     }
   });
 }
+
+    if (action === 'stats') {
+      // Get current academic year
+      const currentYear = new Date().getFullYear();
+      const currentAcademicYear = `${currentYear}/${currentYear + 1}`;
+      
+      // Build WHERE clause for active records only
+      const statsWhere = {
+        isActive: true,
+        ...(form && { form }),
+        ...(term && { term }),
+        ...(academicYear && { academicYear }),
+        ...(paymentStatus && { paymentStatus })
+      };
+      
+      // Get ALL active fees (for accurate statistics)
+      const allActiveFees = await prisma.feeBalance.findMany({
+        where: statsWhere,
+        include: {
+          student: {
+            select: {
+              firstName: true,
+              lastName: true,
+              form: true
+            }
+          }
+        }
+      });
+      
+      // Calculate comprehensive statistics
+      const forms = ['Form 1', 'Form 2', 'Form 3', 'Form 4'];
+      const statsByForm = {};
+      
+      forms.forEach(formName => {
+        const formFees = allActiveFees.filter(fee => fee.form === formName);
+        const totalAmount = formFees.reduce((sum, fee) => sum + (fee.amount || 0), 0);
+        const totalPaid = formFees.reduce((sum, fee) => sum + (fee.amountPaid || 0), 0);
+        const totalBalance = formFees.reduce((sum, fee) => sum + (fee.balance || 0), 0);
+        
+        statsByForm[formName] = {
+          count: formFees.length,
+          totalAmount,
+          totalPaid,
+          totalBalance,
+          paidCount: formFees.filter(f => f.paymentStatus === 'paid').length,
+          partialCount: formFees.filter(f => f.paymentStatus === 'partial').length,
+          pendingCount: formFees.filter(f => f.paymentStatus === 'pending').length,
+          collectionRate: totalAmount > 0 ? (totalPaid / totalAmount) * 100 : 0,
+          averageFee: formFees.length > 0 ? totalAmount / formFees.length : 0
+        };
+      });
+      
+      // Overall statistics
+      const totalRecords = allActiveFees.length;
+      const totalAmount = allActiveFees.reduce((sum, fee) => sum + (fee.amount || 0), 0);
+      const totalPaid = allActiveFees.reduce((sum, fee) => sum + (fee.amountPaid || 0), 0);
+      const totalBalance = allActiveFees.reduce((sum, fee) => sum + (fee.balance || 0), 0);
+      
+      const overallStats = {
+        totalRecords,
+        totalAmount,
+        totalPaid,
+        totalBalance,
+        paidCount: allActiveFees.filter(f => f.paymentStatus === 'paid').length,
+        partialCount: allActiveFees.filter(f => f.paymentStatus === 'partial').length,
+        pendingCount: allActiveFees.filter(f => f.paymentStatus === 'pending').length,
+        collectionRate: totalAmount > 0 ? (totalPaid / totalAmount) * 100 : 0,
+        averageFeePerStudent: totalRecords > 0 ? totalAmount / totalRecords : 0,
+        forms: statsByForm,
+        
+        // Active/Inactive counts
+        activeCount: await prisma.feeBalance.count({ where: { isActive: true } }),
+        inactiveCount: await prisma.feeBalance.count({ where: { isActive: false } }),
+        
+        // Current academic year focus
+        currentAcademicYear: {
+          year: currentAcademicYear,
+          count: allActiveFees.filter(f => f.academicYear === currentAcademicYear).length,
+          amount: allActiveFees
+            .filter(f => f.academicYear === currentAcademicYear)
+            .reduce((sum, fee) => sum + (fee.amount || 0), 0),
+          paid: allActiveFees
+            .filter(f => f.academicYear === currentAcademicYear)
+            .reduce((sum, fee) => sum + (fee.amountPaid || 0), 0)
+        }
+      };
+      
+      return NextResponse.json({
+        success: true,
+        data: {
+          stats: overallStats,
+          filters: { form, term, academicYear, paymentStatus },
+          generatedAt: new Date().toISOString(),
+          note: 'Statistics reflect only active fee records (isActive: true)'
+        }
+      });
+    }
 
     if (action === 'inactive-fees') {
       // Special endpoint to view inactive fees (audit trail)
@@ -1608,209 +1764,209 @@ if (action === 'stats') {
       });
     }
 
-if (action === 'student-fees') {
-  // Get all fees for a specific student across ALL terms and years
-  if (!admissionNumber) {
-    return NextResponse.json(
-      { success: false, error: 'admissionNumber is required for student-fees action' },
-      { status: 400 }
-    );
-  }
-  
-  console.log(`📊 Fetching ALL fees for student: ${admissionNumber}`);
-  
-  // Get all fees for this student (active and inactive)
-  const allStudentFees = await prisma.feeBalance.findMany({
-    where: {
-      admissionNumber,
-      ...(form && { form }),
-      ...(term && { term }),
-      ...(academicYear && { academicYear })
-    },
-    orderBy: [
-      { academicYear: 'desc' },  // Newest year first
-      { term: 'desc' },          // Term 3, Term 2, Term 1
-      { updatedAt: 'desc' }
-    ],
-    include: {
-      student: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          admissionNumber: true,
-          form: true,
-          stream: true,
-          email: true,
-          parentPhone: true
-        }
+    if (action === 'student-fees') {
+      // Get all fees for a specific student across ALL terms and years
+      if (!admissionNumber) {
+        return NextResponse.json(
+          { success: false, error: 'admissionNumber is required for student-fees action' },
+          { status: 400 }
+        );
       }
-    }
-  });
-  
-  console.log(`✅ Found ${allStudentFees.length} fee records for ${admissionNumber}`);
-  
-  // Separate active and inactive
-  const activeFees = allStudentFees.filter(fee => fee.isActive);
-  const inactiveFees = allStudentFees.filter(fee => !fee.isActive);
-  
-  // ====== COMPREHENSIVE SUMMARY CALCULATION ======
-  
-  // Overall totals (ALL fees)
-  const overallTotal = {
-    totalAmount: allStudentFees.reduce((sum, fee) => sum + (fee.amount || 0), 0),
-    totalPaid: allStudentFees.reduce((sum, fee) => sum + (fee.amountPaid || 0), 0),
-    totalBalance: allStudentFees.reduce((sum, fee) => sum + (fee.balance || 0), 0),
-    totalRecords: allStudentFees.length
-  };
-  
-  // Active fees only totals
-  const activeTotal = {
-    totalAmount: activeFees.reduce((sum, fee) => sum + (fee.amount || 0), 0),
-    totalPaid: activeFees.reduce((sum, fee) => sum + (fee.amountPaid || 0), 0),
-    totalBalance: activeFees.reduce((sum, fee) => sum + (fee.balance || 0), 0),
-    totalRecords: activeFees.length
-  };
-  
-  // ====== GROUP BY ACADEMIC YEAR ======
-  const feesByYear = {};
-  
-  allStudentFees.forEach(fee => {
-    const year = fee.academicYear || 'Unknown';
-    if (!feesByYear[year]) {
-      feesByYear[year] = {
-        academicYear: year,
-        terms: {},
-        totalAmount: 0,
-        totalPaid: 0,
-        totalBalance: 0,
-        records: []
-      };
-    }
-    
-    // Add to year totals
-    feesByYear[year].totalAmount += fee.amount || 0;
-    feesByYear[year].totalPaid += fee.amountPaid || 0;
-    feesByYear[year].totalBalance += fee.balance || 0;
-    feesByYear[year].records.push(fee);
-    
-    // Group by term within this year
-    const term = fee.term || 'Unknown';
-    if (!feesByYear[year].terms[term]) {
-      feesByYear[year].terms[term] = {
-        term: term,
-        totalAmount: 0,
-        totalPaid: 0,
-        totalBalance: 0,
-        status: fee.paymentStatus,
-        records: []
-      };
-    }
-    
-    feesByYear[year].terms[term].totalAmount += fee.amount || 0;
-    feesByYear[year].terms[term].totalPaid += fee.amountPaid || 0;
-    feesByYear[year].terms[term].totalBalance += fee.balance || 0;
-    feesByYear[year].terms[term].records.push(fee);
-  });
-  
-  // Convert terms object to array for each year
-  Object.keys(feesByYear).forEach(year => {
-    feesByYear[year].terms = Object.values(feesByYear[year].terms);
-    // Sort terms: Term 3, Term 2, Term 1
-    feesByYear[year].terms.sort((a, b) => {
-      const termOrder = { 'Term 3': 3, 'Term 2': 2, 'Term 1': 1 };
-      return (termOrder[b.term] || 0) - (termOrder[a.term] || 0);
-    });
-  });
-  
-  // Convert to sorted array (newest year first)
-  const feesByYearArray = Object.values(feesByYear).sort((a, b) => {
-    // Extract years for comparison (e.g., "2024/2025" -> 2024)
-    const yearA = parseInt(a.academicYear.split('/')[0]) || 0;
-    const yearB = parseInt(b.academicYear.split('/')[0]) || 0;
-    return yearB - yearA; // Descending
-  });
-  
-  // ====== PAYMENT STATUS SUMMARY ======
-  const statusSummary = {
-    paid: activeFees.filter(f => f.paymentStatus === 'paid').length,
-    partial: activeFees.filter(f => f.paymentStatus === 'partial').length,
-    pending: activeFees.filter(f => f.paymentStatus === 'pending').length,
-    totalActive: activeFees.length,
-    totalInactive: inactiveFees.length
-  };
-  
-  // ====== STUDENT INFO ======
-  const studentInfo = allStudentFees.length > 0 
-    ? allStudentFees[0].student 
-    : await prisma.databaseStudent.findUnique({
-        where: { admissionNumber },
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          admissionNumber: true,
-          form: true,
-          stream: true,
-          email: true
+      
+      console.log(`📊 Fetching ALL fees for student: ${admissionNumber}`);
+      
+      // Get all fees for this student (active and inactive)
+      const allStudentFees = await prisma.feeBalance.findMany({
+        where: {
+          admissionNumber,
+          ...(form && { form }),
+          ...(term && { term }),
+          ...(academicYear && { academicYear })
+        },
+        orderBy: [
+          { academicYear: 'desc' },  // Newest year first
+          { term: 'desc' },          // Term 3, Term 2, Term 1
+          { updatedAt: 'desc' }
+        ],
+        include: {
+          student: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              admissionNumber: true,
+              form: true,
+              stream: true,
+              email: true,
+              parentPhone: true
+            }
+          }
         }
       });
-  
-  console.log(`💰 Fee Summary for ${admissionNumber}:`);
-  console.log(`   Total Amount: KES ${overallTotal.totalAmount.toLocaleString()}`);
-  console.log(`   Total Paid: KES ${overallTotal.totalPaid.toLocaleString()}`);
-  console.log(`   Total Balance: KES ${overallTotal.totalBalance.toLocaleString()}`);
-  console.log(`   Active Records: ${activeFees.length}`);
-  console.log(`   Years with fees: ${feesByYearArray.length}`);
-  
-  // ====== RETURN COMPLETE DATA ======
-  return NextResponse.json({
-    success: true,
-    
-    // Main fee data
-    feeBalances: activeFees,           // Current active fees only
-    allFees: allStudentFees,           // ALL historical fees (active + inactive)
-    inactiveFees: inactiveFees,        // Only inactive/archived fees
-    
-    // Summary data for quick display
-    summary: {
-      // Overall totals (ALL historical)
-      overall: overallTotal,
       
-      // Current/active totals only
-      current: activeTotal,
+      console.log(`✅ Found ${allStudentFees.length} fee records for ${admissionNumber}`);
       
-      // Status breakdown
-      status: statusSummary,
+      // Separate active and inactive
+      const activeFees = allStudentFees.filter(fee => fee.isActive);
+      const inactiveFees = allStudentFees.filter(fee => !fee.isActive);
       
-      // Form/Class info
-      currentForm: studentInfo?.form || 'N/A',
-      currentStream: studentInfo?.stream || 'N/A',
+      // ====== COMPREHENSIVE SUMMARY CALCULATION ======
       
-      // Payment status labels
-      isFullyPaid: activeTotal.totalBalance === 0,
-      hasPendingFees: activeTotal.totalBalance > 0,
-      paymentPercentage: activeTotal.totalAmount > 0 
-        ? Math.round((activeTotal.totalPaid / activeTotal.totalAmount) * 100) 
-        : 0
-    },
-    
-    // Organized by academic year (for detailed breakdown)
-    organizedByYear: feesByYearArray,
-    
-    // Student information
-    student: studentInfo,
-    
-    // Metadata
-    metadata: {
-      fetchedAt: new Date().toISOString(),
-      admissionNumber,
-      totalRecords: allStudentFees.length,
-      academicYears: feesByYearArray.map(y => y.academicYear),
-      termsCovered: [...new Set(allStudentFees.map(f => f.term).filter(Boolean))]
+      // Overall totals (ALL fees)
+      const overallTotal = {
+        totalAmount: allStudentFees.reduce((sum, fee) => sum + (fee.amount || 0), 0),
+        totalPaid: allStudentFees.reduce((sum, fee) => sum + (fee.amountPaid || 0), 0),
+        totalBalance: allStudentFees.reduce((sum, fee) => sum + (fee.balance || 0), 0),
+        totalRecords: allStudentFees.length
+      };
+      
+      // Active fees only totals
+      const activeTotal = {
+        totalAmount: activeFees.reduce((sum, fee) => sum + (fee.amount || 0), 0),
+        totalPaid: activeFees.reduce((sum, fee) => sum + (fee.amountPaid || 0), 0),
+        totalBalance: activeFees.reduce((sum, fee) => sum + (fee.balance || 0), 0),
+        totalRecords: activeFees.length
+      };
+      
+      // ====== GROUP BY ACADEMIC YEAR ======
+      const feesByYear = {};
+      
+      allStudentFees.forEach(fee => {
+        const year = fee.academicYear || 'Unknown';
+        if (!feesByYear[year]) {
+          feesByYear[year] = {
+            academicYear: year,
+            terms: {},
+            totalAmount: 0,
+            totalPaid: 0,
+            totalBalance: 0,
+            records: []
+          };
+        }
+        
+        // Add to year totals
+        feesByYear[year].totalAmount += fee.amount || 0;
+        feesByYear[year].totalPaid += fee.amountPaid || 0;
+        feesByYear[year].totalBalance += fee.balance || 0;
+        feesByYear[year].records.push(fee);
+        
+        // Group by term within this year
+        const term = fee.term || 'Unknown';
+        if (!feesByYear[year].terms[term]) {
+          feesByYear[year].terms[term] = {
+            term: term,
+            totalAmount: 0,
+            totalPaid: 0,
+            totalBalance: 0,
+            status: fee.paymentStatus,
+            records: []
+          };
+        }
+        
+        feesByYear[year].terms[term].totalAmount += fee.amount || 0;
+        feesByYear[year].terms[term].totalPaid += fee.amountPaid || 0;
+        feesByYear[year].terms[term].totalBalance += fee.balance || 0;
+        feesByYear[year].terms[term].records.push(fee);
+      });
+      
+      // Convert terms object to array for each year
+      Object.keys(feesByYear).forEach(year => {
+        feesByYear[year].terms = Object.values(feesByYear[year].terms);
+        // Sort terms: Term 3, Term 2, Term 1
+        feesByYear[year].terms.sort((a, b) => {
+          const termOrder = { 'Term 3': 3, 'Term 2': 2, 'Term 1': 1 };
+          return (termOrder[b.term] || 0) - (termOrder[a.term] || 0);
+        });
+      });
+      
+      // Convert to sorted array (newest year first)
+      const feesByYearArray = Object.values(feesByYear).sort((a, b) => {
+        // Extract years for comparison (e.g., "2024/2025" -> 2024)
+        const yearA = parseInt(a.academicYear.split('/')[0]) || 0;
+        const yearB = parseInt(b.academicYear.split('/')[0]) || 0;
+        return yearB - yearA; // Descending
+      });
+      
+      // ====== PAYMENT STATUS SUMMARY ======
+      const statusSummary = {
+        paid: activeFees.filter(f => f.paymentStatus === 'paid').length,
+        partial: activeFees.filter(f => f.paymentStatus === 'partial').length,
+        pending: activeFees.filter(f => f.paymentStatus === 'pending').length,
+        totalActive: activeFees.length,
+        totalInactive: inactiveFees.length
+      };
+      
+      // ====== STUDENT INFO ======
+      const studentInfo = allStudentFees.length > 0 
+        ? allStudentFees[0].student 
+        : await prisma.databaseStudent.findUnique({
+            where: { admissionNumber },
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              admissionNumber: true,
+              form: true,
+              stream: true,
+              email: true
+            }
+          });
+      
+      console.log(`💰 Fee Summary for ${admissionNumber}:`);
+      console.log(`   Total Amount: KES ${overallTotal.totalAmount.toLocaleString()}`);
+      console.log(`   Total Paid: KES ${overallTotal.totalPaid.toLocaleString()}`);
+      console.log(`   Total Balance: KES ${overallTotal.totalBalance.toLocaleString()}`);
+      console.log(`   Active Records: ${activeFees.length}`);
+      console.log(`   Years with fees: ${feesByYearArray.length}`);
+      
+      // ====== RETURN COMPLETE DATA ======
+      return NextResponse.json({
+        success: true,
+        
+        // Main fee data
+        feeBalances: activeFees,           // Current active fees only
+        allFees: allStudentFees,           // ALL historical fees (active + inactive)
+        inactiveFees: inactiveFees,        // Only inactive/archived fees
+        
+        // Summary data for quick display
+        summary: {
+          // Overall totals (ALL historical)
+          overall: overallTotal,
+          
+          // Current/active totals only
+          current: activeTotal,
+          
+          // Status breakdown
+          status: statusSummary,
+          
+          // Form/Class info
+          currentForm: studentInfo?.form || 'N/A',
+          currentStream: studentInfo?.stream || 'N/A',
+          
+          // Payment status labels
+          isFullyPaid: activeTotal.totalBalance === 0,
+          hasPendingFees: activeTotal.totalBalance > 0,
+          paymentPercentage: activeTotal.totalAmount > 0 
+            ? Math.round((activeTotal.totalPaid / activeTotal.totalAmount) * 100) 
+            : 0
+        },
+        
+        // Organized by academic year (for detailed breakdown)
+        organizedByYear: feesByYearArray,
+        
+        // Student information
+        student: studentInfo,
+        
+        // Metadata
+        metadata: {
+          fetchedAt: new Date().toISOString(),
+          admissionNumber,
+          totalRecords: allStudentFees.length,
+          academicYears: feesByYearArray.map(y => y.academicYear),
+          termsCovered: [...new Set(allStudentFees.map(f => f.term).filter(Boolean))]
+        }
+      });
     }
-  });
-}
 
     // ========== DEFAULT: GET FEE BALANCES ==========
     
@@ -1924,15 +2080,24 @@ if (action === 'student-fees') {
   }
 }
 
-// PUT - Update single fee balance
+// PUT - Update single fee balance (PROTECTED - authentication required)
 export async function PUT(request) {
   try {
+    // Step 1: Authenticate the PUT request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`📝 Fee balance update request from: ${auth.user.name} (${auth.user.role})`);
+
     const body = await request.json();
     const { id, ...updateData } = body;
     
     if (!id) {
       return NextResponse.json(
-        { success: false, error: 'Fee ID is required' },
+        { success: false, error: 'Fee ID is required', authenticated: true },
         { status: 400 }
       );
     }
@@ -1974,36 +2139,50 @@ export async function PUT(request) {
         }
       }
     });
+
+    console.log(`✅ Fee balance updated by ${auth.user.name}: ${updatedFee.admissionNumber}`);
     
     return NextResponse.json({
       success: true,
       message: 'Fee balance updated successfully',
       data: {
         feeBalance: updatedFee
-      }
+      },
+      authenticated: true,
+      updatedBy: auth.user.name
     });
     
   } catch (error) {
     console.error('PUT error:', error);
     if (error.code === 'P2025') {
       return NextResponse.json(
-        { success: false, error: 'Fee balance not found' },
+        { success: false, error: 'Fee balance not found', authenticated: true },
         { status: 404 }
       );
     }
     return NextResponse.json(
       { 
         success: false, 
-        error: error.message || 'Update failed'
+        error: error.message || 'Update failed',
+        authenticated: true
       },
       { status: 500 }
     );
   }
 }
 
-// DELETE - Delete fee balance or batch
+// DELETE - Delete fee balance or batch (PROTECTED - authentication required)
 export async function DELETE(request) {
   try {
+    // Step 1: Authenticate the DELETE request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`🗑️ Fee delete request from: ${auth.user.name} (${auth.user.role})`);
+
     const url = new URL(request.url);
     const batchId = url.searchParams.get('batchId');
     const feeId = url.searchParams.get('feeId');
@@ -2037,10 +2216,14 @@ export async function DELETE(request) {
           deletedCount: deleteResult.count
         };
       });
+
+      console.log(`✅ Batch deleted by ${auth.user.name}: ${result.batch.fileName} (${result.deletedCount} fee balances)`);
       
       return NextResponse.json({
         success: true,
-        message: `Deleted batch ${result.batch.fileName} and ${result.deletedCount} fee balances`
+        message: `Deleted batch ${result.batch.fileName} and ${result.deletedCount} fee balances`,
+        authenticated: true,
+        deletedBy: auth.user.name
       });
     }
     
@@ -2049,10 +2232,14 @@ export async function DELETE(request) {
       const fee = await prisma.feeBalance.delete({
         where: { id: feeId }
       });
+
+      console.log(`✅ Fee deleted by ${auth.user.name}: ${fee.admissionNumber} - ${fee.form} ${fee.term} ${fee.academicYear}`);
       
       return NextResponse.json({
         success: true,
-        message: `Deleted fee balance for ${fee.admissionNumber} - ${fee.form} ${fee.term} ${fee.academicYear}`
+        message: `Deleted fee balance for ${fee.admissionNumber} - ${fee.form} ${fee.term} ${fee.academicYear}`,
+        authenticated: true,
+        deletedBy: auth.user.name
       });
     }
     
@@ -2065,22 +2252,105 @@ export async function DELETE(request) {
           academicYear: academicYear
         }
       });
+
+      console.log(`✅ Fees deleted by ${auth.user.name}: ${deleteResult.count} fee balances for ${form} - ${term} ${academicYear}`);
       
       return NextResponse.json({
         success: true,
-        message: `Deleted ${deleteResult.count} fee balances for ${form} - ${term} ${academicYear}`
+        message: `Deleted ${deleteResult.count} fee balances for ${form} - ${term} ${academicYear}`,
+        authenticated: true,
+        deletedBy: auth.user.name
       });
     }
     
     return NextResponse.json(
-      { success: false, error: 'Provide batchId, feeId, or form/term/year combination' },
+      { success: false, error: 'Provide batchId, feeId, or form/term/year combination', authenticated: true },
       { status: 400 }
     );
     
   } catch (error) {
     console.error('Delete error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Delete failed' },
+      { success: false, error: error.message || 'Delete failed', authenticated: true },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH - Reactivate inactive fees (PROTECTED - authentication required)
+export async function PATCH(request) {
+  try {
+    // Step 1: Authenticate the PATCH request
+    const auth = authenticateRequest(request);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    // Log authentication info
+    console.log(`📝 Fee reactivate request from: ${auth.user.name} (${auth.user.role})`);
+
+    const url = new URL(request.url);
+    const feeId = url.searchParams.get('feeId');
+    const batchId = url.searchParams.get('batchId');
+    
+    if (feeId) {
+      // Reactivate single fee
+      const fee = await prisma.feeBalance.update({
+        where: { id: feeId },
+        data: {
+          isActive: true,
+          updatedAt: new Date()
+        }
+      });
+
+      console.log(`✅ Fee reactivated by ${auth.user.name}: ${fee.admissionNumber}`);
+      
+      return NextResponse.json({
+        success: true,
+        message: `Fee balance for ${fee.admissionNumber} reactivated`,
+        data: { fee },
+        authenticated: true,
+        reactivatedBy: auth.user.name
+      });
+    }
+    
+    if (batchId) {
+      // Reactivate all fees in a batch
+      const result = await prisma.$transaction(async (tx) => {
+        const updated = await tx.feeBalance.updateMany({
+          where: { 
+            uploadBatchId: batchId,
+            isActive: false
+          },
+          data: {
+            isActive: true,
+            updatedAt: new Date()
+          }
+        });
+
+        return { count: updated.count };
+      });
+
+      console.log(`✅ Batch reactivated by ${auth.user.name}: ${result.count} fee balances`);
+      
+      return NextResponse.json({
+        success: true,
+        message: `Reactivated ${result.count} fee balances from batch`,
+        data: result,
+        authenticated: true,
+        reactivatedBy: auth.user.name
+      });
+    }
+    
+    return NextResponse.json(
+      { success: false, error: 'Provide feeId or batchId', authenticated: true },
+      { status: 400 }
+    );
+    
+  } catch (error) {
+    console.error('PATCH error:', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Reactivate failed', authenticated: true },
       { status: 500 }
     );
   }
