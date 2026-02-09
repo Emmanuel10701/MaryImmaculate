@@ -10,7 +10,7 @@ export default function AboutPage() {
     { icon: <Users className="w-5 h-5" />, label: "Students", value: "1200+" },
     { icon: <BookOpen className="w-5 h-5" />, label: "Curriculums", value: "12" },
     { icon: <Trophy className="w-5 h-5" />, label: "Awards", value: "45" },
-    { icon: <ShieldCheck className="w-5 h-5" />, label: "Success", value: "98%" },
+{ icon: <ShieldCheck className="w-5 h-5" />, label: "Completion Rate", value: "88%" },
   ];
 
   const values = [
@@ -19,27 +19,30 @@ export default function AboutPage() {
     { title: "Compassion", icon: <Heart size={16}/> },
     { title: "Innovation", icon: <Sparkles size={16}/> }
   ];
-
-
-  const date = new Date(); // Add this line!
-
+const date = new Date(); // Add this line!
   return (
     <div className="bg-white text-slate-900">
+      {/* Hero Section */}
       {/* Modern Hero Section */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-950 via-orange-950 to-red-950">
         {/* Background with Zoom Effect */}
-        <div className="absolute inset-0 group">
-          <div className="absolute inset-0 bg-gradient-to-b from-orange-950/40 via-orange-950/80 to-orange-950 z-10"></div>
-          <Image
-            src="/ii.jpg"
-            alt="Campus"
-            fill
-            className="object-cover opacity-50 transition-transform duration-[10s] ease-out group-hover:scale-101"
-            priority
-          />
-          {/* Animated Radial Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/20 rounded-full blur-[120px] z-0"></div>
-        </div>
+    <div className="absolute inset-0 group overflow-hidden rounded-t-md">
+  {/* Modern Gradient Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-b from-orange-950/30 via-orange-950/80 to-orange-950 z-20"></div>
+  
+  <Image
+    src="/hero/mig2.jpg"
+    alt="School"
+    fill
+    className="object-cover opacity-50 transition-transform duration-[10s] ease-out "
+    priority
+  />
+
+
+
+  {/* Animated Radial Glow */}
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/20 rounded-full blur-[120px] z-10"></div>
+</div>
 
         <div className="relative z-20 max-w-5xl mx-auto px-6 text-center">
           {/* Modern Static Badge */}
@@ -49,19 +52,19 @@ export default function AboutPage() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
             </span>
             <span className="text-[10px] font-black tracking-[0.3em] text-orange-200 uppercase">
-Registration Open • {new Date().getFullYear()} Academic Year            </span>
+           Registration Open • {new Date().getFullYear()} Academic Year      </span>
           </div>
 
           {/* Refined Title - Significantly Smaller & Tighter */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-6 tracking-tighter leading-none">
-            Mary Immaculate <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-300 to-white/70">Girls Secondary.</span>
+            Mary Immaculate Girls <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-300 to-white/70">High School.</span>
           </h1>
 
           {/* Expanded Rich Description */}
           <div className="max-w-3xl mx-auto space-y-6 mb-12">
             <p className="text-sm md:text-base text-slate-200 font-medium leading-relaxed mb-8">
               Since 1998, a cornerstone of <span className="text-amber-400">academic distinction</span>, 
-              crafting a holistic pathway for future women leaders.
+              crafting a holistic pathway for future  leaders.
             </p>
 
             <div className="grid md:grid-cols-2 gap-6 text-left border-y border-white/10 py-8">
@@ -80,7 +83,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
             </div>
 
             <p className="text-xs md:text-sm text-slate-400 italic">
-              "Empowering girls through discipline, integrity, and a passion for lifelong learning."
+              "Empowering Students  through discipline, integrity, and a passion for lifelong learning."
             </p>
           </div>
 
@@ -177,7 +180,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
           { title: "Infrastructure", icon: <Globe size={18} />, desc: "Smart classrooms and collaborative labs.", color: "orange" }
         ].map((item, i) => (
           <div key={i} className="group flex gap-4 p-4 sm:p-6 rounded-2xl bg-slate-50 border border-transparent transition-all hover:bg-white hover:shadow-xl hover:shadow-orange-900/5 hover:border-slate-100">
-            <div className={`shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${i % 2 === 0 ? 'bg-orange-600' : 'bg-amber-600'} text-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-101`}>
+            <div className={`shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${i % 2 === 0 ? 'bg-orange-600' : 'bg-amber-600'} text-white flex items-center justify-center shadow-lg transition-transform `}>
               {item.icon}
             </div>
             <div>
@@ -193,28 +196,55 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
     <div className="relative order-1 lg:order-2 group px-2 sm:px-0">
       <div className="absolute -inset-6 bg-gradient-to-tr from-orange-100 to-amber-100 rounded-full opacity-40 blur-3xl -z-10"></div>
       
-      <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl bg-white p-2 sm:p-3">
-        <div className="overflow-hidden rounded-[1.6rem] sm:rounded-[1.8rem]">
-          <img 
-            src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=1000" 
-            className="w-full aspect-square object-cover transition-transform duration-[1.5s] group-hover:scale-100" 
-            alt="Innovative Learning"
-          />
-        </div>
+<div className="relative group px-2">
+ <div className="relative group px-2">
+  {/* The "Off-kilter" Background Glow */}
+  <div className="absolute -inset-2 bg-orange-100/50 rounded-[2.5rem] -rotate-1 -z-10 transition-transform group-hover:rotate-1  duration-500"></div>
+  
+  <div className="relative overflow-hidden aspect-square sm:aspect-video lg:aspect-square rounded-md shadow-2xl border border-orange-100/20">
+    <Image
+      src="/hero/mig3.jpg"
+      alt="School"
+      fill
+      className="object-cover transition-transform duration-700 "
+      priority
+    />
+    
+    {/* Dark Gradient Overlay for readability of floating items */}
+    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-        {/* Scaled Stat Card for Mobile */}
-        <div className="absolute bottom-6 left-6 sm:bottom-10 sm:left-10 bg-white/95 backdrop-blur-md p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-xl border border-white/20 -rotate-2">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-1.5 h-8 sm:h-10 bg-amber-600 rounded-full"></div>
-            <div>
-<div className="text-lg sm:text-2xl font-black text-slate-900 leading-none">
-  {date.getFullYear()}
-</div>
-              <div className="text-[8px] sm:text-[10px] uppercase font-black text-slate-500 tracking-widest mt-1">Vision Target</div>
-            </div>
+    {/* Floating Item 1: Small Bottom Info Bar */}
+    <div className="absolute bottom-3 left-3 right-3 z-20">
+      <div className="bg-white/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-lg border border-white/50 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-[10px] font-medium text-slate-600">Event Status</p>
+            <p className="text-xs font-bold text-slate-800">Prayer displine and hardwork</p>
           </div>
         </div>
+        <div className="text-[10px] font-bold bg-green-100 text-green-800 px-2 py-1 rounded-full">
+Mary Immaculate Girls        </div>
       </div>
+    </div>
+
+    {/* Floating Item 2: Top Right Badge */}
+    <div className="absolute top-3 right-3 z-20">
+      <div className="bg-orange-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md flex items-center gap-1.5">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-200 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+        </span>
+        Featured
+      </div>
+    </div>
+  </div>
+</div>
+</div>
     </div>
   </div>
 </section>
@@ -224,16 +254,53 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
   <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-16 overflow-hidden">
     <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
       
-      <div className="relative group px-2">
-        <div className="absolute -inset-2 bg-orange-100/50 rounded-[2.5rem] -rotate-1 -z-10"></div>
-        <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl aspect-square sm:aspect-video lg:aspect-square">
-          <img 
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1000" 
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-            alt="Students collaborating"
-          />
+    <div className="relative group px-2">
+  <div className="absolute -inset-2 bg-orange-100/50 rounded-[2.5rem] -rotate-1 -z-10 transition-transform group-hover:rotate-1  duration-500"></div>
+  
+  <div className="relative overflow-hidden  aspect-square sm:aspect-video lg:aspect-square rounded-md shadow-2xl border border-orange-100/20">
+    <Image
+      src="/bg/1.jpeg"
+      alt="School"
+      fill
+      className="object-cover transition-transform duration-700 "
+      priority
+    />
+    
+    {/* Small floating section at bottom */}
+    <div className="absolute bottom-3 left-3 right-3 z-20">
+      <div className="bg-white/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-lg border border-white/50 flex items-center justify-between">
+        {/* Left side - Icon with label */}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-[10px] font-medium text-slate-600">Katz</p>
+            <p className="text-xs font-bold text-slate-800">Education</p>
+          </div>
+        </div>
+        
+        {/* Right side - Status indicator */}
+        <div className="flex items-center gap-1">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          </span>
+          <span className="text-[10px] font-medium text-green-600">1200+ students</span>
         </div>
       </div>
+    </div>
+    
+    {/* Optional: Top right small badge */}
+    <div className="absolute top-3 right-3 z-20">
+      <div className="bg-orange-500 text-white px-2 py-1 rounded-full text-[10px] font-bold shadow-md">
+        New
+      </div>
+    </div>
+  </div>
+</div>
 
       <div className="flex flex-col text-center lg:text-left items-center lg:items-start">
         <h2 className="text-orange-600 font-black uppercase text-[9px] sm:text-xs tracking-[0.2em] mb-4 bg-white/80 border border-orange-100 w-fit px-3 py-1 rounded-full shadow-sm">
@@ -319,19 +386,62 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
       {/* Background decoration - dimmed for mobile focus */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] bg-orange-100/50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -z-10"></div>
       
-      {/* Main Image Container */}
-      <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border-[4px] sm:border-[8px] border-white">
-        <img 
-          src="https://images.unsplash.com/photo-1511629091441-ee46146481b6?auto=format&fit=crop&q=80&w=1000" 
-          className="w-full aspect-square sm:aspect-[4/5] object-cover transition-transform duration-1000 group-hover:scale-100" 
-          alt="Culture and community"
-        />
-        
-        {/* Floating Detail Badge - Scaled for Mobile */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-white/95 backdrop-blur-md px-4 py-2 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl border border-white/20">
-          <div className="text-orange-600 font-black text-xl sm:text-2xl tracking-tighter">100%</div>
-          <div className="text-[8px] sm:text-[10px] uppercase font-black text-slate-500 tracking-widest">Commitment</div>
+      <div className="relative group px-2">
+        <div className="absolute -inset-2 bg-orange-100/50 rounded-[2.5rem] -rotate-1 -z-10"></div>
+<div className="relative group px-2">
+  {/* The "Off-kilter" Background Glow */}
+  <div className="absolute -inset-2 bg-orange-100/50 rounded-[2.5rem] -rotate-1 -z-10 transition-transform group-hover:rotate-1  duration-500"></div>
+  
+<div className="relative group px-2">
+  {/* The "Off-kilter" Background Glow */}
+  <div className="absolute -inset-2 bg-orange-100/50 rounded-[2.5rem] -rotate-1 -z-10 transition-transform group-hover:rotate-1  duration-500"></div>
+  
+  <div className="relative overflow-hidden aspect-square sm:aspect-video lg:aspect-square rounded-md shadow-2xl border border-orange-100/20">
+    <Image
+      src="/hero/mig2.jpg"
+      alt="School"
+      fill
+      className="object-cover transition-transform duration-700 "
+      priority
+    />
+    
+    {/* Dark Gradient Overlay for readability of floating items */}
+    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+    {/* Floating Item 1: Small Bottom Info Bar - Smaller on mobile */}
+    <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 z-20">
+      <div className="bg-white/90 backdrop-blur-md px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl shadow-lg border border-white/50 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-blue-500 flex items-center justify-center">
+            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-[8px] sm:text-[10px] font-medium text-slate-600">Event Status</p>
+            <p className="text-[10px] sm:text-xs font-bold text-slate-800">Registration Open</p>
+          </div>
         </div>
+        <div className="text-[8px] sm:text-[10px] font-bold bg-green-100 text-green-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
+          Join Now
+        </div>
+      </div>
+    </div>
+
+    {/* Floating Item 2: Top Right Badge - Smaller on mobile */}
+    <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-20">
+      <div className="bg-orange-500 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold shadow-md flex items-center gap-1 sm:gap-1.5">
+        <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-200 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-full w-full bg-white"></span>
+        </span>
+        <span className="hidden xs:inline">Featured</span>
+        <span className="xs:hidden">⭐</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
       </div>
     </div>
   </div>
@@ -346,7 +456,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
       <div className="lg:col-span-4 group relative overflow-hidden bg-gradient-to-br from-orange-600 to-amber-600 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl shadow-orange-200/50 flex flex-col justify-between transition-all duration-500 hover:-translate-y-2">
         
         {/* Decorative background circle - scaled for mobile */}
-        <div className="absolute -top-10 -right-10 w-40 h-40 sm:w-64 sm:h-64 bg-orange-500 rounded-full opacity-40 transition-transform duration-700 group-hover:scale-100"></div>
+        <div className="absolute -top-10 -right-10 w-40 h-40 sm:w-64 sm:h-64 bg-orange-500 rounded-full opacity-40 transition-transform duration-700 "></div>
         
         <div className="relative z-10">
           <span className="inline-block px-3 py-1 mb-4 sm:mb-6 text-[9px] sm:text-[10px] font-black tracking-widest text-orange-100 uppercase bg-orange-700/50 rounded-full border border-orange-400/30">
@@ -362,9 +472,9 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
                 <MapPin size={20} className="sm:w-[24px] sm:h-[24px]" />
               </div>
               <div>
-                <p className="text-orange-100 text-[9px] sm:text-xs uppercase font-black tracking-tighter mb-0.5 sm:mb-1 opacity-80">Campus Address</p>
+                <p className="text-orange-100 text-[9px] sm:text-xs uppercase font-black tracking-tighter mb-0.5 sm:mb-1 opacity-80">School  Address</p>
                 <p className="text-white text-sm sm:text-base font-bold leading-snug sm:leading-relaxed">
-                  Main School, Mweiga, Nyeri
+                 School, Mweiga,Nyeri 
                 </p>
               </div>
             </div>
@@ -380,13 +490,17 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
             </div>
           </div>
         </div>
-
-        <div className="relative z-10 mt-8 sm:mt-12">
-          <button className="w-full py-3 sm:py-4 bg-white text-orange-600 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-xl hover:bg-orange-50 active:scale-95 transition-all flex items-center justify-center gap-2 group uppercase tracking-wider">
-            Google Maps
-            <ExternalLink size={16} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-          </button>
-        </div>
+<div className="relative z-10 mt-8 sm:mt-12">
+  <a 
+    href="https://www.google.com/maps/search/?api=1&query=Mary+Immaculate+Girls+High+School+Mweiga+Nyeri" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className=" w-full py-3 sm:py-4 bg-white text-orange-600 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-xl transition-transform flex items-center justify-center gap-2 uppercase tracking-wider"
+  >
+    Google Maps
+    <ExternalLink size={16} />
+  </a>
+</div>
       </div>
 
       {/* 2. Map Container - Fully Optimized */}
@@ -405,13 +519,13 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
         </div>
         
         <div className="relative h-[280px] sm:h-[400px] lg:h-full min-h-[280px] sm:min-h-[400px] rounded-[1.5rem] sm:rounded-[1.8rem] overflow-hidden border border-slate-100 shadow-inner">
-          <div className="absolute inset-0 transition-transform duration-[2000ms] group-hover:scale-100">
+          <div className="absolute inset-0 transition-transform duration-[2000ms] ">
             <MapComponent />
           </div>
           
           <div className="absolute bottom-3 right-3 sm:bottom-6 sm:right-6 bg-slate-900/90 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-2xl border border-white/10">
             <p className="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest">
-              Mweiga, Nyeri
+              Matungulu, Machakos 
             </p>
           </div>
         </div>
@@ -423,7 +537,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
 
       {/* Modern Institutional Section - Refined Small Text Edition */}
       <section className="py-12 sm:py-20 px-4 sm:px-6 overflow-hidden bg-gradient-to-br from-orange-950 via-amber-950 to-red-950">
-        <div className="relative w-full bg-[#1a0f0a] rounded-[2rem] md:rounded-[3.5rem] p-8 sm:p-12 md:p-16 text-center border border-white/5 shadow-2xl overflow-hidden">
+        <div className="relative w-full bg-[#1a0f0a] rounded-[2rem] md:rounded-[3.5rem] p-8 sm:p-6 md:p-16 text-center border border-white/5 shadow-2xl overflow-hidden">
         
           {/* Small Refined Icon */}
           <div className="flex justify-center mb-6 md:mb-8">
@@ -449,7 +563,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
                   Standardizing excellence through discipline.
                 </p>
                 <p className="text-slate-400 text-xs sm:text-sm leading-relaxed font-light">
-                  Our institutional policies ensure a focused environment. We uphold a strict code of conduct that prioritizes academic integrity and mutual respect as the bedrock of our campus culture.
+                  Our institutional policies ensure a focused environment. We uphold a strict code of conduct that prioritizes academic integrity and mutual respect as the bedrock of our School  culture.
                 </p>
               </div>
 
@@ -477,7 +591,7 @@ Registration Open • {new Date().getFullYear()} Academic Year            </span
     </button>
   </Link>
 
-  <Link href="/pages/Guidance-and-Coucelling" className="w-auto">
+  <Link href="/pages/Guidance-and-Councelling" className="w-auto">
     <button className="px-5 sm:px-10 py-3.5 bg-slate-900/40 text-white font-black text-[9px] sm:text-[11px] uppercase tracking-[0.2em] rounded-2xl border border-white/20 backdrop-blur-md active:scale-95 transition-all hover:bg-white/10 whitespace-nowrap">
       Guidance
     </button>
