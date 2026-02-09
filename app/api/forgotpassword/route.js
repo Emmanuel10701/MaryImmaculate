@@ -709,7 +709,7 @@ export async function POST(req) {
             <div class="footer">
               <p class="footer-title">${SCHOOL_NAME}</p>
               <p class="footer-text">${SCHOOL_LOCATION}</p>
-              <p class="footer-text">Public Mixed Day and Boarding School</p>
+              <p class="footer-text">Private Girls Boarding School</p>
               <p class="footer-small">© ${new Date().getFullYear()} ${SCHOOL_NAME}. All rights reserved.</p>
               <p class="footer-small">This email was sent to ${email} for your account security.</p>
             </div>
