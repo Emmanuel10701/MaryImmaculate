@@ -1013,10 +1013,7 @@ const handleLogout = () => {
               Mary <span className="text-blue-600 group-hover:text-indigo-600 transition-colors">Immaculate</span>
             </h1>
             
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">
-                 Sec School
-              </span>
+            <div className="flex items-center mt-1">
               <div className="h-[1px] w-4 bg-gray-200" />
               <p className="text-[10px] md:text-xs font-bold text-gray-500 italic">
                 "Prayer, Displine and Hardwork"
