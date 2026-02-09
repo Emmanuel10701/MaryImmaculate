@@ -227,7 +227,7 @@ export async function POST(req) {
     const author = formData.get("author")?.trim() || auth.user.name;
 
  // News validates these fields:
-if (!title || !excerpt || !fullContent || !dateStr) {
+if (!title || !excerpt || !dateStr) {
   return NextResponse.json({ 
     success: false, 
     error: "Validation Error",
