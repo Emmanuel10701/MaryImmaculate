@@ -7,7 +7,9 @@ const SCHOOL_NAME = 'Mary Immculate Girls High School';
 const SCHOOL_LOCATION = 'Mweiga, Nyeri  County';
 const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork ';
 const CONTACT_PHONE = '+254720123456';
-const CONTACT_EMAIL = 'info@katwanyaa highSchool.sc.ke';
+const CONTACT_EMAIL = 'info@maryimmaculategirls.sc.ke';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || CONTACT_EMAIL;
+const COUNSELOR_EMAIL = process.env.COUNSELOR_EMAIL || 'guidance@school.edu';
 
 // Email Templates
 const emailTemplates = {
@@ -334,7 +336,7 @@ const emailTemplates = {
               <p class="info-text">
                 <strong>${SCHOOL_NAME}</strong><br>
                 ${SCHOOL_LOCATION}<br>
-                Private Girl's Boarding School | 1200+ Students | 8-4-4 Curriculum and CBC System
+                Private girls Boarding School | 1200+ Students | 8-4-4 Curriculum
               </p>
             </div>
           </div>
