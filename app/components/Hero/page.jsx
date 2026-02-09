@@ -351,8 +351,8 @@ const ModernHero = () => {
             <div className="h-[1px] w-5 sm:w-6 md:w-8 bg-white/40" />
           </div>
 
-          {/* Dynamic Heading - REDUCED SIZE from 7xl to 5xl */}
-          <h1 className="
+          
+   <h1 className="
             text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-5xl
             font-extrabold
             text-white
