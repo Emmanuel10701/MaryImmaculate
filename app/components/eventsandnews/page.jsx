@@ -1,41 +1,49 @@
 'use client';
-import { useState, useEffect } from 'react';
+
+import React, { useState, useEffect } from 'react';
+
+// Feather Icons (Consolidated)
 import { 
-  FiPlus, 
-  FiSearch, 
-  FiCalendar,
-  FiMapPin,
-  FiUsers,
-  FiClock,
-  FiTag,
-  FiChevronLeft,
-  FiChevronRight,
-  FiShare2,
-  FiX,
-  FiImage,
-  FiBook,
-  FiUpload,
-  FiRotateCw,
-  FiTrendingUp,
+  FiAlertCircle,
+  FiAlertTriangle,
   FiAward,
-  FiZap,
-  FiEdit,
-  FiTrash2,
-  FiEye,
-  FiInfo, 
+  FiBell,
+  FiBook,
+  FiBriefcase,
+  FiCalendar,
   FiCheck,
   FiCheckCircle,
+  FiChevronLeft,
+  FiChevronRight,
+  FiClock,
+  FiEdit,
+  FiEye,
   FiGlobe,
-  FiBell,
+  FiImage,
+  FiInfo, 
+  FiMapPin,
+  FiPlus, 
+  FiRotateCw,
+  FiSearch, 
+  FiShare2,
+  FiStar,
+  FiTag,
+  FiTrash2,
+  FiTrendingUp,
+  FiUpload,
   FiUser,
-  FiAlertTriangle,
-  FiAlertCircle,
-  FiBriefcase 
+  FiUsers,
+  FiX,
+  FiZap
 } from 'react-icons/fi';
+
+// IonIcons (Consolidated)
 import { 
-  IoNewspaperOutline,
+  IoNewspaperOutline, 
   IoCalendarClearOutline 
 } from 'react-icons/io5';
+
+// Material UI (Consolidated)
 import { Modal, Box, CircularProgress } from '@mui/material';
 
 // Modern Loading Spinner Component
@@ -316,132 +324,89 @@ function Notification({
   )
 }
 
-// Modern Item Detail Modal
+// Clean View Detail Modal Component
 function ModernItemDetailModal({ item, type, onClose, onEdit }) {
-  if (!item) return null
+  if (!item) return null;
 
   const getImageUrl = (imagePath) => {
     if (!imagePath || typeof imagePath !== 'string') {
       return type === 'news' ? '/default-news.jpg' : '/default-event.jpg';
     }
-    
-    // If it's already a full URL or starts with /, return as is
-    if (imagePath.startsWith('http') || imagePath.startsWith('/')) {
+    if (imagePath.startsWith('http') || imagePath.startsWith('/') || imagePath.startsWith('data:image')) {
       return imagePath;
     }
-    
-    // If it's a base64 string (from file upload), return as is
-    if (imagePath.startsWith('data:image')) {
-      return imagePath;
-    }
-    
-    // If it's a path from API (without leading slash), add it
-    if (imagePath.startsWith('news/') || imagePath.startsWith('events/')) {
-      return `/${imagePath}`;
-    }
-    
-    // Default fallback
-    return type === 'news' ? '/default-news.jpg' : '/default-event.jpg';
+    return `/${imagePath}`;
   };
 
-  const imageUrl = getImageUrl(item.image);
-  
-  const categories = {
-    news: {
-      'achievement': { label: 'Achievements', color: 'emerald' },
-      'sports': { label: 'Sports', color: 'blue' },
-      'academic': { label: 'Academic', color: 'purple' },
-      'infrastructure': { label: 'Infrastructure', color: 'orange' },
-      'community': { label: 'Community', color: 'rose' }
-    },
-    events: {
-      'academic': { label: 'Academic', color: 'purple' },
-      'sports': { label: 'Sports', color: 'blue' },
-      'cultural': { label: 'Cultural', color: 'emerald' },
-      'social': { label: 'Social', color: 'orange' }
-    }
-  };
-
-  const categoryInfo = categories[type][item.category];
+  const themeGradient = type === 'news' 
+    ? 'from-purple-700 via-pink-600 to-rose-600' 
+    : 'from-blue-700 via-cyan-600 to-teal-600';
 
   return (
     <Modal open={true} onClose={onClose}>
       <Box sx={{
         position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '90%',
-        maxWidth: '800px',
-        maxHeight: '95vh', bgcolor: 'background.paper',
-        borderRadius: 3, boxShadow: 24, overflow: 'hidden',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #fef3f7 100%)'
+        width: '95%', maxWidth: '900px', maxHeight: '95vh',
+        bgcolor: '#ffffff', borderRadius: '2rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+        overflow: 'hidden', outline: 'none'
       }}>
-        {/* Header */}
-        <div className={`p-6 text-white ${
-          type === 'news' 
-            ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-rose-700'
-            : 'bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-700'
-        }`}>
+        
+        {/* Header - Matching Create Modal */}
+        <div className={`p-8 text-white bg-gradient-to-r ${themeGradient}`}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-white bg-opacity-20 rounded-2xl">
-                {type === 'news' ? 
-                  <IoNewspaperOutline className="text-xl" /> : 
-                  <IoCalendarClearOutline className="text-xl" />
-                }
+            <div className="flex items-center gap-5">
+              <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl">
+                {type === 'news' ? <IoNewspaperOutline size={32} /> : <IoCalendarClearOutline size={32} />}
               </div>
               <div>
-                <h2 className="text-2xl font-bold">{type === 'news' ? 'News' : 'Event'} Details</h2>
-                <p className="text-white/90 opacity-90 mt-1">
-                  Complete overview of {type === 'news' ? 'news article' : 'event'}
+                <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none">
+                  {item.title}
+                </h2>
+                <p className="text-white/80 font-bold text-xs mt-1 tracking-widest uppercase">
+                  {type === 'news' ? 'News Article Details' : 'Event Details'}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => onEdit(item)} 
-                className="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-6 py-3 rounded-full text-sm font-bold shadow-lg cursor-pointer"
-              >
-                <FiEdit /> Edit
-              </button>
-              <button 
-                onClick={onClose} 
-                className="p-2 bg-white/10 text-white rounded-full cursor-pointer"
-              >
-                <FiX className="text-xl" />
-              </button>
-            </div>
+            <button onClick={onClose} className="p-3 bg-black/10 hover:bg-black/20 rounded-full transition-all active:scale-90">
+              <FiX size={24} />
+            </button>
           </div>
         </div>
 
-        <div className="max-h-[calc(95vh-200px)] overflow-y-auto">
-          <div className="p-6 space-y-6">
-            {/* Image and Basic Info */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <div className="flex items-center gap-4">
-                  <img
-                    src={imageUrl}
-                    alt={item.title}
-                    className="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl object-cover shadow-lg"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = type === 'news' ? '/default-news.jpg' : '/default-event.jpg';
-                    }}
-                  />
+        <div className="max-h-[calc(95vh-160px)] overflow-y-auto bg-slate-50/50">
+          <div className="p-8 sm:p-12 space-y-8">
+            
+            {/* Hero Section with Image */}
+            <div className="relative rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl bg-slate-200">
+              <img
+                src={getImageUrl(item.image)}
+                alt={item.title}
+                className="w-full h-64 object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = type === 'news' ? '/default-news.jpg' : '/default-event.jpg';
+                }}
+              />
+              {item.featured && (
+                <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                  Featured
+                </div>
+              )}
+            </div>
+
+            {/* Details Grid - Clean Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Basic Info Card */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-4">Basic Information</h3>
+                <div className="space-y-4">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{item.title}</h1>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        categoryInfo ? `bg-${categoryInfo.color}-100 text-${categoryInfo.color}-800` : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {categoryInfo?.label || item.category}
-                      </span>
-                      {item.featured && (
-                        <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                          Featured
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-gray-600 font-medium">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Category</span>
+                    <p className="text-sm font-bold text-slate-800 mt-1">{item.category}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Date</span>
+                    <p className="text-sm font-bold text-slate-800 mt-1">
                       {new Date(item.date).toLocaleDateString('en-US', { 
                         weekday: 'long', 
                         year: 'numeric', 
@@ -450,130 +415,123 @@ function ModernItemDetailModal({ item, type, onClose, onEdit }) {
                       })}
                     </p>
                   </div>
+                  {type === 'news' && (
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Author</span>
+                      <p className="text-sm font-bold text-slate-800 mt-1">{item.author}</p>
+                    </div>
+                  )}
                 </div>
               </div>
-              
-              <div className="bg-gradient-to-br from-gray-50 to-purple-50 rounded-2xl p-5 border border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-900 mb-5 flex items-center gap-2 border-b border-purple-100 pb-2">
-                  <FiBriefcase className="text-purple-600 text-xs" />
-                  {type === 'news' ? 'Article' : 'Event'} Information
-                </h3>
 
-                <div className="grid grid-cols-1 gap-4 text-[13px]">
-                  {/* Date */}
-                  <div className="flex flex-col">
-                    <span className="text-gray-400 text-[10px] uppercase tracking-wide">Date</span>
-                    <span className="text-gray-700 font-medium">
-                      {new Date(item.date).toLocaleDateString()}
-                    </span>
+              {/* Event Specific Info or Status */}
+              {type === 'events' ? (
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-4">Event Details</h3>
+                  <div className="space-y-4">
+                    {item.time && (
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Time</span>
+                        <p className="text-sm font-bold text-slate-800 mt-1">{item.time}</p>
+                      </div>
+                    )}
+                    {item.location && (
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Location</span>
+                        <p className="text-sm font-bold text-slate-800 mt-1">{item.location}</p>
+                      </div>
+                    )}
+                    {item.speaker && (
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Speaker</span>
+                        <p className="text-sm font-bold text-slate-800 mt-1">{item.speaker}</p>
+                      </div>
+                    )}
                   </div>
-
-                  {/* Time for Events */}
-                  {type === 'events' && item.time && (
-                    <div className="flex flex-col">
-                      <span className="text-gray-400 text-[10px] uppercase tracking-wide">Time</span>
-                      <span className="text-gray-700 font-medium">{item.time}</span>
-                    </div>
-                  )}
-
-                  {/* Location for Events */}
-                  {type === 'events' && item.location && (
-                    <div className="flex flex-col">
-                      <span className="text-gray-400 text-[10px] uppercase tracking-wide">Location</span>
-                      <span className="text-gray-700 font-medium">{item.location}</span>
-                    </div>
-                  )}
-
-                  {/* Author for News */}
-                  {type === 'news' && item.author && (
-                    <div className="flex flex-col">
-                      <span className="text-gray-400 text-[10px] uppercase tracking-wide">Author</span>
-                      <span className="text-gray-700 font-medium">{item.author}</span>
-                    </div>
-                  )}
                 </div>
-              </div>
+              ) : (
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-4">Status</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Status</span>
+                      <p className="text-sm font-bold text-slate-800 mt-1">{item.status || 'Published'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Description */}
-            <div>
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <FiBook className="text-blue-600" />
-                Description
-              </h3>
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-200">
-                <p className="text-gray-700 leading-relaxed">
-                  {item.description || item.excerpt || 'No description available.'}
-                </p>
-              </div>
-            </div>
+      {/* Description - Updated to prioritize excerpt since API doesn't have 'description' */}
+<div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl overflow-hidden">
+  <div className="p-8 bg-slate-50/50">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-1 h-4 bg-purple-500 rounded-full" />
+      <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">
+        Quick Summary
+      </h3>
+    </div>
+    <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-line italic">
+      "{item.excerpt || 'No summary available.'}"
+    </p>
+  </div>
 
-            {/* Full Content for News */}
-            {type === 'news' && item.fullContent && (
-              <div>
-                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <FiBook className="text-purple-600" />
-                  Full Content
-                </h3>
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
-                  <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                    {item.fullContent}
-                  </div>
-                </div>
-              </div>
-            )}
+  {/* Visual Divider */}
+  <div className="border-t border-dashed border-slate-200" />
 
-            {/* Additional Info for Events */}
-            {type === 'events' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {item.speaker && (
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <FiUser className="text-green-600" />
-                      Speaker
-                    </h3>
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                      <p className="text-gray-700 font-medium">{item.speaker}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {item.attendees && (
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <FiUsers className="text-orange-600" />
-                      Attendees
-                    </h3>
-                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-200">
-                      <p className="text-gray-700 font-medium capitalize">{item.attendees}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+  {/* Full Content Section */}
+  {type === 'news' && item.fullContent && (
+    <div className="p-8">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-1 h-4 bg-blue-500 rounded-full" />
+        <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">
+          Full Content
+        </h3>
+      </div>
+      <div className="text-slate-700 leading-relaxed whitespace-pre-line">
+        {item.fullContent}
+      </div>
+    </div>
+  )}
+</div>
 
-          <div className="p-6 border-t border-gray-200 flex justify-between items-center">
-            <button 
-              onClick={onClose} 
-              className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-8 py-3 rounded-2xl font-bold shadow-lg cursor-pointer"
-            >
-              Close
-            </button>
-            <button 
-              onClick={() => onEdit(item)} 
-              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg cursor-pointer"
-            >
-              <FiEdit /> Edit {type === 'news' ? 'News' : 'Event'}
-            </button>
+    {/* Action Buttons */}
+<div className="flex items-center justify-between pt-8 border-t border-slate-100">
+  <button 
+    onClick={onClose} 
+    className="px-6 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm active:bg-slate-200 transition-colors"
+  >
+    Close
+  </button>
+  
+  <div className="flex items-center gap-3">
+    <button 
+      onClick={onClose} 
+      className="px-6 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm active:bg-slate-200 transition-colors"
+    >
+      Back to List
+    </button>
+    
+    <button 
+      onClick={() => {
+        onClose();      // First: Close the view modal
+        onEdit(item);   // Second: Trigger the edit logic
+      }} 
+      /* Removed hover:brightness-110 per previous preference */
+      className={`px-6 py-3 text-white rounded-2xl font-bold text-sm shadow-lg active:scale-95 bg-gradient-to-r ${themeGradient}`}
+    >
+      <div className="flex items-center gap-2">
+        <FiEdit /> Edit {type === 'news' ? 'Article' : 'Event'}
+      </div>
+    </button>
+  </div>
+</div>
           </div>
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
-
-// MODERN CARD COMPONENT (Matching Staff Style)
 // Modern Item Card Component with better data handling
 function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
   const [imageError, setImageError] = useState(false)
@@ -646,47 +604,51 @@ function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
   
   return (
     <div className="bg-white rounded-[2rem] shadow-xl border border-gray-100 w-full max-w-md overflow-hidden transition-none">
-      {/* Image Section */}
-      <div className="relative h-64 w-full bg-gray-50 overflow-hidden">
-        {!imageError ? (
-          <img 
-            src={imageUrl} 
-            alt={itemData.title} 
-            onClick={() => onView(itemData)}
-            className="w-full h-full object-cover object-top cursor-pointer hover:scale-100 transition-transform duration-300"
-            onError={() => setImageError(true)} 
-          />
-        ) : (
-          <div 
-            onClick={() => onView(itemData)} 
-            className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 text-gray-400 cursor-pointer"
-          >
-            {type === 'news' ? (
-              <IoNewspaperOutline className="text-5xl mb-3" />
-            ) : (
-              <IoCalendarClearOutline className="text-5xl mb-3" />
-            )}
-            <span className="text-sm font-medium">No Image</span>
-          </div>
-        )}
+  {/* Image Section */}
+<div className="relative h-64 w-full bg-gray-50 overflow-hidden">
+  {!imageError ? (
+    <img
+      src={getImageUrl(item.image)}
+      alt={item.title}
+      /* Cleaned up classes: removed fixed width/height and internal rounding */
+      className="w-full h-full object-cover shadow-2xl transition-transform duration-500 hover:scale-[1.05]"
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = type === 'news' ? '/default-news.jpg' : '/default-event.jpg';
+      }}
+    />
+  ) : (
+    <div 
+      onClick={() => onView(itemData)} 
+      className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 text-gray-400 cursor-pointer"
+    >
+      {type === 'news' ? (
+        <IoNewspaperOutline className="text-5xl mb-3" />
+      ) : (
+        <IoCalendarClearOutline className="text-5xl mb-3" />
+      )}
+      <span className="text-sm font-medium">No Image</span>
+    </div>
+  )}
 
-        {/* Overlay: Category & Featured */}
-        <div className="absolute top-4 left-4 right-4 flex justify-between items-center pointer-events-none">
-          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm pointer-events-auto">
-            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-              categoryInfo ? `bg-${categoryInfo.color}-100 text-${categoryInfo.color}-800 border border-${categoryInfo.color}-200` : 'bg-gray-100 text-gray-800 border border-gray-200'
-            }`}>
-              {categoryInfo?.label || itemData.category}
-            </span>
-          </div>
-          
-          {itemData.featured && (
-            <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm border border-yellow-200 pointer-events-auto">
-              Featured
-            </span>
-          )}
-        </div>
-      </div>
+{/* Overlay: Category & Featured - ONLY for Events */}
+<div className="absolute top-4 left-4 right-4 flex justify-between items-center pointer-events-none">
+  <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm pointer-events-auto">
+    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+      categoryInfo ? `bg-${categoryInfo.color}-100 text-${categoryInfo.color}-800 border border-${categoryInfo.color}-200` : 'bg-gray-100 text-gray-800 border border-gray-200'
+    }`}>
+      {categoryInfo?.label || itemData.category}
+    </span>
+  </div>
+  
+  {/* ✅ Featured badge ONLY for Events */}
+  {type === 'events' && itemData.featured && (
+    <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm border border-yellow-200 pointer-events-auto">
+      Featured
+    </span>
+  )}
+</div>
+</div>
 
       {/* Information Section */}
       <div className="p-6">
@@ -775,26 +737,109 @@ function ModernItemCard({ item, type, onEdit, onDelete, onView }) {
 }
 // Modern Item Modal Component
 function ModernItemModal({ onClose, onSave, item, type, loading }) {
+  // Initialize state with ALL possible fields
   const [formData, setFormData] = useState({
-    title: item?.title || '',
-    date: item?.date || new Date().toISOString().split('T')[0],
-    time: item?.time || '',
-    location: item?.location || '',
-    category: item?.category || (type === 'news' ? 'achievement' : 'academic'),
-    description: item?.description || (item?.excerpt || ''),
-    content: item?.content || (item?.fullContent || ''),
-    author: item?.author || 'School Administration',
-    image: item?.image || '',
-    featured: item?.featured || false,
-    status: item?.status || 'draft',
-    // Event specific fields
-    type: item?.type || 'internal',
-    attendees: item?.attendees || 'students',
-    speaker: item?.speaker || ''
+    // Common fields
+    title: '',
+    date: new Date().toISOString().split('T')[0],
+    category: type === 'news' ? 'achievement' : 'academic',
+    image: '',
+    featured: false,
+    status: 'published',
+    
+    // News fields (using proper API field names)
+    excerpt: '',
+    fullContent: '',
+    author: '',
+    
+    // Event fields
+    description: '',
+    time: '',
+    location: '',
+    speaker: '',
+    attendees: 'students',
+    type: 'internal'
   });
 
-  const [imageFile, setImageFile] = useState(null)
-  const [imagePreview, setImagePreview] = useState(item?.image || '')
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+
+useEffect(() => {
+  console.log('🔄 Loading item for editing:', item);
+  
+  if (item) {
+    const newFormData = { ...formData };
+    
+    if (item.title) newFormData.title = item.title;
+    
+    if (item.date) {
+      try {
+        const dateObj = new Date(item.date);
+        if (!isNaN(dateObj.getTime())) {
+          newFormData.date = dateObj.toISOString().split('T')[0];
+        }
+      } catch (e) {
+        console.error('Error parsing date:', e);
+      }
+    }
+    
+    // Map category
+    if (item.category) newFormData.category = item.category;
+    
+    // Map image
+    if (item.image) {
+      newFormData.image = item.image;
+      setImagePreview(item.image);
+    }
+    
+    // Map featured ONLY for events
+    if (type === 'events' && item.featured !== undefined) {
+      newFormData.featured = item.featured;
+    }
+    
+    // Map status
+    if (item.status) newFormData.status = item.status;
+    
+    // 🚨 CRITICAL: For NEWS - PRESERVE existing excerpt and fullContent
+    if (type === 'news') {
+      // Map excerpt from either excerpt or description
+      if (item.excerpt) {
+        newFormData.excerpt = item.excerpt;
+      } else if (item.description) {
+        newFormData.excerpt = item.description;
+      }
+      
+      // Map fullContent from either fullContent or content
+      if (item.fullContent) {
+        newFormData.fullContent = item.fullContent;
+      } else if (item.content) {
+        newFormData.fullContent = item.content;
+      }
+      
+      // Map author
+      if (item.author) newFormData.author = item.author;
+    } 
+    // 🚨 CRITICAL: For EVENTS - PRESERVE existing description
+    else if (type === 'events') {
+      // Map description
+      if (item.description) {
+        newFormData.description = item.description;
+      } else if (item.excerpt) {
+        newFormData.description = item.excerpt;
+      }
+      
+      // Map other event fields
+      if (item.time) newFormData.time = item.time;
+      if (item.location) newFormData.location = item.location;
+      if (item.speaker) newFormData.speaker = item.speaker;
+      if (item.attendees) newFormData.attendees = item.attendees;
+      if (item.type) newFormData.type = item.type;
+    }
+    
+    console.log('✅ Form data loaded (preserved existing content):', newFormData);
+    setFormData(newFormData);
+  }
+}, [item, type]);
 
   const categories = {
     news: [
@@ -802,390 +847,346 @@ function ModernItemModal({ onClose, onSave, item, type, loading }) {
       { value: 'sports', label: 'Sports', color: 'blue' },
       { value: 'academic', label: 'Academic', color: 'purple' },
       { value: 'infrastructure', label: 'Infrastructure', color: 'orange' },
-      { value: 'community', label: 'Community', color: 'rose' }
+      { value: 'community', label: 'Community', color: 'rose' },
+      { value: 'general', label: 'General', color: 'gray' }
     ],
     events: [
       { value: 'academic', label: 'Academic', color: 'purple' },
       { value: 'sports', label: 'Sports', color: 'blue' },
       { value: 'cultural', label: 'Cultural', color: 'emerald' },
-      { value: 'social', label: 'Social', color: 'orange' }
+      { value: 'social', label: 'Social', color: 'orange' },
+      { value: 'general', label: 'General', color: 'gray' }
     ]
   };
-
-  useEffect(() => {
-    if (item?.image) {
-      const getPreviewUrl = (imgPath) => {
-        if (!imgPath) return '';
-        if (imgPath.startsWith('/') || imgPath.startsWith('http') || imgPath.startsWith('data:image')) {
-          return imgPath;
-        }
-        if (imgPath.startsWith('news/') || imgPath.startsWith('events/')) {
-          return `/${imgPath}`;
-        }
-        return '';
-      };
-      
-      setImagePreview(getPreviewUrl(item.image));
-    }
-  }, [item]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImageFile(file);
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target.result);
-      };
+      reader.onload = (e) => setImagePreview(e.target.result);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Prepare form data
-    const submitData = new FormData();
-    
-    // Common fields
-    submitData.append('title', formData.title.trim());
-    submitData.append('category', formData.category);
-    submitData.append('date', formData.date);
-    submitData.append('featured', formData.featured.toString());
-    submitData.append('description', formData.description.trim());
-    
-    // Type specific fields
-    if (type === 'news') {
-      submitData.append('excerpt', formData.description.trim());
-      submitData.append('fullContent', (formData.content || formData.description).trim());
-      submitData.append('author', formData.author.trim());
-    } else {
-      submitData.append('time', formData.time.trim());
-      submitData.append('location', formData.location.trim());
-      submitData.append('type', formData.type);
-      submitData.append('attendees', formData.attendees);
-      submitData.append('speaker', formData.speaker.trim());
-    }
-    
-    // Handle image
-    if (imageFile) {
-      submitData.append('image', imageFile);
-    }
-    
-    await onSave(submitData, item?.id);
+  const handleChange = (field, value) => {
+    console.log(`Changing ${field} to:`, value);
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+  // 🔥 FIXED: Proper form submission with ALL data
+// In ModernItemModal component, update the formData initialization
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  console.log('🚀 Submitting form with data:', formData);
+  
+  const submitData = new FormData();
+  
+  // 🚨 CRITICAL: For NEWS, ALWAYS include both excerpt and fullContent
+  if (type === 'news') {
+    // Always include these fields - empty fields will be handled by backend
+    submitData.append('title', formData.title.trim());
+    submitData.append('excerpt', formData.excerpt.trim());
+    submitData.append('fullContent', formData.fullContent.trim());
+    submitData.append('category', formData.category);
+    submitData.append('author', formData.author.trim());
+    submitData.append('date', formData.date);
+    
+    // If editing, include the ID
+    if (item?.id) {
+      submitData.append('id', item.id.toString());
+    }
+  } 
+  // 🚨 For EVENTS, send event fields
+  else if (type === 'events') {
+    submitData.append('title', formData.title.trim());
+    submitData.append('description', formData.description.trim());
+    submitData.append('category', formData.category);
+    submitData.append('date', formData.date);
+    
+    // Event-specific fields
+    if (formData.time) submitData.append('time', formData.time);
+    if (formData.location) submitData.append('location', formData.location);
+    if (formData.speaker) submitData.append('speaker', formData.speaker);
+    if (formData.attendees) submitData.append('attendees', formData.attendees);
+    if (formData.type) submitData.append('type', formData.type);
+    
+    // ✅ ONLY for events: Include featured field
+    if (formData.featured !== undefined) {
+      submitData.append('featured', formData.featured.toString());
+    }
+    
+    // If editing, include the ID
+    if (item?.id) {
+      submitData.append('id', item.id.toString());
+    }
   }
+  
+  // Add image if changed
+  if (imageFile) {
+    submitData.append('image', imageFile);
+  }
+  
+  console.log('📤 Sending form data to parent:');
+  for (let [key, value] of submitData.entries()) {
+    console.log(`${key}: ${value instanceof File ? `File (${value.name})` : value}`);
+  }
+  
+  await onSave(submitData, item?.id);
+};
+
+  const themeGradient = type === 'news' 
+    ? 'from-purple-700 via-pink-600 to-rose-600' 
+    : 'from-blue-700 via-cyan-600 to-teal-600';
 
   return (
     <Modal open={true} onClose={loading ? undefined : onClose}>
       <Box sx={{
         position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '90%',
-        maxWidth: '1000px',
-        maxHeight: '95vh', bgcolor: 'background.paper',
-        borderRadius: 3, boxShadow: 24, overflow: 'hidden',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #faf5ff 100%)'
+        width: '95%', maxWidth: '1100px', maxHeight: '95vh',
+        bgcolor: '#ffffff', borderRadius: '2rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+        overflow: 'hidden', outline: 'none'
       }}>
+        
         {/* Header */}
-        <div className={`p-6 text-white ${
-          type === 'news' 
-            ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-rose-700'
-            : 'bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-700'
-        }`}>
+        <div className={`p-8 text-white bg-gradient-to-r ${themeGradient}`}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-white bg-opacity-20 rounded-2xl">
-                {type === 'news' ? 
-                  <IoNewspaperOutline className="text-xl" /> : 
-                  <IoCalendarClearOutline className="text-xl" />
-                }
+            <div className="flex items-center gap-5">
+              <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl">
+                {type === 'news' ? <IoNewspaperOutline size={32} /> : <IoCalendarClearOutline size={32} />}
               </div>
               <div>
-                <h2 className="text-2xl font-bold">{item ? 'Edit' : 'Create'} {type === 'news' ? 'News' : 'Event'}</h2>
-                <p className="text-white/90 opacity-90 mt-1">
-                  Manage {type === 'news' ? 'news article' : 'event'} information
+                <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none">
+                  {item ? `EDITING: ${item.title?.substring(0, 30)}${item.title?.length > 30 ? '...' : ''}` : `CREATE NEW ${type.toUpperCase()}`}
+                </h2>
+                <p className="text-white/80 font-bold text-xs mt-1 tracking-widest uppercase">
+                  {item ? 'Edit existing content' : 'Add new content'}
                 </p>
               </div>
             </div>
             {!loading && (
-              <button onClick={onClose} className="p-2 hover:bg-white hover:bg-opacity-20 rounded-xl cursor-pointer">
-                <FiX className="text-xl" />
+              <button onClick={onClose} className="p-3 bg-black/10 hover:bg-black/20 rounded-full transition-all active:scale-90">
+                <FiX size={24} />
               </button>
             )}
           </div>
         </div>
 
-        <div className="max-h-[calc(95vh-200px)] overflow-y-auto">
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Column */}
-              <div className="space-y-6">
-                {/* Image Upload */}
-                <div>
-                  <label className=" text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-xl border border-purple-200">
-                    <FiImage className="text-purple-600 text-lg" /> 
-                    Featured Image
+        <div className="max-h-[calc(95vh-160px)] overflow-y-auto bg-slate-50/50">
+          <form onSubmit={handleSubmit} className="p-8 sm:p-12 space-y-10">
+            
+            {/* Title Input */}
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400 shrink-0">
+                <FiStar className="text-amber-500 text-xs" />
+                Headline
+              </label>
+
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) => handleChange("title", e.target.value)}
+                className="
+                  flex-1
+                  px-4 py-3
+                  bg-transparent
+                  border border-slate-300
+                  rounded-lg
+                  focus:border-purple-500
+                  focus:ring-1 focus:ring-purple-500
+                  transition
+                  text-lg sm:text-xl
+                  font-semibold
+                  text-slate-900
+                  placeholder:text-slate-400
+                  outline-none
+                "
+                placeholder="Enter a catchy title..."
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              {/* Left Column - Visuals & Media */}
+              <div className="lg:col-span-4 space-y-8">
+                <div className="relative group">
+                  <label className="block text-xs font-black uppercase tracking-widest text-slate-500 mb-4">
+                    Featured Media {formData.image && '(Existing image loaded)'}
                   </label>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex-shrink-0">
-                        {imagePreview ? (
-                          <img
-                            src={imagePreview}
-                            alt="Preview"
-                            className="w-20 h-20 rounded-2xl object-cover shadow-lg border border-gray-200"
-                          />
-                        ) : (
-                          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                            {type === 'news' ? 
-                              <IoNewspaperOutline className="text-2xl text-gray-400" /> : 
-                              <IoCalendarClearOutline className="text-2xl text-gray-400" />
-                            }
-                          </div>
-                        )}
+                  <div className="relative aspect-video sm:aspect-square rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl bg-slate-200">
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2">
+                         <FiImage size={48} className="opacity-20" />
+                         <span className="text-[10px] font-bold">NO IMAGE SELECTED</span>
                       </div>
-                      <div className="flex-1">
-                        <label className="block">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="hidden"
-                          />
-                          <div className="px-4 py-3 border-2 border-gray-200 rounded-xl cursor-pointer flex items-center gap-2 bg-gray-50 hover:bg-gray-100 transition-colors">
-                            <FiUpload className="text-purple-500" />
-                            <span className="text-sm font-bold text-gray-700">
-                              {imageFile ? 'Change Image' : 'Upload Image'}
-                            </span>
-                          </div>
-                        </label>
-                      </div>
-                    </div>
+                    )}
+                    <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white">
+                      <FiUpload size={30} />
+                      <span className="font-black text-xs mt-2 uppercase tracking-widest">Change Photo</span>
+                      <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                    </label>
                   </div>
                 </div>
 
-                {/* Title */}
-                <div>
-                  <label className=" text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-blue-50 to-cyan-50 p-3 rounded-xl border border-blue-200">
-                    <FiBook className="text-blue-600 text-lg" /> 
-                    Title *
-                  </label>
+                {/* Featured Toggle */}
+{type === 'events' && (
+  <div 
+    onClick={() => handleChange('featured', !formData.featured)}
+    className={`p-6 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${
+      formData.featured ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-100 hover:border-slate-200'
+    }`}
+  >
+    <div>
+      <p className={`font-black text-sm uppercase ${formData.featured ? 'text-amber-700' : 'text-slate-700'}`}>Promote to Featured</p>
+      <p className="text-[10px] text-slate-400 font-bold uppercase">Displays in homepage slider</p>
+    </div>
+    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${formData.featured ? 'bg-amber-500 text-white' : 'bg-slate-100'}`}>
+      <FiStar />
+    </div>
+  </div>
+)}
+              </div>
+
+              {/* Right Column - Form Fields */}
+              <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                
+                {/* Category Selection */}
+                <div className="sm:col-span-1">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Category</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => handleChange('category', e.target.value)}
+                    className="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-black text-slate-800 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all"
+                  >
+                    {categories[type].map(cat => <option key={cat.value} value={cat.value}>{cat.label}</option>)}
+                  </select>
+                </div>
+
+                {/* Date Input */}
+                <div className="sm:col-span-1">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Scheduled Date</label>
                   <input
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) => handleChange('title', e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-                    placeholder={`Enter ${type === 'news' ? 'news' : 'event'} title`}
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => handleChange('date', e.target.value)}
+                    className="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-black text-slate-800 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all"
                   />
                 </div>
 
-                {/* Category and Date */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-800 mb-3">Category *</label>
-                    <select
-                      required
-                      value={formData.category}
-                      onChange={(e) => handleChange('category', e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50"
-                    >
-                      {categories[type].map(category => (
-                        <option key={category.value} value={category.value}>
-                          {category.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-800 mb-3">Date *</label>
-                    <input
-                      type="date"
-                      required
-                      value={formData.date}
-                      onChange={(e) => handleChange('date', e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50"
-                    />
-                  </div>
-                </div>
-
-                {/* Event Specific Fields */}
-                {type === 'events' && (
+                {/* Type-specific fields */}
+                {type === 'events' ? (
                   <>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-gray-800 mb-3">Time</label>
-                        <input
-                          type="text"
-                          value={formData.time}
-                          onChange={(e) => handleChange('time', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50"
-                          placeholder="e.g., 9:00 AM - 5:00 PM"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-bold text-gray-800 mb-3">Type</label>
-                        <select
-                          value={formData.type}
-                          onChange={(e) => handleChange('type', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-                        >
-                          <option value="internal">Internal</option>
-                          <option value="external">External</option>
-                          <option value="online">Online</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-gray-800 mb-3">Location</label>
+                    <div className="sm:col-span-1">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Event Time</label>
                       <input
                         type="text"
-                        value={formData.location}
-                        onChange={(e) => handleChange('location', e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50"
-                        placeholder="Enter event location"
+                        placeholder="e.g. 08:00 AM - 04:00 PM"
+                        value={formData.time}
+                        onChange={(e) => handleChange('time', e.target.value)}
+                        className="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-black text-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-slate-300"
                       />
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-gray-800 mb-3">Attendees</label>
-                        <select
-                          value={formData.attendees}
-                          onChange={(e) => handleChange('attendees', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50"
-                        >
-                          <option value="students">Students</option>
-                          <option value="staff">Staff</option>
-                          <option value="parents">Parents</option>
-                          <option value="all">All</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-bold text-gray-800 mb-3">Speaker</label>
-                        <input
-                          type="text"
-                          value={formData.speaker}
-                          onChange={(e) => handleChange('speaker', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50"
-                          placeholder="Enter speaker name"
-                        />
-                      </div>
+                    <div className="sm:col-span-1">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Venue / Location</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. School Main Hall"
+                        value={formData.location}
+                        onChange={(e) => handleChange('location', e.target.value)}
+                        className="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-black text-slate-800 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-slate-300"
+                      />
                     </div>
                   </>
-                )}
-
-                {/* Author for News */}
-                {type === 'news' && (
-                  <div>
-                    <label className="block text-sm font-bold text-gray-800 mb-3">Author</label>
+                ) : (
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Article Author</label>
                     <input
                       type="text"
                       value={formData.author}
                       onChange={(e) => handleChange('author', e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50"
-                      placeholder="Enter author name"
+                      className="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-black text-slate-800 focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 outline-none transition-all"
                     />
                   </div>
                 )}
-              </div>
 
-              {/* Right Column */}
-              <div className="space-y-6">
-                {/* Description */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-xl border border-purple-200">
-                    <FiBook className="text-purple-600 text-lg" /> 
-                    Description *
-                  </label>
-                  <textarea
-                    required
-                    value={formData.description}
-                    onChange={(e) => handleChange('description', e.target.value)}
-                    rows="4"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50"
-                    placeholder={`Write a brief description...`}
-                  />
-                </div>
-
-                {/* Full Content (News only) */}
-                {type === 'news' && (
+                {/* Long Text Areas */}
+                <div className="sm:col-span-2 space-y-6">
                   <div>
-                    <label className="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2 bg-gradient-to-r from-indigo-50 to-blue-50 p-3 rounded-xl border border-indigo-200">
-                      <FiBook className="text-indigo-600 text-lg" /> 
-                      Full Content
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-800 mb-2 ml-1">
+                      {type === 'news' ? 'Excerpt (Short Description)' : 'Description'}
                     </label>
                     <textarea
-                      value={formData.content}
-                      onChange={(e) => handleChange('content', e.target.value)}
-                      rows="4"
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
-                      placeholder="Write the full article content..."
+                      rows="8"
+                      value={type === 'news' ? formData.excerpt : formData.description}
+                      onChange={(e) => handleChange(type === 'news' ? 'excerpt' : 'description', e.target.value)}
+                      className="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-bold text-slate-700 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all placeholder:text-slate-300"
+                      placeholder={type === 'news' ? 'Write a brief summary of this news article...' : 'Write a brief description...'}
                     />
                   </div>
-                )}
-
-                {/* Featured */}
-                <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.featured}
-                      onChange={(e) => handleChange('featured', e.target.checked)}
-                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                    />
-                    <span className="text-sm font-bold text-gray-700">Featured Item</span>
-                  </label>
+        
                 </div>
               </div>
             </div>
 
             {/* Form Actions */}
-            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-10 border-t border-slate-100">
               <button 
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-8 py-3 rounded-2xl font-bold shadow-lg disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto px-10 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all active:scale-95"
               >
-                Cancel
+                Cancel Changes
               </button>
               
-              <button 
-                type="submit"
-                disabled={loading}
-                className={`px-8 py-3 text-white rounded-2xl font-bold shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2 ${
-                  type === 'news' 
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
-                    : 'bg-gradient-to-r from-blue-600 to-cyan-600'
-                }`}
-              >
-                {loading ? (
-                  <>
-                    <CircularProgress size={16} className="text-white" />
-                    {item ? 'Updating...' : 'Creating...'}
-                  </>
-                ) : (
-                  <>
-                    <FiCheck />
-                    {item ? 'Update' : 'Create'} {type === 'news' ? 'News' : 'Event'}
-                  </>
-                )}
-              </button>
+<button 
+  type="submit"
+  disabled={loading}
+
+  // Removed hover:brightness-110 and transition-all
+  className={`w-full sm:w-auto px-12 py-4 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl active:scale-95 flex items-center justify-center gap-3 bg-gradient-to-r ${themeGradient} ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+>
+  {loading ? (
+    <>
+      <CircularProgress size={18} thickness={6} sx={{ color: 'white' }} />
+      <span>Saving updates...</span> {/* Fixed: Wrapped text in a tag */}
+    </>
+  ) : (
+    <>
+      <FiCheck size={18} />
+      {item ? 'Save Updates' : `Create ${type === 'news' ? 'News' : 'Event'}`}
+    </>
+  )}
+</button>
             </div>
           </form>
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
+// Helper function to get authentication headers from localStorage
+const getAuthHeaders = () => {
+  try {
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    if (!adminToken || !deviceToken) {
+      console.error('❌ Authentication tokens not found in localStorage');
+      return {};
+    }
+    
+    return {
+      'x-admin-token': adminToken,
+      'x-device-token': deviceToken
+    };
+  } catch (error) {
+    console.error('❌ Error getting auth headers:', error);
+    return {};
+  }
+};
 
 // Main News & Events Manager Component
 export default function NewsEventsManager() {
@@ -1243,27 +1244,34 @@ export default function NewsEventsManager() {
   };
 
   // Fetch news from API
+// Fetch news from API
+// Fetch news from API - FIXED MAPPING
 const fetchNews = async () => {
   try {
     const response = await fetch('/api/news');
     const data = await response.json();
     
+    console.log('News API Response:', data); // Debug log
+    
     if (data.success) {
-      // Map API response to component expected structure
-      const mappedNews = (data.data || data.news || []).map(item => ({
+      const newsArray = data.data || [];
+      
+      // 🚨 FIX: News has both excerpt AND fullContent
+      const mappedNews = newsArray.map(item => ({
         id: item.id,
         title: item.title,
-        excerpt: item.excerpt || item.description || '',
-        description: item.excerpt || item.description || '',
-        fullContent: item.fullContent || item.content || '',
+        excerpt: item.excerpt || '', // News has excerpt
+        description: item.excerpt || '', // Also use excerpt as description
+        fullContent: item.fullContent || '', // News has fullContent
         date: item.date,
         category: item.category || 'general',
-        author: item.author || 'Admin',
+        author: item.author || 'School Administration',
         image: item.image || '',
-        featured: item.featured || false,
+        featured: false, // News doesn't have featured
         status: item.status || 'published'
       }));
       
+      console.log('Mapped News (Fixed):', mappedNews);
       setNews(mappedNews);
     } else {
       throw new Error(data.error || 'Failed to fetch news');
@@ -1275,21 +1283,44 @@ const fetchNews = async () => {
   }
 };
   // Fetch events from API
-  const fetchEvents = async () => {
-    try {
-      const response = await fetch('/api/events');
-      const data = await response.json();
-      if (data.success) {
-        setEvents(data.events || []);
-      } else {
-        throw new Error(data.error || 'Failed to fetch events');
-      }
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      setEvents([]);
-      showNotification('error', 'Fetch Error', 'Failed to fetch events');
+// Fetch events from API
+const fetchEvents = async () => {
+  try {
+    const response = await fetch('/api/events');
+    const data = await response.json();
+    
+    console.log('Events API Response:', data); // Debug log
+    
+    if (data.success) {
+      // Handle both "events" and "data" property names
+      const eventsArray = data.events || data.data || [];
+      const mappedEvents = eventsArray.map(item => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.description || item.excerpt || '',
+        description: item.description || item.excerpt || '',
+        date: item.date,
+        category: item.category || 'general',
+        image: item.image || '',
+        featured: item.featured || false,
+        time: item.time || '',
+        location: item.location || '',
+        speaker: item.speaker || '',
+        attendees: item.attendees || 'students',
+        status: item.status || 'published'
+      }));
+      
+      console.log('Mapped Events:', mappedEvents); // Debug log
+      setEvents(mappedEvents);
+    } else {
+      throw new Error(data.error || 'Failed to fetch events');
     }
-  };
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    setEvents([]);
+    showNotification('error', 'Fetch Error', 'Failed to fetch events');
+  }
+};
 
   const fetchData = async () => {
     setLoading(true);
@@ -1355,74 +1386,120 @@ const fetchNews = async () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = async () => {
-    if (!itemToDelete) return;
+  // UPDATED: Delete function with authentication headers
+const confirmDelete = async () => {
+  if (!itemToDelete) return;
+  
+  setDeleting(true);
+  try {
+    const endpoint = activeSection === 'news' 
+      ? `/api/news/${itemToDelete.id}` 
+      : `/api/events/${itemToDelete.id}`;
     
-    setDeleting(true);
-    try {
-      const endpoint = activeSection === 'news' 
-        ? `/api/news/${itemToDelete.id}` 
-        : `/api/events/${itemToDelete.id}`;
-      
-      const response = await fetch(endpoint, {
-        method: 'DELETE',
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        await fetchData();
-        showNotification('success', 'Deleted', `${activeSection === 'news' ? 'News' : 'Event'} deleted successfully!`);
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error(`Error deleting ${activeSection}:`, error);
-      showNotification('error', 'Delete Failed', `Failed to delete ${activeSection}`);
-    } finally {
-      setDeleting(false);
-      setShowDeleteModal(false);
-      setItemToDelete(null);
+    // Get authentication headers
+    const authHeaders = getAuthHeaders();
+    
+    const response = await fetch(endpoint, {
+      method: 'DELETE',
+      headers: {
+        ...authHeaders,
+      },
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      await fetchData();
+      showNotification('success', 'Deleted', `${activeSection === 'news' ? 'News' : 'Event'} deleted successfully!`);
+    } else {
+      throw new Error(result.error || result.message);
     }
-  };
+  } catch (error) {
+    console.error(`Error deleting ${activeSection}:`, error);
+    showNotification('error', 'Delete Failed', error.message || `Failed to delete ${activeSection}`);
+  } finally {
+    setDeleting(false);
+    setShowDeleteModal(false);
+    setItemToDelete(null);
+  }
+};
 
 const handleSubmit = async (formData, id) => {
   setSaving(true);
   try {
-    let response;
-    let endpoint;
+    console.log('📥 Received from modal:', formData);
     
-    // Add loading notification
+    // Get authentication headers
+    const authHeaders = getAuthHeaders();
+    
     showNotification('info', 'Saving', `${id ? 'Updating' : 'Creating'} ${activeSection}...`);
     
-    if (id) {
-      endpoint = activeSection === 'news' ? `/api/news/${id}` : `/api/events/${id}`;
-      response = await fetch(endpoint, {
-        method: 'PUT',
-        body: formData,
-      });
-    } else {
-      endpoint = activeSection === 'news' ? '/api/news' : '/api/events';
-      response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
-      });
+    const endpoint = id 
+      ? (activeSection === 'news' ? `/api/news/${id}` : `/api/events/${id}`)
+      : (activeSection === 'news' ? '/api/news' : '/api/events');
+    
+    const method = id ? 'PUT' : 'POST';
+    
+    // 🚨 CRITICAL: Ensure ALL existing data is included when updating
+    if (id && editingItem) {
+      console.log('🔄 Including existing data for update:', editingItem);
+      
+      // For News - ensure excerpt and fullContent are preserved if not changed
+      if (activeSection === 'news') {
+        const excerpt = formData.get('excerpt');
+        const fullContent = formData.get('fullContent');
+        
+        // If excerpt is empty but we have existing excerpt, use existing
+        if (!excerpt && editingItem.excerpt) {
+          formData.set('excerpt', editingItem.excerpt);
+        }
+        
+        // If fullContent is empty but we have existing fullContent, use existing
+        if (!fullContent && editingItem.fullContent) {
+          formData.set('fullContent', editingItem.fullContent);
+        }
+      }
+      
+      // For Events - ensure description is preserved if not changed
+      if (activeSection === 'events') {
+        const description = formData.get('description');
+        if (!description && editingItem.description) {
+          formData.set('description', editingItem.description);
+        }
+      }
     }
+    
+    // Debug: Show what's being sent
+    console.log('📤 Sending to API:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value instanceof File ? `File (${value.name})` : value}`);
+    }
+    
+    const response = await fetch(endpoint, {
+      method,
+      headers: {
+        ...authHeaders,
+      },
+      body: formData,
+    });
 
     const result = await response.json();
-    
-    console.log('API Response:', result); // Debug log
+    console.log('✅ API Response:', result);
 
     if (result.success) {
-      await fetchData();
+      // 🚨 AUTO-CLOSE MODAL on success
       setShowModal(false);
+      
+      // 🚨 Refresh data
+      await fetchData();
+      
       showNotification(
         'success',
         id ? 'Updated' : 'Created',
         `${activeSection === 'news' ? 'News' : 'Event'} ${id ? 'updated' : 'created'} successfully!`
       );
     } else {
-      throw new Error(result.error || `Failed to ${id ? 'update' : 'create'} ${activeSection}`);
+      throw new Error(result.error || result.message || `Failed to ${id ? 'update' : 'create'} ${activeSection}`);
     }
   } catch (error) {
     console.error(`Error saving ${activeSection}:`, error);
@@ -1431,6 +1508,8 @@ const handleSubmit = async (formData, id) => {
     setSaving(false);
   }
 };
+
+
   useEffect(() => {
     const calculatedStats = {
       totalNews: news.length,
@@ -1507,7 +1586,7 @@ const handleSubmit = async (formData, id) => {
           <p className="text-gray-700 text-lg mt-4 font-medium">
             Loading Events and News
           </p>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-gray-800 text-sm mt-1">
             Please wait while we fetch school Events and News articles.
           </p>
         </div>
@@ -1598,17 +1677,7 @@ const handleSubmit = async (formData, id) => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs lg:text-sm font-bold text-gray-600 mb-1">Featured News</p>
-                <p className="text-xl lg:text-2xl font-bold text-gray-900">{stats.featuredNews}</p>
-              </div>
-              <div className="p-3 bg-yellow-100 text-yellow-600 rounded-2xl">
-                <FiAward className="text-lg" />
-              </div>
-            </div>
-          </div>
+ 
 
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between">

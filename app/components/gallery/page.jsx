@@ -454,52 +454,106 @@ useEffect(() => {
   }
 }, [formData.files]);
 
+const handleCreate = async () => {
+  if (!formData.title.trim() || formData.files.length === 0) {
+    toast.warning('Please provide a title and select files');
+    return;
+  }
 
-  // CRUD Operations
-  const handleCreate = async () => {
-    if (!formData.title.trim() || formData.files.length === 0) {
-      toast.warning('Please provide a title and select files');
-      return;
+  if (fileSizeError) {
+    toast.error(fileSizeError);
+    return;
+  }
+
+  setIsUploading(true);
+  
+  toast.loading('Uploading gallery...');
+  
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
     }
-
-    setIsUploading(true);
     
-    toast.loading('Uploading gallery...');
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
     
-    try {
-      const submitData = new FormData();
-      submitData.append('title', formData.title);
-      submitData.append('description', formData.description);
-      submitData.append('category', formData.category);
-      
-      formData.files.forEach(fileObj => {
-        submitData.append('files', fileObj.file);
-      });
+    const submitData = new FormData();
+    submitData.append('title', formData.title);
+    submitData.append('description', formData.description);
+    submitData.append('category', formData.category);
+    
+    formData.files.forEach(fileObj => {
+      submitData.append('files', fileObj.file);
+    });
 
-      const response = await fetch('/api/gallery', {
-        method: 'POST',
-        body: submitData,
-      });
+    const response = await fetch('/api/gallery', {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+      body: submitData,
+    });
 
-      const result = await response.json();
+    if (!response.ok) {
+      const errorData = await response.json();
       
-      if (result.success) {
-        toast.dismiss();
-        toast.success('Gallery created successfully!');
-        setShowCreateModal(false);
-        resetForm();
-        fetchGalleryItems();
-      } else {
-        throw new Error(result.error || 'Failed to create gallery');
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
       }
-    } catch (error) {
-      toast.dismiss();
-      toast.error(`Error: ${error.message}`);
-    } finally {
-      setIsUploading(false);
-      setUploadProgress({});
+      
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to upload galleries.');
+      }
+      
+      throw new Error(errorData.error || errorData.message || 'Failed to create gallery');
     }
-  };
+
+    const result = await response.json();
+    
+    if (result.success) {
+      toast.dismiss();
+      toast.success('Gallery created successfully!');
+      setShowCreateModal(false);
+      resetForm();
+      fetchGalleryItems();
+    } else {
+      throw new Error(result.error || 'Failed to create gallery');
+    }
+  } catch (error) {
+    toast.dismiss();
+    
+    // Handle specific error cases
+    if (error.message.includes('Session expired') || 
+        error.message.includes('Authentication required') ||
+        error.message.includes('Device verification')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1500);
+      
+    } else if (error.message.includes('permission')) {
+      toast.error('Access denied: ' + error.message);
+    } else {
+      toast.error(`Error: ${error.message}`);
+    }
+  } finally {
+    setIsUploading(false);
+    setUploadProgress({});
+  }
+};
+
 
   const handleEdit = (item) => {
     setEditingItem(item);
@@ -513,130 +567,270 @@ useEffect(() => {
     setShowEditModal(true);
   };
 
-  const handleUpdate = async () => {
-    if (!formData.title.trim()) {
-      toast.warning('Please provide a title');
-      return;
+const handleUpdate = async () => {
+  if (!formData.title.trim()) {
+    toast.warning('Please provide a title');
+    return;
+  }
+
+  if (fileSizeError) {
+    toast.error(fileSizeError);
+    return;
+  }
+
+  setIsUploading(true);
+  
+  toast.loading('Updating gallery...');
+  
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+    
+    const submitData = new FormData();
+    submitData.append('title', formData.title);
+    submitData.append('description', formData.description);
+    submitData.append('category', formData.category);
+    
+    // Append files to remove
+    filesToRemove.forEach(fileUrl => {
+      submitData.append('filesToRemove', fileUrl);
+    });
+    
+    // Append new files
+    if (formData.files.length > 0) {
+      formData.files.forEach(fileObj => {
+        submitData.append('files', fileObj.file);
+      });
     }
 
-    setIsUploading(true);
-    
-    toast.loading('Updating gallery...');
-    
-    try {
-      const submitData = new FormData();
-      submitData.append('title', formData.title);
-      submitData.append('description', formData.description);
-      submitData.append('category', formData.category);
-      
-      // Append files to remove
-      filesToRemove.forEach(fileUrl => {
-        submitData.append('filesToRemove', fileUrl);
-      });
-      
-      // Append new files
-      if (formData.files.length > 0) {
-        formData.files.forEach(fileObj => {
-          submitData.append('files', fileObj.file);
-        });
-      }
+    const response = await fetch(`/api/gallery/${editingItem.id}`, {
+      method: 'PUT',
+      headers: { 
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+      body: submitData,
+    });
 
-      const response = await fetch(`/api/gallery/${editingItem.id}`, {
-        method: 'PUT',
-        body: submitData,
-      });
-
-      const result = await response.json();
+    if (!response.ok) {
+      const errorData = await response.json();
       
-      if (result.success) {
-        toast.dismiss();
-        toast.success('Gallery updated successfully!');
-        setShowEditModal(false);
-        setEditingItem(null);
-        setFilesToRemove([]);
-        resetForm();
-        fetchGalleryItems();
-      } else {
-        throw new Error(result.error || 'Failed to update gallery');
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
       }
-    } catch (error) {
+      
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to update galleries.');
+      }
+      
+      throw new Error(errorData.error || errorData.message || 'Failed to update gallery');
+    }
+
+    const result = await response.json();
+    
+    if (result.success) {
       toast.dismiss();
-      toast.error(`Error: ${error.message}`);
-    } finally {
-      setIsUploading(false);
-      setUploadProgress({});
+      toast.success('Gallery updated successfully!');
+      setShowEditModal(false);
+      setEditingItem(null);
+      setFilesToRemove([]);
+      resetForm();
+      fetchGalleryItems();
+    } else {
+      throw new Error(result.error || 'Failed to update gallery');
     }
-  };
+  } catch (error) {
+    toast.dismiss();
+    
+    // Handle specific error cases
+    if (error.message.includes('Session expired') || 
+        error.message.includes('Authentication required') ||
+        error.message.includes('Device verification')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1500);
+      
+    } else if (error.message.includes('permission')) {
+      toast.error('Access denied: ' + error.message);
+    } else {
+      toast.error(`Error: ${error.message}`);
+    }
+  } finally {
+    setIsUploading(false);
+    setUploadProgress({});
+  }
+};
 
   const handleDelete = (item) => {
     setItemToDelete(item);
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = async () => {
-    if (!itemToDelete) return;
+const confirmDelete = async () => {
+  if (!itemToDelete) return;
 
-    toast.loading('Deleting gallery...');
+  toast.loading('Deleting gallery...');
+  
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
     
-    try {
-      const response = await fetch(`/api/gallery/${itemToDelete.id}`, {
-        method: 'DELETE',
-      });
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+    
+    const response = await fetch(`/api/gallery/${itemToDelete.id}`, {
+      method: 'DELETE',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+    });
 
-      const result = await response.json();
+    if (!response.ok) {
+      const errorData = await response.json();
       
-      if (result.success) {
-        setGalleryItems(prev => prev.filter(item => item.id !== itemToDelete.id));
-        setSelectedItems(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(itemToDelete.id);
-          return newSet;
-        });
-        
-        toast.dismiss();
-        toast.success('Gallery deleted successfully!');
-      } else {
-        throw new Error(result.error || 'Failed to delete gallery');
+      // Handle 401 Unauthorized (token expired)
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
       }
-    } catch (error) {
+      
+      // Handle 403 Forbidden (no permission)
+      if (response.status === 403) {
+        throw new Error('You do not have permission to delete galleries.');
+      }
+      
+      throw new Error(errorData.error || errorData.message || 'Failed to delete gallery');
+    }
+
+    const result = await response.json();
+    
+    if (result.success) {
+      setGalleryItems(prev => prev.filter(item => item.id !== itemToDelete.id));
+      setSelectedItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemToDelete.id);
+        return newSet;
+      });
+      
       toast.dismiss();
-      toast.error(`Error: ${error.message}`);
-    } finally {
+      toast.success('Gallery deleted successfully!');
       setShowDeleteModal(false);
       setItemToDelete(null);
+    } else {
+      throw new Error(result.error || 'Failed to delete gallery');
     }
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedItems.size === 0) return;
+  } catch (error) {
+    toast.dismiss();
     
-    if (!window.confirm(`Delete ${selectedItems.size} selected galleries? This cannot be undone.`)) {
-      return;
-    }
-
-    toast.loading(`Deleting ${selectedItems.size} galleries...`);
-    const deletePromises = Array.from(selectedItems).map(id => 
-      fetch(`/api/gallery/${id}`, { method: 'DELETE' }).then(res => res.json())
-    );
-
-    try {
-      const results = await Promise.all(deletePromises);
-      const successful = results.filter(result => result.success).length;
+    // Handle specific error cases
+    if (error.message.includes('Session expired') || 
+        error.message.includes('Authentication required') ||
+        error.message.includes('Device verification')) {
       
-      if (successful > 0) {
-        setGalleryItems(prev => prev.filter(item => !selectedItems.has(item.id)));
-        setSelectedItems(new Set());
-        
-        toast.dismiss();
-        toast.success(`${successful} galleries deleted successfully!`);
-      } else {
-        throw new Error('Failed to delete galleries');
-      }
-    } catch (error) {
-      toast.dismiss();
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1500);
+      
+    } else if (error.message.includes('permission')) {
+      toast.error('Access denied: ' + error.message);
+    } else {
       toast.error(`Error: ${error.message}`);
     }
-  };
+  }
+};
+
+const handleBulkDelete = async () => {
+  if (selectedItems.size === 0) return;
+  
+  if (!window.confirm(`Delete ${selectedItems.size} selected galleries? This cannot be undone.`)) {
+    return;
+  }
+
+  toast.loading(`Deleting ${selectedItems.size} galleries...`);
+  
+  try {
+    // Get authentication tokens
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    // Check if tokens exist
+    if (!adminToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    if (!deviceToken) {
+      throw new Error('Device verification required. Please login with verification.');
+    }
+    
+    const deletePromises = Array.from(selectedItems).map(id => 
+      fetch(`/api/gallery/${id}`, { 
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`,
+          'x-device-token': deviceToken
+        }
+      }).then(res => res.json())
+    );
+
+    const results = await Promise.all(deletePromises);
+    const successful = results.filter(result => result.success).length;
+    
+    if (successful > 0) {
+      setGalleryItems(prev => prev.filter(item => !selectedItems.has(item.id)));
+      setSelectedItems(new Set());
+      
+      toast.dismiss();
+      toast.success(`${successful} galleries deleted successfully!`);
+    } else {
+      throw new Error('Failed to delete galleries');
+    }
+  } catch (error) {
+    toast.dismiss();
+    
+    // Handle specific error cases
+    if (error.message.includes('Authentication required') || 
+        error.message.includes('Device verification')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1500);
+      
+    } else {
+      toast.error(`Error: ${error.message}`);
+    }
+  }
+};
+
+
 const resetForm = useCallback(() => {
   setFormData({
     title: '',
@@ -785,7 +979,7 @@ const resetForm = useCallback(() => {
                   <div className="h-8 w-1 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,99,235,0.5)]" />
                   <div>
                     <h2 className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">
-                      Mary Immculate Girls High School
+                      Katwanyaa High School
                     </h2>
                     <p className="text-[10px] italic font-medium text-white/60 tracking-widest uppercase">
                       "Media Gallery"
@@ -972,12 +1166,6 @@ const resetForm = useCallback(() => {
                   className={`p-2 rounded-xl ${viewMode === 'grid' ? 'bg-white text-blue-600 shadow-lg' : 'text-slate-600'}`}
                 >
                   <FiGrid className="text-lg" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-xl ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-lg' : 'text-slate-600'}`}
-                >
-                  <FiList className="text-lg" />
                 </button>
               </div>
               <button 
@@ -1229,133 +1417,100 @@ const ModernGalleryItem = ({
   };
 
   // Grid View
-  return (
-    <div
-      className={`bg-white rounded-2xl overflow-hidden border border-slate-100/50 group transition-all duration-300 hover:shadow-xl hover:border-slate-200 ${
-        isSelected ? 'border-blue-500 ring-4 ring-blue-100/50' : ''
-      }`}
-    >
-      <div className="relative">
-        {/* Selection Checkbox - Enhanced */}
+return (
+  <div
+    className={`group relative bg-white rounded-3xl  ${
+      isSelected 
+        ? 'ring-2 ring-blue-500 shadow-2xl shadow-blue-100' 
+        : 'hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100'
+    }`}
+  >
+    <div className="relative p-2"> {/* Internal padding gives a 'frame' look */}
+      <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100">
+        {/* Selection Checkbox - Minimalist */}
         <button
           onClick={onSelect}
-          className={`absolute top-3 left-3 w-7 h-7 rounded-full border-2 flex items-center justify-center z-30 transition-all duration-200  ${
+          className={`absolute top-3 left-3 w-6 h-6 rounded-full z-30 transition-all duration-300 flex items-center justify-center ${
             isSelected 
-              ? 'bg-gradient-to-br from-blue-500 to-cyan-500 border-blue-500 text-white shadow-lg' 
-              : 'bg-white/90 backdrop-blur-sm border-slate-300 hover:border-blue-400 hover:bg-blue-50'
+              ? 'bg-blue-500 text-white scale-110' 
+              : 'bg-white/40 backdrop-blur-md border border-white/50 text-transparent hover:bg-white/60'
           }`}
         >
-          <FiCheck className={`text-sm transition-all ${isSelected ? 'scale-100' : 'scale-90 opacity-0'}`} />
+          <FiCheck className={`text-xs ${isSelected ? 'opacity-100' : 'opacity-0'}`} />
         </button>
 
-        {/* Category Badge - Enhanced */}
+        {/* Category Badge - Glassmorphism */}
         <div className="absolute top-3 right-3 z-20">
-          <span className="px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wide shadow-md bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+          <span className="px-3 py-1 bg-black/20 backdrop-blur-xl border border-white/20 rounded-full text-[10px] font-bold uppercase tracking-widest text-white">
             {formatCategory(item.category)}
           </span>
         </div>
 
-        {/* Media Preview - Enhanced */}
-        <div className="aspect-square bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-hidden cursor-pointer" onClick={onPreview}>
-          {hasError ? (
-            <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 flex flex-col items-center justify-center p-6">
-              <FiImage className="text-slate-400 text-3xl mb-3" />
-              <p className="text-slate-500 text-sm font-medium">Failed to load image</p>
-              <p className="text-slate-400 text-xs mt-1">Tap to refresh</p>
-            </div>
-          ) : (
-            <>
-              {item.files && item.files[0] ? (
-                <>
-                  <img
-                    src={item.files[0]}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-500 "
-                    onError={onImageError}
-                  />
-                  {/* Multiple Images Indicator - Enhanced */}
-                  {item.files.length > 1 && (
-                    <div className="absolute top-3 left-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-1.5 rounded-full shadow-xl font-bold">
-                      +{item.files.length - 1} more
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 flex flex-col items-center justify-center p-6">
-                  <FiImage className="text-slate-400 text-3xl mb-3" />
-                  <p className="text-slate-500 text-sm font-medium">No image available</p>
-                </div>
-              )}
-              {/* View Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                <div className="flex items-center gap-2 text-white">
-                  <FiEye className="text-lg" />
-                  <span className="text-sm font-medium">View Gallery</span>
-                </div>
+        {/* Media Preview */}
+        {hasError ? (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50">
+            <FiImage className="text-slate-300 text-2xl mb-2" />
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Error Loading</span>
+          </div>
+        ) : (
+          <div className="w-full h-full cursor-pointer" onClick={onPreview}>
+            <img
+              src={item.files?.[0]}
+              alt={item.title}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              onError={onImageError}
+            />
+            {/* Minimalist Multi-image Indicator */}
+            {item.files?.length > 1 && (
+              <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
+                <p className="text-[10px] font-black text-slate-900">+{item.files.length - 1} PHOTOS</p>
               </div>
-            </>
-          )}
-        </div>
+            )}
+            {/* Clean Overlay */}
+            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <div className="bg-white text-slate-900 p-3 rounded-full scale-90 group-hover:scale-100 transition-transform duration-300 shadow-xl">
+                <FiEye size={20} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+    </div>
 
-      {/* Content - Enhanced */}
-      <div className="p-5">
-        <div className="mb-4">
-          <h3 
-            className="font-bold text-slate-900 text-base mb-2 truncate cursor-pointer hover:text-blue-600 transition-colors" 
-            onClick={onPreview} 
-            title={item.title}
-          >
-            {item.title}
-          </h3>
-          
-          <p className="text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed" title={item.description}>
-            {item.description || 'No description provided for this gallery'}
-          </p>
-        </div>
-        
-        {/* View Button - Enhanced */}
-        <button
+    {/* Content Area */}
+    <div className="px-5 pb-6 pt-2">
+      <div className="flex justify-between items-start mb-3">
+        <h3 
+          className="font-black text-slate-800 text-lg leading-tight hover:text-blue-600 transition-colors cursor-pointer"
           onClick={onPreview}
-          className="w-full py-3.5 bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 text-white rounded-xl font-bold text-sm hover:from-amber-700 hover:via-orange-700 hover:to-red-700 transition-all duration-300 hover:shadow-lg  flex items-center justify-center gap-2"
         >
-          <FiEye className="text-base" />
-          <span>VIEW GALLERY</span>
-        </button>
+          {item.title}
+        </h3>
+      </div>
+      
+      <p className="text-sm text-slate-500 line-clamp-2 font-medium leading-relaxed mb-6">
+        {item.description || 'Exploring the visual journey of our latest collection.'}
+      </p>
 
-        {/* Stats & Info - Enhanced */}
-        <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-100">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
-              <FiCalendar className="text-blue-500 text-sm" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Uploaded</p>
-              <p className="text-sm font-bold text-slate-800">
-                {item.uploadDate ? new Date(item.uploadDate).toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric',
-                  year: 'numeric'
-                }) : 'Unknown'}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
-              <FiImage className="text-purple-500 text-sm" />
-            </div>
-            <div className="text-right">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Files</p>
-              <p className="text-sm font-bold text-slate-800">
-                {item.files ? item.files.length : 0} {item.files ? (item.files.length === 1 ? 'file' : 'files') : 'files'}
-              </p>
-            </div>
-          </div>
+      {/* Stats - Modern Inline Style */}
+      <div className="flex items-center gap-4 text-slate-400 border-t border-slate-50 pt-5">
+        <div className="flex items-center gap-1.5">
+          <FiCalendar className="text-xs" />
+          <span className="text-[11px] font-bold uppercase tracking-tighter">
+             {item.uploadDate ? new Date(item.uploadDate).getFullYear() : '2024'}
+          </span>
+        </div>
+        <div className="h-1 w-1 rounded-full bg-slate-200" />
+        <div className="flex items-center gap-1.5">
+          <FiImage className="text-xs" />
+          <span className="text-[11px] font-bold uppercase tracking-tighter">
+            {item.files?.length || 0} Assets
+          </span>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 // Modern Modal Component
