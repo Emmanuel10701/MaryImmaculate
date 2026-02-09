@@ -28,8 +28,6 @@ const MessageBox = ({ message, type, onClose }) => {
 };
 
 const ForgotPasswordPage = () => {
-  // ✅ useRouter removed - using window.history.back() instead
-  
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [gmailEnabled, setGmailEnabled] = useState(false);
@@ -41,7 +39,7 @@ const ForgotPasswordPage = () => {
     setMessage(null);
 
     try {
-      const res = await fetch("/api/forgot", {
+      const res = await fetch("/api/forgotpassword", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -80,58 +78,62 @@ const ForgotPasswordPage = () => {
   const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-indigo-900 text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-indigo-900 text-white flex items-center justify-center p-3 sm:p-4">
       <motion.div
-        className="max-w-xl w-full mx-auto p-10 backdrop-blur-lg bg-white/10 rounded-3xl shadow-2xl relative overflow-hidden transform-gpu"
+        className="max-w-sm sm:max-w-md md:max-w-xl w-full mx-auto p-6 sm:p-8 md:p-10 backdrop-blur-lg bg-white/10 rounded-2xl sm:rounded-3xl shadow-2xl relative overflow-hidden transform-gpu"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <div className="absolute top-0 left-0 w-24 h-24 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-0 left-0 w-16 h-16 sm:w-24 sm:h-24 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute top-0 right-0 w-16 h-16 sm:w-24 sm:h-24 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
 
         <motion.div className="relative z-10 text-center" variants={itemVariants}>
-          <div className="flex items-center justify-center mb-4">
-            <ShieldQuestion className="text-white text-4xl mr-3" />
-            <h1 className="text-4xl font-extrabold tracking-tight">Password Recovery</h1>
+          <div className="flex flex-col sm:flex-row items-center justify-center mb-3 sm:mb-4">
+            <div className="flex items-center mb-2 sm:mb-0">
+              <ShieldQuestion className="text-white text-2xl sm:text-3xl md:text-4xl mr-2 sm:mr-3" />
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
+                Password Recovery
+              </h1>
+            </div>
           </div>
-          <p className="text-base text-gray-300 mb-6">
+          <p className="text-sm sm:text-base text-gray-300 mb-4 sm:mb-6 px-2">
             Enter your email address below and we'll send you a link to reset your password.
           </p>
-          <div className="flex justify-center flex-wrap gap-2 text-sm font-medium mb-8">
-            <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs sm:text-sm">#Security</span>
-            <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs sm:text-sm">#AccountRecovery</span>
-            <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs sm:text-sm">#Authentication</span>
+          <div className="flex justify-center flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm font-medium mb-6 sm:mb-8">
+            <span className="bg-white/20 text-white px-2 sm:px-3 py-1 rounded-full">#Security</span>
+            <span className="bg-white/20 text-white px-2 sm:px-3 py-1 rounded-full">#AccountRecovery</span>
+            <span className="bg-white/20 text-white px-2 sm:px-3 py-1 rounded-full">#Authentication</span>
           </div>
         </motion.div>
 
-        <form onSubmit={handleSubmit} className="relative z-10 space-y-6">
+        <form onSubmit={handleSubmit} className="relative z-10 space-y-4 sm:space-y-6">
           <motion.div variants={itemVariants}>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
-                className="w-full h-14 pl-12 pr-4 bg-white/20 text-white placeholder-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all duration-300"
+                className="w-full h-12 sm:h-14 pl-10 sm:pl-12 pr-4 bg-white/20 text-white placeholder-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all duration-300 text-sm sm:text-base"
                 required
               />
             </div>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="flex gap-4">
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
               type="submit"
               disabled={loading}
-              className={`flex-1 flex items-center justify-center gap-2 h-14 rounded-xl text-white font-semibold transition-all duration-300 transform ${
+              className={`w-full sm:flex-1 flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl text-white font-semibold transition-all duration-300 ${
                 loading ? 'bg-indigo-400 cursor-not-allowed' :
-                'bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 hover:scale-100'
-              }`}
+                'bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700'
+              } text-sm sm:text-base`}
             >
               {loading ? (
                 <>
-                  <LoaderCircle className="animate-spin" size={24} />
+                  <LoaderCircle className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
                   <span>Sending Link...</span>
                 </>
               ) : (
@@ -143,19 +145,19 @@ const ForgotPasswordPage = () => {
               type="button"
               disabled={!gmailEnabled}
               onClick={handleGmailClick}
-              className={`flex-1 flex items-center justify-center gap-2 h-14 rounded-xl font-semibold transition-all duration-300 transform ${
+              className={`w-full sm:flex-1 flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl font-semibold transition-all duration-300 ${
                 !gmailEnabled ? 'bg-gray-700 text-gray-500 cursor-not-allowed' :
                 'bg-white/30 text-white hover:bg-white/40'
-              }`}
+              } text-sm sm:text-base`}
             >
-              <Mail size={20} />
+              <Mail size={18} />
               <span>{gmailEnabled ? 'Open Gmail' : 'Get the Link'}</span>
             </button>
           </motion.div>
         </form>
 
-        <motion.div variants={itemVariants} className="mt-8 text-center text-sm text-gray-400">
-          <p>
+        <motion.div variants={itemVariants} className="mt-6 sm:mt-8 text-center text-sm text-gray-400">
+          <p className="text-xs sm:text-sm">
             Remembered your password?{' '}
             <span
               onClick={() => window.history.back()}
