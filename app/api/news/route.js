@@ -271,9 +271,7 @@ if (!title || !excerpt || !dateStr) {
         category,
         author,
         image: imageUrl,
-        createdBy: auth.user.id,
-        createdByName: auth.user.name,
-        createdByRole: auth.user.role
+      
       },
       select: {
         id: true,
