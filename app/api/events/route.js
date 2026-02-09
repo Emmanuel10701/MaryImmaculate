@@ -317,9 +317,7 @@ export async function POST(req) {
         attendees,
         speaker,
         // Track who created this event
-        createdBy: auth.user.id,
-        createdByName: auth.user.name,
-        createdByRole: auth.user.role
+    
       },
       select: {
         id: true,
@@ -336,7 +334,6 @@ export async function POST(req) {
         speaker: true,
         createdAt: true,
         updatedAt: true,
-        createdByRole: true
       }
     });
 
@@ -345,7 +342,6 @@ export async function POST(req) {
       success: true,
       message: "Event created successfully",
       event: newEvent,
-      createdBy: auth.user.name,
       timestamp: new Date().toISOString()
     }, { status: 201 });
     

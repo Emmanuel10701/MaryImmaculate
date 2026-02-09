@@ -339,10 +339,7 @@ export async function PUT(req, { params }) {
       attendees: formData.get("attendees") || existingEvent.attendees,
       speaker: formData.get("speaker")?.trim() || existingEvent.speaker,
       updatedAt: new Date(),
-      // Track who updated this event
-      updatedBy: auth.user.id,
-      updatedByName: auth.user.name,
-      updatedByRole: auth.user.role
+
     };
 
     // Handle date if provided
@@ -395,10 +392,8 @@ export async function PUT(req, { params }) {
         attendees: true,
         speaker: true,
         createdAt: true,
-        updatedAt: true,
-        updatedBy: true,
-        updatedByName: true,
-        updatedByRole: true
+        updatedAt: true
+       
       }
     });
 
@@ -509,7 +504,6 @@ export async function DELETE(req, { params }) {
       success: true, 
       message: "Event deleted successfully",
       event: deletedEvent,
-      deletedBy: auth.user.name,
       timestamp: new Date().toISOString()
     }, { status: 200 });
   } catch (error) {
