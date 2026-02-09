@@ -200,7 +200,7 @@ const handleViewAdmin = (admin) => {
               localStorage.removeItem('admin_user');
               setStatus('unauthenticated');
               toast.error('Session expired. Please login again.');
-              router.push('/adminLogin');
+              router.push('/pages/adminLogin');
               return;
             }
             
@@ -216,18 +216,198 @@ const handleViewAdmin = (admin) => {
           console.log('❌ No valid auth data found');
           setStatus('unauthenticated');
           toast.error('Please login to access this page');
-          router.push('/adminLogin');
+          router.push('/pages/adminLogin');
         }
       } catch (error) {
         console.error('❌ Auth check error:', error);
         setStatus('unauthenticated');
-        router.push('/adminLogin');
+        router.push('/pages/adminLogin');
       }
     };
 
     checkAuth();
   }, [router]);
 
+
+  // Add these states
+const [confirmPassword, setConfirmPassword] = useState('');
+const [passwordStrength, setPasswordStrength] = useState({
+  score: 0,
+  hasMinLength: false,
+  hasUpperCase: false,
+  hasLowerCase: false,
+  hasNumbers: false,
+  hasSpecialChar: false,
+  matches: false
+});
+
+// Password validation function
+const validatePassword = (password, confirm = confirmPassword) => {
+  const validations = {
+    hasMinLength: password.length >= 8,
+    hasUpperCase: /[A-Z]/.test(password),
+    hasLowerCase: /[a-z]/.test(password),
+    hasNumbers: /\d/.test(password),
+    hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    matches: password === confirm && password.length > 0
+  };
+
+  const score = Object.values(validations).filter(Boolean).length;
+  
+  setPasswordStrength({
+    ...validations,
+    score
+  });
+};
+
+// Update password field handler
+const handlePasswordChange = (password) => {
+  setAdminData({ ...adminData, password });
+  validatePassword(password);
+};
+
+const handleConfirmPasswordChange = (confirm) => {
+  setConfirmPassword(confirm);
+  validatePassword(adminData.password, confirm);
+};
+
+// Password strength indicator component
+const PasswordStrengthIndicator = () => {
+  const { score, hasMinLength, hasUpperCase, hasLowerCase, hasNumbers, hasSpecialChar, matches } = passwordStrength;
+  
+  const getStrengthColor = () => {
+    if (score <= 2) return 'bg-red-500';
+    if (score <= 4) return 'bg-yellow-500';
+    return 'bg-green-500';
+  };
+
+  const getStrengthText = () => {
+    if (score <= 2) return 'Weak';
+    if (score <= 4) return 'Medium';
+    return 'Strong';
+  };
+
+  return (
+    <div className="mt-3 space-y-3">
+      {/* Strength Bar */}
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-bold text-gray-700">Password Strength:</span>
+        <span className={`text-xs font-bold px-2 py-1 rounded ${score <= 2 ? 'text-red-600 bg-red-50' : score <= 4 ? 'text-yellow-600 bg-yellow-50' : 'text-green-600 bg-green-50'}`}>
+          {getStrengthText()}
+        </span>
+      </div>
+      <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+        <div 
+          className={`h-full transition-all duration-300 ${getStrengthColor()}`}
+          style={{ width: `${(score / 6) * 100}%` }}
+        />
+      </div>
+
+      {/* Validation Rules */}
+      <div className="grid grid-cols-2 gap-2 mt-4">
+        {[
+          { label: '8+ characters', valid: hasMinLength },
+          { label: 'Uppercase letter', valid: hasUpperCase },
+          { label: 'Lowercase letter', valid: hasLowerCase },
+          { label: 'Number (0-9)', valid: hasNumbers },
+          { label: 'Special character', valid: hasSpecialChar },
+          { label: 'Passwords match', valid: matches }
+        ].map((rule, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${rule.valid ? 'bg-green-500' : 'bg-gray-300'}`} />
+            <span className={`text-xs ${rule.valid ? 'text-green-600 font-bold' : 'text-gray-500'}`}>
+              {rule.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ==================== AUTHENTICATION HELPERS ====================
+const getAuthHeaders = (contentType = 'application/json') => {
+  const adminToken = localStorage.getItem('admin_token');
+  const deviceToken = localStorage.getItem('device_token');
+  const adminUser = localStorage.getItem('admin_user');
+  
+  console.log('🔑 Auth debug:', {
+    hasAdminToken: !!adminToken,
+    hasDeviceToken: !!deviceToken,
+    hasAdminUser: !!adminUser,
+    adminToken: adminToken ? adminToken.substring(0, 30) + '...' : 'none',
+    deviceToken: deviceToken ? deviceToken.substring(0, 30) + '...' : 'none'
+  });
+  
+  if (!adminToken) {
+    throw new Error('Admin authentication required. Please login again.');
+  }
+  
+  const headers = {
+    'Authorization': `Bearer ${adminToken}`,
+    'Content-Type': contentType
+  };
+  
+  // Only add device token if it exists
+  if (deviceToken) {
+    headers['x-device-token'] = deviceToken;
+  }
+  
+  // Only add admin user if it exists
+  if (adminUser) {
+    headers['x-admin-user'] = adminUser;
+  }
+  
+  return headers;
+};
+
+const isAuthenticated = () => {
+  try {
+    getAuthHeaders();
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const handleAuthError = (error, showNotification) => {
+  console.error('🔐 Auth error details:', {
+    message: error.message,
+    name: error.name,
+    type: error.constructor.name
+  });
+  
+  if (error.message.includes('Authentication required') || 
+      error.message.includes('login') ||
+      error.message.includes('Session expired') ||
+      error.message.includes('Unauthorized') ||
+      error.message === 'Access Denied') {
+    
+    toast.error('Your session has expired. Please login again.');
+    
+    // Clear all auth data
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('device_token');
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('last_login');
+    localStorage.removeItem('login_count');
+    
+    setTimeout(() => {
+      window.location.href = '/pages/adminLogin';
+    }, 1500);
+    
+    return true;
+  }
+  
+  // Handle 403 Forbidden errors specifically
+  if (error.message.includes('Permission Denied') || 
+      error.message.includes('do not have permission')) {
+    toast.error('You do not have permission to perform this action');
+    return true;
+  }
+  
+  return false;
+};
 const fetchAdmins = async (showRefresh = false) => {
   if (status !== 'authenticated') {
     console.log('❌ Cannot fetch admins: Not authenticated');
@@ -242,18 +422,23 @@ const fetchAdmins = async (showRefresh = false) => {
       setLoading(true);
     }
 
-    const token = localStorage.getItem('admin_token');
+    // Get authentication headers
+    const headers = getAuthHeaders('application/json');
     
     // Fetch from your API endpoint
     const response = await fetch('/api/register', {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      headers: headers
     });
 
     if (!response.ok) {
+      // Handle authentication errors
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('device_token');
+        throw new Error('Session expired. Please login again.');
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -269,7 +454,7 @@ const fetchAdmins = async (showRefresh = false) => {
           manageSettings: user.role === 'SUPER_ADMIN',
           viewReports: true
         },
-        status: 'active' // You'll need to add status field to your User model
+        status: 'active'
       }));
       
       setAdmins(adminsData);
@@ -284,13 +469,18 @@ const fetchAdmins = async (showRefresh = false) => {
     }
   } catch (error) {
     console.error('❌ Error fetching admins:', error);
+    
+    // Handle authentication errors
+    if (handleAuthError(error, toast.error)) {
+      return;
+    }
+    
     toast.error('Failed to load admins');
   } finally {
     setLoading(false);
     setRefreshing(false);
   }
 };
-
   useEffect(() => {
     if (status === 'authenticated') {
       fetchAdmins();
@@ -385,19 +575,26 @@ const fetchAdmins = async (showRefresh = false) => {
     setAdminToDelete(admin);
     setShowDeleteConfirm(true);
   };
+
 const confirmDelete = async () => {
   if (!adminToDelete) return;
   
   try {
-    const token = localStorage.getItem('admin_token');
+    // Check authentication first
+    const headers = getAuthHeaders('application/json');
     
     const response = await fetch(`/api/register/${adminToDelete.id}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      headers: headers
     });
+
+    // Handle authentication errors
+    if (response.status === 401) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('device_token');
+      throw new Error('Session expired. Please login again.');
+    }
 
     const data = await response.json();
 
@@ -416,6 +613,12 @@ const confirmDelete = async () => {
     }
   } catch (error) {
     console.error('Error deleting admin:', error);
+    
+    // Handle authentication errors
+    if (handleAuthError(error, toast.error)) {
+      return;
+    }
+    
     toast.error('Failed to delete admin');
   } finally {
     setShowDeleteConfirm(false);
@@ -428,97 +631,294 @@ const confirmDelete = async () => {
     setAdminToDelete(null);
   };
 
-  // Handle admin creation/editing
-  const handleCreateAdmin = () => {
-    setAdminData({
-      name: '',
-      email: '',
-      password: '',
-      phone: '+254',
-      role: 'ADMIN',
-      permissions: {
-        manageUsers: false,
-        manageContent: true,
-        manageSettings: false,
-        viewReports: true
-      },
-      status: 'active'
-    });
-    setEditingAdmin(null);
-    setShowAdminModal(true);
-  };
+// In your handleCreateAdmin function:
+const handleCreateAdmin = () => {
+  setAdminData({
+    name: '',
+    email: '',
+    password: '',
+    phone: '+254',
+    role: 'ADMIN',
+    permissions: {
+      manageUsers: false,
+      manageContent: true,
+      manageSettings: false,
+      viewReports: true
+    },
+    status: 'active'
+  });
+  setConfirmPassword(''); // ADD THIS
+  setPasswordStrength({
+    score: 0,
+    hasMinLength: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumbers: false,
+    hasSpecialChar: false,
+    matches: false
+  });
+  setEditingAdmin(null);
+  setShowAdminModal(true);
+};
 
-  const handleEditAdmin = (admin) => {
-    setAdminData({
-      name: admin.name || '',
-      email: admin.email || '',
-      password: '',
-      phone: admin.phone || '+254',
-      role: admin.role || 'ADMIN',
-      permissions: admin.permissions || {
-        manageUsers: false,
-        manageContent: true,
-        manageSettings: false,
-        viewReports: true
-      },
-      status: admin.status || 'active'
-    });
-    setEditingAdmin(admin);
-    setShowAdminModal(true);
-  };
-
+// In your handleEditAdmin function:
+const handleEditAdmin = (admin) => {
+  setAdminData({
+    name: admin.name || '',
+    email: admin.email || '',
+    password: '',
+    phone: admin.phone || '+254',
+    role: admin.role || 'ADMIN',
+    permissions: admin.permissions || {
+      manageUsers: false,
+      manageContent: true,
+      manageSettings: false,
+      viewReports: true
+    },
+    status: admin.status || 'active'
+  });
+  setConfirmPassword(''); // ADD THIS
+  setPasswordStrength({
+    score: 0,
+    hasMinLength: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumbers: false,
+    hasSpecialChar: false,
+    matches: false
+  });
+  setEditingAdmin(admin);
+  setShowAdminModal(true);
+};
 const handleSaveAdmin = async (e) => {
   e.preventDefault();
   setSavingAdmin(true);
-
+  
   try {
-    const token = localStorage.getItem('admin_token');
+    // ====================
+    // 1. FORM VALIDATION
+    // ====================
+    
+    // Check required fields
+    if (!adminData.name.trim()) {
+      toast.error('Name is required');
+      setSavingAdmin(false);
+      return;
+    }
+    
+    if (!adminData.email.trim()) {
+      toast.error('Email is required');
+      setSavingAdmin(false);
+      return;
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(adminData.email)) {
+      toast.error('Please enter a valid email address');
+      setSavingAdmin(false);
+      return;
+    }
+    
+    if (!adminData.phone.trim()) {
+      toast.error('Phone number is required');
+      setSavingAdmin(false);
+      return;
+    }
+    
+    // Phone number validation (Kenyan format)
+    const phoneRegex = /^\+254[17]\d{8}$/;
+    if (!phoneRegex.test(adminData.phone)) {
+      toast.error('Phone number must be in format: +2547XXXXXXXX or +2541XXXXXXXX');
+      setSavingAdmin(false);
+      return;
+    }
+    
+    // ====================
+    // 2. PASSWORD VALIDATION
+    // ====================
+    
+    // For NEW admin creation
+    if (!editingAdmin) {
+      // Password required for new admin
+      if (!adminData.password.trim()) {
+        toast.error('Password is required for new admin');
+        setSavingAdmin(false);
+        return;
+      }
+      
+      // Password length check
+      if (adminData.password.length < 8) {
+        toast.error('Password must be at least 8 characters long');
+        setSavingAdmin(false);
+        return;
+      }
+      
+      // Password complexity check
+      const hasUpperCase = /[A-Z]/.test(adminData.password);
+      const hasLowerCase = /[a-z]/.test(adminData.password);
+      const hasNumbers = /\d/.test(adminData.password);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(adminData.password);
+      
+      if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+        toast.error('Password must contain uppercase, lowercase, numbers, and special characters');
+        setSavingAdmin(false);
+        return;
+      }
+      
+      // Confirm password check
+      if (adminData.password !== confirmPassword) {
+        toast.error('Passwords do not match');
+        setSavingAdmin(false);
+        return;
+      }
+    }
+    
+    // For EXISTING admin editing (if changing password)
+    if (editingAdmin && adminData.password.trim()) {
+      // If password is being changed, validate it
+      if (adminData.password.length < 8) {
+        toast.error('New password must be at least 8 characters long');
+        setSavingAdmin(false);
+        return;
+      }
+      
+      const hasUpperCase = /[A-Z]/.test(adminData.password);
+      const hasLowerCase = /[a-z]/.test(adminData.password);
+      const hasNumbers = /\d/.test(adminData.password);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(adminData.password);
+      
+      if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+        toast.error('New password must contain uppercase, lowercase, numbers, and special characters');
+        setSavingAdmin(false);
+        return;
+      }
+      
+      if (adminData.password !== confirmPassword) {
+        toast.error('Passwords do not match');
+        setSavingAdmin(false);
+        return;
+      }
+    }
+    
+    // ====================
+    // 3. PREPARE API PAYLOAD
+    // ====================
     
     const adminPayload = {
-      name: adminData.name,
-      email: adminData.email,
-      phone: adminData.phone,
+      name: adminData.name.trim(),
+      email: adminData.email.trim().toLowerCase(),
+      phone: adminData.phone.trim(),
       role: adminData.role,
-      // Note: You'll need to add permissions and status to your User model
-      // or handle them separately
-      status: adminData.status
+      status: adminData.status,
+      // Only send password if it's provided (for new admin or password change)
+      ...(adminData.password.trim() && { password: adminData.password }),
+      // Include permissions if your backend supports it
+      permissions: adminData.permissions
     };
-
-    if (adminData.password) {
-      adminPayload.password = adminData.password;
-    }
-
+    
+    // ====================
+    // 4. GET AUTHENTICATION HEADERS
+    // ====================
+    
+    const headers = getAuthHeaders('application/json');
+    
+    // ====================
+    // 5. MAKE API REQUEST
+    // ====================
+    
     let url = '/api/register';
     let method = 'POST';
+    let successMessage = 'Admin created successfully!';
     
     if (editingAdmin) {
-      // Use the update endpoint for existing users
+      // Update existing admin
       url = `/api/register/${editingAdmin.id}`;
       method = 'PUT';
+      successMessage = 'Admin updated successfully!';
+      
+      // Don't send password field if empty (not changing password)
+      if (!adminData.password.trim()) {
+        delete adminPayload.password;
+      }
     }
-
+    
+    console.log(`Sending ${method} request to ${url}`, adminPayload);
+    
     const response = await fetch(url, {
       method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: headers,
       body: JSON.stringify(adminPayload),
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || `Failed to ${editingAdmin ? 'update' : 'create'} admin`);
+    
+    // Handle authentication errors
+    if (response.status === 401) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('device_token');
+      throw new Error('Session expired. Please login again.');
     }
-
+    
+    const data = await response.json();
+    
+    // ====================
+    // 6. HANDLE RESPONSE
+    // ====================
+    
+    if (!response.ok) {
+      // Handle specific HTTP error codes
+      if (response.status === 401) {
+        toast.error('Session expired. Please login again.');
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('device_token');
+        router.push('/pages/adminLogin');
+        return;
+      }
+      
+      if (response.status === 409) {
+        toast.error('Email already exists. Please use a different email.');
+        return;
+      }
+      
+      if (response.status === 403) {
+        toast.error('You do not have permission to perform this action');
+        return;
+      }
+      
+      throw new Error(data.error || data.message || `Failed to ${editingAdmin ? 'update' : 'create'} admin`);
+    }
+    
     if (data.success) {
-      toast.success(`Admin ${editingAdmin ? 'updated' : 'created'} successfully!`);
+      toast.success(successMessage);
       
-      // Refresh the admin list
-      await fetchAdmins();
+      // ====================
+      // 7. UPDATE LOCAL STATE
+      // ====================
       
-      setShowAdminModal(false);
+      if (editingAdmin) {
+        // Update existing admin in state
+        const updatedAdmins = admins.map(admin => 
+          admin.id === editingAdmin.id 
+            ? { ...admin, ...adminPayload, updatedAt: new Date().toISOString() }
+            : admin
+        );
+        setAdmins(updatedAdmins);
+      } else {
+        // Add new admin to state
+        const newAdmin = {
+          id: data.user?.id || `admin_${Date.now()}`,
+          ...adminPayload,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        setAdmins(prev => [newAdmin, ...prev]);
+      }
+      
+      // ====================
+      // 8. RESET FORM & CLOSE MODAL
+      // ====================
+      
       setAdminData({
         name: '',
         email: '',
@@ -533,13 +933,48 @@ const handleSaveAdmin = async (e) => {
         },
         status: 'active'
       });
+      setConfirmPassword('');
+      setPasswordStrength({
+        score: 0,
+        hasMinLength: false,
+        hasUpperCase: false,
+        hasLowerCase: false,
+        hasNumbers: false,
+        hasSpecialChar: false,
+        matches: false
+      });
+      setEditingAdmin(null);
+      setShowAdminModal(false);
+      
+      await fetchAdmins();
+      
     } else {
-      throw new Error(data.error || `Failed to ${editingAdmin ? 'update' : 'create'} admin`);
+      throw new Error(data.error || data.message || `Failed to ${editingAdmin ? 'update' : 'create'} admin`);
     }
     
   } catch (error) {
     console.error('Error saving admin:', error);
-    toast.error(error.message);
+    
+    // Handle authentication errors
+    if (handleAuthError(error, toast.error)) {
+      return;
+    }
+    
+    // Handle specific error types
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      toast.error('Network error. Please check your connection.');
+    } else if (error.message.includes('Email already exists')) {
+      toast.error('Email already exists. Please use a different email.');
+    } else if (error.message.includes('Session expired')) {
+      toast.error('Session expired. Please login again.');
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('device_token');
+      router.push('/pages/adminLogin');
+    } else {
+      toast.error(error.message || 'An unexpected error occurred');
+    }
+    
   } finally {
     setSavingAdmin(false);
   }
@@ -598,7 +1033,7 @@ const handleSaveAdmin = async (e) => {
     localStorage.removeItem('admin_user');
     console.log('👋 Logged out successfully');
     toast.info('Logged out successfully');
-    router.push('/adminLogin');
+    router.push('/pages/adminLogin');
   };
 
   // Show loading while checking authentication
@@ -640,10 +1075,20 @@ const handleSaveAdmin = async (e) => {
               <div className="p-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
                 <Shield className="text-2xl" />
               </div>
-              <div>
-                <h1 className="text-3xl lg:text-4xl font-bold">Admin Management Dashboard</h1>
-                <p className="text-blue-100 opacity-90 mt-2 text-lg">Manage system administrators and permissions</p>
-              </div>
+           <div>
+  <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-slate-100">
+    Admin <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-indigo-100">
+      Management Dashboard
+    </span>
+  </h1>
+  
+  <p className="mt-4 text-slate-50 text-lg lg:text-xl font-medium max-w-3xl leading-relaxed">
+    Access the central authority hub to oversee system custodians. Regulate 
+    administrative privileges, monitor security protocols, and orchestrate 
+    high-level permissions to ensure total platform integrity and seamless 
+    governance.
+  </p>
+</div>
             </div>
           </div>
           
@@ -865,11 +1310,14 @@ const handleSaveAdmin = async (e) => {
                         </div>
                         <div>
                        {/* In the table row, update the admin name to be clickable */}
-<p 
-  onClick={() => handleViewAdmin(admin)}
-  className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors text-sm cursor-pointer hover:underline"
->
+<p className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors text-sm">
   {admin.name}
+  <button
+    onClick={() => handleViewAdmin(admin)}
+    className="ml-2 text-blue-600 hover:text-blue-800 font-medium hover:underline cursor-pointer text-sm"
+  >
+    View profile
+  </button>
   {session?.user && admin.id === session.user.id && (
     <span className="ml-2 text-xs bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 py-1 rounded-full font-bold">You</span>
   )}
@@ -1049,31 +1497,60 @@ const handleSaveAdmin = async (e) => {
                 </div>
 
          <div>
-  <label className="block text-gray-900 font-bold mb-3 text-sm">
-    {editingAdmin ? 'New Password (optional)' : 'Password *'}
-  </label>
-
-  <div className="relative">
-    <input
-      type={showPassword ? "text" : "password"}
-      required={!editingAdmin}
-      value={adminData.password}
-      onChange={(e) =>
-        setAdminData({ ...adminData, password: e.target.value })
-      }
-      className="w-full px-4 py-4 pr-12 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-      placeholder="Enter password"
-    />
-
-    {/* Eye Icon */}
-    <button
-      type="button"
-      onClick={() => setShowPassword(!showPassword)}
-      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-    >
-      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-    </button>
+<div className="space-y-4">
+  {/* Password Field */}
+  <div>
+    <label className="block text-gray-900 font-bold mb-3 text-sm">
+      {editingAdmin ? 'New Password (optional)' : 'Password *'}
+      <span className="text-gray-500 text-xs font-normal ml-2">Must contain 8+ chars, uppercase, lowercase, number & special char</span>
+    </label>
+    <div className="relative">
+      <input
+        type={showPassword ? "text" : "password"}
+        required={!editingAdmin}
+        value={adminData.password}
+        onChange={(e) => handlePasswordChange(e.target.value)}
+        className="w-full px-4 py-4 pr-12 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+        placeholder="Enter secure password"
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+      >
+        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
+    </div>
   </div>
+
+  {/* Confirm Password Field (Only for new admin or password change) */}
+  {(adminData.password || !editingAdmin) && (
+    <div>
+      <label className="block text-gray-900 font-bold mb-3 text-sm">
+        Confirm Password *
+      </label>
+      <div className="relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          required={!editingAdmin || adminData.password}
+          value={confirmPassword}
+          onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+          className="w-full px-4 py-4 pr-12 font-bold bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+          placeholder="Re-enter password"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+        >
+          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+        </button>
+      </div>
+    </div>
+  )}
+
+  {adminData.password && <PasswordStrengthIndicator />}
+</div>
 </div>
 
 
