@@ -16,7 +16,7 @@ const SCHOOL_NAME = 'Mary Immculate Girls High School';
 const SCHOOL_LOCATION = 'Mweiga, Nyeri  County';
 const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork ';
 const CONTACT_PHONE = '+254720123456';
-const CONTACT_EMAIL = 'info@katwanyaa highSchool.sc.ke';
+const CONTACT_EMAIL = 'info@maryimmaculategirls.sc.ke';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || CONTACT_EMAIL;
 const COUNSELOR_EMAIL = process.env.COUNSELOR_EMAIL || 'guidance@school.edu';
 

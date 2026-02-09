@@ -18,7 +18,7 @@ const SCHOOL_NAME = 'Mary  Immculate Girls High  School';
 const SCHOOL_LOCATION = 'Mweiga, Nyeri  County';
 const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork ';
 const CONTACT_PHONE = '+254720123456';
-const CONTACT_EMAIL = 'admissions@katwanyaahighSchool.sc.ke';
+const CONTACT_EMAIL = 'admissions@maryimmaculategirls.sc.ke';
 
 // ====================================================================
 // UTILITY FUNCTIONS
@@ -38,7 +38,7 @@ function calculateAge(dateOfBirth) {
 function generateApplicationNumber() {
   const year = new Date().getFullYear();
   const randomNum = randomBytes(4).toString('hex').toUpperCase();
-  return `MIGSS/${year}/${randomNum}`;
+  return `Katz/${year}/${randomNum}`;
 }
 
 function validatePhone(phone) {
@@ -676,7 +676,7 @@ async function sendApplicantConfirmation(toEmail, applicantName, applicationNumb
             <div class="school-info">
               <h3 class="school-info-title">About ${SCHOOL_NAME}</h3>
               <p class="school-info-text">
-                ${SCHOOL_NAME} is a Public Mixed Day and Boarding School located in ${SCHOOL_LOCATION}. 
+                ${SCHOOL_NAME} is a Private Girls Boarding School located in ${SCHOOL_LOCATION}. 
                 We provide quality education to 1200+ students through the 8-4-4 curriculum system. 
                 Our motto is "<strong>${SCHOOL_MOTTO}</strong>".
               </p>
@@ -1529,4 +1529,4 @@ else {
       { status: 500 }
     );
   }
-}
+} 

@@ -4,6 +4,134 @@ import nodemailer from "nodemailer";
 import cloudinary from "../../../libs/cloudinary";
 import { v4 as uuidv4 } from "uuid";
 
+// ==================== TOKEN VERIFICATION FOR POST ONLY ====================
+class DeviceTokenManager {
+  static validateTokensFromHeaders(headers, options = {}) {
+    try {
+      const adminToken = headers.get('x-admin-token') || headers.get('authorization')?.replace('Bearer ', '');
+      const deviceToken = headers.get('x-device-token');
+
+      if (!adminToken) {
+        return { valid: false, reason: 'no_admin_token', message: 'Admin token is required' };
+      }
+
+      if (!deviceToken) {
+        return { valid: false, reason: 'no_device_token', message: 'Device token is required' };
+      }
+
+      const adminParts = adminToken.split('.');
+      if (adminParts.length !== 3) {
+        return { valid: false, reason: 'invalid_admin_token_format', message: 'Invalid admin token format' };
+      }
+
+      const deviceValid = this.validateDeviceToken(deviceToken);
+      if (!deviceValid.valid) {
+        return { 
+          valid: false, 
+          reason: `device_${deviceValid.reason}`,
+          message: `Device token ${deviceValid.reason}: ${deviceValid.error || ''}`
+        };
+      }
+
+      let adminPayload;
+      try {
+        adminPayload = JSON.parse(atob(adminParts[1]));
+        
+        const currentTime = Date.now() / 1000;
+        if (adminPayload.exp < currentTime) {
+          return { valid: false, reason: 'admin_token_expired', message: 'Admin token has expired' };
+        }
+        
+        const userRole = adminPayload.role || adminPayload.userRole;
+        const validRoles = ['ADMIN', 'SUPER_ADMIN', 'administrator', 'PRINCIPAL', 'TEACHER', 'HR_MANAGER'];
+        
+        if (!userRole || !validRoles.includes(userRole.toUpperCase())) {
+          return { 
+            valid: false, 
+            reason: 'invalid_role', 
+            message: 'User does not have permission to send email campaigns' 
+          };
+        }
+        
+      } catch (error) {
+        return { valid: false, reason: 'invalid_admin_token', message: 'Invalid admin token' };
+      }
+
+      console.log('✅ Email campaign authentication successful for user:', adminPayload.name || 'Unknown');
+      
+      return { 
+        valid: true, 
+        user: {
+          id: adminPayload.userId || adminPayload.id,
+          name: adminPayload.name,
+          email: adminPayload.email,
+          role: adminPayload.role || adminPayload.userRole
+        },
+        deviceInfo: deviceValid.payload
+      };
+
+    } catch (error) {
+      console.error('❌ Token validation error:', error);
+      return { 
+        valid: false, 
+        reason: 'validation_error', 
+        message: 'Authentication validation failed',
+        error: error.message 
+      };
+    }
+  }
+
+  static validateDeviceToken(token) {
+    try {
+      const payloadStr = Buffer.from(token, 'base64').toString('utf-8');
+      const payload = JSON.parse(payloadStr);
+      
+      if (payload.exp && payload.exp * 1000 <= Date.now()) {
+        return { valid: false, reason: 'expired', payload, error: 'Device token has expired' };
+      }
+      
+      const createdAt = new Date(payload.createdAt || payload.iat * 1000);
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      
+      if (createdAt < thirtyDaysAgo) {
+        return { valid: false, reason: 'age_expired', payload, error: 'Device token is too old' };
+      }
+      
+      return { valid: true, payload };
+    } catch (error) {
+      return { valid: false, reason: 'invalid_format', error: error.message };
+    }
+  }
+}
+
+const authenticateRequest = (req) => {
+  const headers = req.headers;
+  
+  const validationResult = DeviceTokenManager.validateTokensFromHeaders(headers);
+  
+  if (!validationResult.valid) {
+    return {
+      authenticated: false,
+      response: NextResponse.json(
+        { 
+          success: false, 
+          error: "Access Denied",
+          message: "Authentication required to send email campaigns.",
+          details: validationResult.message
+        },
+        { status: 401 }
+      )
+    };
+  }
+
+  return {
+    authenticated: true,
+    user: validationResult.user,
+    deviceInfo: validationResult.devInfo
+  };
+};
+// ==================== END TOKEN VERIFICATION ====================
+
 // ====================================================================
 // CONFIGURATION
 // ====================================================================
@@ -24,29 +152,29 @@ const transporter = nodemailer.createTransport({
 });
 
 // School Information
-const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Mary Immculate Girls High School';
-const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Mweiga, Nyeri  County';
-const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Prayer, Discipline and Hardwork ';
+const SCHOOL_NAME = process.env.SCHOOL_NAME || 'Mary  Immaculate Girls secondary school ';
+const SCHOOL_LOCATION = process.env.SCHOOL_LOCATION || 'Mweiga, Nyeri County';
+const SCHOOL_MOTTO = process.env.SCHOOL_MOTTO || 'Prayer, Displine and hardwork';
 const CONTACT_PHONE = process.env.CONTACT_PHONE || '+254720123456';
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@katwanyaahighschool.sc.ke';
-const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://katwanyaa.vercel.app';
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'admissions@maryimmaculategirlse.sc.ke';
+const SCHOOL_WEBSITE = process.env.SCHOOL_WEBSITE || 'https://mary-immaculate.vercel.app';
 
 // Social Media Configuration
 const SOCIAL_MEDIA = {
   facebook: {
-    url: process.env.SCHOOL_FACEBOOK || 'https://facebook.com/katwanyaa-highschool',
+    url: process.env.SCHOOL_FACEBOOK || 'https://facebook.com/maryimmaculategirls',
     color: '#1877F2',
   },
   youtube: {
-    url: process.env.SCHOOL_YOUTUBE || 'https://youtube.com/c/katwanyaahighschool',
+    url: process.env.SCHOOL_YOUTUBE || 'https://youtube.com/c/maryimmaculategirls',
     color: '#FF0000',
   },
   linkedin: {
-    url: process.env.SCHOOL_LINKEDIN || 'https://linkedin.com/school/katwanyaa-high',
+    url: process.env.SCHOOL_LINKEDIN || 'https://linkedin.com/school/maryimmaculategirls',
     color: '#0A66C2',
   },
   twitter: {
-    url: process.env.SCHOOL_TWITTER || 'https://twitter.com/katwanyaaschool',
+    url: process.env.SCHOOL_TWITTER || 'https://twitter.com/maryimmaculategirls',
     color: '#1DA1F2',
   }
 };
@@ -145,34 +273,53 @@ function getRecipientTypeLabel(type) {
   };
   return labels[type] || type;
 }
+
 function sanitizeContent(content) {
-  // This might be too aggressive and breaking HTML
+  // Reduce font-size styles
   let safeContent = content
-    .replace(/font-size\s*:\s*[^;]+;/gi, '')  // ← Removes font-size
-    .replace(/<font[^>]*>/gi, '')           // ← Removes <font> tags
-    .replace(/<\/font>/gi, '')              // ← Removes closing font tags
-    .replace(/size\s*=\s*["'][^"']*["']/gi, '')  // ← Removes size attributes
+    .replace(/font-size\s*:\s*[^;]+;/gi, '')
+    .replace(/<font[^>]*>/gi, '')
+    .replace(/<\/font>/gi, '')
+    .replace(/size\s*=\s*["'][^"']*["']/gi, '')
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/on\w+="[^"]*"/g, '')
     .replace(/on\w+='[^']*'/g, '')
     .replace(/javascript:/gi, '')
     .replace(/data:/gi, '');
   
-  // This might break complex HTML
+  // Convert newlines to <br> tags
   safeContent = safeContent.replace(/\n/g, '<br>');
   
+  // Remove extra font styles
+  safeContent = safeContent.replace(/style\s*=\s*["'][^"']*font[^"']*["']/gi, '');
+
   return safeContent;
 }
 
-// COMPLETE EMAIL TEMPLATE FUNCTION
 function getModernEmailTemplate({ 
   subject = '', 
   content = '',
   senderName = 'School Administration',
-  recipientType = 'all'
+  recipientType = 'all',
+  attachments = []
 }) {
   const recipientTypeLabel = getRecipientTypeLabel(recipientType);
   const sanitizedContent = sanitizeContent(content);
+  
+  // Generate attachments HTML if there are attachments
+  const attachmentsHTML = attachments && attachments.length > 0 ? `
+    <div>
+      <div>📎 Attachments:</div>
+      <ul>
+        ${attachments.map(attachment => `
+          <li>
+            <a href="${attachment.url}" target="_blank">${attachment.originalName || attachment.filename}</a>
+            (${formatFileSize(attachment.fileSize)})
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  ` : '';
   
   return `
 <!DOCTYPE html>
@@ -180,729 +327,74 @@ function getModernEmailTemplate({
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${subject} • ${SCHOOL_NAME}</title>
-    <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8fafc;
-            padding: 16px;
-            margin: 0;
-        }
-        
-        .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e2e8f0;
-        }
-        
-        /* Header Styles */
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 32px 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
-            opacity: 0.1;
-        }
-        
-        .school-logo {
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .school-motto {
-            font-size: 14px;
-            opacity: 0.95;
-            margin-bottom: 16px;
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .email-badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            padding: 6px 16px;
-            border-radius: 24px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Content Styles */
-        .content {
-            padding: 28px 20px;
-        }
-        
-        .subject {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1e3c72;
-            margin-bottom: 20px;
-            line-height: 1.4;
-            border-left: 4px solid #4c7cf3;
-            padding-left: 16px;
-        }
-        
-        .message-content {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid #e2e8f0;
-            line-height: 1.7;
-            font-size: 14px;
-        }
-        
-        .message-content p {
-            margin-bottom: 14px;
-            word-break: break-word;
-        }
-        
-        .message-content p:last-child {
-            margin-bottom: 0;
-        }
-        
-        /* Recipient Info */
-        .recipient-info {
-            background: linear-gradient(135deg, #f0f7ff 0%, #f8fafc 100%);
-            border-radius: 12px;
-            padding: 16px;
-            margin: 20px 0;
-            border: 1px solid #dbeafe;
-        }
-        
-        .info-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-        
-        .info-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .info-icon {
-            width: 18px;
-            height: 18px;
-            color: #4c7cf3;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        
-        .info-text {
-            font-size: 13px;
-            color: #475569;
-        }
-        
-        /* Attachments Section */
-        .attachments-section {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .attachments-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1e3c72;
-            margin-bottom: 14px;
-        }
-        
-        .attachments-list {
-            list-style: none;
-        }
-        
-        .attachment-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .attachment-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .attachment-icon {
-            font-size: 18px;
-        }
-        
-        .attachment-name {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .attachment-name a {
-            color: #1e3c72;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 13px;
-            word-break: break-word;
-        }
-        
-        .attachment-name a:hover {
-            text-decoration: underline;
-        }
-        
-        .attachment-name small {
-            color: #64748b;
-            font-size: 12px;
-            display: block;
-            margin-top: 2px;
-        }
-        
-        /* Footer Styles */
-        .footer {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: #cbd5e1;
-            padding: 28px 20px;
-            text-align: center;
-        }
-        
-        .school-header {
-            margin-bottom: 20px;
-        }
-        
-        .school-header h3 {
-            font-size: 20px;
-            font-weight: 900;
-            color: white;
-            margin-bottom: 6px;
-            letter-spacing: -0.025em;
-        }
-        
-        .location-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            color: #94a3b8;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        
-        .contact-details {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .contact-card {
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px;
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-        }
-        
-        .contact-card:hover {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
-        }
-        
-        .contact-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .contact-icon.email {
-            background: #e0f2fe;
-            color: #0ea5e9;
-        }
-        
-        .contact-icon.phone {
-            background: #f0fdf4;
-            color: #22c55e;
-        }
-        
-        .contact-icon.web {
-            background: #fce7f3;
-            color: #db2777;
-        }
-        
-        .contact-content {
-            min-width: 0;
-            flex: 1;
-        }
-        
-        .contact-label {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: #94a3b8;
-            letter-spacing: 0.05em;
-            margin-bottom: 2px;
-        }
-        
-        .contact-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1e293b;
-            word-break: break-word;
-        }
-        
-        .contact-card.email .contact-label {
-            color: #0ea5e9;
-        }
-        
-        .contact-card.phone .contact-label {
-            color: #22c55e;
-        }
-        
-        .contact-card.web .contact-label {
-            color: #db2777;
-        }
-        
-        /* Social Media */
-        .social-media {
-            margin-bottom: 20px;
-            padding: 16px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .social-title {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 14px;
-            font-weight: 700;
-            color: #94a3b8;
-        }
-        
- 
-        
-    
-  
-        /* Sender Info */
-        .sender-info {
-            padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 12px;
-            color: #94a3b8;
-        }
-        
-        .sender-info p {
-            margin-bottom: 3px;
-        }
-        
-        .important-notice {
-            background: rgba(234, 179, 8, 0.1);
-            border: 1px solid rgba(234, 179, 8, 0.3);
-            border-radius: 8px;
-            padding: 14px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .important-notice p {
-            font-size: 12px;
-            color: #92400e;
-            margin: 0;
-            word-break: break-word;
-        }
-        
-        /* Mobile Responsive Design */
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
-            .email-container {
-                border-radius: 12px;
-            }
-            
-            .header {
-                padding: 24px 16px;
-            }
-            
-            .school-logo {
-                font-size: 20px;
-                margin-bottom: 6px;
-            }
-            
-            .school-motto {
-                font-size: 12px;
-                margin-bottom: 12px;
-            }
-            
-            .email-badge {
-                font-size: 10px;
-                padding: 5px 12px;
-            }
-            
-            .content {
-                padding: 20px 16px;
-            }
-            
-            .subject {
-                font-size: 18px;
-                margin-bottom: 16px;
-                padding-left: 12px;
-                border-left-width: 3px;
-            }
-            
-            .message-content {
-                padding: 16px;
-                margin: 16px 0;
-                font-size: 13px;
-            }
-            
-            .message-content p {
-                margin-bottom: 12px;
-            }
-            
-            .recipient-info {
-                padding: 14px;
-                margin: 16px 0;
-            }
-            
-            .info-item {
-                gap: 8px;
-                margin-bottom: 8px;
-                font-size: 12px;
-            }
-            
-            .attachments-section {
-                padding: 16px;
-                margin: 16px 0;
-            }
-            
-            .attachments-title {
-                font-size: 14px;
-                margin-bottom: 12px;
-            }
-            
-            .attachment-item {
-                padding: 8px;
-                margin-bottom: 6px;
-                gap: 8px;
-            }
-            
-            .attachment-icon {
-                font-size: 16px;
-            }
-            
-            .attachment-name a {
-                font-size: 12px;
-            }
-            
-            .footer {
-                padding: 20px 16px;
-            }
-            
-            .school-header h3 {
-                font-size: 18px;
-                margin-bottom: 4px;
-            }
-            
-            .location-info {
-                font-size: 12px;
-            }
-            
-            .contact-details {
-                gap: 10px;
-                margin-bottom: 16px;
-            }
-            
-            .contact-card {
-                padding: 12px;
-                gap: 10px;
-                border-radius: 10px;
-            }
-            
-            .contact-icon {
-                width: 36px;
-                height: 36px;
-                border-radius: 8px;
-            }
-            
-            .contact-label {
-                font-size: 10px;
-            }
-            
-            .contact-value {
-                font-size: 13px;
-            }
-            
-            .social-media {
-                margin-bottom: 16px;
-                padding: 12px 0;
-            }
-            
-            .social-title {
-                font-size: 11px;
-                margin-bottom: 12px;
-            }
-            
-            .social-buttons {
-                gap: 8px;
-            }
-            
-            .social-btn {
-                width: 40px;
-                height: 40px;
-                border-radius: 10px;
-                font-size: 10px;
-            }
-            
-            .sender-info {
-                font-size: 11px;
-            }
-            
-            .important-notice {
-                padding: 12px;
-                margin: 16px 0;
-            }
-            
-            .important-notice p {
-                font-size: 11px;
-            }
-        }
-        
-        /* Tablet/Medium Screens */
-        @media (max-width: 768px) {
-            body {
-                padding: 12px;
-            }
-            
-            .header {
-                padding: 28px 18px;
-            }
-            
-            .school-logo {
-                font-size: 24px;
-            }
-            
-            .content {
-                padding: 24px 18px;
-            }
-            
-            .subject {
-                font-size: 20px;
-                margin-bottom: 18px;
-            }
-            
-            .contact-details {
-                gap: 11px;
-            }
-            
-            .footer {
-                padding: 24px 18px;
-            }
-                .social-media {
-    margin-top: 20px;
-}
-
-.social-title {
-    font-size: 10px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: #64748b; /* slate-500 */
-    margin-bottom: 12px;
-}
-
-.social-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.social-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;  /* Fixed size for circles */
-    height: 40px;
-    text-decoration: none;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 12px; /* Smooth squircle shape */
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* Brand Colors */
-.facebook { background: #1877F2; }
-.youtube  { background: #FF0000; font-size: 14px; }
-.linkedin { background: #0077B5; font-family: serif; }
-.twitter  { background: #000000; font-size: 18px; }
-
-/* Mobile Responsiveness */
-@media (max-width: 640px) {
-    .social-buttons {
-        gap: 15px; /* More space for fingers */
-    }
-    
-    .social-btn {
-        width: 45px; /* Slightly larger on mobile for better accessibility */
-        height: 45px;
-        border-radius: 50%; /* Perfect circles on mobile */
-    }
-}
-
-/* Interaction Effects */
-.social-btn:hover {
-    transform: translateY(-3px) scale(1.1);
-    filter: brightness(1.1);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-}
-
-.social-btn:active {
-    transform: scale(0.95);
-}
-        }
-    </style>
+    <title>${subject}</title>
 </head>
 <body>
-    <div class="email-container">
+    <div>
         <!-- Header -->
-        <div class="header">
-            <h1 class="school-logo">${SCHOOL_NAME}</h1>
-            <p class="school-motto">${SCHOOL_MOTTO}</p>
-            <div class="email-badge">${recipientTypeLabel}</div>
+        <div>
+            <h1 style="font-size: 24px; margin-bottom: 10px;">${SCHOOL_NAME}</h1>
+            <div>${recipientTypeLabel}</div>
         </div>
         
-        <!-- Content -->
-        <div class="content">
-            <h2 class="subject">${subject}</h2>
-            
-            <!-- Recipient Information -->
-            <div class="recipient-info">
-                <div class="info-item">
-                    <span class="info-icon">👤</span>
-                    <span class="info-text">For: <strong>${recipientTypeLabel}</strong></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-icon">📅</span>
-                    <span class="info-text">Date: <strong>${new Date().toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
-                    })}</strong></span>
-                </div>
-            </div>
-            
-            <!-- Message Content -->
-            <div class="message-content">
-                ${sanitizedContent}
-            </div>
-            
-            <!-- Important Notice -->
-            <div class="important-notice">
-                <p>📧 Official communication from ${SCHOOL_NAME}. Do not reply to this email.</p>
-            </div>
+        <!-- Subject -->
+        <h2 style="font-size: 18px; margin-bottom: 10px;">${subject}</h2>
+        
+        <!-- Date -->
+        <div style="font-size: 12px; color: #666; margin-bottom: 20px;">
+            Date: ${new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            })}
         </div>
         
-        <!-- Footer -->
-        <div class="footer">
-            <!-- School Information -->
-            <div class="school-header">
-                <h3>${SCHOOL_NAME}</h3>
-                <div class="location-info">
-                    📍 ${SCHOOL_LOCATION}
-                </div>
-            </div>
-            
-            <!-- Contact Details -->
-            <div class="contact-details">
-                <a href="mailto:${CONTACT_EMAIL}" class="contact-card email">
-                    <div class="contact-content">
-                        <div class="contact-label">Email</div>
-                    </div>
-                </a>
-                
-                <a href="tel:${CONTACT_PHONE}" class="contact-card phone">
-                    <div class="contact-content">
-                        <div class="contact-label">Call Us</div>
-                    </div>
-                </a>
-                
-                <a href="${SCHOOL_WEBSITE}" target="_blank" class="contact-card web">
-                    <div class="contact-content">
-                        <div class="contact-label">Visit</div>
-                    </div>
-                </a>
-            </div>
-            
-    <div class="social-media">
-    <div class="social-title">Connect With Us</div>
-    <div class="social-buttons">
-        <a href="${SOCIAL_MEDIA.facebook.url}" target="_blank" class="social-btn facebook" title="Facebook">f</a>
-        <a href="${SOCIAL_MEDIA.youtube.url}" target="_blank" class="social-btn youtube" title="YouTube">▶</a>
-        <a href="${SOCIAL_MEDIA.linkedin.url}" target="_blank" class="social-btn linkedin" title="LinkedIn">in</a>
-        <a href="${SOCIAL_MEDIA.twitter.url}" target="_blank" class="social-btn twitter" title="Twitter">𝕏</a>
+        <!-- Message Content -->
+        <div>
+            ${sanitizedContent}
+        </div>
+        
+        <!-- Attachments -->
+        ${attachmentsHTML}
+        
+        <!-- Notice -->
+        <div style="margin-top: 30px; color: #666;">
+            Official communication from ${SCHOOL_NAME}. Do not reply to this email.
+        </div>
     </div>
-</div>
-            
-            <!-- Sender Information -->
-            <div class="sender-info">
-                <p>Sent by: <strong>${senderName}</strong></p>
-                <p>${SCHOOL_NAME}</p>
-                <p style="margin-top: 8px; color: #64748b;"><em>Confidential communication for authorized recipients only.</em></p>
+    
+    <!-- Footer with Social Media -->
+    <div style="background: #f8f9fa; padding: 20px; border-top: 1px solid #dee2e6; text-align: center;">
+        <div style="margin-bottom: 15px;">
+            <strong>${SCHOOL_NAME}</strong><br>
+            ${SCHOOL_LOCATION}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            Email: <a href="mailto:${CONTACT_EMAIL}" style="color: #0066cc;">${CONTACT_EMAIL}</a><br>
+            Phone: <a href="tel:${CONTACT_PHONE}" style="color: #0066cc;">${CONTACT_PHONE}</a><br>
+            Website: <a href="${SCHOOL_WEBSITE}" target="_blank" style="color: #0066cc;">${SCHOOL_WEBSITE}</a>
+        </div>
+        
+        <!-- Social Media Section -->
+        <div style="margin-bottom: 15px;">
+            <div style="font-weight: bold; margin-bottom: 10px;">Follow Us</div>
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <a href="${SOCIAL_MEDIA.facebook.url}" target="_blank" style="color: #1877F2; text-decoration: none;">Facebook</a> |
+                <a href="${SOCIAL_MEDIA.youtube.url}" target="_blank" style="color: #FF0000; text-decoration: none;">YouTube</a> |
+                <a href="${SOCIAL_MEDIA.linkedin.url}" target="_blank" style="color: #0A66C2; text-decoration: none;">LinkedIn</a> |
+                <a href="${SOCIAL_MEDIA.twitter.url}" target="_blank" style="color: #000000; text-decoration: none;">Twitter</a>
             </div>
+        </div>
+        
+        <div style="font-size: 12px; color: #666;">
+            Sent by: ${senderName}<br>
+            Confidential communication for authorized recipients only.
         </div>
     </div>
 </body>
 </html>`;
 }
-
-
-
 
 function formatFileSize(bytes) {
   if (bytes === 0) return '0 Bytes';
@@ -946,15 +438,13 @@ async function sendModernEmails(campaign) {
   for (const recipient of recipients) {
     try {
       // Generate email content with attachments section
-      let htmlContent = getModernEmailTemplate({
+      const htmlContent = getModernEmailTemplate({
         subject: campaign.subject,
         content: campaign.content,
         senderName: 'School Administration',
-        recipientType: recipientType
+        recipientType: recipientType,
+        attachments: attachmentsArray
       });
-
-      // Add attachments section if there are attachments
-
 
       const mailOptions = {
         from: `"${SCHOOL_NAME} Administration" <${process.env.EMAIL_USER}>`,
@@ -1105,12 +595,20 @@ function validateAttachmentSize(attachmentsArray) {
 // API HANDLERS - POST AND GET ONLY
 // ====================================================================
 
-// 🔹 POST - Create a new email campaign with FormData
+// 🔹 POST - Create a new email campaign with FormData (PROTECTED)
 export async function POST(req) {
-  let campaign = null;
-  
   try {
-    // Check if request is FormData (for file uploads)
+    // ==================== ADD AUTHENTICATION HERE ====================
+    const auth = authenticateRequest(req);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    console.log("📧 POST /api/email-campaigns - Creating email campaign");
+    console.log(`Request from: ${auth.user.name} (${auth.user.role})`);
+    // ==================== END AUTHENTICATION ====================
+
+    let campaign = null;
     const contentType = req.headers.get('content-type') || '';
     
     if (contentType.includes('multipart/form-data')) {
@@ -1208,7 +706,7 @@ export async function POST(req) {
         storageType: attachment.storageType || 'cloudinary'
       }));
       
-      // Create campaign in database
+      // Create campaign in database with audit trail
       campaign = await prisma.emailCampaign.create({
         data: { 
           title, 
@@ -1349,7 +847,7 @@ export async function POST(req) {
       // Deduplicate emails
       const uniqueEmails = [...new Set(emailList)];
       
-      // Create campaign in database
+      // Create campaign in database with audit trail
       campaign = await prisma.emailCampaign.create({
         data: { 
           title, 
@@ -1459,7 +957,7 @@ export async function POST(req) {
   }
 }
 
-// 🔹 GET - Get all campaigns with filtering and pagination
+// 🔹 GET - Get all campaigns with filtering and pagination (PUBLIC)
 export async function GET(req) {
   try {
     const url = new URL(req.url);
