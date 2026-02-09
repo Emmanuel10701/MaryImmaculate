@@ -237,11 +237,22 @@ if (viewMode === 'grid') {
           </div>
         </div>
 
-        {/* 4. Final Action Button */}
-        <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-          View Event Details
-          <FiArrowRight size={18} />
-        </button>
+ <button
+  className="
+    w-fit sm:w-full
+    px-4 py-2 sm:py-3
+    bg-slate-900
+    text-white
+    rounded-lg
+    text-sm
+    flex items-center justify-center
+    transition
+    active:scale-95
+  "
+>
+  View details
+</button>
+
       </div>
     </div>
   );
@@ -1130,67 +1141,53 @@ const fetchNews = async (showRefresh = false) => {
   };
 
 
-
 if (loading) {
   return (
     <Box 
-      className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6"
+      className="min-h-[70vh] flex items-center justify-center p-4 bg-transparent"
     >
       <Stack 
-        spacing={3} 
+        spacing={2} 
         alignItems="center"
-        className="bg-white p-10 rounded-[32px] shadow-sm border border-gray-100"
+        className="w-full transition-all duration-500"
       >
-        {/* Modern Layered Loader */}
-        <Box className="relative flex items-center justify-center">
-          {/* Background Ring */}
+        {/* Modern Layered Loader - Responsive sizing */}
+        <Box className="relative flex items-center justify-center scale-90 sm:scale-110">
           <CircularProgress
             variant="determinate"
             value={100}
-            size={64}
-            thickness={4}
-            sx={{ color: '#f1f5f9' }} // Very light gray track
+            size={48} 
+            thickness={4.5}
+            sx={{ color: '#f1f5f9' }} 
           />
-          {/* Actual Animated Loader */}
           <CircularProgress
             variant="indeterminate"
             disableShrink
-            size={64}
-            thickness={4}
+            size={48}
+            thickness={4.5}
             sx={{
-              color: '#2563eb', // Modern Blue
-              animationDuration: '800ms',
+              color: '#0f172a', // Matches your dark slate theme
+              animationDuration: '1000ms',
               position: 'absolute',
-              left: 0,
               [`& .MuiCircularProgress-circle`]: {
                 strokeLinecap: 'round',
               },
             }}
           />
-          {/* Center Icon */}
           <Box className="absolute">
-            <IoSparkles className="text-blue-500 text-xl animate-pulse" />
+            <IoSparkles className="text-blue-600 text-sm animate-pulse" />
           </Box>
         </Box>
 
-        {/* Clean Typography */}
-        <Stack spacing={0.5} alignItems="center">
-          <Typography 
-            variant="body1" 
-            fontWeight="600" 
-            color="text.primary"
-            sx={{ letterSpacing: '-0.01em' }}
-          >
-Loading for our school latest news and events to stay updated
-          </Typography>
-          <Typography 
-            variant="caption" 
-            color="text.secondary"
-            className="flex items-center gap-1"
-          >
-            Fetching latest events & news
-          </Typography>
-        </Stack>
+        {/* Minimalist Typography */}
+        <div className="text-center px-4">
+          <p className="text-slate-900 font-medium text-sm sm:text-base tracking-tight italic">
+            Updating news & events...
+          </p>
+          <p className="text-slate-400 text-[10px] sm:text-xs uppercase tracking-widest mt-1 font-bold">
+            Mary Immaculate girls high School
+          </p>
+        </div>
       </Stack>
     </Box>
   );
@@ -1202,72 +1199,93 @@ Loading for our school latest news and events to stay updated
       
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
-          <div>
-            <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full border border-blue-200 mb-3">
-              <IoSparkles className="text-blue-500" />
-              <span className="text-blue-700 font-bold text-sm uppercase tracking-wider">
-                Latest Updates
-              </span>
-            </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-2">
-              School <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Events & News</span>
+{/* Main Wrapper with Background - Add 'relative' and 'bg-slate-950' to the root */}
+<div className="relative  bg-slate-950 p-4 sm:p-8 overflow-hidden">
+  
+  {/* Optional: Atmospheric Background Glows (The "Mary Immaculate Girls High School" look) */}
+  <div className="absolute top-0 left-1/4 w-64 h-64 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
+  <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+
+  <div className="max-w-7xl mx-auto relative z-10">
+    <div className="flex flex-col gap-4 mb-6 sm:mb-10">
+      {/* Header Section */}
+      <div className="space-y-3">
+        
+        {/* Minimalist Badge - Increased opacity for visibility */}
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 shadow-2xl">
+          <IoSparkles className="text-blue-400 text-[10px] sm:text-sm animate-pulse" />
+          <span className="text-blue-100 font-black text-[8px] sm:text-xs uppercase tracking-[0.2em]">
+            Latest Updates
+          </span>
+        </div>
+        
+        <div className="flex flex-col gap-3">
+          {/* Title & Subtitle */}
+          <div className="max-w-full">
+            <h1 className="text-2xl sm:text-4xl lg:text-6xl font-black text-white tracking-tighter leading-[1.1]">
+              School <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-200 to-purple-400">Events & News</span>
             </h1>
-            <p className="text-slate-600 text-lg max-w-2xl">
-              Stay updated with our latest happenings, achievements, and announcements
+            <p className="text-slate-400 text-xs sm:text-lg mt-2 font-medium leading-relaxed max-w-2xl opacity-80">
+              Stay updated with the heartbeat and happenings at Mary Immaculate Girls High School.
             </p>
           </div>
-          
-          <div className="flex items-center gap-3">
 
-<button
-  onClick={refreshData}
-  disabled={refreshing}
-  className="
-    inline-flex items-center gap-2
-    px-4 sm:px-5
-    py-2.5 sm:py-3
-    rounded-xl
-    bg-white text-slate-700
-    border border-slate-200
-    font-medium text-sm sm:text-base
-    shadow-sm
-    transition-all duration-300
-    hover:shadow-md
-    disabled:opacity-50 disabled:cursor-not-allowed
-  "
->
-  {refreshing && (
-    <CircularProgress
-      size={18}
-      thickness={4}
-      sx={{
-        color: "#0284c7", // tailwind cyan-600
-      }}
-    />
-  )}
+          {/* MOBILE UTILITY ROW */}
+          <div className="flex items-center gap-3 w-full sm:w-auto mt-2">
+            
+            {/* Refresh Button - High Contrast Dark/Light Toggle */}
+            <button
+              onClick={refreshData}
+              disabled={refreshing}
+              className="
+                flex-1 sm:flex-none
+                inline-flex items-center justify-center gap-2
+                px-4 py-3 sm:px-8 sm:py-4
+                rounded-xl sm:rounded-2xl
+                bg-white hover:bg-blue-50 text-slate-950
+                font-black text-[10px] sm:text-xs
+                uppercase tracking-widest
+                transition-all active:scale-95
+                disabled:opacity-50 shadow-[0_0_20px_rgba(255,255,255,0.1)]
+              "
+            >
+              {refreshing ? (
+                <div className="w-3 h-3 border-2 border-slate-900/20 border-t-slate-900 rounded-full animate-spin" />
+              ) : (
+                <FiRotateCw className="text-[12px] sm:text-base" />
+              )}
+              <span>{refreshing ? "Updating..." : "REFRESH"}</span>
+            </button>
 
-  <span className="whitespace-nowrap">
-    {refreshing ? "Refreshing..." : "Refresh"}
-  </span>
-</button>
-
-            <div className="flex bg-white rounded-xl border border-slate-200 overflow-hidden">
+            {/* View Toggle - Darker Glass for better visibility */}
+            <div className="flex bg-slate-900/80 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-1 border border-white/10 shadow-2xl">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-3 ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:text-slate-900'}`}
+                className={`p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all ${
+                  viewMode === 'grid' 
+                  ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]' 
+                  : 'text-slate-500 hover:text-slate-300'
+                }`}
               >
-                <FiGrid />
+                <FiGrid size={16} className="sm:w-[22px] sm:h-[22px]" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-3 ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:text-slate-900'}`}
+                className={`p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all ${
+                  viewMode === 'list' 
+                  ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]' 
+                  : 'text-slate-500 hover:text-slate-300'
+                }`}
               >
-                <FiList />
+                <FiList size={16} className="sm:w-[22px] sm:h-[22px]" />
               </button>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
 
        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 mb-10">
   {stats.map((stat, index) => {
@@ -1411,84 +1429,89 @@ Loading for our school latest news and events to stay updated
 <div className="flex flex-col lg:flex-row gap-8">
   
   {/* Left Column: Events (The main feed) */}
-  <div className="flex-1 min-w-0 space-y-8">
-    
-    {/* Header Section */}
-    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1">
-      <div className="flex items-center gap-4">
-        <div className="p-3 bg-slate-900 rounded-2xl shadow-lg">
-          <IoCalendarClearOutline className="text-white text-2xl" />
-        </div>
-        <div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Upcoming Events</h2>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-            {filteredEvents?.length || 0} Discoveries Found
-          </p>
-        </div>
+<div className="flex-1 min-w-0 space-y-4 sm:space-y-8">
+  
+  {/* Header Section - Tightened for mobile */}
+  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 px-1">
+    <div className="flex items-center gap-3 sm:gap-4">
+      {/* Reduced Icon Box */}
+      <div className="p-2 sm:p-3 bg-slate-900 rounded-xl sm:rounded-2xl shadow-lg shrink-0">
+        <IoCalendarClearOutline className="text-white text-lg sm:text-2xl" />
+      </div>
+      <div>
+        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-none sm:leading-normal">
+          Upcoming Events
+        </h2>
+        <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider sm:tracking-widest mt-0.5 sm:mt-1">
+          {filteredEvents?.length || 0} Discoveries Found
+        </p>
       </div>
     </div>
+  </div>
 
-    {/* Modern Category Pills - Responsive Scroll */}
-    <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
-      {categories.map((category) => {
-        const Icon = category.icon;
-        const isActive = activeTab === category.id;
-        return (
-          <button
-            key={category.id}
-            onClick={() => { setActiveTab(category.id); setCurrentPage(1); }}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all border ${
-              isActive 
-                ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100" 
-                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            {Icon && <Icon className={isActive ? "text-white" : "text-slate-400"} />}
-            {category.name}
-          </button>
-        );
-      })}
-    </div>
+  {/* Modern Category Pills - Reduced Padding and Font */}
+  <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar -mx-2 px-2">
+    {categories.map((category) => {
+      const Icon = category.icon;
+      const isActive = activeTab === category.id;
+      return (
+        <button
+          key={category.id}
+          onClick={() => { setActiveTab(category.id); setCurrentPage(1); }}
+          className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full whitespace-nowrap text-[11px] sm:text-sm font-bold transition-all border ${
+            isActive 
+              ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100" 
+              : "bg-white border-slate-200 text-slate-600"
+          }`}
+        >
+          {Icon && <Icon className={`${isActive ? "text-white" : "text-slate-400"} text-xs sm:text-base`} />}
+          {category.name}
+        </button>
+      );
+    })}
+  </div>
 
-    {/* Events Feed */}
-    <div className="relative">
-      {!paginatedEvents || paginatedEvents.length === 0 ? (
-        <div className="bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 py-16 text-center">
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-            <IoCalendarClearOutline className="text-slate-300 text-2xl" />
-          </div>
-          <h3 className="text-xl font-bold text-slate-900">No events found</h3>
-          <p className="text-slate-500 text-sm mt-1 mb-6">Try adjusting your filters or search.</p>
-          <button 
-            onClick={() => { setSearchTerm(''); setActiveTab('all'); }}
-            className="px-6 py-2.5 bg-white border border-slate-200 rounded-full font-bold text-slate-700 hover:bg-slate-50 transition-all text-sm"
-          >
-            Reset Filters
-          </button>
+  {/* Events Feed - Tighter Gap */}
+  <div className="relative">
+    {!paginatedEvents || paginatedEvents.length === 0 ? (
+      <div className="bg-slate-50 rounded-[24px] sm:rounded-[32px] border-2 border-dashed border-slate-200 py-8 sm:py-16 text-center">
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+          <IoCalendarClearOutline className="text-slate-300 text-xl sm:text-2xl" />
         </div>
-      ) : (
-        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-4'}>
-          {paginatedEvents.map((event, index) => (
-            <ModernEventCard 
-              key={event.id || index} 
-              event={event} 
-              onView={setSelectedEvent}
-              onBookmark={handleBookmarkEvent}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+        <h3 className="text-lg font-bold text-slate-900">No events found</h3>
+        <p className="text-slate-500 text-xs mt-1 mb-4">Try adjusting filters.</p>
+        <button 
+          onClick={() => { setSearchTerm(''); setActiveTab('all'); }}
+          className="px-4 py-2 bg-white border border-slate-200 rounded-full font-bold text-slate-700 text-xs"
+        >
+          Reset Filters
+        </button>
+      </div>
+    ) : (
+      <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6' : 'space-y-3 sm:space-y-4'}>
+        {paginatedEvents.map((event, index) => (
+          <ModernEventCard 
+            key={event.id || index} 
+            event={event} 
+            onView={setSelectedEvent}
+            onBookmark={handleBookmarkEvent}
+          />
+        ))}
+      </div>
+    )}
+  </div>
 
-    {totalPages > 1 && (
+  {/* Pagination - Smaller spacing */}
+  {totalPages > 1 && (
+    <div className="pt-2 sm:pt-4">
       <ModernPagination 
         currentPage={currentPage} 
         totalPages={totalPages} 
         onPageChange={handlePageChange} 
       />
-    )}
-  </div>
-
+    </div>
+  )}
+</div>
   {/* Right Column: News & Insights (Fixed width on desktop) */}
   <div className="lg:w-[380px] space-y-6">
     <div className="lg:sticky lg:top-24 space-y-6">
