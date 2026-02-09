@@ -20,6 +20,10 @@ model User {
   updatedAt      DateTime        @updatedAt
   passwordResets PasswordReset[]
 
+  // Add these relations to fix the error
+  loginAttempts LoginAttempt[]
+  deviceTokens  DeviceToken[]
+
   @@map("users")
 }
 
@@ -42,6 +46,45 @@ model PasswordReset {
 
   @@index([userId], map: "PasswordReset_userId_fkey")
 }
+
+model LoginAttempt {
+  id          String   @id @default(cuid())
+  userId      String?
+  email       String
+  ipAddress   String?
+  userAgent   String?
+  deviceHash  String? // Browser fingerprint hash
+  status      String // "success", "failed", "blocked"
+  reason      String? // "wrong_password", "verification_required"
+  attemptedAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([attemptedAt])
+  @@map("login_attempts")
+}
+
+model DeviceToken {
+  id            String   @id @default(cuid())
+  userId        String
+  deviceHash    String
+  deviceName    String?
+  lastUsed      DateTime @default(now())
+  expiresAt     DateTime
+  isTrusted     Boolean  @default(false)
+  isBlocked     Boolean  @default(false)
+  loginCount    Int      @default(1)
+  countsResetAt DateTime?  // NEW: When counts were last reset
+  isCountsReset Boolean  @default(false)  // NEW: Flag indicating counts were reset
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, deviceHash])
+  @@index([userId])
+  @@index([deviceHash])
+  @@index([expiresAt])
+}
+
 
 model Subscriber {
   id        String   @id @default(cuid())
@@ -131,6 +174,10 @@ model Event {
   image        String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+   createdBy   String?
+  updatedBy   String?
+  updatedByName String?
+  updatedByRole String?
 }
 
 model News {
@@ -140,11 +187,18 @@ model News {
   fullContent String?  @db.Text
   date        DateTime
   category    String
+  isFeatured  Boolean  @default(false)
   author      String
   likes       Int      @default(0)
   image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+  updatedByName String?
+  updatedByRole String?
+  
+
 }
 
 model Staff {
@@ -199,24 +253,28 @@ model GalleryImage {
 }
 
 model SchoolInfo {
-  id                         Int       @id @default(autoincrement())
-  name                       String    @db.VarChar(255)
-  description                String?   @db.Text
-  motto                      String?   @db.Text
-  vision                     String?   @db.Text
-  mission                    String?   @db.Text
-  studentCount               Int       @default(0)
-  staffCount                 Int       @default(0)
-  openDate                   DateTime
-  closeDate                  DateTime
-  subjects                   Json      @default("[]")
-  departments                Json      @default("[]")
-  videoTour                  String?   @db.Text
-  videoType                  String?   @db.VarChar(20)
-  videoThumbnail             String?   @db.Text
-  feesDay                    Float?
-  feesBoarding               Float?
-  admissionFee               Float?
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(255)
+  description  String?  @db.Text
+  motto        String?  @db.Text
+  vision       String?  @db.Text
+  mission      String?  @db.Text
+  studentCount Int      @default(0)
+  staffCount   Int      @default(0)
+  openDate     DateTime
+  closeDate    DateTime
+
+  subjects    Json @default("[]")
+  departments Json @default("[]")
+
+  videoTour      String? @db.Text
+  videoType      String? @db.VarChar(20)
+  videoThumbnail String? @db.Text
+
+  feesDay      Float?
+  feesBoarding Float?
+  admissionFee Float?
+
   admissionOpenDate          DateTime?
   admissionCloseDate         DateTime?
   admissionRequirements      String?   @db.Text
@@ -233,8 +291,9 @@ model SchoolInfo {
   form4ResultsTerm           String?   @db.VarChar(50) // Add this
   mockExamsTerm              String?   @db.VarChar(50) // Add this
   kcseTerm                   String?   @db.VarChar(50) // Add this
-  createdAt                  DateTime  @default(now())
-  updatedAt                  DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([name])
   @@index([admissionOpenDate, admissionCloseDate])
@@ -252,6 +311,15 @@ model SchoolDocument {
   curriculumDescription   String?   @db.Text
   curriculumYear          Int?
   curriculumTerm          String?   @db.VarChar(50)
+
+  // Day School Fees PDF
+  feesDayDistributionPdf String?   @db.Text
+  feesDayPdfName         String?   @db.VarChar(255)
+  feesDayPdfSize         Int?
+  feesDayPdfUploadDate   DateTime?
+  feesDayDescription     String?   @db.Text
+  feesDayYear            Int?
+  feesDayTerm            String?   @db.VarChar(50)
 
   // Boarding School Fees PDF
   feesBoardingDistributionPdf String?   @db.Text
@@ -272,64 +340,74 @@ model SchoolDocument {
   admissionFeeTerm          String?   @db.VarChar(50)
 
   // Fee breakdown JSON fields
+  feesDayDistributionJson      Json?
   feesBoardingDistributionJson Json?
   admissionFeeDistribution     Json?
+
   // Form 1 Results PDF
-  form1ResultsPdf              String?   @db.Text
-  form1ResultsPdfName          String?   @db.VarChar(255)
-  form1ResultsPdfSize          Int?
-  form1ResultsDescription      String?   @db.Text
-  form1ResultsYear             Int?
-  form1ResultsTerm             String?   @db.VarChar(50)
-  form1ResultsUploadDate       DateTime?
+  form1ResultsPdf         String?   @db.Text
+  form1ResultsPdfName     String?   @db.VarChar(255)
+  form1ResultsPdfSize     Int?
+  form1ResultsDescription String?   @db.Text
+  form1ResultsYear        Int?
+  form1ResultsTerm        String?   @db.VarChar(50)
+  form1ResultsUploadDate  DateTime?
+
   // Form 2 Results PDF
-  form2ResultsPdf              String?   @db.Text
-  form2ResultsPdfName          String?   @db.VarChar(255)
-  form2ResultsPdfSize          Int?
-  form2ResultsDescription      String?   @db.Text
-  form2ResultsYear             Int?
-  form2ResultsTerm             String?   @db.VarChar(50)
-  form2ResultsUploadDate       DateTime?
+  form2ResultsPdf         String?   @db.Text
+  form2ResultsPdfName     String?   @db.VarChar(255)
+  form2ResultsPdfSize     Int?
+  form2ResultsDescription String?   @db.Text
+  form2ResultsYear        Int?
+  form2ResultsTerm        String?   @db.VarChar(50)
+  form2ResultsUploadDate  DateTime?
+
   // Form 3 Results PDF
-  form3ResultsPdf              String?   @db.Text
-  form3ResultsPdfName          String?   @db.VarChar(255)
-  form3ResultsPdfSize          Int?
-  form3ResultsDescription      String?   @db.Text
-  form3ResultsYear             Int?
-  form3ResultsTerm             String?   @db.VarChar(50)
-  form3ResultsUploadDate       DateTime?
+  form3ResultsPdf         String?   @db.Text
+  form3ResultsPdfName     String?   @db.VarChar(255)
+  form3ResultsPdfSize     Int?
+  form3ResultsDescription String?   @db.Text
+  form3ResultsYear        Int?
+  form3ResultsTerm        String?   @db.VarChar(50)
+  form3ResultsUploadDate  DateTime?
+
   // Form 4 Results PDF
-  form4ResultsPdf              String?   @db.Text
-  form4ResultsPdfName          String?   @db.VarChar(255)
-  form4ResultsPdfSize          Int?
-  form4ResultsDescription      String?   @db.Text
-  form4ResultsYear             Int?
-  form4ResultsTerm             String?   @db.VarChar(50)
-  form4ResultsUploadDate       DateTime?
+  form4ResultsPdf         String?   @db.Text
+  form4ResultsPdfName     String?   @db.VarChar(255)
+  form4ResultsPdfSize     Int?
+  form4ResultsDescription String?   @db.Text
+  form4ResultsYear        Int?
+  form4ResultsTerm        String?   @db.VarChar(50)
+  form4ResultsUploadDate  DateTime?
+
   // Mock Exams PDF
-  mockExamsResultsPdf          String?   @db.Text
-  mockExamsPdfName             String?   @db.VarChar(255)
-  mockExamsPdfSize             Int?
-  mockExamsDescription         String?   @db.Text
-  mockExamsYear                Int?
-  mockExamsTerm                String?   @db.VarChar(50)
-  mockExamsUploadDate          DateTime?
+  mockExamsResultsPdf  String?   @db.Text
+  mockExamsPdfName     String?   @db.VarChar(255)
+  mockExamsPdfSize     Int?
+  mockExamsDescription String?   @db.Text
+  mockExamsYear        Int?
+  mockExamsTerm        String?   @db.VarChar(50)
+  mockExamsUploadDate  DateTime?
+
   // KCSE Results PDF
-  kcseResultsPdf               String?   @db.Text
-  kcsePdfName                  String?   @db.VarChar(255)
-  kcsePdfSize                  Int?
-  kcseDescription              String?   @db.Text
-  kcseYear                     Int?
-  kcseTerm                     String?   @db.VarChar(50)
-  kcseUploadDate               DateTime?
-  createdAt                    DateTime  @default(now())
-  updatedAt                    DateTime  @updatedAt
+  kcseResultsPdf  String?   @db.Text
+  kcsePdfName     String?   @db.VarChar(255)
+  kcsePdfSize     Int?
+  kcseDescription String?   @db.Text
+  kcseYear        Int?
+  kcseTerm        String?   @db.VarChar(50)
+  kcseUploadDate  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Add indexes for new term fields
   @@index([curriculumTerm])
+  @@index([feesDayTerm])
   @@index([feesBoardingTerm])
   @@index([admissionFeeTerm])
   @@index([curriculumYear])
+  @@index([feesDayYear])
   @@index([feesBoardingYear])
   @@index([admissionFeeYear])
   @@index([form1ResultsYear])
@@ -466,25 +544,27 @@ model StudentBulkUpload {
 }
 
 model databaseStudent {
-  id              String             @id @default(cuid())
-  admissionNumber String             @unique @db.VarChar(50)
-  firstName       String             @db.VarChar(100)
-  middleName      String?            @db.VarChar(100)
-  lastName        String             @db.VarChar(100)
-  form            String             @db.VarChar(20)
-  status          String             @default("active")
-  stream          String?            @db.VarChar(50)
+  id              String       @id @default(cuid())
+  admissionNumber String       @unique @db.VarChar(50)
+  firstName       String       @db.VarChar(100)
+  middleName      String?      @db.VarChar(100)
+  lastName        String       @db.VarChar(100)
+  form            String       @db.VarChar(20)
+  status          String       @default("active")
+  stream          String?      @db.VarChar(50)
   dateOfBirth     DateTime?
-  gender          String?            @db.VarChar(20)
-  parentPhone     String?            @db.VarChar(20)
-  email           String?            @db.VarChar(100)
-  address         String?            @db.VarChar(255)
+  gender          String?      @db.VarChar(20)
+  parentPhone     String?      @db.VarChar(20)
+  email           String?      @db.VarChar(100)
+  address         String?      @db.VarChar(255)
   uploadBatchId   String?
-  createdAt       DateTime           @default(now())
-  feeBalances     FeeBalance[]       @relation("StudentFeeBalances")
-  results         StudentResult[]
-  updatedAt       DateTime           @updatedAt
-  uploadBatch     StudentBulkUpload? @relation(fields: [uploadBatchId], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now())
+  feeBalances     FeeBalance[] @relation("StudentFeeBalances")
+
+  results StudentResult[]
+
+  updatedAt   DateTime           @updatedAt
+  uploadBatch StudentBulkUpload? @relation(fields: [uploadBatchId], references: [id], onDelete: Cascade)
 
   @@index([admissionNumber])
   @@index([form])
@@ -559,23 +639,26 @@ model StudentSession {
 }
 
 model FeeBalance {
-  id              String            @id @default(cuid())
+  id              String          @id @default(cuid())
   admissionNumber String
-  student         databaseStudent   @relation("StudentFeeBalances", fields: [admissionNumber], references: [admissionNumber], onDelete: Cascade)
+  student         databaseStudent @relation("StudentFeeBalances", fields: [admissionNumber], references: [admissionNumber], onDelete: Cascade)
   form            String
   term            String
   academicYear    String
-  amount          Float             @default(0)
-  amountPaid      Float             @default(0)
-  balance         Float             @default(0)
-  paymentStatus   String            @default("pending")
+  amount          Float           @default(0)
+  amountPaid      Float           @default(0)
+  balance         Float           @default(0)
+  paymentStatus   String          @default("pending")
   dueDate         DateTime?
+
   // Audit fields
-  isActive        Boolean           @default(true) // <-- ADD THIS instead of status
-  uploadBatchId   String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  uploadBatch     FeeBalanceUpload? @relation("UploadToFeeBalances", fields: [uploadBatchId], references: [id], onDelete: Cascade)
+  isActive      Boolean @default(true) // <-- ADD THIS instead of status
+  uploadBatchId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  uploadBatch FeeBalanceUpload? @relation("UploadToFeeBalances", fields: [uploadBatchId], references: [id], onDelete: Cascade)
 
   @@unique([admissionNumber, form, term, academicYear])
   @@index([admissionNumber])
@@ -584,26 +667,29 @@ model FeeBalance {
 }
 
 model FeeBalanceUpload {
-  id            String       @id @default(cuid())
+  id            String    @id @default(cuid())
   fileName      String
   fileType      String
   uploadedBy    String
-  uploadDate    DateTime     @default(now())
+  uploadDate    DateTime  @default(now())
   status        String // processing, completed, failed
   processedDate DateTime?
+
   // Upload parameters
-  targetForm    String
-  term          String?
-  academicYear  String?
-  uploadType    String // new, update
+  targetForm   String
+  term         String?
+  academicYear String?
+  uploadType   String // new, update
+
   // Statistics
-  totalRows     Int
-  validRows     Int
-  skippedRows   Int
-  errorRows     Int
-  errorLog      String?
-  metadata      Json?
-  feeBalances   FeeBalance[] @relation("UploadToFeeBalances")
+  totalRows   Int
+  validRows   Int
+  skippedRows Int
+  errorRows   Int
+  errorLog    String?
+  metadata    Json?
+
+  feeBalances FeeBalance[] @relation("UploadToFeeBalances")
 
   @@map("fee_balance_uploads")
 }
@@ -643,8 +729,9 @@ model StudentResult {
   subjects        Json
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  uploadBatchId   String?
-  uploadBatch     ResultUpload?    @relation(fields: [uploadBatchId], references: [id], onDelete: Cascade)
+
+  uploadBatchId String?
+  uploadBatch   ResultUpload? @relation(fields: [uploadBatchId], references: [id], onDelete: Cascade)
 
   @@unique([admissionNumber, term, academicYear], name: "unique_student_term_year")
   @@index([admissionNumber])
@@ -707,6 +794,7 @@ model BatchDeletionLog {
 
 // Add this to your existing schema.prisma
 // ===================== Guidance & Counselling Teams (MySQL) =====================
+// SIMPLE Schema - Just one table for all team members
 model TeamMember {
   id        Int      @id @default(autoincrement())
   name      String
@@ -718,8 +806,10 @@ model TeamMember {
   image     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  teamId    Int?
-  team      Team?    @relation(fields: [teamId], references: [id])
+
+  // Optional: if you want to group members into teams
+  teamId Int?
+  team   Team? @relation(fields: [teamId], references: [id])
 
   @@map("team_members")
 }
