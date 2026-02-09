@@ -21,8 +21,8 @@ import {
   FiClipboard,
   FiMonitor,
   FiSmartphone,
-FiArrowLeft,
-FiArchive
+  FiArrowLeft,
+  FiArchive
 } from 'react-icons/fi';
 import { 
   IoStatsChart,
@@ -30,11 +30,9 @@ import {
   IoNewspaper,
   IoSparkles,
   IoSchoolOutline,
-
-
 } from 'react-icons/io5';
-
 import { useRouter } from 'next/navigation';
+import { Toaster, toast } from 'sonner'; // Changed to sonner
 
 // Import components
 import AdminSidebar from '../components/sidebar/page';
@@ -54,7 +52,7 @@ import Careers from "../components/career/page";
 import Student from "../components/student/page";
 import Fees from "../components/fees/page";
 import Results from "../components/resultsUpload/page";
-import SchoolDocs from "../components/schooldocuments/page"; // Added import for School Documents
+import SchoolDocs from "../components/schooldocuments/page";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -78,43 +76,178 @@ export default function AdminDashboard() {
     totalStudent: 0,
     totalFees: 0,
     totalResults: 0
-
   });
+
+  const router = useRouter();
 
   // Check screen size on mount and resize
   useEffect(() => {
     const checkScreenSize = () => {
-      // For phones only (screen width <= 768px)
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
       
-      // Show warning only on mobile phones
       if (mobile) {
         setShowMobileWarning(true);
-        // Auto-close sidebar on mobile
         setSidebarOpen(false);
       }
     };
 
-    // Initial check
     checkScreenSize();
-
-    // Add event listener
     window.addEventListener('resize', checkScreenSize);
-
-    // Cleanup
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Generate device fingerprint
+  const generateDeviceFingerprint = () => {
+    const fingerprint = {
+      userAgent: navigator.userAgent,
+      screen: {
+        width: screen.width,
+        height: screen.height,
+        colorDepth: screen.colorDepth,
+        pixelRatio: window.devicePixelRatio
+      },
+      language: navigator.language || navigator.userLanguage,
+      platform: navigator.platform,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      languages: navigator.languages
+    };
 
-const router =useRouter()
+    return {
+      raw: fingerprint,
+      hash: hashFingerprint(fingerprint)
+    };
+  };
 
+  // Hash fingerprint
+  const hashFingerprint = (fingerprint) => {
+    const str = JSON.stringify(fingerprint);
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36);
+  };
+
+  // Device Token Validation Functions
+  class DeviceTokenManager {
+    static KEYS = {
+      DEVICE_TOKEN: 'device_token',
+      DEVICE_FINGERPRINT: 'device_fingerprint',
+      LOGIN_COUNT: 'login_count',
+      LAST_LOGIN: 'last_login'
+    };
+
+    // Validate both admin token and device token
+    static validateTokens() {
+      try {
+        // Check admin token
+        const adminToken = localStorage.getItem('admin_token');
+        if (!adminToken) {
+          console.log('❌ Admin token not found');
+          return { valid: false, reason: 'no_admin_token' };
+        }
+
+        // Check device token
+        const deviceToken = localStorage.getItem(this.KEYS.DEVICE_TOKEN);
+        if (!deviceToken) {
+          console.log('❌ Device token not found');
+          return { valid: false, reason: 'no_device_token' };
+        }
+
+        // Validate admin token format
+        const adminParts = adminToken.split('.');
+        if (adminParts.length !== 3) {
+          console.log('❌ Invalid admin token format');
+          return { valid: false, reason: 'invalid_admin_token_format' };
+        }
+
+        // Validate device token
+        const deviceValid = this.validateDeviceToken(deviceToken);
+        if (!deviceValid.valid) {
+          console.log('❌ Device token invalid:', deviceValid.reason);
+          return { 
+            valid: false, 
+            reason: `device_${deviceValid.reason}`,
+            details: deviceValid 
+          };
+        }
+
+        // Generate current device fingerprint
+        const currentFingerprint = generateDeviceFingerprint();
+        const storedFingerprint = localStorage.getItem(this.KEYS.DEVICE_FINGERPRINT);
+        
+        if (storedFingerprint !== currentFingerprint.hash) {
+          console.log('❌ Device fingerprint mismatch');
+          return { valid: false, reason: 'device_fingerprint_mismatch' };
+        }
+
+        const loginCount = parseInt(localStorage.getItem(this.KEYS.LOGIN_COUNT) || '0');
+        if (loginCount >= 50) {
+          console.log('⚠️ High login count detected:', loginCount);
+        }
+
+        console.log('✅ Both tokens are valid');
+        return { 
+          valid: true, 
+          adminToken: adminToken,
+          deviceToken: deviceToken,
+          loginCount: loginCount,
+          deviceInfo: deviceValid.payload
+        };
+
+      } catch (error) {
+        console.error('❌ Token validation error:', error);
+        return { valid: false, reason: 'validation_error', error: error.message };
+      }
+    }
+
+    // Validate device token
+    static validateDeviceToken(token) {
+      try {
+        const payloadStr = decodeURIComponent(escape(atob(token)));
+        const payload = JSON.parse(payloadStr);
+        
+        if (payload.exp * 1000 <= Date.now()) {
+          return { valid: false, reason: 'expired', payload };
+        }
+        
+        const createdAt = new Date(payload.createdAt || payload.iat * 1000);
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        
+        if (createdAt < thirtyDaysAgo) {
+          return { valid: false, reason: 'age_expired', payload };
+        }
+        
+        return { valid: true, payload };
+      } catch (error) {
+        return { valid: false, reason: 'invalid_format', error: error.message };
+      }
+    }
+
+    // Clear all tokens
+    static clearAllTokens() {
+      try {
+        const adminKeys = ['admin_token', 'admin_user'];
+        adminKeys.forEach(key => localStorage.removeItem(key));
+        
+        Object.values(this.KEYS).forEach(key => localStorage.removeItem(key));
+        
+        console.log('✅ All tokens cleared');
+        return true;
+      } catch (error) {
+        console.error('❌ Error clearing tokens:', error);
+        return false;
+      }
+    }
+  }
 
   // Mobile Warning Modal Component
   const MobileWarningModal = () => (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-lg z-[100] flex items-center justify-center p-4">
       <div className="w-full max-w-md mx-auto bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl border border-gray-700 shadow-2xl overflow-hidden animate-scale-in">
-        {/* Modal Header */}
         <div className="p-6 sm:p-8 border-b border-gray-700">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -136,7 +269,6 @@ const router =useRouter()
           </div>
         </div>
         
-        {/* Modal Body */}
         <div className="p-6 sm:p-8">
           <div className="space-y-4 mb-6">
             <div className="flex items-start gap-3">
@@ -168,16 +300,14 @@ const router =useRouter()
                 <IoSparkles className="text-yellow-400 text-xs" />
               </div>
               <div>
-<h4 className="text-white font-semibold mb-1">Go Back</h4>
-<p className="text-gray-400 text-sm">
-  Return to the previous page to review or change your settings and Navigate it with the Desktop or Laptop.
-</p>
-
+                <h4 className="text-white font-semibold mb-1">Go Back</h4>
+                <p className="text-gray-400 text-sm">
+                  Return to the previous page to review or change your settings and Navigate it with the Desktop or Laptop.
+                </p>
               </div>
             </div>
           </div>
           
-          {/* Device info */}
           <div className="p-4 bg-gray-800/50 rounded-xl border border-gray-700 mb-6">
             <div className="grid grid-cols-2 gap-4 text-center">
               <div>
@@ -190,52 +320,28 @@ const router =useRouter()
               </div>
             </div>
           </div>
-          
+        </div>
         
-        </div>
-  {/* Footer */}
-<div className="p-6 bg-gray-900/50 border-t border-gray-800 space-y-4">
-  <div className="flex justify-center">
-    <button
-      onClick={() => router.back()}
-      className="group flex items-center gap-2 px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-full border border-gray-700 transition-all active:scale-95 shadow-lg"
-    >
-      <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-      <span className="text-sm font-bold">Go Back</span>
-    </button>
-  </div>
-
-  <p className="text-gray-500 text-[10px] sm:text-xs text-center max-w-xs mx-auto leading-relaxed">
-    For optimal experience, use a device with screen width greater than 768px
-  </p>
-</div>
-
-      </div>
-    </div>
-  );
-
-  // Simple Mobile Banner (alternative to modal)
-  const MobileBanner = () => (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-gradient-to-r from-red-500/95 to-orange-500/95 backdrop-blur-lg border-t border-white/20">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <div className="flex items-center gap-3">
-          <FiSmartphone className="text-white text-xl" />
-          <div>
-            <p className="text-white font-bold text-sm">Admin Panel on Mobile</p>
-            <p className="text-white/90 text-xs">Some features may be limited. Use desktop for full experience.</p>
+        <div className="p-6 bg-gray-900/50 border-t border-gray-800 space-y-4">
+          <div className="flex justify-center">
+            <button
+              onClick={() => router.back()}
+              className="group flex items-center gap-2 px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-full border border-gray-700 transition-all active:scale-95 shadow-lg"
+            >
+              <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+              <span className="text-sm font-bold">Go Back</span>
+            </button>
           </div>
+
+          <p className="text-gray-500 text-[10px] sm:text-xs text-center max-w-xs mx-auto leading-relaxed">
+            For optimal experience, use a device with screen width greater than 768px
+          </p>
         </div>
-        <button
-          onClick={() => setShowMobileWarning(false)}
-          className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm font-semibold transition-colors duration-200 backdrop-blur-sm"
-        >
-          Dismiss
-        </button>
       </div>
     </div>
   );
 
-  // Modern Loading Screen with Enhanced Design
+  // Loading Screen
   const LoadingScreen = () => (
     <div className="fixed inset-0 bg-gradient-to-br from-orange-900 via-amber-900 to-red-900 z-50 flex flex-col items-center justify-center p-4">
       {/* Animated Background */}
@@ -311,7 +417,7 @@ const router =useRouter()
     </div>
   );
 
-  // Fetch student count from the new API
+  // Fetch student count
   const fetchStudentCount = async () => {
     try {
       const response = await fetch('/api/studentupload?action=stats');
@@ -322,7 +428,6 @@ const router =useRouter()
       
       const data = await response.json();
       
-      // Extract student count from different possible response structures
       if (data.success) {
         if (data.data?.stats?.totalStudents) {
           return data.data.stats.totalStudents;
@@ -333,7 +438,6 @@ const router =useRouter()
         }
       }
       
-      // Fallback: Fetch all students and count them
       const allStudentsRes = await fetch('/api/studentupload');
       if (allStudentsRes.ok) {
         const allStudentsData = await allStudentsRes.json();
@@ -353,10 +457,8 @@ const router =useRouter()
   // Fetch real counts from all APIs
   const fetchRealCounts = async () => {
     try {
-      // Get student count first
       const studentCount = await fetchStudentCount();
       
-      // Then fetch other data in parallel
       const [
         staffRes,
         subscribersRes,
@@ -370,7 +472,7 @@ const router =useRouter()
         careersRes,
         studentRes,
         feesRes,
-        schooldocumentsRes, // Added this
+        schooldocumentsRes,
         resultsRes
       ] = await Promise.allSettled([
         fetch('/api/staff'),
@@ -383,14 +485,12 @@ const router =useRouter()
         fetch('/api/applyadmission'),
         fetch('/api/resources'),
         fetch('/api/career'),
-        fetch('/api/studentupload'), // Modified to use studentupload API
+        fetch('/api/studentupload'),
         fetch('/api/feebalances'),
         fetch('/api/results'),
-        fetch('/api/schooldocuments') // Added this
-
+        fetch('/api/schooldocuments')
       ]);
 
-      // Process responses and get actual counts
       const staff = staffRes.status === 'fulfilled' ? await staffRes.value.json() : { staff: [] };
       const subscribers = subscribersRes.status === 'fulfilled' ? await subscribersRes.value.json() : { subscribers: [] };
       const events = eventsRes.status === 'fulfilled' ? await eventsRes.value.json() : { events: [] };
@@ -404,15 +504,10 @@ const router =useRouter()
       const student = studentRes.status === 'fulfilled' ? await studentRes.value.json() : { students: [] };
       const fees = feesRes.status === 'fulfilled' ? await feesRes.value.json() : { feebalances: [] };
       const results = resultsRes.status === 'fulfilled' ? await resultsRes.value.json() : { results: [] };
-
       const schoolDocs = schooldocumentsRes.status === 'fulfilled' ? await schooldocumentsRes.value.json() : { documents: [] };
 
-
-  
-      
+      const upcomingEvents = events.events?.filter(e => new Date(e.eventDate) >= new Date()).length || 0;
       const activeAssignments = assignments.assignments?.filter(a => a.status === 'assigned').length || 0;
-      
-      // Admission statistics
       const admissionsData = admissions.applications || [];
       const pendingApps = admissionsData.filter(app => app.status === 'PENDING').length || 0;
 
@@ -431,8 +526,7 @@ const router =useRouter()
         totalStudent: student.students?.length || 0,
         totalFees: fees.feebalances?.length || 0,
         totalResults: results.results?.length || 0,
-        schooldocuments: schoolDocs.documents?.length || 0 // Added this
-
+        schooldocuments: schoolDocs.documents?.length || 0
       });
 
     } catch (error) {
@@ -440,98 +534,274 @@ const router =useRouter()
     }
   };
 
-  useEffect(() => {
-    const initializeDashboard = async () => {
-      setLoading(true);
+useEffect(() => {
+  const initializeDashboard = async () => {
+    setLoading(true);
+    
+    try {
+      console.log('🔍 Starting dashboard initialization...');
       
-      try {
-        console.log('🔍 Checking localStorage for user data...');
-        
-        // Check ALL possible localStorage keys for user data
-        const possibleUserKeys = ['admin_user', 'user', 'currentUser', 'auth_user'];
-        const possibleTokenKeys = ['admin_token', 'token', 'auth_token', 'jwt_token'];
-        
-        let userData = null;
-        let token = null;
-        
-        // Find user data in any possible key
-        for (const key of possibleUserKeys) {
-          const data = localStorage.getItem(key);
-          if (data) {
-            console.log(`✅ Found user data in key: ${key}`, data);
-            userData = data;
-            break;
-          }
+      const possibleUserKeys = ['admin_user', 'user', 'currentUser', 'auth_user'];
+      const possibleAdminTokenKeys = ['admin_token', 'token', 'auth_token', 'jwt_token'];
+      const deviceTokenKeys = ['device_token', 'deviceToken'];
+      const deviceFingerprintKeys = ['device_fingerprint', 'deviceFingerprint'];
+      
+      let userData = null;
+      let adminToken = null;
+      let deviceToken = null;
+      let deviceFingerprint = null;
+      
+      // Find user data
+      for (const key of possibleUserKeys) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          console.log(`✅ Found user data in key: ${key}`);
+          userData = data;
+          break;
         }
-        
-        // Find token in any possible key
-        for (const key of possibleTokenKeys) {
-          const data = localStorage.getItem(key);
-          if (data) {
-            console.log(`✅ Found token in key: ${key}`);
-            token = data;
-            break;
-          }
-        }
-        
-        if (!userData) {
-          console.log('❌ No user data found in localStorage');
-          window.location.href = '/pages/adminLogin';
-          return;
-        }
-
-        // Parse user data
-        const user = JSON.parse(userData);
-        console.log('📋 Parsed user data:', user);
-        
-        // Verify token is still valid (if available)
-        if (token) {
-          try {
-            const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-            const currentTime = Date.now() / 1000;
-            
-            if (tokenPayload.exp < currentTime) {
-              console.log('❌ Token expired');
-              // Clear all auth data
-              possibleUserKeys.forEach(key => localStorage.removeItem(key));
-              possibleTokenKeys.forEach(key => localStorage.removeItem(key));
-              window.location.href = '/pages/adminLogin';
-              return;
-            }
-            console.log('✅ Token is valid');
-          } catch (tokenError) {
-            console.log('⚠️ Token validation skipped:', tokenError.message);
-          }
-        }
-
-        // Check if user has valid role
-        const userRole = user.role;
-        const validRoles = ['ADMIN', 'SUPER_ADMIN', 'administrator', 'TEACHER', 'PRINCIPAL'];
-        
-        if (!userRole || !validRoles.includes(userRole.toUpperCase())) {
-          console.log('❌ User does not have valid role:', userRole);
-          window.location.href = '/pages/adminLogin';
-          return;
-        }
-
-        console.log('✅ User authenticated successfully:', user.name);
-        setUser(user);
-
-        // Fetch real counts from APIs
-        await fetchRealCounts();
-        
-      } catch (error) {
-        console.error('❌ Error initializing dashboard:', error);
-        // Clear all auth data on error
-        localStorage.clear();
-        window.location.href = '/pages/adminLogin';
-      } finally {
-        setLoading(false);
       }
-    };
+      
+      // Find admin token
+      for (const key of possibleAdminTokenKeys) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          console.log(`✅ Found admin token in key: ${key}`);
+          adminToken = data;
+          break;
+        }
+      }
+      
+      // Find device token (optional for dashboard)
+      for (const key of deviceTokenKeys) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          console.log(`✅ Found device token in key: ${key}`);
+          deviceToken = data;
+          break;
+        }
+      }
+      
+      // Find device fingerprint (optional for dashboard)
+      for (const key of deviceFingerprintKeys) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          console.log(`✅ Found device fingerprint in key: ${key}`);
+          deviceFingerprint = data;
+          break;
+        }
+      }
+      
+      // ==============================================
+      // 1. CHECK ADMIN TOKEN (PRIMARY - REQUIRED)
+      // ==============================================
+      if (!adminToken) {
+        console.log('❌ No admin token found');
+        toast.error('Authentication required. Please login again.');
+        
+        // Clear only authentication data
+        possibleUserKeys.forEach(key => localStorage.removeItem(key));
+        possibleAdminTokenKeys.forEach(key => localStorage.removeItem(key));
+        window.location.href = '/pages/adminLogin';
+        return;
+      }
+      
+      // Parse and validate admin token (12-hour expiry)
+      let adminTokenPayload = null;
+      try {
+        const tokenParts = adminToken.split('.');
+        if (tokenParts.length !== 3) {
+          throw new Error('Invalid JWT format');
+        }
+        
+        // Decode the payload (middle part of JWT)
+        adminTokenPayload = JSON.parse(atob(tokenParts[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+        
+        console.log('🔑 Admin token details:', {
+          expiresAt: new Date(adminTokenPayload.exp * 1000).toLocaleString(),
+          issuedAt: new Date(adminTokenPayload.iat * 1000).toLocaleString(),
+          expiresInHours: ((adminTokenPayload.exp - currentTime) / 3600).toFixed(2),
+          userRole: adminTokenPayload.role,
+          userId: adminTokenPayload.userId
+        });
+        
+        if (adminTokenPayload.exp < currentTime) {
+          console.log('❌ Admin token expired');
+          toast.error('Session expired. Please login again.');
+          
+          // Clear only authentication data
+          possibleUserKeys.forEach(key => localStorage.removeItem(key));
+          possibleAdminTokenKeys.forEach(key => localStorage.removeItem(key));
+          window.location.href = '/pages/adminLogin';
+          return;
+        }
+        
+        console.log('✅ Admin token is valid (12-hour expiry)');
+      } catch (tokenError) {
+        console.log('⚠️ Admin token validation error:', tokenError.message);
+        toast.error('Invalid authentication. Please login again.');
+        
+        // Clear only authentication data
+        possibleUserKeys.forEach(key => localStorage.removeItem(key));
+        possibleAdminTokenKeys.forEach(key => localStorage.removeItem(key));
+        window.location.href = '/pages/adminLogin';
+        return;
+      }
+      
+      // ==============================================
+      // 2. CHECK USER DATA (REQUIRED)
+      // ==============================================
+      if (!userData) {
+        console.log('❌ No user data found in localStorage');
+        toast.error('Please login to access the dashboard');
+        window.location.href = '/pages/adminLogin';
+        return;
+      }
+      
+      // Parse user data
+      let user;
+      try {
+        user = JSON.parse(userData);
+        console.log('📋 Parsed user data:', {
+          name: user.name,
+          email: user.email,
+          role: user.role
+        });
+      } catch (parseError) {
+        console.log('❌ Error parsing user data:', parseError);
+        toast.error('Invalid user data. Please login again.');
+        window.location.href = '/pages/adminLogin';
+        return;
+      }
+      
+      // ==============================================
+      // 3. VERIFY USER ROLE (REQUIRED)
+      // ==============================================
+      const userRole = user.role;
+      const validRoles = ['ADMIN', 'SUPER_ADMIN', 'administrator', 'TEACHER', 'PRINCIPAL'];
+      
+      if (!userRole || !validRoles.includes(userRole.toUpperCase())) {
+        console.log('❌ User does not have valid role:', userRole);
+        toast.error('Unauthorized access. Please login with admin credentials.');
+        
+        possibleUserKeys.forEach(key => localStorage.removeItem(key));
+        possibleAdminTokenKeys.forEach(key => localStorage.removeItem(key));
+        window.location.href = '/pages/adminLogin';
+        return;
+      }
+      
+      console.log('✅ User role verified:', userRole);
+      
+      // ==============================================
+      // 4. CHECK DEVICE TOKEN (OPTIONAL - FOR INFO ONLY)
+      // ==============================================
+      // Device token is only for login verification, not required for dashboard access
+      if (deviceToken) {
+        try {
+          // Decode device token (could be JWT or base64)
+          let devicePayload;
+          if (deviceToken.includes('.')) {
+            // JWT format
+            const deviceParts = deviceToken.split('.');
+            if (deviceParts.length === 3) {
+              devicePayload = JSON.parse(atob(deviceParts[1]));
+            }
+          } else {
+            // Base64 format
+            try {
+              const decodedStr = atob(deviceToken);
+              devicePayload = JSON.parse(decodedStr);
+            } catch (e) {
+              // Try URL-safe base64
+              try {
+                const urlSafeToken = deviceToken.replace(/-/g, '+').replace(/_/g, '/');
+                const decodedStr = atob(urlSafeToken);
+                devicePayload = JSON.parse(decodedStr);
+              } catch (e2) {
+                console.log('⚠️ Could not decode device token');
+                devicePayload = null;
+              }
+            }
+          }
+          
+          if (devicePayload) {
+            console.log('📱 Device token info (optional):', {
+              loginCount: devicePayload.loginCount,
+              expiresAt: devicePayload.exp ? new Date(devicePayload.exp * 1000).toLocaleString() : 'N/A',
+              valid: devicePayload.exp ? (devicePayload.exp * 1000 > Date.now()) : 'Unknown'
+            });
+          }
+          
+          // Check device fingerprint if available
+          if (deviceFingerprint) {
+            const currentFingerprint = generateDeviceFingerprint();
+            if (deviceFingerprint !== currentFingerprint.hash) {
+              console.log('⚠️ Device fingerprint changed - will be caught on next login');
+              // Don't redirect - admin token is still valid
+            } else {
+              console.log('✅ Device fingerprint matches');
+            }
+          }
+          
+        } catch (deviceError) {
+          console.log('⚠️ Device token check error (non-critical):', deviceError.message);
+          // Continue - device token is not required for dashboard access
+        }
+      } else {
+        console.log('ℹ️ No device token found - not required for dashboard access');
+      }
+      
+      // ==============================================
+      // 5. STORE DASHBOARD ACCESS TIMESTAMP
+      // ==============================================
+      localStorage.setItem('last_dashboard_access', new Date().toISOString());
+      
+      // ==============================================
+      // 6. SUCCESS - SET USER STATE
+      // ==============================================
+      console.log('✅ User authenticated successfully:', user.name);
+      console.log('✅ Admin token validated (12-hour expiry)');
+      
+      const loginCount = parseInt(localStorage.getItem('login_count') || '0');
+      console.log('📱 Security audit:', {
+        user: user.name,
+        role: user.role,
+        adminTokenExpiry: new Date(adminTokenPayload.exp * 1000).toLocaleString(),
+        deviceLoginCount: loginCount,
+        lastLogin: localStorage.getItem('last_login'),
+        dashboardAccess: new Date().toISOString()
+      });
+      
+      setUser(user);
+      
+      // ==============================================
+      // 7. FETCH DASHBOARD STATISTICS
+      // ==============================================
+      console.log('📊 Fetching dashboard statistics...');
+      await fetchRealCounts();
+      
+      toast.success(`Welcome back, ${user.name}!`);
+      
+    } catch (error) {
+      console.error('❌ Error initializing dashboard:', error);
+      toast.error('Failed to load dashboard. Please try again.');
+      
+      // Clear only authentication data on error
+      const possibleUserKeys = ['admin_user', 'user', 'currentUser', 'auth_user'];
+      const possibleAdminTokenKeys = ['admin_token', 'token', 'auth_token', 'jwt_token'];
+      
+      possibleUserKeys.forEach(key => localStorage.removeItem(key));
+      possibleAdminTokenKeys.forEach(key => localStorage.removeItem(key));
+      
+      window.location.href = '/pages/adminLogin';
+      
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    initializeDashboard();
-  }, []);
+  initializeDashboard();
+}, []);
 
   // Refresh counts when tab changes
   useEffect(() => {
@@ -540,16 +810,48 @@ const router =useRouter()
     }
   }, [activeTab]);
 
-  const handleLogout = () => {
-    // Clear ALL possible auth data
-    const possibleUserKeys = ['admin_user', 'user', 'currentUser', 'auth_user'];
-    const possibleTokenKeys = ['admin_token', 'token', 'auth_token', 'jwt_token'];
-    
-    possibleUserKeys.forEach(key => localStorage.removeItem(key));
-    possibleTokenKeys.forEach(key => localStorage.removeItem(key));
-    
-    window.location.href = '/pages/adminLogin';
-  };
+const handleLogout = () => {
+  toast.loading('Logging out...');
+  
+  setTimeout(() => {
+    try {
+      // Save device tokens before clearing session
+      const deviceToken = localStorage.getItem('device_token') || 
+                         localStorage.getItem('deviceToken');
+      const deviceFingerprint = localStorage.getItem('device_fingerprint') || 
+                               localStorage.getItem('deviceFingerprint');
+      const loginCount = localStorage.getItem('login_count');
+      
+      // Clear only session data
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('last_login');
+      localStorage.removeItem('last_dashboard_access');
+      
+      // Restore device tokens (if they existed)
+      if (deviceToken) {
+        localStorage.setItem('device_token', deviceToken);
+      }
+      if (deviceFingerprint) {
+        localStorage.setItem('device_fingerprint', deviceFingerprint);
+      }
+      if (loginCount) {
+        localStorage.setItem('login_count', loginCount);
+      }
+      
+      toast.success('Logged out. Your device is still recognized.');
+      
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 500);
+      
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Logout failed. Please try again.');
+    }
+  }, 500);
+};
+
 
   const renderContent = () => {
     if (loading) return null;
@@ -559,12 +861,10 @@ const router =useRouter()
         return <DashboardOverview />;
       case 'school-info':
         return <SchoolInfoTab />;
-
-     case 'schooldocuments': // Added this case
-         return <SchoolDocs />;
+      case 'schooldocuments':
+        return <SchoolDocs />;
       case 'guidance-counseling':
         return <GuidanceCounselingTab />;
-      
       case 'staff':
         return <StaffManager />;
       case 'assignments':
@@ -616,13 +916,12 @@ const router =useRouter()
       icon: FiMessageCircle,
       badge: 'purple'
     },
-
-{
-    id: 'schooldocuments',
-    label: 'School Documents',
-    icon: FiArchive, 
-    badge: 'indigo'
-  },
+    {
+      id: 'schooldocuments',
+      label: 'School Documents',
+      icon: FiArchive, 
+      badge: 'indigo'
+    },
     { 
       id: 'staff', 
       label: 'Staff & BOM', 
@@ -703,39 +1002,33 @@ const router =useRouter()
     },
   ];
 
-const CompactSchoolHeader = () => {
-  return (
-    <div className="group cursor-default py-4">
-      {/* Container with Zooming Experience */}
-      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 transition-all duration-500 ease-out group-hover:scale-[1.02] active:scale-95">
-        
-        {/* Left Accent Pillar */}
-        <div className="h-10 w-1 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full shadow-sm group-hover:h-12 transition-all duration-500" />
+  const CompactSchoolHeader = () => {
+    return (
+      <div className="group cursor-default py-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+          <div className="h-10 w-1 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full shadow-sm " />
 
-        <div className="flex flex-col">
-          {/* School Name - Compact & Sharp */}
-          <h1 className="text-lg md:text-xl font-black text-gray-900 tracking-tight leading-none uppercase italic">
-            Mary <span className="text-blue-600 group-hover:text-indigo-600 transition-colors">Immaculate</span>
-          </h1>
-          
-          {/* Motto - Clean & Minimal */}
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">
-              Girls High School
-            </span>
-            <div className="h-[1px] w-4 bg-gray-200" />
-            <p className="text-[10px] md:text-xs font-bold text-gray-500 italic">
-              "Prayer, Discipline and Hardwork"
-            </p>
+          <div className="flex flex-col">
+            <h1 className="text-lg md:text-xl font-black text-gray-900 tracking-tight leading-none uppercase italic">
+              Mary <span className="text-blue-600 group-hover:text-indigo-600 transition-colors">Immaculate</span>
+            </h1>
+            
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">
+                 Sec School
+              </span>
+              <div className="h-[1px] w-4 bg-gray-200" />
+              <p className="text-[10px] md:text-xs font-bold text-gray-500 italic">
+                "Prayer, Displine and Hardwork"
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Dynamic Sparkle - Only appears on zoom/hover */}
-        <IoSparkles className="hidden md:block text-yellow-400 text-sm opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-500" />
+          <IoSparkles className="hidden md:block text-yellow-400 text-sm opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-500" />
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
   // Show loading screen
   if (loading) {
@@ -748,82 +1041,90 @@ const CompactSchoolHeader = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 overflow-hidden">
-      {/* Mobile Warning Modal */}
-      {showMobileWarning && <MobileWarningModal />}
-      
-      {/* Mobile Banner (alternative) */}
-      {/* {showMobileWarning && <MobileBanner />} */}
-
-      {/* Sidebar */}
-      <AdminSidebar 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        tabs={navigationItems}
+    < >
+  <div className="w-full h-full">
+    
+      {/* Add Sonner Toaster */}
+      <Toaster 
+        position="top-right"
+        expand={false}
+        richColors
+        closeButton
       />
+      
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 overflow-hidden">
+      {showMobileWarning && <MobileWarningModal />}
+        
+        {/* Sidebar */}
+        <AdminSidebar 
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          tabs={navigationItems}
+        />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
-        {/* Top Header */}
-        <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-200/50 z-30">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden p-3 rounded-2xl hover:bg-gray-100 transition-all duration-200"
-              >
-                <FiMenu className="text-xl text-gray-600" />
-              </button>
-              
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
+          {/* Top Header */}
+          <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-200/50 z-30">
+            <div className="flex items-center justify-between px-6 py-4">
               <div className="flex items-center gap-4">
-                <div className="hidden lg:flex w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl items-center justify-center shadow-lg">
-                  <FiAward className="text-xl text-white" />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {/* Quick Stats - Hidden on small screens */}
-
-              <div className="hidden md:flex items-center gap-6">
-                <CompactSchoolHeader/>
-              </div>
-
-              {/* User Menu */}
-              <div className="flex items-center gap-3">
-                <div className="hidden lg:flex flex-col items-end justify-center">
-                  <span className="text-sm font-bold text-slate-900 tracking-tight leading-none mb-1">
-                    {user?.name?.split(' ')[0]}
-                  </span>
-
-                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-100 shadow-sm">
-                    <IoSparkles className="text-amber-500 text-[10px] animate-pulse" />
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700">
-                      {user?.role?.replace('_', ' ')}
-                    </span>
-                  </div>
-                </div>
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="lg:hidden p-3 rounded-2xl hover:bg-gray-100 transition-all duration-200"
+                >
+                  <FiMenu className="text-xl text-gray-600" />
+                </button>
                 
-                <div className="relative group">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg cursor-pointer hover:opacity-90 transition-opacity duration-200">
-                    {user?.name?.charAt(0) || 'A'}
+                <div className="flex items-center gap-4">
+                  <div className="hidden lg:flex w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl items-center justify-center shadow-lg">
+                    <FiAward className="text-xl text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {/* Quick Stats - Hidden on small screens */}
+                <div className="hidden md:flex items-center gap-6">
+                  <CompactSchoolHeader/>
+                </div>
+
+                {/* User Menu */}
+                <div className="flex items-center gap-3">
+                  <div className="hidden lg:flex flex-col items-end justify-center">
+                    <span className="text-sm font-bold text-slate-900 tracking-tight leading-none mb-1">
+                      {user?.name?.split(' ')[0]}
+                    </span>
+
+                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-100 shadow-sm">
+                      <IoSparkles className="text-amber-500 text-[10px] animate-pulse" />
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700">
+                        {user?.role?.replace('_', ' ')}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="relative group">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg cursor-pointer hover:opacity-90 transition-opacity duration-200">
+                      {user?.name?.charAt(0) || 'A'}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-auto bg-transparent [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <div className="h-full">
-            {renderContent()}
-          </div>
-        </main>
+          {/* Main Content Area */}
+          <main className="flex-1 overflow-auto bg-transparent [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="h-full">
+              {renderContent()}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
