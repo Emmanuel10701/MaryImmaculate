@@ -2191,23 +2191,25 @@ const loadStatistics = async () => {
 };
 
   // Load upload history
-  const loadUploadHistory = async (page = 1) => {
-    setHistoryLoading(true);
-    try {
-      const res = await fetch(`/api/feebalances?action=uploads&page=${page}&limit=5`);
-      const data = await res.json();
-      if (data.success) {
-        setUploadHistory(data.uploads || data.data?.uploads || []);
-      } else {
-        showNotification('Failed to load upload history', 'error');
-      }
-    } catch (error) {
-      console.error('Failed to load history:', error);
+// Load upload history - MODIFIED to only get completed uploads
+const loadUploadHistory = async (page = 1) => {
+  setHistoryLoading(true);
+  try {
+    // Add status=completed to the API call
+    const res = await fetch(`/api/feebalances?action=uploads&page=${page}&limit=30`);
+    const data = await res.json();
+    if (data.success) {
+      setUploadHistory(data.uploads || data.data?.uploads || []);
+    } else {
       showNotification('Failed to load upload history', 'error');
-    } finally {
-      setHistoryLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Failed to load history:', error);
+    showNotification('Failed to load upload history', 'error');
+  } finally {
+    setHistoryLoading(false);
+  }
+};
 
   // Load student info for a fee
   const loadStudentInfo = async (admissionNumber) => {
@@ -2265,6 +2267,53 @@ const handleUploadWithStrategy = async () => {
   await checkDuplicates();
 };
 
+
+// ========== AUTH HELPER FUNCTIONS ==========
+
+// Helper function to get authentication tokens for protected operations
+const getAuthTokensForProtectedOps = () => {
+  const adminToken = localStorage.getItem('admin_token');
+  const deviceToken = localStorage.getItem('device_token');
+  
+  if (!adminToken || !deviceToken) {
+    throw new Error('Authentication required for this action. Please login.');
+  }
+  
+  return { adminToken, deviceToken };
+};
+
+// Helper function to get auth headers (only for protected operations)
+const getAuthHeaders = (isProtected = false) => {
+  if (isProtected) {
+    try {
+      const { adminToken, deviceToken } = getAuthTokensForProtectedOps();
+      return {
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+  return {}; // No headers for GET requests
+};
+
+// Centralized auth error handler
+const handleAuthError = (error, showNotification) => {
+  console.error('Auth error:', error);
+  
+  // Clear tokens
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('device_token');
+  
+  // Show error message
+  showNotification('Session expired. Please login to continue.', 'error');
+  
+  // Redirect after delay
+  setTimeout(() => {
+    window.location.href = '/pages/adminLogin';
+  }, 2000);
+};
 // In ModernSchoolFeesManagement component, REPLACE these functions:
 
 // Check duplicates (SAME as student uploads)
@@ -2273,6 +2322,9 @@ const checkDuplicates = async () => {
   
   setValidationLoading(true);
   try {
+    // GET auth headers for protected operation
+    const authHeaders = getAuthHeaders(true);
+    
     const formData = new FormData();
     formData.append('file', file);
     formData.append('checkDuplicates', 'true');
@@ -2293,9 +2345,18 @@ const checkDuplicates = async () => {
 
     const response = await fetch('/api/feebalances', {
       method: 'POST',
+      headers: {
+        ...authHeaders
+        // Don't set Content-Type for FormData, browser will set it automatically
+      },
       body: formData
     });
 
+    // Handle auth errors
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Authentication failed. Please login again.');
+    }
+    
     const data = await response.json();
     
     if (data.success) {
@@ -2311,19 +2372,24 @@ const checkDuplicates = async () => {
     }
   } catch (error) {
     console.error('Duplicate check error:', error);
-    showNotification('Failed to check for duplicates', 'error');
+    if (error.message.includes('Authentication')) {
+      handleAuthError(error, showNotification);
+    } else {
+      showNotification('Failed to check for duplicates', 'error');
+    }
   } finally {
     setValidationLoading(false);
   }
 };
-
-// In your ModernSchoolFeesManagement component, update the proceedWithUpload function:
 
 const proceedWithUpload = async (duplicateAction = 'skip') => {
   if (!file || !uploadStrategy) return;
   
   setUploading(true);
   try {
+    // GET auth headers for protected operation
+    const authHeaders = getAuthHeaders(true);
+    
     const formData = new FormData();
     formData.append('file', file);
     formData.append('uploadType', uploadStrategy.uploadType);
@@ -2342,8 +2408,16 @@ const proceedWithUpload = async (duplicateAction = 'skip') => {
     
     const response = await fetch('/api/feebalances', {
       method: 'POST',
+      headers: {
+        ...authHeaders
+      },
       body: formData
     });
+    
+    // Handle auth errors
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Authentication failed');
+    }
     
     const data = await response.json();
     
@@ -2366,34 +2440,13 @@ const proceedWithUpload = async (duplicateAction = 'skip') => {
       
       showNotification(successMessage, 'success');
       
-      // CRITICAL: Force complete data refresh
+      // Refresh data
       setTimeout(async () => {
-        // Clear all local state
-        setSchoolFees([]);
-        setStats({
-          totalAmount: 0,
-          totalPaid: 0,
-          totalBalance: 0,
-          totalRecords: 0,
-          formDistribution: {},
-          termDistribution: {},
-          yearDistribution: {}
-        });
-        
-        // Force reload all data with cache busting
         await Promise.all([
           loadSchoolFees(1),
-          loadStatistics(true),
+          loadStatistics(),
           loadUploadHistory(1)
         ]);
-        
-        // Additional refresh to ensure consistency
-        setTimeout(() => {
-          loadStatistics(true);
-          loadSchoolFees(1);
-        }, 500);
-        
-        showNotification('All data refreshed successfully', 'success');
       }, 1000);
       
       // Clear upload state
@@ -2407,12 +2460,19 @@ const proceedWithUpload = async (duplicateAction = 'skip') => {
     }
   } catch (error) {
     console.error('Upload error:', error);
-    showNotification(`Upload failed: ${error.message}`, 'error');
+    if (error.message.includes('Authentication')) {
+      handleAuthError(error, showNotification);
+    } else {
+      showNotification(`Upload failed: ${error.message}`, 'error');
+    }
   } finally {
     setUploading(false);
     setShowValidationModal(false);
   }
 };
+
+// In your ModernSchoolFeesManagement component, update the proceedWithUpload function:
+
 
 // Add a function to force refresh statistics
 const forceRefreshStatistics = async () => {
@@ -2472,67 +2532,143 @@ const handleStrategyConfirm = (strategy) => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = async () => {
-    try {
-      let url;
-      let method = 'DELETE';
-      
-      if (deleteTarget.type === 'batch') {
-        url = `/api/feebalances?batchId=${deleteTarget.id}`;
-      } else {
-        url = `/api/feebalances?feeId=${deleteTarget.id}`;
-      }
-
-      const res = await fetch(url, { method });
-      const data = await res.json();
-      
-      if (data.success) {
-        showNotification(data.message || 'Deleted successfully', 'success');
-        await Promise.all([loadSchoolFees(pagination.page), loadUploadHistory(1), loadStatistics()]);
-        if (deleteTarget.type === 'fee') {
-          setSelectedFee(null);
-          setSelectedStudent(null);
-        }
-      } else {
-        showNotification(data.message || 'Failed to delete', 'error');
-      }
-    } catch (error) {
-      console.error('Delete failed:', error);
-      showNotification('Failed to delete', 'error');
-    } finally {
-      setShowDeleteModal(false);
-      setDeleteTarget({ type: '', id: '', name: '' });
+const confirmDelete = async () => {
+  try {
+    // GET auth headers for protected operation
+    const authHeaders = getAuthHeaders(true);
+    
+    let url;
+    
+    if (deleteTarget.type === 'batch') {
+      url = `/api/feebalances?batchId=${deleteTarget.id}`;
+    } else {
+      url = `/api/feebalances?feeId=${deleteTarget.id}`;
     }
-  };
+
+    const res = await fetch(url, { 
+      method: 'DELETE',
+      headers: {
+        ...authHeaders
+      }
+    });
+    
+    // Handle auth errors
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('Authentication failed');
+    }
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      showNotification(data.message || 'Deleted successfully', 'success');
+      await Promise.all([loadSchoolFees(pagination.page), loadUploadHistory(1), loadStatistics()]);
+      if (deleteTarget.type === 'fee') {
+        setSelectedFee(null);
+        setSelectedStudent(null);
+      }
+    } else {
+      showNotification(data.message || 'Failed to delete', 'error');
+    }
+  } catch (error) {
+    console.error('Delete failed:', error);
+    if (error.message.includes('Authentication')) {
+      handleAuthError(error, showNotification);
+    } else {
+      showNotification('Failed to delete', 'error');
+    }
+  } finally {
+    setShowDeleteModal(false);
+    setDeleteTarget({ type: '', id: '', name: '' });
+  }
+};
 
   // Update fee
-  const updateFee = async (feeId, feeData) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/feebalances`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: feeId, ...feeData })
-      });
-      
-      const data = await res.json();
-      
-      if (data.success) {
-        showNotification('School fee updated successfully', 'success');
-        await loadSchoolFees(pagination.page);
-        setEditingFee(null);
-        setSelectedFee(data.data);
-      } else {
-        showNotification(data.error || 'Failed to update school fee', 'error');
-      }
-    } catch (error) {
-      console.error('Update failed:', error);
-      showNotification('Failed to update school fee', 'error');
-    } finally {
-      setLoading(false);
+const updateFee = async (feeId, feeData) => {
+  setLoading(true);
+  try {
+    // GET auth headers for protected operation
+    const authHeaders = getAuthHeaders(true);
+    
+    console.log('🔄 Updating fee:', feeId, feeData);
+    
+    // CRITICAL: Ensure dueDate is properly formatted
+    const dataToSend = {
+      ...feeData,
+      // Ensure dueDate is either a valid Date string or null
+      dueDate: feeData.dueDate ? new Date(feeData.dueDate).toISOString() : null
+    };
+    
+    console.log('📤 Sending data:', dataToSend);
+    
+    // Call the correct endpoint for individual fee updates
+    const res = await fetch(`/api/feebalances/${feeId}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...authHeaders
+      },
+      body: JSON.stringify({
+        feeBalanceId: feeId,  // Explicitly include the feeBalanceId
+        ...dataToSend
+      })
+    });
+    
+    // Handle auth errors
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('Authentication failed. Please login again.');
     }
-  };
-
+    
+    // Handle other HTTP errors
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || `HTTP ${res.status}: Update failed`);
+    }
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      console.log('✅ Fee updated successfully:', data.data);
+      showNotification(data.message || 'School fee updated successfully', 'success');
+      
+      // Refresh the data
+      await Promise.all([
+        loadSchoolFees(pagination.page),
+        loadStatistics()
+      ]);
+      
+      // Close edit modal and clear selection
+      setEditingFee(null);
+      setSelectedFee(null);
+      setSelectedStudent(null);
+      
+      return data.data; // Return updated fee data
+    } else {
+      throw new Error(data.message || data.error || 'Failed to update school fee');
+    }
+  } catch (error) {
+    console.error('❌ Update fee error:', error);
+    
+    // Handle specific error types
+    if (error.message.includes('Authentication')) {
+      handleAuthError(error, showNotification);
+      return null;
+    }
+    
+    if (error.message.includes('duplicate') || error.message.includes('already exists')) {
+      showNotification('Fee entry already exists for this student, term, and academic year', 'error');
+    } else if (error.message.includes('not found')) {
+      showNotification('Fee balance record not found. It may have been deleted.', 'error');
+    } else if (error.message.includes('amount paid cannot exceed')) {
+      showNotification('Amount paid cannot exceed total amount', 'error');
+    } else {
+      showNotification(`Failed to update school fee: ${error.message}`, 'error');
+    }
+    
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
   // View fee details
   const viewFeeDetails = async (fee) => {
     setSelectedFee(fee);
