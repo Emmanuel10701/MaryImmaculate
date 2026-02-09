@@ -2831,23 +2831,24 @@ const loadStatistics = async () => {
   }
 };
 
-  const loadUploadHistory = async (page = 1) => {
-    setHistoryLoading(true);
-    try {
-      const res = await fetch(`/api/results?action=uploads&page=${page}&limit=5`);
-      const data = await res.json();
-      if (data.success) {
-        setUploadHistory(data.uploads || []);
-      } else {
-        showNotification('Failed to load upload history', 'error');
-      }
-    } catch (error) {
-      console.error('Failed to load history:', error);
+const loadUploadHistory = async (page = 1) => {
+  setHistoryLoading(true);
+  try {
+    // Add status=completed to explicitly filter for completed uploads
+    const res = await fetch(`/api/results?action=uploads&page=${page}&limit=30`);
+    const data = await res.json();
+    if (data.success) {
+      setUploadHistory(data.uploads || []);
+    } else {
       showNotification('Failed to load upload history', 'error');
-    } finally {
-      setHistoryLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Failed to load history:', error);
+    showNotification('Failed to load upload history', 'error');
+  } finally {
+    setHistoryLoading(false);
+  }
+};
 
   const loadStudentInfo = async (admissionNumber) => {
     try {
@@ -2906,6 +2907,71 @@ const loadStatistics = async () => {
     setResult(null);
   };
 
+
+
+
+// Helper function for protected operations only
+const getAuthTokensForProtectedOps = () => {
+  try {
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    console.log('Tokens retrieved:', { 
+      adminToken: adminToken ? 'Present' : 'Missing',
+      deviceToken: deviceToken ? 'Present' : 'Missing'
+    });
+    
+    if (!adminToken || !deviceToken) {
+      throw new Error('Authentication required for this action. Please login.');
+    }
+    
+    return { adminToken, deviceToken };
+  } catch (error) {
+    console.error('Token retrieval error:', error);
+    throw new Error('Failed to retrieve authentication tokens. Please login again.');
+  }
+};
+// Helper function for GET requests (no auth required)
+// Helper function for GET requests (no auth required)
+const getAuthHeaders = (isProtected = false) => {
+  if (isProtected) {
+    try {
+      const { adminToken, deviceToken } = getAuthTokensForProtectedOps();
+      
+      console.log('Creating auth headers with:', {
+        hasAdminToken: !!adminToken,
+        hasDeviceToken: !!deviceToken
+      });
+      
+      return {
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken,
+        'Content-Type': 'application/json'
+      };
+    } catch (error) {
+      console.error('Failed to create auth headers:', error);
+      throw error; // Re-throw to be caught by calling function
+    }
+  }
+  
+  // For non-protected requests
+  return {
+    'Content-Type': 'application/json'
+  };
+};
+
+
+const handleAuthError = (error) => {
+  console.error('Authentication error:', error);
+  showNotification('Session expired. Please login again.', 'error');
+  
+  // Optional: Clear tokens and redirect to login
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('device_token');
+};
+
+
+
 const checkDuplicates = async () => {
   if (!file || !uploadStrategy) {
     showNotification('Please select a file and upload strategy first', 'warning');
@@ -2914,6 +2980,22 @@ const checkDuplicates = async () => {
 
   setValidationLoading(true);
   try {
+    // GET auth tokens for protected operation
+    let authHeaders = {};
+    try {
+      const tokens = getAuthTokensForProtectedOps();
+      authHeaders = {
+        'Authorization': `Bearer ${tokens.adminToken}`,
+        'x-device-token': tokens.deviceToken
+      };
+    } catch (authError) {
+      console.error('Authentication failed:', authError);
+      showNotification(authError.message, 'error');
+      setValidationLoading(false);
+      return;
+    }
+
+    // Create FormData
     const formData = new FormData();
     formData.append('file', file);
     formData.append('checkDuplicates', 'true');
@@ -2934,14 +3016,26 @@ const checkDuplicates = async () => {
     }
 
     // Debug: show all form data entries
+    console.log('FormData entries:');
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
 
+    console.log('Sending request with headers:', authHeaders);
+
     const response = await fetch('/api/results', {
       method: 'POST',
+      headers: authHeaders,  // <-- IMPORTANT: Add headers here
       body: formData
     });
+
+    console.log('Response status:', response.status);
+    
+    if (response.status === 401 || response.status === 403) {
+      const errorData = await response.json();
+      console.error('Authentication error from server:', errorData);
+      throw new Error('Authentication failed. Please login again.');
+    }
 
     const data = await response.json();
     console.log('Response:', data);
@@ -2958,17 +3052,36 @@ const checkDuplicates = async () => {
     }
   } catch (error) {
     console.error('Validation error:', error);
-    showNotification('Failed to validate file', 'error');
+    
+    if (error.message.includes('Authentication') || error.message.includes('login')) {
+      handleAuthError(error);
+    } else {
+      showNotification('Failed to validate file: ' + error.message, 'error');
+    }
   } finally {
     setValidationLoading(false);
   }
 };
 
-
 const proceedWithUpload = async (duplicateAction = 'skip') => {
   setUploading(true);
   setShowValidationModal(false);
   
+  // GET auth tokens for protected upload operation
+  let authHeaders = {};
+  try {
+    const tokens = getAuthTokensForProtectedOps();
+    authHeaders = {
+      'Authorization': `Bearer ${tokens.adminToken}`,
+      'x-device-token': tokens.deviceToken
+    };
+  } catch (authError) {
+    console.error('Authentication failed:', authError);
+    showNotification(authError.message, 'error');
+    setUploading(false);
+    return;
+  }
+
   const formData = new FormData();
   formData.append('file', file);
   formData.append('uploadType', uploadStrategy.uploadMode);
@@ -2977,17 +3090,24 @@ const proceedWithUpload = async (duplicateAction = 'skip') => {
   formData.append('uploadedBy', 'Admin');
   
   if (uploadStrategy.uploadMode === 'new') {
-    formData.append('forms', JSON.stringify(uploadStrategy.selectedForms)); // CHANGED: 'forms' not 'selectedForms'
+    formData.append('forms', JSON.stringify(uploadStrategy.selectedForms));
     formData.append('duplicateAction', duplicateAction);
   } else if (uploadStrategy.uploadMode === 'update') {
     formData.append('targetForm', uploadStrategy.targetForm);
   }
 
   try {
+    console.log('Uploading with headers:', authHeaders);
+    
     const response = await fetch('/api/results', {
       method: 'POST',
+      headers: authHeaders,  // <-- IMPORTANT: Add headers here
       body: formData
     });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Authentication failed. Please login again.');
+    }
 
     const data = await response.json();
     
@@ -3024,12 +3144,16 @@ const proceedWithUpload = async (duplicateAction = 'skip') => {
     }
   } catch (error) {
     console.error('Upload error:', error);
-    showNotification(error.message || 'Upload failed. Please try again.', 'error');
+    
+    if (error.message.includes('Authentication') || error.message.includes('login')) {
+      handleAuthError(error);
+    } else {
+      showNotification(error.message || 'Upload failed. Please try again.', 'error');
+    }
   } finally {
     setUploading(false);
   }
 };
-
 
 
   const handleUploadWithStrategy = () => {
@@ -3059,101 +3183,118 @@ const handleStrategyConfirm = (strategy) => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = async () => {
-    try {
-      let url;
-      
-      showNotification(`Deleting ${deleteTarget.type}...`, 'info');
-      
-      if (deleteTarget.type === 'batch') {
-        url = `/api/results?batchId=${deleteTarget.id}`;
-      } else {
-        url = `/api/results?resultId=${deleteTarget.id}`;
-      }
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-      
-      const res = await fetch(url, { 
-        method: 'DELETE',
-        signal: controller.signal,
-        headers: {
-          'Cache-Control': 'no-cache'
-        }
-      });
-      
-      clearTimeout(timeoutId);
-      
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error || `HTTP ${res.status}: Delete failed`);
-      }
-      
-      if (data.success) {
-        showNotification(data.message || 'Deleted successfully', 'success');
-        
-        await Promise.all([
-          loadStudentResults(pagination.page),
-          loadUploadHistory(1),
-          loadStatistics()
-        ]);
-        
-        if (deleteTarget.type === 'result') {
-          setSelectedResult(null);
-          setSelectedStudent(null);
-        }
-      } else {
-        showNotification(data.error || 'Failed to delete', 'error');
-      }
-    } catch (error) {
-      console.error('Delete failed:', error);
-      
-      if (error.name === 'AbortError') {
-        showNotification('Delete operation timed out. The delete may still be processing in the background.', 'warning');
-        loadUploadHistory(1);
-      } else if (error.message.includes('timeout')) {
-        showNotification('Delete timed out. Please check if the operation completed and refresh the page.', 'warning');
-      } else {
-        showNotification(`Delete failed: ${error.message}`, 'error');
-      }
-    } finally {
-      setShowDeleteModal(false);
-      setDeleteTarget({ type: '', id: '', name: '' });
+const confirmDelete = async () => {
+  try {
+    // GET auth headers for protected operation
+    const authHeaders = getAuthHeaders(true);
+    
+    let url;
+    
+    if (deleteTarget.type === 'batch') {
+      url = `/api/results?batchId=${deleteTarget.id}`;
+    } else {
+      url = `/api/results?resultId=${deleteTarget.id}`;
     }
-  };
 
-  const updateResult = async (resultId, resultData) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/results/${resultId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(resultData)
-      });
-      
-      const data = await res.json();
-      
-      if (data.success) {
-        showNotification('Academic results updated successfully', 'success');
-        
-        await Promise.all([
-          loadStudentResults(pagination.page),
-          loadStatistics()
-        ]);
-        
-        setEditingResult(null);
-        setSelectedResult(data.data);
-      } else {
-        showNotification(data.error || 'Failed to update results', 'error');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    
+    const res = await fetch(url, { 
+      method: 'DELETE',
+      headers: authHeaders,
+      signal: controller.signal,
+      headers: {
+        'Cache-Control': 'no-cache'
       }
-    } catch (error) {
-      console.error('Update failed:', error);
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('Authentication failed');
+    }
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      showNotification(data.message || 'Deleted successfully', 'success');
+      
+      await Promise.all([
+        loadStudentResults(pagination.page),
+        loadUploadHistory(1),
+        loadStatistics()
+      ]);
+      
+      if (deleteTarget.type === 'result') {
+        setSelectedResult(null);
+        setSelectedStudent(null);
+      }
+    } else {
+      showNotification(data.error || 'Failed to delete', 'error');
+    }
+  } catch (error) {
+    console.error('Delete failed:', error);
+    
+    if (error.name === 'AbortError') {
+      showNotification('Delete operation timed out. The delete may still be processing in the background.', 'warning');
+      loadUploadHistory(1);
+    } else if (error.message.includes('timeout')) {
+      showNotification('Delete timed out. Please check if the operation completed and refresh the page.', 'warning');
+    } else if (error.message.includes('Authentication')) {
+      handleAuthError(error);
+    } else {
+      showNotification(`Delete failed: ${error.message}`, 'error');
+    }
+  } finally {
+    setShowDeleteModal(false);
+    setDeleteTarget({ type: '', id: '', name: '' });
+  }
+};
+
+const updateResult = async (resultId, resultData) => {
+  setLoading(true);
+  try {
+    const authHeaders = getAuthHeaders(true);
+    
+    const res = await fetch(`/api/results/${resultId}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...authHeaders
+      },
+      body: JSON.stringify(resultData)
+    });
+    
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('Authentication failed');
+    }
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      showNotification('Academic results updated successfully', 'success');
+      
+      await Promise.all([
+        loadStudentResults(pagination.page),
+        loadStatistics()
+      ]);
+      
+      setEditingResult(null);
+      setSelectedResult(data.data);
+    } else {
+      showNotification(data.error || 'Failed to update results', 'error');
+    }
+  } catch (error) {
+    console.error('Update failed:', error);
+    if (error.message.includes('Authentication')) {
+      handleAuthError(error);
+    } else {
       showNotification('Failed to update results', 'error');
-    } finally {
-      setLoading(false);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const viewResultDetails = async (result) => {
     setSelectedResult(result);
@@ -4336,7 +4477,7 @@ return (
   duplicates={duplicates}
   onProceed={proceedWithUpload}
   loading={uploading}
-  uploadType={uploadStrategy?.uploadMode} 
+  uploadType={uploadStrategy?.uploadMode} // Make sure this is uploadType
   showNotification={showNotification}
   term={uploadStrategy?.term}
   academicYear={uploadStrategy?.academicYear}

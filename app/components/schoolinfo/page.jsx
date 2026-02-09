@@ -798,95 +798,161 @@ function ModernSchoolModal({ onClose, onSave, school, loading: parentLoading }) 
     { id: 'admission', label: 'Admission', icon: FaUserCheck }
   ];
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+
+
+  useEffect(() => {
+  // Check if user is authenticated when component loads
+  const checkAuth = () => {
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    const adminUser = localStorage.getItem('admin_user');
     
-    try {
-      setActionLoading(true);
-      
-      const formDataObj = new FormData();
-      
-      // Add form data - arrays stringified
-      Object.keys(formData).forEach(key => {
-        if (Array.isArray(formData[key])) {
-          formDataObj.append(key, JSON.stringify(formData[key]));
-        } else if (formData[key] !== null && formData[key] !== undefined) {
-          // Add other values
-          formDataObj.append(key, formData[key]);
-        }
-      });
-      
-      // Add video file if present
-      if (videoFile) {
-        // Ensure it's a proper File object
-        let videoToUpload = videoFile;
-        if (videoFile instanceof Blob && !(videoFile instanceof File)) {
-          videoToUpload = new File([videoFile], 'video.mp4', { 
-            type: videoFile.type || 'video/mp4',
-            lastModified: Date.now()
-          });
-        }
-        formDataObj.append('videoTour', videoToUpload);
-      }
-      
-      // Add thumbnail if present
-      if (videoThumbnail) {
-        let thumbnailToUpload = videoThumbnail;
-        if (videoThumbnail instanceof Blob && !(videoThumbnail instanceof File)) {
-          thumbnailToUpload = new File([videoThumbnail], 'thumbnail.jpg', { 
-            type: videoThumbnail.type || 'image/jpeg',
-            lastModified: Date.now()
-          });
-        }
-        formDataObj.append('videoThumbnail', thumbnailToUpload);
-      }
-      
-      // ✅ DYNAMIC METHOD SELECTION: POST for CREATE, PUT for UPDATE
-      const method = isUpdateMode ? 'PUT' : 'POST';
-      const endpoint = '/api/school';
-      
-      console.log(`Submitting school data with ${method} method`, {
-        isUpdateMode,
-        hasSchoolId: school?.id,
-        hasVideoFile: !!videoFile,
-        hasThumbnail: !!videoThumbnail,
-        formData: Object.fromEntries(formDataObj.entries())
-      });
-      
-      const response = await fetch(endpoint, {
-        method: method,
-        body: formDataObj
-      });
-
-      const responseData = await response.json();
-      
-      if (!response.ok) {
-        // Handle API-specific errors
-        if (response.status === 409 && method === 'POST') {
-          throw new Error('School already exists. Please use Edit instead.');
-        }
-        if (response.status === 404 && method === 'PUT') {
-          throw new Error('School not found. Please create school first.');
-        }
-        throw new Error(responseData.error || `Failed to ${isUpdateMode ? 'update' : 'create'} school information`);
-      }
-
-      toast.success(responseData.message || (isUpdateMode ? 'School updated successfully!' : 'School created successfully!'));
-      
-      // Call onSave with the updated/created school data
-      if (responseData.school) {
-        onSave(responseData.school);
-      }
-      
-      onClose();
-      
-    } catch (error) {
-      console.error('Save failed:', error);
-      toast.error(error.message || `Failed to ${isUpdateMode ? 'update' : 'create'} school information`);
-    } finally {
-      setActionLoading(false);
-    }
+    console.log('Auth check:', {
+      hasAdminToken: !!adminToken,
+      hasDeviceToken: !!deviceToken,
+      hasAdminUser: !!adminUser
+    });
+    
+    // You can optionally hide edit/delete buttons if not authenticated
+    // or redirect to login if on protected actions
   };
+  
+  checkAuth();
+}, []);
+
+
+// Helper function to get authentication headers
+const getAuthHeaders = () => {
+  const adminToken = localStorage.getItem('admin_token');
+  const deviceToken = localStorage.getItem('device_token');
+  
+  if (!adminToken || !deviceToken) {
+    throw new Error('Authentication required');
+  }
+  
+  return {
+    'Authorization': `Bearer ${adminToken}`,
+    'x-device-token': deviceToken
+  };
+};
+
+// Usage in your functions:
+try {
+  const headers = getAuthHeaders();
+  
+  // For JSON requests
+  const jsonHeaders = {
+    ...headers,
+    'Content-Type': 'application/json'
+  };
+  
+  // For FormData requests (don't set Content-Type)
+  const formHeaders = headers;
+  
+} catch (error) {
+  // Handle missing tokens
+  toast.error(error.message);
+  window.location.href = '/pages/adminLogin';
+}
+
+const handleFormSubmit = async (e) => {
+  e.preventDefault();
+  
+  try {
+    setActionLoading(true);
+    
+    const formDataObj = new FormData();
+    
+    // Add form data - arrays stringified
+    Object.keys(formData).forEach(key => {
+      if (Array.isArray(formData[key])) {
+        formDataObj.append(key, JSON.stringify(formData[key]));
+      } else if (formData[key] !== null && formData[key] !== undefined) {
+        formDataObj.append(key, formData[key]);
+      }
+    });
+    
+    // Add video file if present
+    if (videoFile) {
+      formDataObj.append('videoTour', videoFile);
+    }
+    
+    // Add thumbnail if present
+    if (videoThumbnail) {
+      formDataObj.append('videoThumbnail', videoThumbnail);
+    }
+    
+    // ✅ ADD AUTHENTICATION TOKENS
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    if (!adminToken || !deviceToken) {
+      throw new Error('Authentication required. Please login again.');
+    }
+    
+    // ✅ DYNAMIC METHOD SELECTION: POST for CREATE, PUT for UPDATE
+    const method = isUpdateMode ? 'PUT' : 'POST';
+    const endpoint = '/api/school';
+    
+    const response = await fetch(endpoint, {
+      method: method,
+      headers: {
+        // ✅ ADD AUTHENTICATION HEADERS
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      },
+      body: formDataObj
+    });
+
+    const responseData = await response.json();
+    
+    if (!response.ok) {
+      // Handle authentication errors
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      // Handle other API-specific errors
+      if (response.status === 409 && method === 'POST') {
+        throw new Error('School already exists. Please use Edit instead.');
+      }
+      if (response.status === 404 && method === 'PUT') {
+        throw new Error('School not found. Please create school first.');
+      }
+      throw new Error(responseData.error || `Failed to ${isUpdateMode ? 'update' : 'create'} school information`);
+    }
+
+    toast.success(responseData.message || (isUpdateMode ? 'School updated successfully!' : 'School created successfully!'));
+    
+    // Call onSave with the updated/created school data
+    if (responseData.school) {
+      onSave(responseData.school);
+    }
+    
+    onClose();
+    
+  } catch (error) {
+    console.error('Save failed:', error);
+    
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message || `Failed to ${isUpdateMode ? 'update' : 'create'} school information`);
+    }
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   const handleNextStep = (e) => {
     e.preventDefault();
@@ -1521,20 +1587,58 @@ export default function SchoolInfoPage() {
     }
   };
 
-  const handleDeleteSchool = async () => {
-    try {
-      const response = await fetch('/api/school', { method: 'DELETE' });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to delete');
-      }
-      setSchoolInfo(null);
-      setShowDeleteModal(false);
-      toast.success('School information deleted successfully!');
-    } catch (error) {
-      toast.error('Failed to delete school information!');
+const handleDeleteSchool = async () => {
+  try {
+    // ✅ ADD AUTHENTICATION TOKENS
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    if (!adminToken || !deviceToken) {
+      toast.error('Authentication required. Please login again.');
+      return;
     }
-  };
+    
+    const response = await fetch('/api/school', { 
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'x-device-token': deviceToken
+      }
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      
+      // Handle authentication errors
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      throw new Error(errorData.error || 'Failed to delete');
+    }
+    
+    setSchoolInfo(null);
+    setShowDeleteModal(false);
+    toast.success('School information deleted successfully!');
+  } catch (error) {
+    console.error('Delete error:', error);
+    
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message || 'Failed to delete school information!');
+    }
+  }
+};
 
   // Helper function to format date
   const formatDate = (dateString) => {
