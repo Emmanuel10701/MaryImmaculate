@@ -259,7 +259,7 @@ Mary Immaculate Girls        </div>
   
   <div className="relative overflow-hidden  aspect-square sm:aspect-video lg:aspect-square rounded-md shadow-2xl border border-orange-100/20">
     <Image
-      src="/bg/1.jpeg"
+      src="/hero/mig.jpg"
       alt="School"
       fill
       className="object-cover transition-transform duration-700 "
@@ -277,7 +277,7 @@ Mary Immaculate Girls        </div>
             </svg>
           </div>
           <div>
-            <p className="text-[10px] font-medium text-slate-600">Katz</p>
+            <p className="text-[10px] font-medium text-slate-600">Mweiga</p>
             <p className="text-xs font-bold text-slate-800">Education</p>
           </div>
         </div>
@@ -490,12 +490,12 @@ Mary Immaculate Girls        </div>
             </div>
           </div>
         </div>
-<div className="relative z-10 mt-8 sm:mt-12">
+<div className="relative z-10 mt-8 sm:mt-6">
   <a 
     href="https://www.google.com/maps/search/?api=1&query=Mary+Immaculate+Girls+High+School+Mweiga+Nyeri" 
     target="_blank" 
     rel="noopener noreferrer"
-    className=" w-full py-3 sm:py-4 bg-white text-orange-600 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-xl transition-transform flex items-center justify-center gap-2 uppercase tracking-wider"
+    className=" w-full py-3 sm:py-2 bg-white text-orange-600 font-black text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-xl  flex items-center justify-center gap-2 uppercase tracking-wider"
   >
     Google Maps
     <ExternalLink size={16} />
