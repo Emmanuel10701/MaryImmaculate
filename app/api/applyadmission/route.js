@@ -38,7 +38,7 @@ function calculateAge(dateOfBirth) {
 function generateApplicationNumber() {
   const year = new Date().getFullYear();
   const randomNum = randomBytes(4).toString('hex').toUpperCase();
-  return `Katz/${year}/${randomNum}`;
+  return `MIGSS/${year}/${randomNum}`;
 }
 
 function validatePhone(phone) {

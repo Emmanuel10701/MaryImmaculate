@@ -654,7 +654,7 @@ const KatwanyaaAdmission = () => {
             <h4 className="font-semibold text-gray-800 mb-3 text-sm md:text-base">📞 Support</h4>
             <div className="text-[11px] md:text-sm text-gray-600 space-y-1 font-bold">
               <p className="flex justify-between"><span>Phone:</span> <span className="text-gray-900">0712 345 678</span></p>
-              <p className="flex justify-between"><span>Email:</span> <span className="text-blue-600 truncate ml-2">admissions@Katwanyaa.ac.ke</span></p>
+              <p className="flex justify-between"><span>Email:</span> <span className="text-blue-600 truncate ml-2">admissions@maryimmaculategirls.ac.ke</span></p>
             </div>
           </div>
         </div>
@@ -1627,7 +1627,7 @@ const KatwanyaaAdmission = () => {
         </div>
         <div className="flex flex-col text-left md:text-center min-w-0">
           <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Official Email</span>
-          <strong className="text-xs md:text-sm text-gray-800 font-semibold truncate">admissions@Katwanyaa.ac.ke</strong>
+          <strong className="text-xs md:text-sm text-gray-800 font-semibold truncate">admissions@maryimmaculategirls.ac.ke</strong>
         </div>
       </div>
 
