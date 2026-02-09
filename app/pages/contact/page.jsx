@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   MapPin, 
   Phone, 
@@ -12,7 +12,8 @@ import {
   Globe, 
   ShieldCheck, 
   Send, 
-  CheckCircle, 
+  CheckCircle,
+  ChevronRight, 
   ArrowRight,
   Sparkles,
   MessageSquare,
@@ -52,6 +53,19 @@ export default function ContactPage() {
   const [statusMessage, setStatusMessage] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [isMapZoomed, setIsMapZoomed] = useState(false);
+
+  const [rows, setRows] = useState(10);
+
+  useEffect(() => {
+    // Safely check for window object
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) {
+        setRows(5);
+      }
+    }
+  }, []);
+
+
 
   const departments = [
     {
@@ -247,11 +261,11 @@ export default function ContactPage() {
           {/* Background Image with reduced file size */}
           <div className="absolute inset-0 bg-gradient-to-br from-orange-900/90 via-amber-900/95 to-red-900/90">
             <Image
-              src="/ii.jpg"
+            src="/hero/mig.jpg"
               alt="Campus"
               fill
               priority
-              className="object-cover opacity-50 transition-transform duration-[10s] ease-out group-hover:scale-110"
+              className="object-cover opacity-50 transition-transform duration-[10s] ease-out group-hover:scale-100"
             />
           </div>
           
@@ -264,30 +278,30 @@ export default function ContactPage() {
           {/* Micro-Interaction Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8 animate-fade-in">
             <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-            <span className="text-xs font-bold tracking-[0.2em] text-orange-200 uppercase">
-              Academic Excellence Since 1998
+            <span className="text-xs font-bold tracking-[0.2em] text-orange-500  uppercase">
+              Academic Excellence Since 1978
             </span>
           </div>
 
           {/* Modern High-Density Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white mb-8 tracking-tight leading-[0.95]">
-            Mary Immaculate <span className="text-transparent bg-clip-text bg-gradient-to-br from-amber-400 via-orange-300 to-white/70">Girls Secondary.</span>
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-8 tracking-tight leading-[0.95]">
+            Mary Immaculate girls secondary <span className="text-transparent bg-clip-text bg-gradient-to-br from-amber-400 via-orange-300 to-white/70">school.</span>
           </h1>
 
           {/* Rich Narrative Description */}
           <div className="max-w-3xl mx-auto space-y-6 px-4">
             <p className="text-base md:text-lg text-slate-200 font-medium leading-relaxed">
-              Where <span className="text-amber-400">excellence meets opportunity</span> in the heart of Mweiga, Nyeri.
+              Where <span className="text-amber-400">excellence meets opportunity</span> in the heart of Matungulu, Machakos.
             </p>
             
             <p className="hidden md:block text-sm text-slate-300 leading-relaxed">
-              A premier girls' institution committed to holistic education through innovative teaching, modern facilities, 
+              A premier Mixed' institution committed to holistic education through innovative teaching, modern facilities, 
               and a nurturing environment that empowers future women leaders.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-6 border-t border-white/10">
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">98%</div>
+                <div className="text-2xl font-bold text-white">60%</div>
                 <div className="text-xs uppercase tracking-wider text-slate-300 font-medium">KCSE Pass Rate</div>
               </div>
               <div className="hidden sm:block w-px h-8 bg-white/20"></div>
@@ -351,201 +365,204 @@ export default function ContactPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Row 1: Name & Email */}
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">
-                      Full Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full px-5 font-semibold py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">
-                      Email Address <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="w-full px-5 font-semibold py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                </div>
+  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+  {/* Row 1: Name & Email */}
+  <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+    <div className="space-y-1 sm:space-y-2">
+      <label className="text-sm font-bold text-slate-700 ml-1">
+        Full Name <span className="text-red-500">*</span>
+      </label>
+      <input
+        type="text"
+        name="name"
+        required
+        value={formData.name}
+        onChange={handleInputChange}
+        className="w-full px-4 sm:px-5 font-semibold py-3 sm:py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
+        placeholder="John Doe"
+      />
+    </div>
+    <div className="space-y-1 sm:space-y-2">
+      <label className="text-sm font-bold text-slate-700 ml-1">
+        Email Address <span className="text-red-500">*</span>
+      </label>
+      <input
+        type="email"
+        name="email"
+        required
+        value={formData.email}
+        onChange={handleInputChange}
+        className="w-full px-4 sm:px-5 font-semibold py-3 sm:py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
+        placeholder="john@example.com"
+      />
+    </div>
+  </div>
 
-                {/* Row 2: Phone & Student Grade */}
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">
-                      Phone Number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      required
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full px-5 py-4 font-semibold bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
-                      placeholder="0712 345 678"
-                      pattern="(07|01)\d{8}"
-                      title="Use 07XXXXXXXX or 01XXXXXXXX format"
-                    />
-                    <p className="text-xs text-slate-500 ml-2">Format: 07XXXXXXXX or 01XXXXXXXX</p>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">
-                      Student Grade
-                    </label>
-                    <select
-                      name="studentGrade"
-                      value={formData.studentGrade}
-                      onChange={handleInputChange}
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none appearance-none"
-                    >
-                      <option value="">Select Grade</option>
-                      <option value="Form 1">Form 1</option>
-                      <option value="Form 2">Form 2</option>
-                      <option value="Form 3">Form 3</option>
-                      <option value="Form 4">Form 4</option>
-                    </select>
-                  </div>
-                </div>
+  {/* Row 2: Phone & Student Grade */}
+  <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+    <div className="space-y-1 sm:space-y-2">
+      <label className="text-sm font-bold text-slate-700 ml-1">
+        Phone Number <span className="text-red-500">*</span>
+      </label>
+      <input
+        type="tel"
+        name="phone"
+        required
+        value={formData.phone}
+        onChange={handleInputChange}
+        className="w-full px-4 sm:px-5 py-3 sm:py-4 font-semibold bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
+        placeholder="0712 345 678"
+        pattern="(07|01)\d{8}"
+        title="Use 07XXXXXXXX or 01XXXXXXXX format"
+      />
+      <p className="text-[10px] sm:text-xs text-slate-500 ml-2">Format: 07XXXXXXXX or 01XXXXXXXX</p>
+    </div>
+    <div className="space-y-1 sm:space-y-2">
+      <label className="text-sm font-bold text-slate-700 ml-1">
+        Student Grade
+      </label>
+      <select
+        name="studentGrade"
+        value={formData.studentGrade}
+        onChange={handleInputChange}
+        className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none appearance-none"
+      >
+        <option value="">Select Grade</option>
+        <option value="Form 1">Form 1</option>
+        <option value="Form 2">Form 2</option>
+        <option value="Form 3">Form 3</option>
+        <option value="Form 4">Form 4</option>
+      </select>
+    </div>
+  </div>
 
-                {/* Row 3: Inquiry Type & Contact Method */}
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">
-                      Inquiry Type <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      name="inquiryType"
-                      required
-                      value={formData.inquiryType}
-                      onChange={handleInputChange}
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none appearance-none"
-                    >
-                      <option value="general">General Inquiry</option>
-                      <option value="admissions">Admissions</option>
-                      <option value="academics">Academics</option>
-                      <option value="fees">Fees & Payments</option>
-                      <option value="sports">Sports & Activities</option>
-                      <option value="facilities">Facilities</option>
-                      <option value="alumni">Alumni Affairs</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">
-                      Preferred Contact Method
-                    </label>
-                    <select
-                      name="contactMethod"
-                      value={formData.contactMethod}
-                      onChange={handleInputChange}
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none appearance-none"
-                    >
-                      <option value="email">Email</option>
-                      <option value="phone">Phone Call</option>
-                      <option value="sms">SMS</option>
-                    </select>
-                  </div>
-                </div>
+  {/* Row 3: Inquiry Type & Contact Method */}
+  <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+    <div className="space-y-1 sm:space-y-2">
+      <label className="text-sm font-bold text-slate-700 ml-1">
+        Inquiry Type <span className="text-red-500">*</span>
+      </label>
+      <select
+        name="inquiryType"
+        required
+        value={formData.inquiryType}
+        onChange={handleInputChange}
+        className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none appearance-none"
+      >
+        <option value="general">General Inquiry</option>
+        <option value="admissions">Admissions</option>
+        <option value="academics">Academics</option>
+        <option value="fees">Fees & Payments</option>
+        <option value="sports">Sports & Activities</option>
+        <option value="facilities">Facilities</option>
+        <option value="alumni">Alumni Affairs</option>
+      </select>
+    </div>
+    <div className="space-y-1 sm:space-y-2">
+      <label className="text-sm font-bold text-slate-700 ml-1">
+        Preferred Contact Method
+      </label>
+      <select
+        name="contactMethod"
+        value={formData.contactMethod}
+        onChange={handleInputChange}
+        className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none appearance-none"
+      >
+        <option value="email">Email</option>
+        <option value="phone">Phone Call</option>
+        <option value="sms">SMS</option>
+      </select>
+    </div>
+  </div>
 
-                {/* Row 4: Subject */}
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 ml-1">
-                    Subject <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    required
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    className="w-full px-5 font-semibold py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
-                    placeholder="What is this regarding?"
-                  />
-                </div>
+  {/* Row 4: Subject */}
+  <div className="space-y-1 sm:space-y-2">
+    <label className="text-sm font-bold text-slate-700 ml-1">
+      Subject <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="text"
+      name="subject"
+      required
+      value={formData.subject}
+      onChange={handleInputChange}
+      className="w-full px-4 sm:px-5 font-semibold py-3 sm:py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white focus:border-transparent transition-all outline-none"
+      placeholder="What is this regarding?"
+    />
+  </div>
 
-                {/* Row 5: Message */}
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 ml-1">
-                    Message <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="message"
-                    required
-                    rows={10}
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    className="w-full px-5 py-4 font-semibold bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none resize-none"
-                    placeholder="How can we help you today?"
-                  />
-                </div>
+  {/* Row 5: Message */}
+  <div className="space-y-1 sm:space-y-2">
+    <label className="text-sm font-bold text-slate-700 ml-1">
+      Message <span className="text-red-500">*</span>
+    </label>
+    <textarea
+      name="message"
+      required
+      rows={rows} 
+      value={formData.message}
+      onChange={handleInputChange}
+      className="w-full px-4 sm:px-5 py-3 sm:py-4 font-semibold bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none resize-none"
+      placeholder="How can we help you today?"
+    />
+  </div>
 
-                {/* Submit Button with Circular Progress */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full sm:w-auto px-12 py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <CircularProgress size={20} color="inherit" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      Send Message
-                      <Send size={18} className="text-orange-400" />
-                    </>
-                  )}
-                </button>
-              </form>
+  {/* Submit Button */}
+  <button
+    type="submit"
+    disabled={isSubmitting}
+    className="w-full sm:w-auto px-10 sm:px-12 py-3 sm:py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+  >
+    {isSubmitting ? (
+      <>
+        <CircularProgress size={20} color="inherit" />
+        Sending...
+      </>
+    ) : (
+      <>
+        Send Message
+        <Send size={18} className="text-orange-400" />
+      </>
+    )}
+  </button>
+</form>
             </div>
           </div>
 
           {/* Right Column: Information & Actions */}
           <div className="lg:col-span-4 space-y-8">
             {/* Departments Card */}
-            <div className="bg-gradient-to-br from-orange-900 to-amber-900 rounded-3xl p-8 text-white">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-white/10 rounded-xl">
-                  <Users className="w-5 h-5 text-amber-400" />
-                </div>
-                <h3 className="text-xl font-bold">Departments</h3>
-              </div>
+      <div className="bg-gradient-to-br from-orange-900 to-amber-900 rounded-3xl p-8 text-white">
+  <div className="flex items-center gap-3 mb-8">
+    <div className="p-2 bg-white/10 rounded-xl">
+      <Users className="w-5 h-5 text-amber-400" />
+    </div>
+    <h3 className="text-xl font-bold">Departments</h3>
+  </div>
 
-              <div className="space-y-5">
-                {departments.map((dept) => (
-                  <div 
-                    key={dept.id} 
-                    className="pb-5 border-b border-white/5 last:border-0 last:pb-0 cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => openDepartmentModal(dept)}
-                  >
-                    <h4 className="font-bold text-white text-base mb-1">{dept.name}</h4>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs text-orange-200 flex items-center gap-2">
-                        <Mail size={12} /> {dept.email}
-                      </span>
-                      <span className="text-xs text-orange-200 flex items-center gap-2">
-                        <Phone size={12} /> {dept.phone}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+  <div className="space-y-5">
+    {departments.map((dept) => (
+      <div 
+        key={dept.id} 
+        className="group pb-5 border-b border-white/5 last:border-0 last:pb-0 cursor-pointer"
+        onClick={() => openDepartmentModal(dept)}
+      >
+        <div className="flex justify-between items-start mb-2">
+          <h4 className="font-bold text-white text-base group-hover:text-amber-400 transition-colors">
+            {dept.name}
+          </h4>
+        </div>
+        
+        <div className="flex flex-col  items-center">
+          <button className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-50 bg-white/5 border border-white/10 hover:bg-white/20 hover:border-white/20 rounded-full flex items-center gap-2 transition-all duration-300 active:scale-95">
+            View details
+            <ChevronRight size={14} className="text-amber-400 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
 
             {/* Quick Actions Card */}
             <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-3xl p-8 text-white relative overflow-hidden">
@@ -614,12 +631,15 @@ export default function ContactPage() {
                     </span>
                   </div>
                 </div>
-                <button
-                  onClick={closeDepartmentModal}
-                  className="p-2 bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+            <button
+  onClick={closeDepartmentModal}
+  className="p-2.5 sm:p-2 bg-white sm:bg-slate-100 text-slate-600 sm:text-slate-500 rounded-full 
+             hover:bg-slate-200 transition-all active:scale-90 shadow-sm sm:shadow-none 
+             border border-slate-200 sm:border-transparent"
+  aria-label="Close modal"
+>
+  <X className="w-6 h-6 sm:w-5 sm:h-5" />
+</button>
               </div>
 
               {/* Content Body */}
@@ -651,22 +671,23 @@ export default function ContactPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <a
-                    href={`mailto:${selectedDepartment.email}`}
-                    className="flex items-center justify-center gap-3 w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg shadow-slate-900/10 hover:shadow-slate-900/20 transition-all"
-                  >
-                    <Mail className="w-4 h-4 text-orange-400" />
-                    Email Us
-                  </a>
-                  <a
-                    href={`tel:${selectedDepartment.phone.replace(/\s+/g, '')}`}
-                    className="flex items-center justify-center gap-3 w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-orange-600/10 hover:shadow-orange-600/20 transition-all"
-                  >
-                    <Phone className="w-4 h-4" />
-                    Call Office
-                  </a>
-                </div>
+<div className="flex flex-row gap-3 sm:gap-4 pt-2">
+  <a
+    href={`mailto:${selectedDepartment.email}`}
+    className="flex items-center justify-center gap-2 sm:gap-3 flex-1 bg-slate-900 text-white py-3.5 sm:py-4 rounded-2xl text-sm sm:text-base font-bold shadow-lg shadow-slate-900/10 hover:shadow-slate-900/20 transition-all text-center"
+  >
+    <Mail className="w-4 h-4 text-orange-400 shrink-0" />
+    <span className="truncate">Email Us</span>
+  </a>
+  
+  <a
+    href={`tel:${selectedDepartment.phone.replace(/\s+/g, '')}`}
+    className="flex items-center justify-center gap-2 sm:gap-3 flex-1 bg-gradient-to-r from-orange-600 to-amber-600 text-white py-3.5 sm:py-4 rounded-2xl text-sm sm:text-base font-bold shadow-lg shadow-orange-600/10 hover:shadow-orange-600/20 transition-all text-center"
+  >
+    <Phone className="w-4 h-4 shrink-0" />
+    <span className="truncate">Call Office</span>
+  </a>
+</div>
               </div>
             </div>
           </div>
