@@ -79,7 +79,7 @@ const DEFAULT_SESSIONS = [
     priority: 'high',
     image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
     featured: true,
-    location: 'Mary Immculate Girls Church'
+    location: 'A.I.C katwanyaa'
   }
 ];
 
@@ -1170,13 +1170,7 @@ function ModernGuidanceHeader({
             {/* Left Section */}
             <div className="flex items-center gap-2 md:gap-4">
               {/* Mobile Menu Button */}
-              <button
-                onClick={onMenuToggle}
-                className="lg:hidden p-2.5 md:p-3 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 shadow-sm hover:shadow-md transition-all mobile-touch-target"
-                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-              >
-                {isMenuOpen ? <FaTimes className="text-gray-700 text-lg" /> : <FaBars className="text-gray-700 text-lg" />}
-              </button>
+        
               
               {/* Current Tab Title (Mobile) */}
               <div className="lg:hidden flex items-center gap-2 md:gap-3">
