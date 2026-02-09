@@ -7,11 +7,11 @@ import {
   FiCalendar,
   FiUsers,
   FiGraduationCap,
-  FiInfo,
   FiClock,
   FiArrowUpRight,
   FiMail,
   FiPhone,
+  FiInfo,
   FiArrowRight,
   FiHeart,
   FiDownload,
@@ -217,7 +217,7 @@ const ModernJobCard = ({ job, onView, onBookmark, onShare, viewMode = 'grid' }) 
 
           {/* Description */}
           <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
-            {job?.jobDescription || 'Join our dedicated team at Mary Immculate Girls High School. We are looking for passionate individuals to contribute to our educational mission.'}
+            {job?.jobDescription || 'Join our dedicated team at Mary Immaculate Girls High School. We are looking for passionate individuals to contribute to our educational mission.'}
           </p>
 
           {/* Info Grid */}
@@ -267,10 +267,21 @@ const ModernJobCard = ({ job, onView, onBookmark, onShare, viewMode = 'grid' }) 
           </div>
 
           {/* Action Button */}
-          <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-            View Details
-            <FiArrowRight size={18} />
-          </button>
+      <button className="
+  w-fit sm:w-full 
+  mx-auto sm:mx-0
+  px-5 sm:px-4
+  py-2 sm:py-4 
+  bg-slate-900 text-white 
+  rounded-full sm:rounded-2xl 
+  font-normal sm:font-bold 
+  text-xs sm:text-sm 
+  flex items-center justify-center gap-2 
+  active:scale-[0.98] transition-transform
+">
+  View Details
+  <FiArrowRight size={14} className="sm:w-[18px] sm:h-[18px]" />
+</button>
         </div>
       </div>
     );
@@ -338,7 +349,7 @@ const ModernJobCard = ({ job, onView, onBookmark, onShare, viewMode = 'grid' }) 
             </div>
 
             <p className="text-slate-500 text-xs line-clamp-2 mb-3">
-              {job?.jobDescription || 'Join our dedicated team at Mary Immculate Girls High School.'}
+              {job?.jobDescription || 'Join our dedicated team at Mary Immaculate Girls High School.'}
             </p>
           </div>
 
@@ -530,7 +541,7 @@ return (
             <section className="space-y-3 sm:space-y-4">
               <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-400">Job Description</h3>
               <div className="text-slate-700 leading-relaxed text-sm sm:text-base md:text-lg bg-slate-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl md:rounded-3xl border border-slate-100">
-                {job.jobDescription || 'Join our dedicated team at Mary Immculate Girls High School. We are looking for passionate individuals to contribute to our educational mission.'}
+                {job.jobDescription || 'Join our dedicated team at Mary Immaculate Girls High School. We are looking for passionate individuals to contribute to our educational mission.'}
               </div>
             </section>
 
@@ -643,7 +654,7 @@ const ModernEmptyState = ({ onClearFilters }) => {
       </h3>
       
       <p className="text-slate-500 text-[9px] md:text-lg mb-6 md:mb-8 max-w-[240px] md:max-w-md mx-auto leading-relaxed">
-        Currently no opportunities available at <span className="text-slate-900 font-bold">Mary Immaculate</span>.
+        Currently no opportunities available at <span className="text-slate-900 font-bold">Mary Immaculate Girls High School</span>.
       </p>
 
       <div className="flex justify-center mb-8">
@@ -815,8 +826,8 @@ export default function ModernCareersPage() {
   const handleShare = (job) => {
     if (navigator.share) {
       navigator.share({
-        title: `${job.jobTitle} - Mary Immculate Girls High School`,
-        text: `Check out this job opportunity at Mary Immculate Girls High School: ${job.jobTitle}`,
+        title: `${job.jobTitle} - Mary Immaculate Girls High School`,
+        text: `Check out this job opportunity at Mary Immaculate Girls High School: ${job.jobTitle}`,
         url: window.location.href,
       });
     } else {
@@ -854,70 +865,57 @@ export default function ModernCareersPage() {
     setActiveTab('all');
   };
 
- if (loading) {
-   return (
-     <Box 
-       className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6"
-     >
-       <Stack 
-         spacing={3} 
-         alignItems="center"
-         className="bg-white p-10 rounded-[32px] shadow-sm border border-gray-100"
-       >
-         {/* Modern Layered Loader */}
-         <Box className="relative flex items-center justify-center">
-           {/* Background Ring */}
-           <CircularProgress
-             variant="determinate"
-             value={100}
-             size={64}
-             thickness={4}
-             sx={{ color: '#f1f5f9' }} // Very light gray track
-           />
-           {/* Actual Animated Loader */}
-           <CircularProgress
-             variant="indeterminate"
-             disableShrink
-             size={64}
-             thickness={4}
-             sx={{
-               color: '#2563eb', // Modern Blue
-               animationDuration: '800ms',
-               position: 'absolute',
-               left: 0,
-               [`& .MuiCircularProgress-circle`]: {
-                 strokeLinecap: 'round',
-               },
-             }}
-           />
-           {/* Center Icon */}
-           <Box className="absolute">
-             <IoSparkles className="text-blue-500 text-xl animate-pulse" />
-           </Box>
-         </Box>
- 
-         {/* Clean Typography */}
-         <Stack spacing={0.5} alignItems="center">
-           <Typography 
-             variant="body1" 
-             fontWeight="600" 
-             color="text.primary"
-             sx={{ letterSpacing: '-0.01em' }}
-           >
- Loading for our school latest Jobs Careers to stay updated
-           </Typography>
-           <Typography 
-             variant="caption" 
-             color="text.secondary"
-             className="flex items-center gap-1"
-           >
-             Fetching latest latest Careers in Our School
-           </Typography>
-         </Stack>
-       </Stack>
-     </Box>
-   );
- }
+if (loading) {
+  return (
+    <Box 
+      className="min-h-[70vh] flex items-center justify-center p-4 bg-transparent"
+    >
+      <Stack 
+        spacing={2.5} 
+        alignItems="center"
+        className="w-full transition-opacity duration-500"
+      >
+        {/* Modern Layered Loader - Scaled down for mobile */}
+        <Box className="relative flex items-center justify-center scale-90 sm:scale-100">
+          <CircularProgress
+            variant="determinate"
+            value={100}
+            size={52} 
+            thickness={4.5}
+            sx={{ color: '#f1f5f9' }} 
+          />
+          <CircularProgress
+            variant="indeterminate"
+            disableShrink
+            size={52}
+            thickness={4.5}
+            sx={{
+              color: '#0f172a', // Slate 900 to match your theme
+              animationDuration: '900ms',
+              position: 'absolute',
+              [`& .MuiCircularProgress-circle`]: {
+                strokeLinecap: 'round',
+              },
+            }}
+          />
+          <Box className="absolute">
+            <IoSparkles className="text-blue-600 text-base animate-pulse" />
+          </Box>
+        </Box>
+
+        {/* Minimalist Typography */}
+        <div className="text-center px-6">
+          <p className="text-slate-900 font-semibold text-sm sm:text-base tracking-tight leading-tight italic">
+            Searching for opportunities...
+          </p>
+          <p className="text-slate-400 text-[10px] sm:text-xs uppercase tracking-[0.2em] font-black mt-1.5">
+            Careers & Jobs
+          </p>
+        </div>
+      </Stack>
+    </Box>
+  );
+}
 
 return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 p-3 sm:p-4 md:p-6">
@@ -937,7 +935,7 @@ return (
               Join Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Academic Team</span>
             </h1>
             <p className="text-slate-600 text-sm sm:text-base md:text-lg max-w-2xl">
-              Shape the future of education at Mary Immculate Girls High School
+              Shape the future of education at Mary Immaculate Girls High School
             </p>
           </div>
           
@@ -1014,7 +1012,7 @@ return (
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 rounded-lg sm:rounded-xl flex items-center justify-center">
                   <IoSchoolOutline className="text-blue-600 text-lg sm:text-xl" />
                 </div>
-                <h2 className="text-lg sm:text-xl font-bold text-slate-900">Mary Immculate Girls High School</h2>
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900">Mary Immaculate Girls High School</h2>
               </div>
 
               <div className="space-y-3 sm:space-y-4">
@@ -1022,7 +1020,7 @@ return (
                   <FiMapPin className="text-rose-500 w-4 h-4 sm:w-5 sm:h-5" />
                   <div>
                     <p className="text-xs sm:text-sm font-bold text-slate-900">Location</p>
-                    <p className="text-[10px] sm:text-xs text-slate-500">Mweiga, Nyeri County, Kenya</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500">Mweiga SUb County Nyeri, Kenya</p>
                   </div>
                 </div>
 
