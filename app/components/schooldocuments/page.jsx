@@ -2511,6 +2511,23 @@ function DocumentDetailsModal({
   );
 }
 
+
+
+
+  // Authentication helper function
+const getAuthHeaders = () => {
+  const adminToken = localStorage.getItem('admin_token');
+  const deviceToken = localStorage.getItem('device_token');
+  
+  if (!adminToken || !deviceToken) {
+    throw new Error('Authentication required');
+  }
+  
+  return {
+    'Authorization': `Bearer ${adminToken}`,
+    'x-device-token': deviceToken
+  };
+};
 // Documents Modal Component - UPDATED VERSION with complete fixes
 function DocumentsModal({ onClose, onSave, documents, loading }) {
   const fileSizeManager = useFileSize();
@@ -3463,20 +3480,6 @@ export default function SchoolDocumentsPage() {
 
 
 
-  // Authentication helper function
-const getAuthHeaders = () => {
-  const adminToken = localStorage.getItem('admin_token');
-  const deviceToken = localStorage.getItem('device_token');
-  
-  if (!adminToken || !deviceToken) {
-    throw new Error('Authentication required');
-  }
-  
-  return {
-    'Authorization': `Bearer ${adminToken}`,
-    'x-device-token': deviceToken
-  };
-};
 
 const loadData = async () => {
   try {
