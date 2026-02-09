@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 // Constants
-const JWT_SECRET = process.env.JWT_SECRET || 'tokatwanyaa-highschool-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'tomarryimmaculate  -highschool-secret-key-2024';
 const JWT_EXPIRES_IN = '12h';
 
 // Helpers
@@ -67,8 +67,8 @@ export const generateToken = (user) => {
       email: user.email,
       name: user.name,
       role: user.role,
-      iss: 'katwanyaa-highschool',
-      aud: 'katwanyaa-highschool-app',
+      iss: 'marryimmaculate  -highschool',
+      aud: 'marryimmaculate  -highschool-app',
       iat: Math.floor(Date.now() / 1000),
     };
 

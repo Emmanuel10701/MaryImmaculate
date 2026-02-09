@@ -17,7 +17,7 @@ const SCHOOL_NAME = 'Mary Immculate Girls High School';
 const SCHOOL_LOCATION = 'Mweiga, Nyeri  County';
 const SCHOOL_MOTTO = 'Prayer, Discipline and Hardwork ';
 const CONTACT_PHONE = '+254720123456';
-const CONTACT_EMAIL = 'info@katwanyaa highSchool.sc.ke';
+const CONTACT_EMAIL = 'info@marryimmaculate   highSchool.sc.ke';
 
 export async function POST(req) {
   try {
@@ -54,7 +54,7 @@ export async function POST(req) {
 
     const baseUrl = process.env.NEXT_PUBLIC_URL || 
                    process.env.NEXTAUTH_URL || 
-                   'https://katwanyaa.vercel.app';
+                   'https://marryimmaculate  .vercel.app';
     
     const resetLink = `${baseUrl}/pages/resetpassword?token=${token}`;
     

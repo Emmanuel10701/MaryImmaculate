@@ -415,7 +415,7 @@ ${schoolData.admissionDocumentsRequired && schoolData.admissionDocumentsRequired
   : '• KCPE Certificate\n• Birth Certificate\n• School Reports\n• Passport Photos\n• Medical Report'}
 
 **Contact Admissions:**
-• Email: ${schoolData.admissionContactEmail || 'katwanyaaschool@yahoo.com'}
+• Email: ${schoolData.admissionContactEmail || 'marryimmaculate  school@yahoo.com'}
 • Phone: ${schoolData.admissionContactPhone || '+254 729 370 590'}
 • Location: ${schoolData.admissionLocation || 'Mweiga, Nyeri County'}
 • Office Hours: ${schoolData.admissionOfficeHours || 'Mon-Fri: 8:00 AM - 5:00 PM'}
@@ -580,7 +580,7 @@ ${documentData?.kcseResultsPdf ? `**KCSE Examination Results:**
 
 **School Contacts:**
 • Phone: ${schoolData.admissionContactPhone || '+254 729 370 590'}
-• Email: ${schoolData.admissionContactEmail || 'katwanyaaschool@yahoo.com'}
+• Email: ${schoolData.admissionContactEmail || 'marryimmaculate  school@yahoo.com'}
 • Location: ${schoolData.admissionLocation || 'Mweiga, Nyeri County'}
 • Website: ${schoolData.admissionWebsite || 'Contact office for details'}
 
