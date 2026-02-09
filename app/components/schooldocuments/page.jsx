@@ -2753,9 +2753,9 @@ const handleSubmitAfterReview = async () => {
         data.append(key, fileData.file);
         
         // Add metadata - SAFELY convert to strings
-       if (fileData.year !== undefined && fileData.year !== null) {
-  data.append(`${key}_year`, String(fileData.year));
-}
+        if (fileData.year !== undefined && fileData.year !== null) {
+          data.append(`${key}_year`, String(fileData.year));
+        }
         if (fileData.term !== undefined && fileData.term !== null) {
           data.append(`${key}_term`, String(fileData.term));
         }
@@ -2764,9 +2764,9 @@ const handleSubmitAfterReview = async () => {
         }
       } else if (fileData.isExisting && !fileData.markedForDeletion) {
         // Existing file kept - only update metadata if changed
-   if (fileData.year !== undefined && fileData.year !== null) {
-  data.append(`${key}_year`, String(fileData.year));
-}
+        if (fileData.year !== undefined && fileData.year !== null) {
+          data.append(`${key}_year`, String(fileData.year));
+        }
         if (fileData.term !== undefined && fileData.term !== null) {
           data.append(`${key}_term`, String(fileData.term));
         }
@@ -2813,7 +2813,7 @@ const handleSubmitAfterReview = async () => {
       }
     }
     
-    // CRITICAL FIX: Add exam metadata safely - NO .trim() on non-strings
+    // Add exam metadata safely - NO .trim() on non-strings
     Object.keys(examMetadata).forEach(key => {
       const value = examMetadata[key];
       if (value !== null && value !== undefined && value !== '') {
@@ -2829,10 +2829,24 @@ const handleSubmitAfterReview = async () => {
       data.append('schoolId', String(documents.schoolId));
     }
     
+    // Get authentication headers
+    let headers;
+    try {
+      headers = getAuthHeaders();
+    } catch (authError) {
+      // Authentication failed
+      toast.error(authError.message);
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      return;
+    }
+    
     // Debug logging
     console.log('=== FORM DATA BEING SENT TO BACKEND ===');
     console.log('Total files to upload:', fileSizeManager.fileCount);
     console.log('Total size:', fileSizeManager.getTotalSizeMB(), 'MB');
+    console.log('Auth headers present:', !!headers);
     
     for (let [key, value] of data.entries()) {
       if (value instanceof File) {
@@ -2842,15 +2856,24 @@ const handleSubmitAfterReview = async () => {
       }
     }
     
-    // Send request
+    // Send request WITH AUTHENTICATION
     const response = await fetch('/api/schooldocuments', {
       method: 'POST',
+      headers: headers, // Add authentication headers (don't set Content-Type for FormData)
       body: data
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Server error response:', errorText);
+      
+      // Handle authentication errors
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('device_token');
+        throw new Error('Session expired. Please login again.');
+      }
       
       try {
         const errorJson = JSON.parse(errorText);
@@ -2878,7 +2901,20 @@ const handleSubmitAfterReview = async () => {
     
   } catch (error) {
     console.error('Save failed:', error);
-    toast.error(error.message || 'Failed to save documents. Please try again.');
+    
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message || 'Failed to save documents. Please try again.');
+    }
   } finally {
     setActionLoading(false);
   }
@@ -3425,6 +3461,23 @@ export default function SchoolDocumentsPage() {
     loadData();
   }, []);
 
+
+
+  // Authentication helper function
+const getAuthHeaders = () => {
+  const adminToken = localStorage.getItem('admin_token');
+  const deviceToken = localStorage.getItem('device_token');
+  
+  if (!adminToken || !deviceToken) {
+    throw new Error('Authentication required');
+  }
+  
+  return {
+    'Authorization': `Bearer ${adminToken}`,
+    'x-device-token': deviceToken
+  };
+};
+
 const loadData = async () => {
   try {
     setLoading(true);
@@ -3462,29 +3515,104 @@ const loadData = async () => {
   }
 };
 
-  const handleDeleteDocument = async () => {
-    try {
-      setActionLoading(true);
-      const response = await fetch(`/api/schooldocuments${documents?.id ? `?id=${documents.id}` : ''}`, {
-        method: 'DELETE',
-      });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete document');
-      }
 
-      const result = await response.json();
-      toast.success(result.message || 'Document deleted successfully');
-      setDeleteDialogOpen(false);
-      await loadData();
-    } catch (error) {
-      console.error('Delete failed:', error);
-      toast.error(error.message || 'Failed to delete document');
-    } finally {
-      setActionLoading(false);
-    }
+
+useEffect(() => {
+  // Check if user is authenticated when component loads
+  const checkAuth = () => {
+    const adminToken = localStorage.getItem('admin_token');
+    const deviceToken = localStorage.getItem('device_token');
+    
+    console.log('Documents page auth check:', {
+      hasAdminToken: !!adminToken,
+      hasDeviceToken: !!deviceToken
+    });
   };
+  
+  checkAuth();
+}, []);
 
+ const handleDeleteDocument = async () => {
+  try {
+    setActionLoading(true);
+    
+    // Get authentication headers
+    let headers;
+    try {
+      headers = getAuthHeaders();
+    } catch (authError) {
+      // Authentication failed
+      toast.error(authError.message);
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      return;
+    }
+    
+    console.log('Delete request with auth headers:', headers);
+    
+    const response = await fetch(`/api/schooldocuments${documents?.id ? `?id=${documents.id}` : ''}`, {
+      method: 'DELETE',
+      headers: headers // Add authentication headers
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Delete error response:', errorText);
+      
+      // Handle authentication errors
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('device_token');
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      // Handle other API errors
+      if (response.status === 404) {
+        throw new Error('Document not found. It may have already been deleted.');
+      }
+      
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.error || `Failed to delete: ${response.status}`);
+      } catch {
+        throw new Error(`Failed to delete documents: ${response.status}`);
+      }
+    }
+
+    const result = await response.json();
+    
+    if (result.success) {
+      toast.success(result.message || 'Documents deleted successfully!');
+      setDeleteDialogOpen(false);
+      setConfirmText('');
+      await loadData();
+    } else {
+      toast.error(result.error || 'Failed to delete documents');
+    }
+    
+  } catch (error) {
+    console.error('Delete failed:', error);
+    
+    // Redirect to login if authentication failed
+    if (error.message.includes('login') || 
+        error.message.includes('Session expired') || 
+        error.message.includes('Authentication required')) {
+      
+      toast.error('Please login to continue');
+      setTimeout(() => {
+        window.location.href = '/pages/adminLogin';
+      }, 1000);
+      
+    } else {
+      toast.error(error.message || 'Failed to delete documents');
+    }
+  } finally {
+    setActionLoading(false);
+  }
+};
   const handleSaveDocuments = async (documentData) => {
     try {
       setActionLoading(true);
