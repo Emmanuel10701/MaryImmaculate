@@ -1280,6 +1280,83 @@ const fetchData = useCallback(async () => {
   
   // ==================== SELECTION HANDLERS ====================
   
+
+
+  // ==================== AUTHENTICATION HELPERS ====================
+
+const getAuthHeaders = (contentType = 'application/json') => {
+  const adminToken = localStorage.getItem('admin_token');
+  const deviceToken = localStorage.getItem('device_token');
+  const adminUser = localStorage.getItem('admin_user');
+  
+  console.log('Auth tokens:', { 
+    hasAdminToken: !!adminToken,
+    hasDeviceToken: !!deviceToken,
+    hasAdminUser: !!adminUser 
+  });
+  
+  if (!adminToken || !deviceToken) {
+    // Clear any invalid tokens
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('device_token');
+    localStorage.removeItem('admin_user');
+    throw new Error('Authentication required. Please login again.');
+  }
+  
+  const headers = {
+    'Authorization': `Bearer ${adminToken}`,
+    'x-device-token': deviceToken,
+    'x-admin-user': adminUser || 'unknown'
+  };
+  
+  if (contentType) {
+    headers['Content-Type'] = contentType;
+  }
+  
+  return headers;
+};
+
+const isAuthenticated = () => {
+  try {
+    getAuthHeaders();
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const handleAuthError = (error, showNotification) => {
+  console.error('Auth error:', error);
+  
+  if (error.message.includes('Authentication required') || 
+      error.message.includes('login') ||
+      error.message.includes('Session expired')) {
+    
+    showNotification('error', 'Please login to continue');
+    setTimeout(() => {
+      // Clear tokens and redirect to login
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('device_token');
+      localStorage.removeItem('admin_user');
+      window.location.href = '/pages/adminLogin';
+    }, 1000);
+    return true;
+  }
+  return false;
+};
+
+// Check authentication on component mount
+const checkAuthOnMount = () => {
+  try {
+    getAuthHeaders();
+    return true;
+  } catch (error) {
+    console.warn('Not authenticated, GET requests will still work');
+    return false;
+  }
+};
+
+
   const toggleSelectAll = () => {
     if (selectedCampaigns.size === filteredCampaigns.length) {
       setSelectedCampaigns(new Set());
@@ -1378,6 +1455,9 @@ const handleCreateOrUpdateCampaign = async () => {
   }
   
   try {
+    // Check authentication first
+    const headers = getAuthHeaders(null); // null for FormData
+    
     setLoadingStates(prev => ({ ...prev, create: true }));
     
     const recipientEmails = getRecipientEmails(campaignForm.recipientType);
@@ -1419,9 +1499,17 @@ const handleCreateOrUpdateCampaign = async () => {
     
     const response = await fetch(url, {
       method,
+      headers,
       body: formData,
-      // Do NOT set Content-Type header - browser will set it with boundary
     });
+    
+    // Handle authentication errors
+    if (response.status === 401) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('device_token');
+      throw new Error('Session expired. Please login again.');
+    }
     
     const result = await response.json();
     
@@ -1458,107 +1546,176 @@ const handleCreateOrUpdateCampaign = async () => {
     }
   } catch (error) {
     console.error('Error:', error);
+    
+    // Handle authentication errors
+    if (handleAuthError(error, showNotification)) {
+      return;
+    }
+    
     showNotification('error', 'Network error. Please try again.');
   } finally {
     setLoadingStates(prev => ({ ...prev, create: false }));
   }
 };
   
-  const handleSendCampaign = async () => {
-    if (!campaignToSend) return;
+const handleSendCampaign = async () => {
+  if (!campaignToSend) return;
+  
+  try {
+    // Check authentication first
+    const headers = getAuthHeaders('application/json');
     
-    try {
-      setLoadingStates(prev => ({ ...prev, send: true }));
+    setLoadingStates(prev => ({ ...prev, send: true }));
+    
+    const response = await fetch(`/api/emails/${campaignToSend.id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ status: 'published' }),
+    });
+    
+    // Handle authentication errors
+    if (response.status === 401) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('device_token');
+      throw new Error('Session expired. Please login again.');
+    }
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      setCampaigns(prev => prev.map(c => 
+        c.id === campaignToSend.id ? { ...c, status: 'published', sentAt: new Date().toISOString() } : c
+      ));
       
-      const response = await fetch(`/api/emails/${campaignToSend.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'published' }),
+      setShowSendConfirmationModal(false);
+      setCampaignToSend(null);
+      
+      showNotification('success', `Campaign sent successfully!`);
+    } else {
+      showNotification('error', result.error || 'Failed to send campaign');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    
+    // Handle authentication errors
+    if (handleAuthError(error, showNotification)) {
+      return;
+    }
+    
+    showNotification('error', 'Network error. Please try again.');
+  } finally {
+    setLoadingStates(prev => ({ ...prev, send: false }));
+  }
+};
+
+  
+const handleDeleteCampaign = async () => {
+  if (!campaignToDelete) return;
+  
+  try {
+    // Check authentication first
+    const headers = getAuthHeaders('application/json');
+    
+    setLoadingStates(prev => ({ ...prev, delete: true }));
+    
+    const response = await fetch(`/api/emails/${campaignToDelete.id}`, { 
+      method: 'DELETE',
+      headers 
+    });
+    
+    // Handle authentication errors
+    if (response.status === 401) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('device_token');
+      throw new Error('Session expired. Please login again.');
+    }
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      setCampaigns(prev => prev.filter(c => c.id !== campaignToDelete.id));
+      setSelectedCampaigns(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(campaignToDelete.id);
+        return newSet;
       });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setCampaigns(prev => prev.map(c => 
-          c.id === campaignToSend.id ? { ...c, status: 'published', sentAt: new Date().toISOString() } : c
-        ));
-        
-        setShowSendConfirmationModal(false);
-        setCampaignToSend(null);
-        
-        showNotification('success', `Campaign sent successfully!`);
-      } else {
-        showNotification('error', result.error || 'Failed to send campaign');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showNotification('error', 'Network error. Please try again.');
-    } finally {
-      setLoadingStates(prev => ({ ...prev, send: false }));
+      showNotification('success', 'Campaign deleted successfully!');
+      setShowDeleteModal(false);
+      setCampaignToDelete(null);
+    } else {
+      showNotification('error', result.error || 'Failed to delete campaign');
     }
-  };
-  
-  const handleDeleteCampaign = async () => {
-    if (!campaignToDelete) return;
+  } catch (error) {
+    console.error('Error:', error);
     
-    try {
-      setLoadingStates(prev => ({ ...prev, delete: true }));
-      
-      const response = await fetch(`/api/emails/${campaignToDelete.id}`, { method: 'DELETE' });
-      const result = await response.json();
-      
-      if (result.success) {
-        setCampaigns(prev => prev.filter(c => c.id !== campaignToDelete.id));
-        setSelectedCampaigns(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(campaignToDelete.id);
-          return newSet;
-        });
-        showNotification('success', 'Campaign deleted successfully!');
-        setShowDeleteModal(false);
-        setCampaignToDelete(null);
-      } else {
-        showNotification('error', result.error || 'Failed to delete campaign');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showNotification('error', 'Network error. Please try again.');
-    } finally {
-      setLoadingStates(prev => ({ ...prev, delete: false }));
+    // Handle authentication errors
+    if (handleAuthError(error, showNotification)) {
+      return;
     }
-  };
-  
-  const handleBulkDelete = async () => {
-    if (selectedCampaigns.size === 0) return;
     
-    try {
-      setLoadingStates(prev => ({ ...prev, bulk: true }));
-      
-      const deletePromises = Array.from(selectedCampaigns).map(id =>
-        fetch(`/api/emails/${id}`, { method: 'DELETE' })
-      );
-      
-      const results = await Promise.allSettled(deletePromises);
-      
-      const successfulDeletes = results.filter(result => 
-        result.status === 'fulfilled' && result.value.ok
-      );
-      
-      if (successfulDeletes.length > 0) {
-        setCampaigns(prev => prev.filter(c => !selectedCampaigns.has(c.id)));
-        setSelectedCampaigns(new Set());
-        showNotification('success', `${successfulDeletes.length} campaign(s) deleted successfully!`);
-        setShowBulkDeleteModal(false);
-      } else {
-        showNotification('error', 'Failed to delete campaigns');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showNotification('error', 'Network error. Please try again.');
-    } finally {
-      setLoadingStates(prev => ({ ...prev, bulk: false }));
+    showNotification('error', error.message || 'Failed to delete campaign!');
+  } finally {
+    setLoadingStates(prev => ({ ...prev, delete: false }));
+  }
+};
+  
+const handleBulkDelete = async () => {
+  if (selectedCampaigns.size === 0) return;
+  
+  try {
+    // Check authentication first
+    const headers = getAuthHeaders('application/json');
+    
+    setLoadingStates(prev => ({ ...prev, bulk: true }));
+    
+    const deletePromises = Array.from(selectedCampaigns).map(id =>
+      fetch(`/api/emails/${id}`, { 
+        method: 'DELETE',
+        headers 
+      })
+    );
+    
+    const results = await Promise.allSettled(deletePromises);
+    
+    // Check for authentication errors
+    const authErrors = results.filter(result => 
+      result.status === 'fulfilled' && result.value.status === 401
+    );
+    
+    if (authErrors.length > 0) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      localStorage.removeItem('device_token');
+      throw new Error('Session expired. Please login again.');
     }
-  };
+    
+    const successfulDeletes = results.filter(result => 
+      result.status === 'fulfilled' && result.value.ok
+    );
+    
+    if (successfulDeletes.length > 0) {
+      setCampaigns(prev => prev.filter(c => !selectedCampaigns.has(c.id)));
+      setSelectedCampaigns(new Set());
+      showNotification('success', `${successfulDeletes.length} campaign(s) deleted successfully!`);
+      setShowBulkDeleteModal(false);
+    } else {
+      showNotification('error', 'Failed to delete campaigns');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    
+    // Handle authentication errors
+    if (handleAuthError(error, showNotification)) {
+      return;
+    }
+    
+    showNotification('error', 'Network error. Please try again.');
+  } finally {
+    setLoadingStates(prev => ({ ...prev, bulk: false }));
+  }
+};
   
 // Add this component after the parseCampaignAttachments function:
 
