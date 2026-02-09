@@ -14,6 +14,10 @@
   }
 }
 
+/* Apply 78% zoom to everything EXCEPT pages with 'no-zoom' class *
+
+
+
 body {
   color: var(--foreground);
   background: var(--background);
@@ -24,63 +28,6 @@ body {
   .text-balance {
     text-wrap: balance;
   }
-}
-
-
-/* For modern browsers (Chrome, Safari, Edge) */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* For Firefox */
-.hide-scrollbar {
-  scrollbar-width: none;
-}
-
-/* For IE and Edge Legacy */
-.hide-scrollbar {
-  -ms-overflow-style: none;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.animate-slideIn {
-  animation: slideIn 0.3s ease-out;
-}
-
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
 }
 
 
@@ -98,35 +45,6 @@ body {
     transform: translate(0px, 0px) scale(1);
   }
 }
-
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slide-up {
-  animation: slide-up 0.3s ease-out;
-}
-
-.bg-grid-white\/10 {
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-  background-size: 16px 16px;
-}
-
-@media (min-width: 640px) {
-  .bg-grid-white\/10 {
-    background-size: 20px 20px;
-  }
-}
-
 
 .animate-blob {
   animation: blob 7s infinite;
@@ -292,77 +210,18 @@ body {
   contain: layout;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+
+/* For modern browsers (Chrome, Safari, Edge) */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
+/* For Firefox */
+.hide-scrollbar {
+  scrollbar-width: none;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.animate-slideIn {
-  animation: slideIn 0.3s ease-out;
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Add these to your global CSS or within a style tag */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes zoom-in {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.animate-in {
-  animation-duration: 300ms;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  animation-fill-mode: both;
-}
-
-.fade-in {
-  animation-name: fade-in;
-}
-
-.zoom-in {
-  animation-name: zoom-in;
+/* For IE and Edge Legacy */
+.hide-scrollbar {
+  -ms-overflow-style: none;
 }
