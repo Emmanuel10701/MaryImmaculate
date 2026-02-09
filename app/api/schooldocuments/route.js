@@ -2,6 +2,149 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../libs/prisma";
 import cloudinary from "../../../libs/cloudinary";
 
+// ==================== AUTHENTICATION UTILITIES ====================
+
+// Device Token Manager
+class DeviceTokenManager {
+  static validateTokensFromHeaders(headers, options = {}) {
+    try {
+      // Extract tokens from headers
+      const adminToken = headers.get('x-admin-token') || headers.get('authorization')?.replace('Bearer ', '');
+      const deviceToken = headers.get('x-device-token');
+
+      if (!adminToken) {
+        return { valid: false, reason: 'no_admin_token', message: 'Admin token is required' };
+      }
+
+      if (!deviceToken) {
+        return { valid: false, reason: 'no_device_token', message: 'Device token is required' };
+      }
+
+      // Validate admin token format (basic check)
+      const adminParts = adminToken.split('.');
+      if (adminParts.length !== 3) {
+        return { valid: false, reason: 'invalid_admin_token_format', message: 'Invalid admin token format' };
+      }
+
+      // Validate device token
+      const deviceValid = this.validateDeviceToken(deviceToken);
+      if (!deviceValid.valid) {
+        return { 
+          valid: false, 
+          reason: `device_${deviceValid.reason}`,
+          message: `Device token ${deviceValid.reason}: ${deviceValid.error || ''}`
+        };
+      }
+
+      // Parse admin token payload
+      let adminPayload;
+      try {
+        adminPayload = JSON.parse(atob(adminParts[1]));
+        
+        // Check expiration
+        const currentTime = Date.now() / 1000;
+        if (adminPayload.exp < currentTime) {
+          return { valid: false, reason: 'admin_token_expired', message: 'Admin token has expired' };
+        }
+        
+        // Check user role - only admins can manage school documents
+        const userRole = adminPayload.role || adminPayload.userRole;
+        const validRoles = ['ADMIN', 'SUPER_ADMIN', 'administrator', 'PRINCIPAL'];
+        
+        if (!userRole || !validRoles.includes(userRole.toUpperCase())) {
+          return { 
+            valid: false, 
+            reason: 'invalid_role', 
+            message: 'User does not have permission to manage school documents' 
+          };
+        }
+        
+      } catch (error) {
+        return { valid: false, reason: 'invalid_admin_token', message: 'Invalid admin token' };
+      }
+
+      console.log('✅ School documents authentication successful for user:', adminPayload.name || 'Unknown');
+      
+      return { 
+        valid: true, 
+        user: {
+          id: adminPayload.userId || adminPayload.id,
+          name: adminPayload.name,
+          email: adminPayload.email,
+          role: adminPayload.role || adminPayload.userRole
+        },
+        deviceInfo: deviceValid.payload
+      };
+
+    } catch (error) {
+      console.error('❌ Token validation error:', error);
+      return { 
+        valid: false, 
+        reason: 'validation_error', 
+        message: 'Authentication validation failed',
+        error: error.message 
+      };
+    }
+  }
+
+  // Validate device token
+  static validateDeviceToken(token) {
+    try {
+      // Handle base64 decoding safely
+      const payloadStr = Buffer.from(token, 'base64').toString('utf-8');
+      const payload = JSON.parse(payloadStr);
+      
+      // Check expiration
+      if (payload.exp && payload.exp * 1000 <= Date.now()) {
+        return { valid: false, reason: 'expired', payload, error: 'Device token has expired' };
+      }
+      
+      // Check age (30 days max)
+      const createdAt = new Date(payload.createdAt || payload.iat * 1000);
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      
+      if (createdAt < thirtyDaysAgo) {
+        return { valid: false, reason: 'age_expired', payload, error: 'Device token is too old' };
+      }
+      
+      return { valid: true, payload };
+    } catch (error) {
+      return { valid: false, reason: 'invalid_format', error: error.message };
+    }
+  }
+}
+
+// Authentication middleware for protected requests
+const authenticateRequest = (req) => {
+  const headers = req.headers;
+  
+  // Validate tokens
+  const validationResult = DeviceTokenManager.validateTokensFromHeaders(headers);
+  
+  if (!validationResult.valid) {
+    return {
+      authenticated: false,
+      response: NextResponse.json(
+        { 
+          success: false, 
+          error: "Access Denied",
+          message: "Authentication required to manage school documents.",
+          details: validationResult.message
+        },
+        { status: 401 }
+      )
+    };
+  }
+
+  return {
+    authenticated: true,
+    user: validationResult.user,
+    deviceInfo: validationResult.deviceInfo
+  };
+};
+
+// ============ HELPER FUNCTIONS ============
+
 // Upload PDF to Cloudinary
 const uploadPdfToCloudinary = async (file, folder) => {
   if (!file || file.size === 0) return null;
@@ -55,11 +198,6 @@ const uploadPdfToCloudinary = async (file, folder) => {
   }
 };
 
-// REMOVE THIS FUNCTION - Additional files upload
-// const uploadAdditionalFileToCloudinary = async (file, folder) => {
-//   ... REMOVE ENTIRE FUNCTION ...
-// };
-
 const deleteFromCloudinary = async (url) => {
   if (!url) return;
   
@@ -85,6 +223,19 @@ const parseStringField = (value) => {
   return value.trim();
 };
 
+const parseJsonField = (value, fieldName) => {
+  if (!value || value.trim() === '') {
+    return null;
+  }
+  
+  try {
+    return JSON.parse(value);
+  } catch (parseError) {
+    console.warn(`Failed to parse ${fieldName}, using null:`, parseError);
+    return null;
+  }
+};
+
 const cleanDocumentResponse = (document) => {
   if (!document) return null;
   
@@ -99,8 +250,6 @@ const cleanDocumentResponse = (document) => {
     curriculumDescription: document.curriculumDescription,
     curriculumYear: document.curriculumYear,
     curriculumTerm: document.curriculumTerm,
-    
-    // REMOVED: Day School Fees PDF section
     
     // Boarding School Fees PDF
     feesBoardingDistributionPdf: document.feesBoardingDistributionPdf,
@@ -183,14 +332,14 @@ const cleanDocumentResponse = (document) => {
   };
 };
 
-// GET - Fetch all documents
+// ============ API ROUTES ============
+
+// 🟡 GET documents (PUBLIC - no authentication required)
 export async function GET() {
   try {
-    console.log("📥 GET Request received");
+    console.log("📥 GET Request received for documents");
     
-    const document = await prisma.schoolDocument.findFirst({
-      // REMOVED: include additionalDocuments
-    });
+    const document = await prisma.schoolDocument.findFirst();
 
     if (!document) {
       return NextResponse.json({
@@ -214,15 +363,21 @@ export async function GET() {
   }
 }
 
-// POST - Create or update all documents
+// 🟢 CREATE or UPDATE documents (PROTECTED - authentication required)
 export async function POST(req) {
   try {
-    console.log("📥 POST Request received");
+    // Authenticate the request
+    const auth = authenticateRequest(req);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
+    console.log("📥 POST Request received for documents");
+    console.log(`Request from: ${auth.user.name} (${auth.user.role})`);
+    
     const formData = await req.formData();
     
-    let existingDocument = await prisma.schoolDocument.findFirst({
-      // REMOVED: include additionalDocuments
-    });
+    let existingDocument = await prisma.schoolDocument.findFirst();
 
     console.log("📄 Existing document:", existingDocument ? `Found (ID: ${existingDocument.id})` : "Not found");
 
@@ -238,14 +393,6 @@ export async function POST(req) {
         term: 'curriculumTerm',
         description: 'curriculumDescription',
         folder: 'curriculum' 
-      },
-      { 
-        key: 'feesDay', 
-        name: 'feesDayDistributionPdf', 
-        year: 'feesDayYear',
-        term: 'feesDayTerm',
-        description: 'feesDayDescription',
-        folder: 'day-fees' 
       },
       { 
         key: 'feesBoarding', 
@@ -343,15 +490,9 @@ export async function POST(req) {
       }
     });
 
-    // REMOVED: All additional files processing
-
     // Delete old files if replacing
     const filesToDelete = [];
     
-    if (existingDocument) {
-      // REMOVED: Additional documents deletion logic
-    }
-
     // Delete old main files if replacing
     for (const field of allFields) {
       if (uploadResults[field.key] && existingDocument && existingDocument[field.name]) {
@@ -371,21 +512,12 @@ export async function POST(req) {
     };
 
     // Parse JSON fields
-    const feesDayDistributionJson = formData.get("feesDayDistributionJson");
     const feesBoardingDistributionJson = formData.get("feesBoardingDistributionJson");
     const admissionFeeDistribution = formData.get("admissionFeeDistribution");
 
-    if (feesDayDistributionJson) {
-      try {
-        updateData.feesDayDistributionJson = JSON.parse(feesDayDistributionJson);
-      } catch (e) {
-        console.error("❌ Error parsing feesDayDistributionJson:", e);
-      }
-    }
-    
     if (feesBoardingDistributionJson) {
       try {
-        updateData.feesBoardingDistributionJson = JSON.parse(feesBoardingDistributionJson);
+        updateData.feesBoardingDistributionJson = parseJsonField(feesBoardingDistributionJson, "feesBoardingDistributionJson");
       } catch (e) {
         console.error("❌ Error parsing feesBoardingDistributionJson:", e);
       }
@@ -393,7 +525,7 @@ export async function POST(req) {
     
     if (admissionFeeDistribution) {
       try {
-        updateData.admissionFeeDistribution = JSON.parse(admissionFeeDistribution);
+        updateData.admissionFeeDistribution = parseJsonField(admissionFeeDistribution, "admissionFeeDistribution");
       } catch (e) {
         console.error("❌ Error parsing admissionFeeDistribution:", e);
       }
@@ -410,12 +542,6 @@ export async function POST(req) {
             name: 'curriculumPdfName',
             size: 'curriculumPdfSize',
             uploadDate: 'curriculumPdfUploadDate'
-          },
-          'feesDay': {
-            pdf: 'feesDayDistributionPdf',
-            name: 'feesDayPdfName',
-            size: 'feesDayPdfSize',
-            uploadDate: 'feesDayPdfUploadDate'
           },
           'feesBoarding': {
             pdf: 'feesBoardingDistributionPdf',
@@ -514,7 +640,9 @@ export async function POST(req) {
       return NextResponse.json({
         success: true,
         message: "School documents updated successfully",
-        document: cleanDocumentResponse(finalDocument)
+        document: cleanDocumentResponse(finalDocument),
+        authenticated: true,
+        user: auth.user
       });
 
     } else {
@@ -532,7 +660,9 @@ export async function POST(req) {
       return NextResponse.json({
         success: true,
         message: "School documents created successfully",
-        document: cleanDocumentResponse(finalDocument)
+        document: cleanDocumentResponse(finalDocument),
+        authenticated: true,
+        user: auth.user
       }, { status: 201 });
     }
 
@@ -542,24 +672,36 @@ export async function POST(req) {
       { 
         success: false, 
         error: error.message || "Internal server error",
-        details: error.stack
+        details: error.stack,
+        authenticated: true
       },
       { status: 500 }
     );
   }
 }
 
-// PUT - Update specific document field
+// 🔵 UPDATE specific document field (PROTECTED - authentication required)
 export async function PUT(req) {
   try {
+    // Authenticate the request
+    const auth = authenticateRequest(req);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
     console.log("📥 PUT Request received");
+    console.log(`Request from: ${auth.user.name} (${auth.user.role})`);
     
     const { searchParams } = new URL(req.url);
     const documentId = searchParams.get('id');
     
     if (!documentId) {
       return NextResponse.json(
-        { success: false, error: "Document ID is required" },
+        { 
+          success: false, 
+          error: "Document ID is required",
+          authenticated: true
+        },
         { status: 400 }
       );
     }
@@ -569,7 +711,11 @@ export async function PUT(req) {
 
     if (!field || !data) {
       return NextResponse.json(
-        { success: false, error: "Field and data are required" },
+        { 
+          success: false, 
+          error: "Field and data are required",
+          authenticated: true
+        },
         { status: 400 }
       );
     }
@@ -591,22 +737,35 @@ export async function PUT(req) {
     return NextResponse.json({
       success: true,
       message: "Document field updated successfully",
-      document: cleanDocumentResponse(updatedDocument)
+      document: cleanDocumentResponse(updatedDocument),
+      authenticated: true,
+      user: auth.user
     });
 
   } catch (error) {
     console.error("❌ PUT Error:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Internal server error" },
+      { 
+        success: false, 
+        error: error.message || "Internal server error",
+        authenticated: true
+      },
       { status: 500 }
     );
   }
 }
 
-// PATCH - Partial update (for deleting specific files)
+// 🟣 PATCH - Partial update (for deleting specific files) (PROTECTED - authentication required)
 export async function PATCH(req) {
   try {
+    // Authenticate the request
+    const auth = authenticateRequest(req);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
     console.log("📥 PATCH Request received");
+    console.log(`Request from: ${auth.user.name} (${auth.user.role})`);
     
     const { searchParams } = new URL(req.url);
     const documentId = searchParams.get('id');
@@ -614,7 +773,11 @@ export async function PATCH(req) {
     
     if (!documentId || !field) {
       return NextResponse.json(
-        { success: false, error: "Document ID and field are required" },
+        { 
+          success: false, 
+          error: "Document ID and field are required",
+          authenticated: true
+        },
         { status: 400 }
       );
     }
@@ -624,7 +787,11 @@ export async function PATCH(req) {
 
     if (!action) {
       return NextResponse.json(
-        { success: false, error: "Action is required" },
+        { 
+          success: false, 
+          error: "Action is required",
+          authenticated: true
+        },
         { status: 400 }
       );
     }
@@ -639,14 +806,16 @@ export async function PATCH(req) {
 
       if (!document) {
         return NextResponse.json(
-          { success: false, error: "Document not found" },
+          { 
+            success: false, 
+            error: "Document not found",
+            authenticated: true
+          },
           { status: 404 }
         );
       }
 
       let fileUrlToDelete = null;
-
-      // REMOVED: Additional documents handling
 
       if (document[field]) {
         // Delete main document field
@@ -662,14 +831,6 @@ export async function PATCH(req) {
             description: 'curriculumDescription',
             year: 'curriculumYear',
             term: 'curriculumTerm'
-          },
-          'feesDayDistributionPdf': {
-            name: 'feesDayPdfName',
-            size: 'feesDayPdfSize',
-            uploadDate: 'feesDayPdfUploadDate',
-            description: 'feesDayDescription',
-            year: 'feesDayYear',
-            term: 'feesDayTerm'
           },
           'feesBoardingDistributionPdf': {
             name: 'feesBoardingPdfName',
@@ -696,7 +857,46 @@ export async function PATCH(req) {
             year: 'form1ResultsYear',
             term: 'form1ResultsTerm'
           },
-          // ... add other exam fields similarly
+          'form2ResultsPdf': {
+            name: 'form2ResultsPdfName',
+            size: 'form2ResultsPdfSize',
+            uploadDate: 'form2ResultsUploadDate',
+            description: 'form2ResultsDescription',
+            year: 'form2ResultsYear',
+            term: 'form2ResultsTerm'
+          },
+          'form3ResultsPdf': {
+            name: 'form3ResultsPdfName',
+            size: 'form3ResultsPdfSize',
+            uploadDate: 'form3ResultsUploadDate',
+            description: 'form3ResultsDescription',
+            year: 'form3ResultsYear',
+            term: 'form3ResultsTerm'
+          },
+          'form4ResultsPdf': {
+            name: 'form4ResultsPdfName',
+            size: 'form4ResultsPdfSize',
+            uploadDate: 'form4ResultsUploadDate',
+            description: 'form4ResultsDescription',
+            year: 'form4ResultsYear',
+            term: 'form4ResultsTerm'
+          },
+          'mockExamsResultsPdf': {
+            name: 'mockExamsPdfName',
+            size: 'mockExamsPdfSize',
+            uploadDate: 'mockExamsUploadDate',
+            description: 'mockExamsDescription',
+            year: 'mockExamsYear',
+            term: 'mockExamsTerm'
+          },
+          'kcseResultsPdf': {
+            name: 'kcsePdfName',
+            size: 'kcsePdfSize',
+            uploadDate: 'kcseUploadDate',
+            description: 'kcseDescription',
+            year: 'kcseYear',
+            term: 'kcseTerm'
+          }
         };
 
         const clearData = {
@@ -729,64 +929,89 @@ export async function PATCH(req) {
       return NextResponse.json({
         success: true,
         message: "File deleted successfully",
-        document: cleanDocumentResponse(updatedDocument)
+        document: cleanDocumentResponse(updatedDocument),
+        authenticated: true,
+        user: auth.user
       });
     }
 
     return NextResponse.json(
-      { success: false, error: "Invalid action" },
+      { 
+        success: false, 
+        error: "Invalid action",
+        authenticated: true
+      },
       { status: 400 }
     );
 
   } catch (error) {
     console.error("❌ PATCH Error:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Internal server error" },
+      { 
+        success: false, 
+        error: error.message || "Internal server error",
+        authenticated: true
+      },
       { status: 500 }
     );
   }
 }
 
-// DELETE - Delete entire document
+// 🔴 DELETE - Delete entire document (PROTECTED - authentication required)
 export async function DELETE(req) {
   try {
+    // Authenticate the request
+    const auth = authenticateRequest(req);
+    if (!auth.authenticated) {
+      return auth.response;
+    }
+
     console.log("🗑️ DELETE Request received");
+    console.log(`Request from: ${auth.user.name} (${auth.user.role})`);
     
     const { searchParams } = new URL(req.url);
     const documentId = searchParams.get('id');
     
     if (!documentId) {
       // If no ID, delete the first document (legacy behavior)
-      return handleDeleteFirstDocument();
+      return handleDeleteFirstDocument(auth);
     }
 
-    return handleDeleteDocumentById(parseInt(documentId));
+    return handleDeleteDocumentById(parseInt(documentId), auth);
 
   } catch (error) {
     console.error("❌ DELETE Error:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Internal server error" },
+      { 
+        success: false, 
+        error: error.message || "Internal server error",
+        authenticated: true
+      },
       { status: 500 }
     );
   }
 }
 
-async function handleDeleteFirstDocument() {
+async function handleDeleteFirstDocument(auth) {
   const document = await prisma.schoolDocument.findFirst();
 
   if (!document) {
     console.log("📭 No document found to delete");
     return NextResponse.json(
-      { success: false, message: "No document found to delete" },
+      { 
+        success: false, 
+        message: "No document found to delete",
+        authenticated: true
+      },
       { status: 404 }
     );
   }
 
   console.log("🗑️ Deleting document:", document.id);
-  return deleteDocumentAndFiles(document);
+  return deleteDocumentAndFiles(document, auth);
 }
 
-async function handleDeleteDocumentById(documentId) {
+async function handleDeleteDocumentById(documentId, auth) {
   const document = await prisma.schoolDocument.findUnique({
     where: { id: documentId }
   });
@@ -794,19 +1019,22 @@ async function handleDeleteDocumentById(documentId) {
   if (!document) {
     console.log("📭 No document found to delete");
     return NextResponse.json(
-      { success: false, message: "Document not found" },
+      { 
+        success: false, 
+        message: "Document not found",
+        authenticated: true
+      },
       { status: 404 }
     );
   }
 
   console.log("🗑️ Deleting document:", document.id);
-  return deleteDocumentAndFiles(document);
+  return deleteDocumentAndFiles(document, auth);
 }
 
-async function deleteDocumentAndFiles(document) {
+async function deleteDocumentAndFiles(document, auth) {
   const filesToDelete = [
     document.curriculumPDF,
-    document.feesDayDistributionPdf,
     document.feesBoardingDistributionPdf,
     document.admissionFeePdf,
     document.form1ResultsPdf,
@@ -816,7 +1044,6 @@ async function deleteDocumentAndFiles(document) {
     document.mockExamsResultsPdf,
     document.kcseResultsPdf,
   ].filter(Boolean);
-
 
   console.log("🗑️ Files to delete:", filesToDelete.length);
 
@@ -830,6 +1057,10 @@ async function deleteDocumentAndFiles(document) {
 
   return NextResponse.json({
     success: true,
-    message: "School documents deleted successfully"
+    message: "School documents deleted successfully",
+    deletedDocument: document.id,
+    authenticated: true,
+    user: auth.user,
+    timestamp: new Date().toISOString()
   });
 }
