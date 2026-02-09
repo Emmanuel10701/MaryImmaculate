@@ -882,15 +882,6 @@ function StudentStatisticsCard({ title, value, icon: Icon, color, trend = 0, pre
         <div className={`p-3 rounded-xl bg-gradient-to-r ${color}`}>
           <Icon className="text-white text-2xl" />
         </div>
-        <div className={`text-sm font-bold px-3 py-1.5 rounded-lg ${
-          trend > 0 
-            ? 'bg-green-100 text-green-800 border border-green-200' 
-            : trend < 0 
-            ? 'bg-red-100 text-red-800 border border-red-200' 
-            : 'bg-gray-100 text-gray-800 border border-gray-200'
-        }`}>
-          {trend > 0 ? `↑ ${trend}%` : trend < 0 ? `↓ ${Math.abs(trend)}%` : '→ 0%'}
-        </div>
       </div>
       <h4 className="text-3xl font-bold text-gray-900 mb-2">{formatValue(value)}</h4>
       <p className="text-gray-600 text-sm font-semibold">{title}</p>
@@ -2074,6 +2065,33 @@ export default function ModernStudentBulkUpload() {
     }
   };
 
+
+
+  // Helper function to get authentication tokens
+// Helper function for protected operations only
+const getAuthTokensForProtectedOps = () => {
+  const adminToken = localStorage.getItem('admin_token');
+  const deviceToken = localStorage.getItem('device_token');
+  
+  if (!adminToken || !deviceToken) {
+    throw new Error('Authentication required for this action. Please login.');
+  }
+  
+  return { adminToken, deviceToken };
+};
+
+// Helper function for GET requests (no auth required)
+const getAuthHeaders = (isProtected = false) => {
+  if (isProtected) {
+    const { adminToken, deviceToken } = getAuthTokensForProtectedOps();
+    return {
+      'Authorization': `Bearer ${adminToken}`,
+      'x-device-token': deviceToken
+    };
+  }
+  return {}; // No headers for GET requests
+};
+
   // Enhanced loadStats function
   const loadStats = async () => {
     setLoading(true);
@@ -2219,6 +2237,20 @@ export default function ModernStudentBulkUpload() {
       setLoading(false);
     }
   };
+const handleAuthError = (error) => {
+  console.error('Authentication error:', error);
+  sooner.error('Session expired. Please login again.');
+  
+  // Optional: Clear tokens and redirect to login
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('device_token');
+  
+  // Optional: Redirect to login page or show login modal
+  // window.location.href = '/login';
+  
+  // Optional: Show login modal instead of redirect
+  // setShowLoginModal(true);
+};
 
   const refreshStatistics = async () => {
     try {
@@ -2293,23 +2325,24 @@ export default function ModernStudentBulkUpload() {
     }
   };
 
-  const loadUploadHistory = async (page = 1) => {
-    setHistoryLoading(true);
-    try {
-      const res = await fetch(`/api/studentupload?action=uploads&page=${page}&limit=5`);
-      const data = await res.json();
-      if (data.success) {
-        setUploadHistory(data.uploads || []);
-      } else {
-        sooner.error('Failed to load upload history');
-      }
-    } catch (error) {
-      console.error('Failed to load history:', error);
+const loadUploadHistory = async (page = 1) => {
+  setHistoryLoading(true);
+  try {
+    // Add status=completed to the API call
+    const res = await fetch(`/api/studentupload?action=uploads&page=${page}&limit=30`);
+    const data = await res.json();
+    if (data.success) {
+      setUploadHistory(data.uploads || []);
+    } else {
       sooner.error('Failed to load upload history');
-    } finally {
-      setHistoryLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Failed to load history:', error);
+    sooner.error('Failed to load upload history');
+  } finally {
+    setHistoryLoading(false);
+  }
+};
 
   // Auto-refresh for demographics view
   useEffect(() => {
@@ -2373,119 +2406,168 @@ export default function ModernStudentBulkUpload() {
     setResult(null);
   };
 
-  // Check for duplicates before upload
-  const checkDuplicates = async () => {
-    if (!file || !uploadStrategy) {
-      sooner.error('Please select a file and upload strategy first');
+const checkDuplicates = async () => {
+  if (!file || !uploadStrategy) {
+    sooner.error('Please select a file and upload strategy first');
+    return;
+  }
+
+  setValidationLoading(true);
+  try {
+    // GET auth tokens for protected operation
+    let authHeaders = {};
+    try {
+      const tokens = getAuthTokensForProtectedOps();
+      authHeaders = {
+        'Authorization': `Bearer ${tokens.adminToken}`,
+        'x-device-token': tokens.deviceToken
+      };
+    } catch (authError) {
+      sooner.error(authError.message);
+      setValidationLoading(false);
       return;
     }
 
-    setValidationLoading(true);
-    try {
-      // Create FormData
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('checkDuplicates', 'true');
-      
-      if (uploadStrategy.uploadType === 'new') {
-        formData.append('uploadType', 'new');
-        formData.append('forms', JSON.stringify(uploadStrategy.selectedForms));
-      } else {
-        formData.append('uploadType', 'update');
-        formData.append('targetForm', uploadStrategy.targetForm);
-      }
-
-      const response = await fetch('/api/studentupload', {
-        method: 'POST',
-        body: formData
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        if (data.duplicates && data.duplicates.length > 0) {
-          setDuplicates(data.duplicates);
-          setShowValidationModal(true);
-        } else {
-          // No duplicates, proceed with upload
-          proceedWithUpload('skip');
-        }
-      } else {
-        sooner.error(data.error || 'Failed to check for duplicates');
-      }
-    } catch (error) {
-      console.error('Validation error:', error);
-      sooner.error('Failed to validate file');
-    } finally {
-      setValidationLoading(false);
-    }
-  };
-
-  // Proceed with upload after duplicate check
-  const proceedWithUpload = async (duplicateAction = 'skip') => {
-    setUploading(true);
-    setShowValidationModal(false);
-    
+    // Create FormData
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('uploadType', uploadStrategy.uploadType);
+    formData.append('checkDuplicates', 'true');
     
     if (uploadStrategy.uploadType === 'new') {
+      formData.append('uploadType', 'new');
       formData.append('forms', JSON.stringify(uploadStrategy.selectedForms));
-      formData.append('duplicateAction', duplicateAction);
     } else {
+      formData.append('uploadType', 'update');
       formData.append('targetForm', uploadStrategy.targetForm);
     }
 
-    try {
-      const response = await fetch('/api/studentupload', {
-        method: 'POST',
-        body: formData
-      });
+    const response = await fetch('/api/studentupload', {
+      method: 'POST',
+      headers: authHeaders,
+      body: formData
+    });
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Upload failed');
-      }
-      
-      setResult(data);
-      
-      if (data.success) {
-        let successMessage = '';
-        if (uploadStrategy.uploadType === 'new') {
-          successMessage = `✅ New upload successful! ${data.processingStats?.validRows || 0} students processed.`;
-        } else {
-          successMessage = `✅ Update successful! Form ${uploadStrategy.targetForm} updated: ${data.processingStats?.updatedRows || 0} updated, ${data.processingStats?.createdRows || 0} created.`;
-        }
-        
-        sooner.success(successMessage);
-        
-        if (data.errors && data.errors.length > 0) {
-          data.errors.slice(0, 3).forEach(error => {
-            sooner.error(error, { duration: 5000 });
-          });
-          if (data.errors.length > 3) {
-            sooner.error(`... and ${data.errors.length - 3} more errors`, { duration: 5000 });
-          }
-        }
-        
-        await Promise.all([loadStudents(1), loadUploadHistory(1), loadStats()]);
-        setFile(null);
-        setUploadStrategy(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      } else {
-        sooner.error(data.message || 'Upload failed');
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      sooner.error(error.message || 'Upload failed. Please try again.');
-    } finally {
-      setUploading(false);
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Authentication failed. Please login again.');
     }
-  };
+
+    const data = await response.json();
+    
+    if (data.success) {
+      if (data.duplicates && data.duplicates.length > 0) {
+        setDuplicates(data.duplicates);
+        setShowValidationModal(true);
+      } else {
+        // No duplicates, proceed with upload
+        proceedWithUpload('skip');
+      }
+    } else {
+      sooner.error(data.error || 'Failed to check for duplicates');
+    }
+  } catch (error) {
+    console.error('Validation error:', error);
+    
+    if (error.message.includes('Authentication') || error.message.includes('login')) {
+      sooner.error('Authentication failed. Please login again to continue.');
+    } else {
+      sooner.error('Failed to validate file');
+    }
+  } finally {
+    setValidationLoading(false);
+  }
+};
+
+const proceedWithUpload = async (duplicateAction = 'skip') => {
+  setUploading(true);
+  setShowValidationModal(false);
+  
+  // GET auth tokens for protected upload operation
+  let authHeaders = {};
+  try {
+    const tokens = getAuthTokensForProtectedOps();
+    authHeaders = {
+      'Authorization': `Bearer ${tokens.adminToken}`,
+      'x-device-token': tokens.deviceToken
+    };
+  } catch (authError) {
+    sooner.error(authError.message);
+    setUploading(false);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('uploadType', uploadStrategy.uploadType);
+  
+  if (uploadStrategy.uploadType === 'new') {
+    formData.append('forms', JSON.stringify(uploadStrategy.selectedForms));
+    formData.append('duplicateAction', duplicateAction);
+  } else {
+    formData.append('targetForm', uploadStrategy.targetForm);
+  }
+
+  try {
+    const response = await fetch('/api/studentupload', {
+      method: 'POST',
+      headers: authHeaders,
+      body: formData
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Authentication failed. Please login again.');
+    }
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Upload failed');
+    }
+    
+    setResult(data);
+    
+    if (data.success) {
+      let successMessage = '';
+      if (uploadStrategy.uploadType === 'new') {
+        successMessage = `✅ New upload successful! ${data.processingStats?.validRows || 0} students processed.`;
+      } else {
+        successMessage = `✅ Update successful! Form ${uploadStrategy.targetForm} updated: ${data.processingStats?.updatedRows || 0} updated, ${data.processingStats?.createdRows || 0} created.`;
+      }
+      
+      sooner.success(successMessage);
+      
+      if (data.errors && data.errors.length > 0) {
+        data.errors.slice(0, 3).forEach(error => {
+          sooner.error(error, { duration: 5000 });
+        });
+        if (data.errors.length > 3) {
+          sooner.error(`... and ${data.errors.length - 3} more errors`, { duration: 5000 });
+        }
+      }
+      
+      await Promise.all([loadStudents(1), loadUploadHistory(1), loadStats()]);
+      setFile(null);
+      setUploadStrategy(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } else {
+      sooner.error(data.message || 'Upload failed');
+    }
+  } catch (error) {
+    console.error('Upload error:', error);
+    
+    // Handle specific authentication errors
+    if (error.message.includes('Authentication') || error.message.includes('login')) {
+      sooner.error('Authentication failed. Please login again to continue.');
+      // Optionally redirect to login or show login modal
+    } else {
+      sooner.error(error.message || 'Upload failed. Please try again.');
+    }
+  } finally {
+    setUploading(false);
+  }
+};
+
 
   const handleDeleteBatch = async (batchId, batchName) => {
     setDeleteTarget({ type: 'batch', id: batchId, name: batchName });
@@ -2497,62 +2579,93 @@ export default function ModernStudentBulkUpload() {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = async () => {
-    try {
-      let url;
-      
-      if (deleteTarget.type === 'batch') {
-        url = `/api/studentupload?batchId=${deleteTarget.id}`;
-      } else {
-        url = `/api/studentupload?studentId=${deleteTarget.id}`;
-      }
+const confirmDelete = async () => {
+  try {
+    // GET auth headers for protected operation
+    const authHeaders = getAuthHeaders(true);
+    
+    let url;
+    
+    if (deleteTarget.type === 'batch') {
+      url = `/api/studentupload?batchId=${deleteTarget.id}`;
+    } else {
+      url = `/api/studentupload?studentId=${deleteTarget.id}`;
+    }
 
-      const res = await fetch(url, { method: 'DELETE' });
-      const data = await res.json();
-      
-      if (data.success) {
-        sooner.success(data.message || 'Deleted successfully');
-        await Promise.all([loadStudents(pagination.page), loadUploadHistory(1), loadStats()]);
-        if (deleteTarget.type === 'student') {
-          setSelectedStudent(null);
-        }
-      } else {
-        sooner.error(data.message || 'Failed to delete');
+    const res = await fetch(url, { 
+      method: 'DELETE',
+      headers: {
+        ...authHeaders
       }
-    } catch (error) {
-      console.error('Delete failed:', error);
+    });
+    
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('Authentication failed');
+    }
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      sooner.success(data.message || 'Deleted successfully');
+      await Promise.all([loadStudents(pagination.page), loadUploadHistory(1), loadStats()]);
+      if (deleteTarget.type === 'student') {
+        setSelectedStudent(null);
+      }
+    } else {
+      sooner.error(data.message || 'Failed to delete');
+    }
+  } catch (error) {
+    console.error('Delete failed:', error);
+    if (error.message.includes('Authentication')) {
+      handleAuthError(error);
+    } else {
       sooner.error('Failed to delete');
-    } finally {
-      setShowDeleteModal(false);
-      setDeleteTarget({ type: '', id: '', name: '' });
     }
-  };
+  } finally {
+    setShowDeleteModal(false);
+    setDeleteTarget({ type: '', id: '', name: '' });
+  }
+};
 
-  const updateStudent = async (studentId, studentData) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/studentupload`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: studentId, ...studentData })
-      });
-      
-      const data = await res.json();
-      
-      if (data.success) {
-        sooner.success('Student updated successfully');
-        await loadStudents(pagination.page);
-        setEditingStudent(null);
-      } else {
-        sooner.error(data.message || 'Failed to update student');
-      }
-    } catch (error) {
-      console.error('Update failed:', error);
-      sooner.error('Failed to update student');
-    } finally {
-      setLoading(false);
+const updateStudent = async (studentId, studentData) => {
+  setLoading(true);
+  try {
+    // GET auth headers for protected operation
+    const authHeaders = getAuthHeaders(true);
+    
+    const res = await fetch(`/api/studentupload`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...authHeaders
+      },
+      body: JSON.stringify({ id: studentId, ...studentData })
+    });
+    
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('Authentication failed');
     }
-  };
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      sooner.success('Student updated successfully');
+      await loadStudents(pagination.page);
+      setEditingStudent(null);
+    } else {
+      sooner.error(data.message || 'Failed to update student');
+    }
+  } catch (error) {
+    console.error('Update failed:', error);
+    if (error.message.includes('Authentication')) {
+      handleAuthError(error);
+    } else {
+      sooner.error('Failed to update student');
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
  const downloadCSVTemplate = () => {
   window.location.href = "/csv/form_1_students.csv";
