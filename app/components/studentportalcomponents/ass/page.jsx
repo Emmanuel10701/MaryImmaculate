@@ -24,7 +24,7 @@ import {
 
 import { motion, AnimatePresence } from 'framer-motion';
 
-// ==================== HELPER FUNCTIONS ====================
+// ==================== UPDATED HELPER FUNCTIONS ====================
 
 const extractFileInfoFromUrl = (url) => {
   if (!url) return null;
@@ -57,10 +57,10 @@ const extractFileInfoFromUrl = (url) => {
 
     return {
       url,
-      fileName,
+      fileName: fileName || 'download',
       extension,
       fileType: getFileType(extension),
-      storageType: 'supabase'
+      storageType: 'cloudinary' // UPDATED: Changed from 'supabase' to 'cloudinary'
     };
   } catch (error) {
     return {
@@ -68,7 +68,7 @@ const extractFileInfoFromUrl = (url) => {
       fileName: 'download',
       extension: '',
       fileType: 'File',
-      storageType: 'supabase'
+      storageType: 'cloudinary' // UPDATED: Changed from 'supabase' to 'cloudinary'
     };
   }
 };
@@ -337,11 +337,13 @@ function FilePreviewCard({ file, onDownload, onPreview, index }) {
 
 function AssignmentResourceCard({ item, type, onView, onDownload, onBookmark, isBookmarked = false }) {
   const isResource = type === 'resource';
+  
+  // DYNAMIC DATA EXTRACTION BASED ON TYPE
   const totalFiles = isResource 
-    ? (item.mainAttachment ? 1 : 0)
+    ? (item.files?.length || 0)
     : ((item.assignmentFileAttachments?.length || 0) + (item.attachmentAttachments?.length || 0));
   
-  const isOverdue = !isResource && new Date(item.dueDate) < new Date() && item.status !== 'completed';
+  const isOverdue = !isResource && item.dueDate && new Date(item.dueDate) < new Date() && item.status !== 'completed';
 
   return (
     <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
@@ -357,23 +359,28 @@ function AssignmentResourceCard({ item, type, onView, onDownload, onBookmark, is
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="p-1.5 sm:p-2 bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl">
               {isResource ? (
-                getFileIcon(item.type, item.extension, 20)
+                getFileIcon(item.type, item.files?.[0]?.extension, 20)
               ) : (
                 <IoDocument className="text-white w-4 h-4 sm:w-6 sm:h-6" />
               )}
             </div>
             <div>
               <span className="text-xs font-bold uppercase tracking-wider opacity-90">
-                {isResource ? item.type?.toUpperCase() : 'ASSIGNMENT'}
+                {isResource ? (item.type || 'RESOURCE')?.toUpperCase() : 'ASSIGNMENT'}
               </span>
               <div className="flex items-center gap-1 sm:gap-2 mt-1">
                 <span className="text-xs bg-white/20 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full font-bold">
-                  {item.subject}
+                  {item.subject || 'General'}
                 </span>
                 {isOverdue && (
                   <span className="text-xs bg-rose-600 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1 font-bold">
                     <IoWarning className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     Overdue
+                  </span>
+                )}
+                {isResource && item.category && (
+                  <span className="text-xs bg-green-600/80 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full font-bold">
+                    {item.category}
                   </span>
                 )}
               </div>
@@ -394,12 +401,10 @@ function AssignmentResourceCard({ item, type, onView, onDownload, onBookmark, is
             <div className="text-xs font-bold bg-white/20 px-1.5 py-0.5 sm:px-2 sm:yp-1 rounded-full">
               {totalFiles} {totalFiles === 1 ? 'file' : 'files'}
             </div>
-                    <h3 className="text-lg sm:text-lg font-bold line-clamp-2">{item.form}</h3>
-
           </div>
         </div>
         
-        <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{item.title}</h3>
+        <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{item.title || 'Untitled'}</h3>
       </div>
       
       {/* Card Body */}
@@ -407,15 +412,11 @@ function AssignmentResourceCard({ item, type, onView, onDownload, onBookmark, is
         <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
           <div className="space-y-1">
             <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">
-              {isResource ? 'Class' : 'Teacher'}
+              {isResource ? 'Teacher' : 'Teacher'}
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 text-gray-900 font-bold">
-              {isResource ? (
-                <IoSchool className="text-blue-500 w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              ) : (
-                <IoPerson className="text-purple-500 w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              )}
-              <span className="truncate text-sm sm:text-base">{isResource ? item.className : item.teacher}</span>
+              <IoPerson className="text-purple-500 w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="truncate text-sm sm:text-base">{item.teacher || 'Not specified'}</span>
             </div>
           </div>
           
@@ -427,8 +428,8 @@ function AssignmentResourceCard({ item, type, onView, onDownload, onBookmark, is
               <IoCalendar className="text-amber-500 w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="text-sm sm:text-base">
                 {isResource 
-                  ? new Date(item.createdAt || item.dateAdded).toLocaleDateString()
-                  : new Date(item.dueDate).toLocaleDateString()
+                  ? (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Not specified')
+                  : (item.dueDate ? new Date(item.dueDate).toLocaleDateString() : 'Not specified')
                 }
               </span>
             </div>
@@ -472,13 +473,14 @@ function AssignmentResourceCard({ item, type, onView, onDownload, onBookmark, is
     </div>
   );
 }
+
 function DetailModal({ item, type, onClose, onDownload }) {
   if (!item) return null;
 
   const isResource = type === 'resource';
-  const isOverdue = !isResource && new Date(item.dueDate) < new Date() && item.status !== 'completed';
+  const isOverdue = !isResource && item.dueDate && new Date(item.dueDate) < new Date() && item.status !== 'completed';
 
-return (
+  return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
       <div className="bg-white rounded-xl sm:rounded-2xl md:rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
         {/* Modal Header */}
@@ -493,23 +495,19 @@ return (
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl md:rounded-2xl">
                 {isResource ? (
-                  getFileIcon(item.type, item.extension, 20)
+                  getFileIcon(item.type, item.files?.[0]?.extension, 20)
                 ) : (
                   <IoDocument className="text-white w-5 h-5 sm:w-7 sm:h-7" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold truncate">{item.title}</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold truncate">{item.title || 'Untitled'}</h2>
                 <div className="flex items-center gap-2 mt-1 sm:mt-2 flex-wrap">
-                  <span className="text-xs sm:text-sm font-bold opacity-90">{item.subject}</span>
+                  <span className="text-xs sm:text-sm font-bold opacity-90">{item.subject || 'General'}</span>
                   <span className="text-xs sm:text-sm opacity-90">•</span>
-                  <span className="text-xs sm:text-sm font-bold opacity-90">{item.className}</span>
-                  {!isResource && (
-                    <>
-                      <span className="text-xs sm:text-sm opacity-90">•</span>
-                      <span className="text-xs sm:text-sm font-bold opacity-90 truncate">{item.teacher}</span>
-                    </>
-                  )}
+                  <span className="text-xs sm:text-sm font-bold opacity-90">{item.className || 'All Classes'}</span>
+                  <span className="text-xs sm:text-sm opacity-90">•</span>
+                  <span className="text-xs sm:text-sm font-bold opacity-90 truncate">{item.teacher || 'Not specified'}</span>
                 </div>
               </div>
             </div>
@@ -526,13 +524,18 @@ return (
         <div className="max-h-[calc(90vh-120px)] overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-6">
           {/* Status & Info */}
           <div className="flex flex-wrap gap-2 sm:gap-3">
-            {!isResource && <StatusBadge status={item.status} size="md" />}
+            {!isResource && item.status && <StatusBadge status={item.status} size="md" />}
             <span className="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-100 text-blue-800 rounded-full text-xs sm:text-sm font-bold">
-              {item.className}
+              {item.className || 'All Classes'}
             </span>
             <span className="px-3 py-1.5 sm:px-4 sm:py-2 bg-indigo-100 text-indigo-800 rounded-full text-xs sm:text-sm font-bold">
-              {item.subject}
+              {item.subject || 'General'}
             </span>
+            {isResource && item.category && (
+              <span className="px-3 py-1.5 sm:px-4 sm:py-2 bg-green-100 text-green-800 rounded-full text-xs sm:text-sm font-bold">
+                {item.category}
+              </span>
+            )}
             {isOverdue && (
               <span className="px-3 py-1.5 sm:px-4 sm:py-2 bg-rose-100 text-rose-800 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-2">
                 <IoWarning className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -545,32 +548,38 @@ return (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
             {!isResource && (
               <>
-                <div className="text-center p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl">
-                  <div className="text-xs sm:text-sm text-gray-600 font-bold">Due Date</div>
-                  <div className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mt-1 sm:mt-2">
-                    {new Date(item.dueDate).toLocaleDateString()}
+                {item.dueDate && (
+                  <div className="text-center p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl">
+                    <div className="text-xs sm:text-sm text-gray-600 font-bold">Due Date</div>
+                    <div className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mt-1 sm:mt-2">
+                      {new Date(item.dueDate).toLocaleDateString()}
+                    </div>
                   </div>
-                </div>
-                <div className="text-center p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl">
-                  <div className="text-xs sm:text-sm text-gray-600 font-bold">Priority</div>
-                  <div className={`text-sm sm:text-base md:text-lg font-bold mt-1 sm:mt-2 ${
-                    item.priority === 'high' ? 'text-rose-600' :
-                    item.priority === 'medium' ? 'text-amber-600' : 'text-emerald-600'
-                  }`}>
-                    {item.priority?.toUpperCase()}
+                )}
+                {item.priority && (
+                  <div className="text-center p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl">
+                    <div className="text-xs sm:text-sm text-gray-600 font-bold">Priority</div>
+                    <div className={`text-sm sm:text-base md:text-lg font-bold mt-1 sm:mt-2 ${
+                      item.priority === 'high' ? 'text-rose-600' :
+                      item.priority === 'medium' ? 'text-amber-600' : 'text-emerald-600'
+                    }`}>
+                      {item.priority?.toUpperCase()}
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             )}
             <div className="text-center p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl">
               <div className="text-xs sm:text-sm text-gray-600 font-bold">Teacher</div>
-              <div className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mt-1 sm:mt-2 truncate">{item.teacher}</div>
+              <div className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mt-1 sm:mt-2 truncate">
+                {item.teacher || 'Not specified'}
+              </div>
             </div>
             <div className="text-center p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl">
               <div className="text-xs sm:text-sm text-gray-600 font-bold">Files</div>
               <div className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mt-1 sm:mt-2">
                 {isResource 
-                  ? (item.mainAttachment ? 1 : 0)
+                  ? (item.files?.length || 0)
                   : ((item.assignmentFileAttachments?.length || 0) + (item.attachmentAttachments?.length || 0))
                 }
               </div>
@@ -578,7 +587,7 @@ return (
           </div>
 
           {/* Description */}
-          {(item.description || item.instructions) && (
+          {(item.description || (!isResource && item.instructions)) && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               {item.description && (
                 <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 border border-gray-200">
@@ -604,18 +613,43 @@ return (
 
           {/* Files Section */}
           <div className="space-y-3 sm:space-y-4 md:space-y-6">
-            {isResource && item.mainAttachment && (
+            {isResource && item.files && item.files.length > 0 && (
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 border border-purple-200">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6 flex items-center gap-2 sm:gap-3">
-                  <IoCloudDownload className="text-purple-600 w-4 h-4 sm:w-5 sm:h-5" />
-                  <span>Resource File</span>
-                </h3>
-                <FilePreviewCard 
-                  file={item.mainAttachment}
-                  onDownload={() => downloadFile(item.mainAttachment.url, item.mainAttachment.fileName)}
-                  onPreview={() => window.open(item.mainAttachment.url, '_blank')}
-                  index={0}
-                />
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 md:mb-6 gap-2 sm:gap-0">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
+                    <IoCloudDownload className="text-purple-600 w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>Resource Files ({item.files.length})</span>
+                  </h3>
+                  <button
+                    onClick={() => downloadMultipleFiles(item.files.map(file => ({
+                      url: file.url,
+                      fileName: file.name,
+                      fileType: file.fileType,
+                      extension: file.extension
+                    })))}
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg sm:rounded-xl font-bold shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                  >
+                    <IoCloudDownload className="w-3 h-3 sm:w-4 sm:h-4" />
+                    Download All
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                  {item.files.map((file, index) => (
+                    <FilePreviewCard
+                      key={index}
+                      file={{
+                        url: file.url,
+                        fileName: file.name,
+                        extension: file.extension,
+                        fileType: file.fileType,
+                        storageType: 'cloudinary'
+                      }}
+                      onDownload={() => downloadFile(file.url, file.name)}
+                      onPreview={() => window.open(file.url, '_blank')}
+                      index={index}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
@@ -683,27 +717,24 @@ return (
           </div>
 
           {/* Action Buttons */}
-<div className="flex flex-row items-center gap-2 sm:gap-3 md:gap-4 pt-3 sm:pt-4 md:pt-6 border-t border-gray-200">
-  <button
-    onClick={onClose}
-    /* min-w-0 and flex-1 ensures it doesn't push the other button off screen */
-    className="flex-1 min-w-0 h-11 sm:h-14 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl md:rounded-2xl font-bold text-[12px] sm:text-base md:text-lg flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 transition-all"
-  >
-    <IoClose className="shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
-    <span className="truncate">Close</span>
-  </button>
-  
-  <button
-    onClick={() => onDownload?.(item)}
-    /* flex-[2] makes Download the primary focus while keeping it in the same row */
-    className="flex-[2] min-w-0 h-11 sm:h-14 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg sm:rounded-xl md:rounded-2xl font-bold text-[12px] sm:text-base md:text-lg shadow-lg flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 transition-all"
-  >
-    <IoCloudDownload className="shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
-    {/* Shortened text for small screens to prevent overlap */}
-    <span className="truncate sm:hidden">Download</span>
-    <span className="hidden sm:inline">Download All Files</span>
-  </button>
-</div>
+          <div className="flex flex-row items-center gap-2 sm:gap-3 md:gap-4 pt-3 sm:pt-4 md:pt-6 border-t border-gray-200">
+            <button
+              onClick={onClose}
+              className="flex-1 min-w-0 h-11 sm:h-14 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl md:rounded-2xl font-bold text-[12px] sm:text-base md:text-lg flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 transition-all"
+            >
+              <IoClose className="shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="truncate">Close</span>
+            </button>
+            
+            <button
+              onClick={() => onDownload?.(item)}
+              className="flex-[2] min-w-0 h-11 sm:h-14 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg sm:rounded-xl md:rounded-2xl font-bold text-[12px] sm:text-base md:text-lg shadow-lg flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 transition-all"
+            >
+              <IoCloudDownload className="shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="truncate sm:hidden">Download</span>
+              <span className="hidden sm:inline">Download All Files</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -741,24 +772,50 @@ export default function ModernResourcesAssignmentsView({
     averageCompletion: 0
   });
 
-  // Fetch data
+  // Function to check if an item matches student's class
+  const matchesStudentClass = useCallback((itemClassName) => {
+    if (!student || !student.form) return true;
+    return itemClassName === student.form;
+  }, [student]);
+
+  // ==================== UPDATED FETCH FUNCTIONS ====================
+  
   const fetchAssignments = useCallback(async () => {
     setAssignmentsLoading(true);
     try {
       const response = await fetch('/api/assignment');
       const data = await response.json();
       if (data.success) {
-        const processedAssignments = (data.assignments || []).map((assignment) => ({
+        // Filter assignments based on student's class
+        let filteredAssignments = data.assignments || [];
+        
+        if (student && student.form) {
+          filteredAssignments = filteredAssignments.filter(assignment => 
+            matchesStudentClass(assignment.className)
+          );
+        }
+        
+        // Process assignments - map assignmentFiles to assignmentFileAttachments
+        const processedAssignments = filteredAssignments.map((assignment) => ({
           ...assignment,
-          assignmentFileAttachments: (assignment.assignmentFiles || []).map((url) => ({
-            ...extractFileInfoFromUrl(url),
-            url
-          })),
-          attachmentAttachments: (assignment.attachments || []).map((url) => ({
-            ...extractFileInfoFromUrl(url),
-            url
-          }))
+          // Map assignmentFiles to assignmentFileAttachments
+          assignmentFileAttachments: (assignment.assignmentFiles || []).map((url) => {
+            const fileInfo = extractFileInfoFromUrl(url);
+            return {
+              ...fileInfo,
+              url: url // Add URL for viewing existing files
+            };
+          }),
+          // Map attachments to attachmentAttachments
+          attachmentAttachments: (assignment.attachments || []).map((url) => {
+            const fileInfo = extractFileInfoFromUrl(url);
+            return {
+              ...fileInfo,
+              url: url // Add URL for viewing existing files
+            };
+          })
         }));
+        
         setAssignments(processedAssignments);
       } else {
         setAssignments([]);
@@ -769,7 +826,7 @@ export default function ModernResourcesAssignmentsView({
     } finally {
       setAssignmentsLoading(false);
     }
-  }, []);
+  }, [student, matchesStudentClass]);
 
   const fetchResources = useCallback(async () => {
     setResourcesLoading(true);
@@ -777,16 +834,30 @@ export default function ModernResourcesAssignmentsView({
       const response = await fetch('/api/resources');
       const data = await response.json();
       if (data.success) {
-        const processedResources = (data.resources || []).map((resource) => ({
+        // Filter resources based on student's class
+        let filteredResources = data.resources || [];
+        
+        if (student && student.form) {
+          filteredResources = filteredResources.filter(resource => 
+            matchesStudentClass(resource.className)
+          );
+        }
+        
+        // Process resources - map files array
+        const processedResources = filteredResources.map((resource) => ({
           ...resource,
-          mainAttachment: {
-            url: resource.fileUrl,
-            fileName: resource.fileName,
-            fileSize: resource.fileSize,
-            extension: resource.extension,
-            fileType: resource.type
-          }
+          // Map files array with additional properties
+          files: (resource.files || []).map(file => ({
+            ...file,
+            // Ensure all files have a url property
+            url: file.url,
+            // Add fallbacks for missing properties
+            name: file.name || 'Untitled',
+            extension: file.extension || (file.name ? file.name.split('.').pop()?.toLowerCase() : ''),
+            fileType: file.fileType || resource.type || 'document'
+          }))
         }));
+        
         setResources(processedResources);
       } else {
         setResources([]);
@@ -797,7 +868,7 @@ export default function ModernResourcesAssignmentsView({
     } finally {
       setResourcesLoading(false);
     }
-  }, []);
+  }, [student, matchesStudentClass]);
 
   useEffect(() => {
     fetchAssignments();
@@ -858,7 +929,7 @@ export default function ModernResourcesAssignmentsView({
     }));
   }, [resources]);
 
-  // Filter items
+  // Filter assignments
   const filteredAssignments = useMemo(() => {
     let filtered = assignments.filter(assignment => {
       const matchesClass = selectedClass === 'all' || assignment.className === selectedClass;
@@ -886,6 +957,7 @@ export default function ModernResourcesAssignmentsView({
     });
   }, [assignments, selectedClass, selectedSubject, selectedStatus, searchTerm, bookmarkedItems, showBookmarkedOnly]);
 
+  // Filter resources
   const filteredResources = useMemo(() => {
     let filtered = resources.filter(resource => {
       const matchesType = selectedResourceType === 'all' || resource.type === selectedResourceType;
@@ -903,6 +975,7 @@ export default function ModernResourcesAssignmentsView({
       return matchesType && matchesClass && matchesSubject && matchesSearch && matchesBookmark;
     });
 
+    // Sort by creation date (newest first)
     return filtered.sort((a, b) => {
       if (a.createdAt && b.createdAt) {
         return new Date(b.createdAt) - new Date(a.createdAt);
@@ -925,8 +998,15 @@ export default function ModernResourcesAssignmentsView({
   // Download functions
   const handleDownload = useCallback((item) => {
     if (activeTab === 'resources') {
-      if (item.mainAttachment?.url) {
-        downloadFile(item.mainAttachment.url, item.mainAttachment.fileName);
+      if (item.files && item.files.length > 0) {
+        if (item.files.length === 1) {
+          downloadFile(item.files[0].url, item.files[0].name);
+        } else {
+          downloadMultipleFiles(item.files.map(file => ({
+            url: file.url,
+            fileName: file.name
+          })));
+        }
       }
     } else {
       const allFiles = [
@@ -947,11 +1027,10 @@ export default function ModernResourcesAssignmentsView({
     const allFiles = [];
     
     items.forEach(item => {
-      if (activeTab === 'resources' && item.mainAttachment) {
-        allFiles.push({
-          url: item.mainAttachment.url,
-          fileName: item.mainAttachment.fileName
-        });
+      if (activeTab === 'resources' && item.files) {
+        item.files.forEach(file => 
+          allFiles.push({ url: file.url, fileName: file.name })
+        );
       } else if (activeTab === 'assignments') {
         (item.assignmentFileAttachments || []).forEach(file => 
           allFiles.push({ url: file.url, fileName: file.fileName })
@@ -1031,45 +1110,45 @@ export default function ModernResourcesAssignmentsView({
         </div>
       </motion.div>
 
- {/* Stats Grid - 2 columns on small mobile, 4 on desktop */}
-<div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
-  <StatsCard
-    title="Total Assignments"
-    value={stats.totalAssignments}
-    icon={IoDocument}
-    color="from-purple-500 to-purple-600"
-    trend={5}
-    description={`${stats.pendingAssignments} pending`}
-  />
-  
-  <StatsCard
-    title="Learning Resources"
-    value={stats.totalResources}
-    icon={IoDocumentsOutline}
-    color="from-blue-500 to-blue-600"
-    trend={12}
-    description="Available files"
-  />
-  
-  <StatsCard
-    title="Completion Rate"
-    value={stats.averageCompletion}
-    icon={IoCheckmarkCircle}
-    color="from-emerald-500 to-emerald-600"
-    trend={stats.averageCompletion > 75 ? 8 : -3}
-    unit="%"
-    description="Completed"
-  />
-  
-  <StatsCard
-    title="Bookmarked Items"
-    value={bookmarkedItems.size}
-    icon={IoStar}
-    color="from-amber-500 to-amber-600"
-    trend={bookmarkedItems.size > 0 ? 15 : 0}
-    description="Saved items"
-  />
-</div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
+        <StatsCard
+          title="Total Assignments"
+          value={stats.totalAssignments}
+          icon={IoDocument}
+          color="from-purple-500 to-purple-600"
+          trend={5}
+          description={`${stats.pendingAssignments} pending`}
+        />
+        
+        <StatsCard
+          title="Learning Resources"
+          value={stats.totalResources}
+          icon={IoDocumentsOutline}
+          color="from-blue-500 to-blue-600"
+          trend={12}
+          description="Available files"
+        />
+        
+        <StatsCard
+          title="Completion Rate"
+          value={stats.averageCompletion}
+          icon={IoCheckmarkCircle}
+          color="from-emerald-500 to-emerald-600"
+          trend={stats.averageCompletion > 75 ? 8 : -3}
+          unit="%"
+          description="Completed"
+        />
+        
+        <StatsCard
+          title="Bookmarked Items"
+          value={bookmarkedItems.size}
+          icon={IoStar}
+          color="from-amber-500 to-amber-600"
+          trend={bookmarkedItems.size > 0 ? 15 : 0}
+          description="Saved items"
+        />
+      </div>
 
       {/* Main Content Card */}
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-xl p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
@@ -1085,7 +1164,6 @@ export default function ModernResourcesAssignmentsView({
                   : 'text-gray-600'
               }`}
             >
-       
               <div className="text-left">
                 <div className="text-sm font-bold">Assignments</div>
                 <div className={`text-xs ${activeTab === 'assignments' ? 'text-white/80' : 'text-gray-400'}`}>
@@ -1366,6 +1444,11 @@ export default function ModernResourcesAssignmentsView({
               Showing {filteredCount} of {totalItems} items
               {searchTerm && ` • Search: "${searchTerm}"`}
               {showBookmarkedOnly && ` • Bookmarked only`}
+              {student && (
+                <span className="text-blue-600 font-bold">
+                  • Filtered for {student.form} {student.stream}
+                </span>
+              )}
             </p>
           </div>
           
@@ -1393,6 +1476,8 @@ export default function ModernResourcesAssignmentsView({
               {searchTerm || selectedClass !== 'all' || selectedSubject !== 'all' || 
                selectedStatus !== 'all' || selectedResourceType !== 'all' || showBookmarkedOnly
                 ? 'Try adjusting your filters or search terms'
+                : student 
+                ? `No ${activeTab === 'assignments' ? 'assignments' : 'resources'} available for ${student.form} ${student.stream}`
                 : `No ${activeTab === 'assignments' ? 'assignments' : 'resources'} available yet`}
             </p>
             {(searchTerm || selectedClass !== 'all' || selectedSubject !== 'all' || 
@@ -1452,20 +1537,20 @@ export default function ModernResourcesAssignmentsView({
                       {activeTab === 'assignments' ? (
                         <IoDocument className="text-purple-600 text-lg sm:text-xl" />
                       ) : (
-                        getFileIcon(item.type, item.extension, 20)
+                        getFileIcon(item.type, item.files?.[0]?.extension, 20)
                       )}
                     </div>
                     
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                          {activeTab === 'assignments' ? 'Assignment' : item.type}
+                          {activeTab === 'assignments' ? 'Assignment' : item.type || 'Resource'}
                         </span>
                         {activeTab === 'assignments' && item.status && (
                           <StatusBadge status={item.status} size="sm" />
                         )}
                       </div>
-                      <h3 className="font-bold text-gray-900 text-base sm:text-lg line-clamp-1">{item.title}</h3>
+                      <h3 className="font-bold text-gray-900 text-base sm:text-lg line-clamp-1">{item.title || 'Untitled'}</h3>
                     </div>
                   </div>
 
@@ -1473,11 +1558,11 @@ export default function ModernResourcesAssignmentsView({
                   <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500">Subject</div>
-                      <div className="font-bold text-gray-900">{item.subject}</div>
+                      <div className="font-bold text-gray-900">{item.subject || 'General'}</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500">Class</div>
-                      <div className="font-bold text-gray-900">{item.className}</div>
+                      <div className="font-bold text-gray-900">{item.className || 'All Classes'}</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500">
@@ -1485,8 +1570,8 @@ export default function ModernResourcesAssignmentsView({
                       </div>
                       <div className="font-bold text-gray-900">
                         {activeTab === 'assignments' 
-                          ? new Date(item.dueDate).toLocaleDateString()
-                          : new Date(item.createdAt || item.dateAdded).toLocaleDateString()
+                          ? (item.dueDate ? new Date(item.dueDate).toLocaleDateString() : 'Not specified')
+                          : (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Not specified')
                         }
                       </div>
                     </div>
@@ -1495,7 +1580,7 @@ export default function ModernResourcesAssignmentsView({
                       <div className="font-bold text-gray-900">
                         {activeTab === 'assignments'
                           ? ((item.assignmentFileAttachments?.length || 0) + (item.attachmentAttachments?.length || 0))
-                          : (item.mainAttachment ? 1 : 0)
+                          : (item.files?.length || 0)
                         }
                       </div>
                     </div>
@@ -1554,7 +1639,7 @@ export default function ModernResourcesAssignmentsView({
           Last updated {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </p>
         <p className="mt-1 sm:mt-2 text-xs">
-          All files are securely stored and downloaded directly from Supabase storage
+          All files are securely stored and downloaded directly from Cloudinary storage
         </p>
       </div>
     </div>

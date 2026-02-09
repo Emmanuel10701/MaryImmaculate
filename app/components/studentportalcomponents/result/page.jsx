@@ -15,7 +15,6 @@ import {
   FiChevronLeft, FiChevronRight as FiChevronRightIcon, FiDownloadCloud, FiArrowRight  
 } from 'react-icons/fi';
 
-
 import {
   IoSchool, IoDocumentText, IoStatsChart,
   IoAnalytics, IoSparkles, IoClose,
@@ -26,7 +25,6 @@ import {
   Modal,
   Box
 } from '@mui/material';
-import { result } from 'lodash';
 
 // Loading Spinner Component
 function ResultsLoadingSpinner({ message = "Loading academic results...", size = "medium" }) {
@@ -147,7 +145,7 @@ const getGradeStatus = (grade) => {
   };
 };
 
-// Statistics Card Component - UPDATED to match second code
+// Statistics Card Component
 function ResultsStatisticsCard({ title, value, icon: Icon, color, trend = 0, prefix = '', suffix = '' }) {
   const formatValue = (val) => {
     if (typeof val === 'number') {
@@ -162,15 +160,6 @@ function ResultsStatisticsCard({ title, value, icon: Icon, color, trend = 0, pre
         <div className={`p-2 md:p-3 rounded-xl bg-gradient-to-r ${color}`}>
           <Icon className="text-white text-xl md:text-2xl" />
         </div>
-        <div className={`text-xs md:text-sm font-bold px-2 py-1 md:px-3 md:py-1 rounded-lg ${
-          trend > 0 
-            ? 'bg-green-100 text-green-800' 
-            : trend < 0 
-            ? 'bg-red-100 text-red-800' 
-            : 'bg-gray-100 text-gray-800'
-        }`}>
-          {trend > 0 ? `+${trend}%` : trend < 0 ? `${trend}%` : '0%'}
-        </div>
       </div>
       <h4 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">{formatValue(value)}</h4>
       <p className="text-gray-600 text-xs md:text-sm font-semibold">{title}</p>
@@ -178,7 +167,7 @@ function ResultsStatisticsCard({ title, value, icon: Icon, color, trend = 0, pre
   );
 }
 
-// Subject Details Modal Component with mobile optimizations
+// Subject Details Modal Component
 function SubjectDetailsModal({ result, onClose }) {
   if (!result) return null;
 
@@ -192,7 +181,6 @@ function SubjectDetailsModal({ result, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4">
       <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden border-2 border-gray-300 shadow-2xl">
-        {/* Header - Mobile Optimized */}
         <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 p-3 sm:p-4 md:p-6 text-white">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-start gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
@@ -216,7 +204,6 @@ function SubjectDetailsModal({ result, onClose }) {
         </div>
 
         <div className="max-h-[calc(90vh-70px)] overflow-y-auto p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4 md:space-y-6">
-          {/* Overall Summary - Mobile Stacking */}
           <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-3 sm:p-4 md:p-6 border-2 border-blue-300">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
               <div className="text-center p-2 sm:p-3 bg-white rounded-lg border border-blue-200">
@@ -244,7 +231,6 @@ function SubjectDetailsModal({ result, onClose }) {
             </div>
           </div>
 
-          {/* Subjects Table - Mobile Scrollable */}
           <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
             <div className="bg-gradient-to-r from-gray-50 to-white px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200">
               <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate">Subject Performance</h3>
@@ -303,7 +289,6 @@ function SubjectDetailsModal({ result, onClose }) {
             </div>
           </div>
 
-          {/* Performance Insights - Mobile Stacking */}
           <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-3 sm:p-4 md:p-6 border-2 border-gray-300">
             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3">Performance Analysis</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
@@ -373,7 +358,7 @@ function SubjectDetailsModal({ result, onClose }) {
   );
 }
 
-// Result Card Component for Grid View - Mobile Optimized
+// Result Card Component
 function ResultCard({ result, studentAdmissionNumber, onViewSubjects }) {
   const overallStatus = getGradeStatus(result.overallGrade);
   const isStudentResult = result.admissionNumber === studentAdmissionNumber;
@@ -397,7 +382,6 @@ function ResultCard({ result, studentAdmissionNumber, onViewSubjects }) {
       )}
       
       <div className="p-3 sm:p-4 md:p-5">
-        {/* Header */}
         <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
           <div className="min-w-0 flex-1">
             <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 truncate">{result.term}</h3>
@@ -408,7 +392,6 @@ function ResultCard({ result, studentAdmissionNumber, onViewSubjects }) {
           </div>
         </div>
         
-        {/* Student Info - Mobile Stacking */}
         <div className="mb-3 sm:mb-4 space-y-1.5 sm:space-y-2">
           <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-700">
             <FiUser className="text-blue-500 text-xs sm:text-sm md:text-base flex-shrink-0" />
@@ -430,7 +413,6 @@ function ResultCard({ result, studentAdmissionNumber, onViewSubjects }) {
           </div>
         </div>
         
-        {/* Performance Bar */}
         <div className="mb-3 sm:mb-4">
           <div className="flex justify-between text-xs font-semibold mb-1">
             <span className="text-gray-700 truncate">Performance:</span>
@@ -444,7 +426,6 @@ function ResultCard({ result, studentAdmissionNumber, onViewSubjects }) {
           </div>
         </div>
         
-        {/* Action Button */}
         <button
           onClick={() => onViewSubjects(result)}
           className="w-full px-2 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-2.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-xl text-xs sm:text-sm font-semibold hover:from-blue-100 hover:to-blue-200 transition-all flex items-center justify-center gap-1 sm:gap-2 group-hover:shadow-md"
@@ -457,19 +438,15 @@ function ResultCard({ result, studentAdmissionNumber, onViewSubjects }) {
   );
 }
 
-// Add this helper function to convert Cloudinary URLs for proper PDF display
+// Helper function for PDF display
 const getDisplayablePdfUrl = (url) => {
   if (!url) return url;
   
-  // Check if it's a Cloudinary URL
   if (url.includes('cloudinary.com') && url.includes('/raw/upload/')) {
-    // Remove any existing flags and add fl_attachment for PDF display
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;
     
-    // Check if it's a PDF file
     if (pathname.toLowerCase().endsWith('.pdf')) {
-      // Add fl_attachment flag to force browser to display PDF instead of download
       if (url.includes('?')) {
         return `${url}&fl_attachment`;
       } else {
@@ -481,12 +458,11 @@ const getDisplayablePdfUrl = (url) => {
   return url;
 };
 
-// Update the DocumentCard component to use this function
+// Document Card Component
 function DocumentCard({ document, type = 'additional' }) {
   const getIcon = () => {
     const iconBase = "text-lg sm:text-xl md:text-2xl";
     
-    // Check file extension from the name
     const fileName = document.name || document.filename || '';
     const fileExtension = fileName.split('.').pop().toLowerCase();
     
@@ -517,7 +493,6 @@ function DocumentCard({ document, type = 'additional' }) {
     });
   };
 
-  // Get file type from the name
   const getFileType = () => {
     const fileName = document.name || document.filename || '';
     const fileExtension = fileName.split('.').pop().toLowerCase();
@@ -530,7 +505,6 @@ function DocumentCard({ document, type = 'additional' }) {
     return 'Document';
   };
 
-  // Get the displayable URL
   const displayUrl = getDisplayablePdfUrl(document.pdf || document.filepath);
   const fileName = document.name || document.filename || '';
   const fileExtension = fileName.split('.').pop().toLowerCase();
@@ -539,7 +513,6 @@ function DocumentCard({ document, type = 'additional' }) {
   return (
     <div className="group relative bg-white rounded-2xl p-3 sm:p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
       
-      {/* Top Section: Icon & Info */}
       <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
         <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl bg-gray-50 flex items-center justify-center">
           {getIcon()}
@@ -562,7 +535,6 @@ function DocumentCard({ document, type = 'additional' }) {
               {type === 'exam' ? `Form ${document.form}` : document.term || 'General'}
             </span>
             
-            {/* File type badge */}
             <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[9px] xs:text-[10px] sm:text-xs font-medium">
               {getFileType()}
             </span>
@@ -581,7 +553,6 @@ function DocumentCard({ document, type = 'additional' }) {
         </div>
       </div>
 
-      {/* Description Section */}
       {document.description && (
         <div className="mt-2 sm:mt-3">
           <p className="text-gray-600 text-xs leading-relaxed line-clamp-2">
@@ -590,13 +561,10 @@ function DocumentCard({ document, type = 'additional' }) {
         </div>
       )}
 
-      {/* Action Button - Updated with proper PDF handling */}
       <div className="mt-3 sm:mt-4">
         {isPdf ? (
-          // For PDFs: Open in new tab with proper Cloudinary flags
           <button
             onClick={() => {
-              // Force PDF to open in browser tab
               const pdfWindow = window.open();
               if (pdfWindow) {
                 pdfWindow.location.href = displayUrl;
@@ -608,12 +576,11 @@ function DocumentCard({ document, type = 'additional' }) {
             <span>View PDF</span>
           </button>
         ) : (
-          // For non-PDF files (DOCX, etc.)
           <a
             href={displayUrl}
             target="_blank"
             rel="noopener noreferrer"
-            download={!isPdf} // Download for non-PDF files
+            download={!isPdf}
             className="flex items-center justify-center gap-1 sm:gap-2 w-full py-2 px-3 sm:py-2.5 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 shadow-md hover:shadow-blue-500/25 active:scale-[0.98]"
           >
             <FiDownload className="text-xs sm:text-sm" />
@@ -641,7 +608,6 @@ export default function ModernResultsView({
   const [documentLoading, setDocumentLoading] = useState(true);
   const [documentError, setDocumentError] = useState(null);
   
-  // CHANGED: Updated stats to match second code (4 cards, student-specific)
   const [stats, setStats] = useState({
     totalResults: 0,
     averageScore: 0,
@@ -650,52 +616,87 @@ export default function ModernResultsView({
     currentTermResults: 0
   });
 
-  // Transform studentResults to match expected format
+  // Transform studentResults
   const transformedResults = useMemo(() => {
     if (!studentResults || !Array.isArray(studentResults)) return [];
     
     return studentResults.map(result => ({
       ...result,
-      // Map form to class for compatibility
       class: result.form,
-      // Map overallGrade to meanGrade for compatibility
       meanGrade: result.overallGrade,
-      // Ensure subjects is an array
       subjects: Array.isArray(result.subjects) ? result.subjects : [],
-      // Ensure scores are numbers
       averageScore: parseFloat(result.averageScore) || 0,
       totalScore: parseFloat(result.totalScore) || 0
     }));
   }, [studentResults]);
 
-  // Fetch school document data from API
+  // Fetch school document data - INDEPENDENTLY, ALWAYS FETCH
   useEffect(() => {
     const fetchDocumentData = async () => {
       try {
         setDocumentLoading(true);
+        setDocumentError(null);
+        
+        console.log('📥 Fetching school documents independently...');
         const response = await fetch('/api/schooldocuments');
+        
+        if (!response.ok) {
+          // Don't throw error, just use empty structure
+          console.warn('⚠️ School documents API not available, using empty structure');
+          setDocumentData({
+            form1ResultsPdf: null,
+            form2ResultsPdf: null,
+            form3ResultsPdf: null,
+            form4ResultsPdf: null,
+            kcseResultsPdf: null,
+            mockExamsResultsPdf: null,
+            additionalDocuments: []
+          });
+          return;
+        }
+        
         const data = await response.json();
         
-        if (data.success && data.document) {
+        // Always set documentData regardless of response
+        if (data && data.document) {
           setDocumentData(data.document);
+          console.log('✅ School documents loaded successfully');
         } else {
-          throw new Error('Failed to load document data');
+          // Empty but valid structure
+          setDocumentData({
+            form1ResultsPdf: null,
+            form2ResultsPdf: null,
+            form3ResultsPdf: null,
+            form4ResultsPdf: null,
+            kcseResultsPdf: null,
+            mockExamsResultsPdf: null,
+            additionalDocuments: []
+          });
         }
       } catch (error) {
-        console.error('Error fetching document data:', error);
-        setDocumentError(error.message);
+        console.error('❌ Error in school documents fetch:', error);
+        // Still set empty data - never break the UI
+        setDocumentData({
+          form1ResultsPdf: null,
+          form2ResultsPdf: null,
+          form3ResultsPdf: null,
+          form4ResultsPdf: null,
+          kcseResultsPdf: null,
+          mockExamsResultsPdf: null,
+          additionalDocuments: []
+        });
       } finally {
         setDocumentLoading(false);
       }
     };
 
+    // ALWAYS FETCH - NO CONDITIONS
     fetchDocumentData();
-  }, []);
+  }, []); // Empty dependency array - fetch once on mount
 
-  // CHANGED: Calculate statistics from transformed results - STUDENT-SPECIFIC ONLY (from second code)
+  // Calculate statistics - STUDENT RESULTS ONLY
   useEffect(() => {
     if (transformedResults.length > 0 && student?.admissionNumber) {
-      // Filter to only show current student's results
       const studentResults = transformedResults.filter(result => 
         result.admissionNumber === student.admissionNumber
       );
@@ -704,7 +705,6 @@ export default function ModernResultsView({
       const averageScore = studentResults.reduce((sum, result) => 
         sum + (result.averageScore || 0), 0) / totalResults;
       
-      // Get current term from filtered term or latest result
       const currentTerm = selectedTerm !== 'all' 
         ? selectedTerm 
         : studentResults.length > 0 ? studentResults[studentResults.length - 1].term : 'N/A';
@@ -713,7 +713,6 @@ export default function ModernResultsView({
         result.term === currentTerm
       ).length;
 
-      // Get student's grade from current term
       let yourGrade = 'N/A';
       if (currentTerm !== 'N/A') {
         const currentTermResult = studentResults.find(r => r.term === currentTerm);
@@ -730,7 +729,6 @@ export default function ModernResultsView({
         currentTermResults
       });
     } else {
-      // Reset stats if no student results
       setStats({
         totalResults: 0,
         averageScore: 0,
@@ -741,11 +739,10 @@ export default function ModernResultsView({
     }
   }, [transformedResults, selectedTerm, student]);
 
-  // Filter and sort results - ONLY STUDENT'S RESULTS (from second code)
+  // Filter and sort results - ONLY STUDENT'S RESULTS
   const filteredResults = useMemo(() => {
     let results = [...transformedResults];
     
-    // Filter to show only student's results
     if (student?.admissionNumber) {
       results = results.filter(result => result.admissionNumber === student.admissionNumber);
     }
@@ -758,7 +755,6 @@ export default function ModernResultsView({
       results = results.filter(result => result.academicYear === selectedYear);
     }
     
-    // Sort by academic year (newest first) and then by term order
     results.sort((a, b) => {
       if (a.academicYear !== b.academicYear) {
         return b.academicYear.localeCompare(a.academicYear);
@@ -781,142 +777,90 @@ export default function ModernResultsView({
     return ['all', ...years];
   }, [transformedResults]);
 
-// Process exam results from documentData API - FIXED VERSION
-const prioritizedExamResults = useMemo(() => {
-  if (!documentData) return [];
-  
-  const results = [];
-  const studentForm = student?.form?.replace('Form ', '') || '4';
-  
-  // Map Form results - FIXED field names
-  const formResults = [
-    { key: 'form1ResultsPdf', form: '1', name: 'Form 1 Results', priority: 1 },
-    { key: 'form2ResultsPdf', form: '2', name: 'Form 2 Results', priority: 2 },
-    { key: 'form3ResultsPdf', form: '3', name: 'Form 3 Results', priority: 3 },
-    { key: 'form4ResultsPdf', form: '4', name: 'Form 4 Results', priority: 4 }
-  ];
-  
-  formResults.forEach(({ key, form, name, priority }) => {
-    if (documentData[key]) {
-      // FIXED: Get the correct field names from your JSON structure
-      const formKey = `form${form}Results`;
-      results.push({
-        name: documentData[`${formKey}PdfName`] || name, // FIXED: Was using wrong field name
-        pdf: documentData[key],
-        form: form,
-        type: 'exam',
-        priority: form === studentForm ? 0 : priority,
-        description: documentData[`${formKey}Description`],
-        year: documentData[`${formKey}Year`],
-        term: documentData[`${formKey}Term`],
-        size: documentData[`${formKey}PdfSize`],
-        uploadDate: documentData[`${formKey}UploadDate`]
-      });
-    }
-  });
-  
-  // Add Mock Exams - FIXED field names
-  if (documentData.mockExamsResultsPdf) {
-    results.push({
-      name: documentData.mockExamsPdfName || 'Mock Exams Results',
-      pdf: documentData.mockExamsResultsPdf,
-      form: '4',
-      type: 'exam',
-      priority: 5,
-      description: documentData.mockExamsDescription,
-      year: documentData.mockExamsYear,
-      term: documentData.mockExamsTerm,
-      size: documentData.mockExamsPdfSize,
-      uploadDate: documentData.mockExamsUploadDate
-    });
-  }
-  
-  // Add KCSE Results - FIXED field names
-  if (documentData.kcseResultsPdf) {
-    results.push({
-      name: documentData.kcsePdfName || 'KCSE Results',
-      pdf: documentData.kcseResultsPdf,
-      form: '4',
-      type: 'exam',
-      priority: 6,
-      description: documentData.kcseDescription,
-      year: documentData.kcseYear,
-      term: documentData.kcseTerm,
-      size: documentData.kcsePdfSize,
-      uploadDate: documentData.kcseUploadDate
-    });
-  }
-  
-  // Also add other school documents (curriculum, fees, admission)
-  if (documentData.curriculumPDF) {
-    results.push({
-      name: documentData.curriculumPdfName || 'School Curriculum',
-      pdf: documentData.curriculumPDF,
-      form: 'all',
-      type: 'curriculum',
-      priority: 7,
-      description: documentData.curriculumDescription,
-      year: documentData.curriculumYear,
-      term: documentData.curriculumTerm,
-      size: documentData.curriculumPdfSize,
-      uploadDate: documentData.curriculumPdfUploadDate
-    });
-  }
-  
-  if (documentData.feesBoardingDistributionPdf) {
-    results.push({
-      name: documentData.feesBoardingPdfName || 'Boarding Fees Distribution',
-      pdf: documentData.feesBoardingDistributionPdf,
-      form: 'all',
-      type: 'fees',
-      priority: 8,
-      description: documentData.feesBoardingDescription,
-      year: documentData.feesBoardingYear,
-      term: documentData.feesBoardingTerm,
-      size: documentData.feesBoardingPdfSize,
-      uploadDate: documentData.feesBoardingPdfUploadDate
-    });
-  }
-  
-  if (documentData.admissionFeePdf) {
-    results.push({
-      name: documentData.admissionFeePdfName || 'Admission Fees',
-      pdf: documentData.admissionFeePdf,
-      form: 'all',
-      type: 'admission',
-      priority: 9,
-      description: documentData.admissionFeeDescription,
-      year: documentData.admissionFeeYear,
-      term: documentData.admissionFeeTerm,
-      size: documentData.admissionFeePdfSize,
-      uploadDate: documentData.admissionFeePdfUploadDate
-    });
-  }
-  
-  // Sort by priority (student's own form first, then others)
-  return results.sort((a, b) => a.priority - b.priority);
-}, [documentData, student]);
-  // Process additional documents from documentData API
-  const additionalResultsFiles = useMemo(() => {
-    if (!documentData?.additionalDocuments) return [];
+  // Process exam results from documentData - ALWAYS PROCESS
+  const prioritizedExamResults = useMemo(() => {
+    if (!documentData) return [];
     
-    return [...documentData.additionalDocuments]
+    const results = [];
+    const studentForm = student?.form?.replace('Form ', '') || '4';
+    
+    const examFields = [
+      { key: 'form1ResultsPdf', form: '1', name: 'Form 1 Results' },
+      { key: 'form2ResultsPdf', form: '2', name: 'Form 2 Results' },
+      { key: 'form3ResultsPdf', form: '3', name: 'Form 3 Results' },
+      { key: 'form4ResultsPdf', form: '4', name: 'Form 4 Results' },
+      { key: 'mockExamsResultsPdf', form: '4', name: 'Mock Exams Results' },
+      { key: 'kcseResultsPdf', form: '4', name: 'KCSE Results' }
+    ];
+    
+    examFields.forEach(({ key, form, name }) => {
+      const pdfUrl = documentData[key];
+      if (pdfUrl && typeof pdfUrl === 'string' && pdfUrl.trim() !== '') {
+        const formKey = key.replace('Pdf', '');
+        results.push({
+          name: documentData[`${formKey}Name`] || name,
+          pdf: pdfUrl,
+          form: form,
+          type: 'exam',
+          priority: form === studentForm ? 0 : parseInt(form) || 99,
+          description: documentData[`${formKey}Description`] || '',
+          year: documentData[`${formKey}Year`] || '',
+          term: documentData[`${formKey}Term`] || '',
+          size: documentData[`${formKey}Size`] || documentData[`${formKey}PdfSize`] || 0,
+          uploadDate: documentData[`${formKey}UploadDate`] || ''
+        });
+      }
+    });
+    
+    return results.sort((a, b) => a.priority - b.priority);
+  }, [documentData, student]);
+
+  // Process additional documents - ALWAYS PROCESS
+  const additionalResultsFiles = useMemo(() => {
+    if (!documentData || !documentData.additionalDocuments) return [];
+    
+    const additionalDocs = Array.isArray(documentData.additionalDocuments) 
+      ? documentData.additionalDocuments 
+      : [];
+    
+    const resultsOnly = additionalDocs.filter(doc => {
+      if (!doc) return false;
+      
+      const filename = (doc.filename || '').toLowerCase();
+      const description = (doc.description || '').toLowerCase();
+      
+      return (
+        filename.includes('result') ||
+        filename.includes('exam') ||
+        filename.includes('test') ||
+        filename.includes('mark') ||
+        description.includes('result') ||
+        description.includes('exam') ||
+        description.includes('test') ||
+        description.includes('mark') ||
+        description.includes('score') ||
+        description.includes('grade')
+      );
+    });
+    
+    return resultsOnly
       .sort((a, b) => {
-        // Sort by year descending, then by upload date
         if (a.year && b.year && a.year !== b.year) {
           return parseInt(b.year) - parseInt(a.year);
         }
-        return new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0);
+        const dateA = a.uploadedAt ? new Date(a.uploadedAt) : 0;
+        const dateB = b.uploadedAt ? new Date(b.uploadedAt) : 0;
+        return dateB - dateA;
       })
       .map(doc => ({
-        filename: doc.filename,
-        filepath: doc.filepath,
-        filetype: doc.filetype,
-        description: doc.description,
-        year: doc.year,
-        term: doc.term,
-        filesize: doc.filesize,
-        uploadedAt: doc.uploadedAt
+        filename: doc.filename || '',
+        filepath: doc.filepath || '',
+        filetype: doc.filetype || '',
+        description: doc.description || '',
+        year: doc.year || '',
+        term: doc.term || '',
+        filesize: doc.filesize || 0,
+        uploadedAt: doc.uploadedAt || ''
       }));
   }, [documentData]);
 
@@ -930,7 +874,7 @@ const prioritizedExamResults = useMemo(() => {
 
   return (
     <div className="space-y-3 sm:space-y-4 md:space-y-6 p-2 sm:p-3 md:p-6">
-      {/* Header - Mobile Optimized */}
+      {/* Header */}
       <div className="relative bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-800 rounded-2xl p-3 sm:p-4 md:p-6 text-white overflow-hidden">
         <div className="relative z-10">
           <div className="flex flex-col gap-2 sm:gap-3 md:gap-0 md:flex-row md:items-center justify-between">
@@ -962,7 +906,7 @@ const prioritizedExamResults = useMemo(() => {
         </div>
       </div>
 
-      {/* Statistics Cards - Mobile Grid */}
+      {/* Statistics Cards */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:grid-cols-4">
         <ResultsStatisticsCard
           title="Total Results"
@@ -995,7 +939,7 @@ const prioritizedExamResults = useMemo(() => {
         />
       </div>
 
-      {/* Filters and Controls - Mobile Stacking */}
+      {/* Filters and Controls */}
       <div className="bg-white rounded-xl md:rounded-2xl p-2.5 sm:p-3 md:p-4 border-2 border-gray-200">
         <div className="flex flex-col gap-2.5 sm:gap-3 md:gap-4">
           <div className="flex items-center justify-between">
@@ -1124,7 +1068,7 @@ const prioritizedExamResults = useMemo(() => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* STUDENT RESULTS SECTION */}
       {resultsError ? (
         <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl md:rounded-2xl border-2 border-red-300 p-3 sm:p-4 md:p-6 text-center">
           <FiAlertTriangle className="text-red-500 text-xl sm:text-2xl md:text-3xl mx-auto mb-2 sm:mb-3" />
@@ -1140,11 +1084,11 @@ const prioritizedExamResults = useMemo(() => {
       ) : filteredResults.length === 0 ? (
         <div className="bg-white rounded-xl md:rounded-2xl border-2 border-gray-300 p-4 sm:p-6 md:p-8 text-center">
           <FiAward className="text-gray-300 text-2xl sm:text-3xl md:text-4xl mx-auto mb-3 sm:mb-4" />
-          <h3 className="text-sm sm:text-base md:text-xl font-bold text-gray-800 mb-1 sm:mb-2">No results found</h3>
+          <h3 className="text-sm sm:text-base md:text-xl font-bold text-gray-800 mb-1 sm:mb-2">No student results found</h3>
           <p className="text-gray-600 text-xs sm:text-sm">
             {selectedTerm !== 'all' || selectedYear !== 'all' 
               ? 'Try changing your filters' 
-              : 'No academic results available yet'
+              : 'Your academic results will appear here when available'
             }
           </p>
         </div>
@@ -1168,7 +1112,6 @@ const prioritizedExamResults = useMemo(() => {
             </div>
 
             {viewMode === 'list' ? (
-              // List View - Mobile Scrollable
               <div className="bg-white rounded-xl md:rounded-2xl border-2 border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto -webkit-scrollbar-hide md:scrollbar-default">
                   <div className="min-w-[600px]">
@@ -1205,7 +1148,6 @@ const prioritizedExamResults = useMemo(() => {
     )}
   </div>
 
-  {/* Action Button: Styled as a modern text link */}
   <button
     onClick={() => handleViewSubjects(result)}
     className="group flex items-center gap-1 mt-0.5 text-[11px] sm:text-xs text-blue-600 hover:text-blue-700 font-bold transition-all"
@@ -1250,7 +1192,6 @@ const prioritizedExamResults = useMemo(() => {
                 </div>
               </div>
             ) : (
-              // Grid View - Single column on mobile
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4">
                 {filteredResults.map((result, index) => (
                   <ResultCard
@@ -1263,89 +1204,75 @@ const prioritizedExamResults = useMemo(() => {
               </div>
             )}
           </div>
+        </>
+      )}
 
-          {/* School Documents Section - Mobile Optimized */}
-          <div>
-            <div className="mb-2 sm:mb-3 md:mb-4">
-              <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-0.5 sm:mb-1">
-                School Documents & Resources
-              </h3>
-              <p className="text-gray-600 text-xs sm:text-sm">
-                Access exam results, term reports, and academic resources. Track your performance and class ranking.
-              </p>
-            </div>
+      {/* SCHOOL DOCUMENTS SECTION - ALWAYS SHOWS, INDEPENDENT OF STUDENT RESULTS */}
+      <div className="mt-6 pt-6 border-t-2 border-gray-300">
+        <div className="mb-2 sm:mb-3 md:mb-4">
+          <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+            <IoDocumentText className="text-indigo-600 text-lg sm:text-xl" />
+            <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">
+              School Exam Results Documents
+            </h3>
+          </div>
+          <p className="text-gray-600 text-xs sm:text-sm">
+            Access class exam results, mock exams, and KCSE results from school administration.
+            {documentLoading && ' (Loading documents...)'}
+          </p>
+        </div>
 
-            {documentLoading ? (
-              <div className="text-center py-6 sm:py-8">
-                <CircularProgress size={20}  className="text-purple-600" />
-                <p className="text-gray-600 text-xs sm:text-sm mt-2">Loading school documents...</p>
+        {documentLoading ? (
+          <div className="text-center py-6 sm:py-8">
+            <CircularProgress size={20} className="text-purple-600" />
+            <p className="text-gray-600 text-xs sm:text-sm mt-2">Loading exam documents...</p>
+          </div>
+        ) : (
+          <div className="space-y-3 sm:space-y-4 md:space-y-6">
+            {/* Exam Results */}
+            {prioritizedExamResults.length > 0 && (
+              <div>
+                <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 mb-1.5 sm:mb-2 md:mb-3">
+                  Class Exam Results
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
+                  {prioritizedExamResults.map((result, index) => (
+                    <DocumentCard key={index} document={result} type="exam" />
+                  ))}
+                </div>
               </div>
-            ) : documentError ? (
-              <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl border-2 border-red-300 p-3 sm:p-4 text-center">
-                <FiAlertTriangle className="text-red-500 text-lg sm:text-xl mx-auto mb-1.5 sm:mb-2" />
-                <p className="text-red-700 font-bold text-xs sm:text-sm mb-0.5 sm:mb-1">Unable to load documents</p>
-                <p className="text-red-600 text-[10px] sm:text-xs">{documentError}</p>
+            )}
+
+            {/* Additional Results Files */}
+            {additionalResultsFiles.length > 0 && (
+              <div>
+                <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 mb-1.5 sm:mb-2 md:mb-3">
+                  Additional Exam Reports
+                </h4>
+                <p className="text-gray-600 text-xs sm:text-sm md:text-base mb-2 sm:mb-3">
+                  Supplementary results, test scores, and performance reports.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
+                  {additionalResultsFiles.map((file, index) => (
+                    <DocumentCard key={index} document={file} type="exam" />
+                  ))}
+                </div>
               </div>
-            ) : (
-              <div className="space-y-3 sm:space-y-4 md:space-y-6">
-                {/* Exam Results */}
-                {prioritizedExamResults.length > 0 && (
-                  <div>
-                    <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 mb-1.5 sm:mb-2 md:mb-3">
-                      Class Exam Results
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
-                      {prioritizedExamResults.map((result, index) => (
-                        <DocumentCard key={index} document={result} type="exam" />
-                      ))}
-                    </div>
-                  </div>
-                )}
+            )}
 
-                {/* Curriculum Documents */}
-                {documentData?.curriculumPDF && (
-                  <div>
-                    <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 mb-1.5 sm:mb-2 md:mb-3">
-                      Curriculum & Syllabus
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
-                      <DocumentCard 
-                        document={{
-                          name: documentData.curriculumPdfName || 'School Curriculum',
-                          pdf: documentData.curriculumPDF,
-                          description: documentData.curriculumDescription,
-                          year: documentData.curriculumYear,
-                          term: documentData.curriculumTerm,
-                          size: documentData.curriculumPdfSize,
-                          uploadDate: documentData.curriculumPdfUploadDate
-                        }}
-                        type="curriculum"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Additional Documents / Resources */}
-                {additionalResultsFiles.length > 0 && (
-                  <div>
-                    <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 mb-1.5 sm:mb-2 md:mb-3">
-                      Additional Resources
-                    </h4>
-                    <p className="text-gray-600 text-xs sm:text-sm md:text-base mb-2 sm:mb-3">
-                      Curriculum updates, announcements, and learning materials.
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
-                      {additionalResultsFiles.map((file, index) => (
-                        <DocumentCard key={index} document={file} type="additional" />
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {/* Empty State for Documents - Show only if BOTH are empty */}
+            {!documentLoading && prioritizedExamResults.length === 0 && additionalResultsFiles.length === 0 && (
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border-2 border-gray-300 p-4 sm:p-6 text-center">
+                <FiAward className="text-gray-300 text-2xl sm:text-3xl mx-auto mb-2 sm:mb-3" />
+                <h4 className="text-sm sm:text-base font-bold text-gray-800 mb-1 sm:mb-2">No exam results documents</h4>
+                <p className="text-gray-600 text-xs sm:text-sm">
+                  Class exam results and reports will appear here when uploaded by school administration.
+                </p>
               </div>
             )}
           </div>
-        </>
-      )}
+        )}
+      </div>
 
       {/* Subject Details Modal */}
       {selectedResult && (
@@ -1355,22 +1282,18 @@ const prioritizedExamResults = useMemo(() => {
         />
       )}
 
-      {/* Add CSS for hiding scrollbars on mobile */}
       <style jsx global>{`
         @media (max-width: 768px) {
-          /* Hide scrollbar for Chrome, Safari and Opera */
           .-webkit-scrollbar-hide::-webkit-scrollbar {
             display: none;
           }
           
-          /* Hide scrollbar for IE, Edge and Firefox */
           .-webkit-scrollbar-hide {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
           }
         }
         
-        /* Restore scrollbar for larger screens */
         @media (min-width: 768px) {
           .md\\:scrollbar-default::-webkit-scrollbar {
             display: block;
